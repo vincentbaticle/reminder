@@ -1,0 +1,151 @@
+site_name: Reminder
+site_description: Pense-bêtes perso
+site_url: https://vincentbaticle.github.io/reminder/
+repo_url: https://github.com/vincentbaticle/reminder
+docs_dir: docs
+site_dir: site
+copyright: Contenu sous licence CC BY 4.0, fourni tel quel, sans aucune garantie. Ce n'est pas une source de vérité.
+
+theme:
+  name: material
+  language: fr
+  icon:
+    logo: material/notebook-heart-outline
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Mode sombre
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Mode clair
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: fr
+          default: true
+          name: Français
+          build: true
+        - locale: en
+          name: English
+          build: true
+          copyright: Content under the CC BY 4.0 license, provided as is, without any warranty. Not a source of truth.
+          nav_translations:
+            Accueil: Home
+            Observabilité: Observability
+            Agents, skills et contexte: Agents, skills and context
+            IA en entreprise: AI at work
+            Conteneurs, Kubernetes et déploiement: Containers, Kubernetes and deployment
+            API et sécurité: APIs and security
+            Exploitation: Operations
+            Qualité et outils: Quality and tools
+            IA: AI
+            Divers: Miscellaneous
+            Veille technique par métier: Tech watch by role
+            Qualité et tests: Quality and testing
+            API REST et asynchrone: REST and async APIs
+            Sécurité: Security
+            Panorama des outils techniques: Tech tools landscape
+            Expressions courantes (multilingue): Common expressions (multilingual)
+            Accéder au site: Access the site
+            Principes de conception: Design principles
+            Livraison et pratiques d'ingénierie: Delivery and engineering practices
+            Données et décision: Data and decisions
+            Architecture et systèmes distribués: Architecture and distributed systems
+            Incidents et incidentologie: Incidents and incident analysis
+            Developer Experience et plateforme: Developer Experience and platform
+            Textes fondateurs: Seminal texts
+            Lois et principes éponymes: Eponymous laws and principles
+            Culture d'entreprise et organisation: Company culture and organization
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/terms-data.js
+  - javascripts/terms.js
+  - javascripts/ux.js
+
+nav:
+  - Accueil: index.md
+  - Knowledge:
+      - Code:
+          - Git: knowledge/git.md
+          - Design patterns: knowledge/design-patterns.md
+          - Principes de conception: knowledge/principes-conception.md
+          - Architecture et systèmes distribués: knowledge/architecture.md
+          - SQL: knowledge/sql.md
+      - API et sécurité:
+          - API REST et asynchrone: knowledge/api-rest-async.md
+          - Sécurité: knowledge/securite.md
+      - Exploitation:
+          - Conteneurs, Kubernetes et déploiement: knowledge/kubernetes.md
+          - Observabilité: knowledge/observabilite.md
+          - Livraison et pratiques d'ingénierie: knowledge/livraison.md
+          - Incidents et incidentologie: knowledge/incidents.md
+      - Qualité et outils:
+          - Qualité et tests: knowledge/qualite.md
+          - Panorama des outils techniques: knowledge/outils.md
+          - Données et décision: knowledge/donnees-decision.md
+          - Developer Experience et plateforme: knowledge/devx.md
+      - IA:
+          - Agents, skills et contexte: knowledge/ia-agents.md
+          - IA en entreprise: knowledge/ia-entreprise.md
+      - Culture:
+          - Textes fondateurs: knowledge/textes-fondateurs.md
+          - Lois et principes éponymes: knowledge/lois-et-principes.md
+          - Culture d'entreprise et organisation: knowledge/culture-entreprise.md
+  - Divers:
+      - Expressions courantes (multilingue): knowledge/expressions.md
+      - Veille technique par métier: knowledge/veille.md
+  - Accéder au site: acces.md

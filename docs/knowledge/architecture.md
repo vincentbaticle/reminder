@@ -80,6 +80,7 @@ Une notion peut couvrir deux échelles : un **retry** s'écrit dans le code mais
 | stratégies de rendu | | x | | | |
 | urbanisation, TOGAF, Zachman | | | | | x |
 | C4, arc42, fitness functions | x | x | x | | |
+| tech radar d'entreprise | | | | | x |
 
 ### Les mots qui changent de sens selon l'échelle
 
@@ -1692,12 +1693,120 @@ forbidden_modules = my_api.billing.storage
 :material-book-open-variant: Doc de référence : [Thoughtworks Technology Radar, « Architectural fitness function »](https://www.thoughtworks.com/radar/techniques/architectural-fitness-function) (consultée en novembre 2026)
 { .doc-ref }
 
+### Tech radar d'entreprise
+
+<a class="pill pill-scope pill-scope-enterprise" href="#carte-des-echelles">Échelle · Entreprise</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Dans une entreprise de vingt équipes, chacune choisit ses outils : trois bibliothèques de logs, deux brokers, un service écrit dans un langage qu'une seule personne maîtrise. Le jour où elle part, personne ne sait maintenir ce service, et l'équipe plateforme doit brancher la CI, l'observabilité et les scans de sécurité sur chaque technologie, une par une. Un **<span class="term" data-term="tech-radar">tech radar</span> d'entreprise** rend ces choix visibles : la liste des technologies que l'entreprise soutient, essaie, étudie ou ne veut plus voir dans un nouveau projet, chacune avec sa justification.
+
+Il est en général tenu par les **architectes**, ou par un groupe d'ingénieurs seniors qui couvre tous les domaines (backend, front, données, mobile, infrastructure). C'est leur outil pour traduire la stratégie technique en règles que chaque équipe applique seule, sans passer par un comité à chaque projet. Neal Ford, membre du Technology Advisory Board de Thoughtworks, conseille d'en tenir deux : un pour soi, pour sa carrière, et un pour l'entreprise, pour ses choix techniques (« Build your own Technology Radar », 2016). Les outils pour le dessiner sont dans [Panorama des outils : tech radar](outils.md#tech-radar-thoughtworks-byor-zalando-aoe-cncf).
+
+!!! noob "As noob"
+    C'est la carte des vins d'un restaurant, tenue par le sommelier. Les valeurs sûres sont en tête de carte (Adopt), la suggestion du moment se goûte au verre (Trial), le sommelier déguste des nouveautés avant de les proposer (Assess), et une bouteille retirée de la carte n'est plus commandée, mais on finit celles qui sont ouvertes (Hold). **Le radar ne dit pas ce qui est interdit : il dit ce que l'entreprise sait servir, et pourquoi.**
+
+<figure class="diagram radar">
+<svg viewBox="-20 -20 280 285" role="img" aria-label="Un radar : quatre anneaux du centre vers le bord, quatre quadrants par type de technologie (entrées fictives)">
+<circle class="set" cx="120" cy="120" r="110"/>
+<circle class="layer layer-1" cx="120" cy="120" r="82"/>
+<circle class="layer layer-2" cx="120" cy="120" r="56"/>
+<circle class="layer layer-3" cx="120" cy="120" r="30"/>
+<line class="set" x1="120" y1="10" x2="120" y2="230"/>
+<line class="set" x1="10" y1="120" x2="230" y2="120"/>
+<text class="label-strong" x="135" y="130" text-anchor="middle">Adopt</text>
+<text class="label-strong" x="163" y="130" text-anchor="middle">Trial</text>
+<text class="label-strong" x="189" y="130" text-anchor="middle">Assess</text>
+<text class="label-strong" x="216" y="130" text-anchor="middle">Hold</text>
+<text class="label-strong" x="-15" y="-6">Techniques</text>
+<text class="label-strong" x="255" y="-6" text-anchor="end">Outils</text>
+<text class="label-strong" x="-15" y="258">Plateformes</text>
+<text class="label-strong" x="255" y="258" text-anchor="end">Langages et frameworks</text>
+<circle class="hit" cx="140" cy="100" r="4"/>
+<text x="146" y="97">Testcontainers</text>
+<circle class="hit" cx="88" cy="82" r="4"/>
+<text x="82" y="78" text-anchor="end">Pact</text>
+<circle class="hit" cx="105" cy="140" r="4"/>
+<text x="99" y="152" text-anchor="end">Kubernetes</text>
+<circle class="hit" cx="185" cy="195" r="4"/>
+<text x="185" y="210" text-anchor="middle">framework Y</text>
+</svg>
+<figcaption>Un radar : quatre anneaux du centre vers le bord, quatre quadrants par type de technologie (entrées fictives)</figcaption>
+</figure>
+
+Les quatre anneaux, avec un sens que l'entreprise doit écrire noir sur blanc. Zalando, par exemple, les a redéfinis en 2020 ainsi :
+
+| Anneau | Sens chez Zalando (2020) | Ce que ça change pour une équipe |
+|---|---|---|
+| Adopt | adoption large, l'entreprise s'engage à investir sur le long terme | je peux l'utiliser sans demander, la plateforme le soutient |
+| Trial | les expériences en cours, en production | je l'essaie sur un vrai service, avec un responsable qui suit l'essai |
+| Assess | étude active de technologies prometteuses, hors production | je peux lire, prototyper, rédiger un retour, pas déployer |
+| Hold | adoption large déconseillée ; aucune nouvelle application ne doit l'utiliser | je ne démarre rien de nouveau avec ; l'existant tourne et migre à son rythme |
+
+**Quand.** Les signaux : plusieurs équipes (à partir de cinq ou six, ordre de grandeur personnel), la même question qui revient à chaque nouveau projet (« quel broker ? », « quelle base ? »), une équipe plateforme qui ne peut plus outiller toutes les technologies, un service orphelin dans un langage que plus personne ne connaît. Pas besoin de radar pour une ou deux équipes qui se parlent tous les jours : un [ADR](#adr) par décision suffit.
+
+**Pourquoi.** Le gain : des choix cohérents sans comité pour chaque projet ; chaque équipe sait ce qui est soutenu (CI, observabilité, sécurité) ; moins de technologies à maintenir et à apprendre aux nouveaux arrivants ; et un chemin officiel pour les idées nouvelles (Assess, puis Trial) au lieu d'une arrivée en production en douce. Le coût : du temps d'ingénieurs seniors à chaque revue, et un risque de freiner l'innovation si Hold devient « interdit » sans discussion.
+
+**Comment.**
+
+1. **Constituer le groupe** : architectes et ingénieurs seniors de chaque domaine, avec un mandat clair de la direction technique. Sans mandat, le radar est ignoré : c'est le premier problème que décrit Zalando en 2020, des choix faits par les équipes seules et des entrées ajoutées après coup, une fois la technologie déjà en production.
+2. **Partir de l'existant** : ce qui tourne vraiment en production (catalogue de services, dépendances déclarées, enquête auprès des développeurs), pas les préférences du groupe.
+3. **Écrire les critères de chaque anneau** : par exemple, pour Adopt, la technologie est branchée sur la CI, l'observabilité et les scans de sécurité, au moins deux équipes l'opèrent en production et l'entreprise peut recruter des gens qui la connaissent. Pour Trial, un responsable s'engage à retirer l'essai s'il échoue.
+4. **Ouvrir les propositions** : n'importe quelle équipe propose une entrée ou un changement d'anneau, par une merge request ou un RFC, avec sa justification.
+5. **Revoir à rythme fixe**, chaque trimestre ou chaque semestre, et publier : chaque entrée garde son historique et la date de son dernier déplacement.
+6. **Brancher le radar sur le quotidien** : les <span class="term" data-term="golden-path">golden paths</span> et les modèles de projet n'utilisent que des technologies Adopt, s'écarter du radar demande un ADR, et une [fitness function](#fitness-functions) ou une règle de CI signale une dépendance en Hold dans un nouveau dépôt.
+
+Le cycle de vie d'une entrée :
+
+```mermaid
+stateDiagram-v2
+    [*] --> Assess : une équipe propose
+    Assess --> Trial : étude concluante et responsable trouvé
+    Assess --> [*] : abandon
+    Trial --> Adopt : l'essai tient en production
+    Trial --> Hold : l'essai échoue
+    Adopt --> Hold : remplacée ou plus soutenue
+    Hold --> [*] : plus utilisée, archivée
+```
+
+Exemple : une entrée tenue comme du code, un fichier par entrée relu en merge request (format inspiré du générateur AOE, contenu fictif) :
+
+```
+radar/2026-11-01/contrats-pilotes-par-le-consommateur.md
+---
+title: "Contrats pilotés par le consommateur (Pact)"
+ring: trial
+quadrant: techniques
+---
+Essai entre orders-service et billing-service depuis septembre 2026.
+Responsable : le lead technique de team-core.
+Passage en Adopt si aucune régression d'intégration n'arrive en production
+pendant trois mois. Si l'essai échoue, team-core retire Pact de ses deux dépôts.
+```
+
+Le radar ne remplace ni l'ADR ni le golden path, les trois s'emboîtent :
+
+| Outil | Portée | Question à laquelle il répond |
+|---|---|---|
+| ADR | une décision, dans un système | pourquoi ce choix ici, et pas un autre ? |
+| tech radar d'entreprise | toute l'entreprise | quelles technologies sont soutenues, essayées, étudiées ou à éviter, et pourquoi ? |
+| golden path | un chemin outillé | comment démarrer un service avec les choix Adopt déjà branchés ? |
+
+Pièges :
+
+- **un radar sans mandat ni critères** : tenu par des volontaires, sans règle pour changer d'anneau, il ne fait que constater après coup ce qui est déjà en production ;
+- **Hold lu comme « interdit, migrez tout »** : les équipes réécrivent des services qui marchent, au lieu de ne plus rien démarrer de nouveau avec ;
+- **recopier un radar public** : je reprends les anneaux de Thoughtworks comme politique d'entreprise, alors que personne chez moi ne sait opérer l'outil ni ne le soutient dans la CI ;
+- **un radar figé** : jamais revu, il conseille des outils que l'entreprise a abandonnés, et plus personne ne le lit.
+
+:material-book-open-variant: Doc de référence : [Zalando Engineering, « Technology Choices at Zalando: Updating our Tech Radar Process »](https://engineering.zalando.com/posts/2020/07/technology-choices-at-zalando-tech-radar-update.html) (juillet 2020) ; [Neal Ford, « Build your own Technology Radar »](https://www.thoughtworks.com/insights/blog/build-your-own-technology-radar) (2016)
+{ .doc-ref }
+
 | Je veux... | J'utilise... |
 |---|---|
 | expliquer le système à un nouveau venu ou au métier, sans entrer dans le code | C4 niveaux 1 et 2 |
 | écrire un document d'architecture complet sans partir d'une page blanche | plan arc42, sections utiles seulement |
 | que l'équipe sache encore dans un an pourquoi elle a choisi une option plutôt qu'une autre | ADR dans le repo |
 | que le code ne contredise pas l'architecture en douce, comme `orders` qui importe les détails internes de `billing` | fitness functions dans la CI |
+| que chaque nouvelle équipe sache quel broker ou quelle base choisir, sans réunion, alors que la plateforme ne peut pas tout outiller | tech radar d'entreprise, tenu par les architectes |
 
 ## Pièges à éviter
 
@@ -1721,6 +1830,7 @@ Les questions typiques :
 - « Comment abordes-tu un exercice de system design ? » Pour répondre : je clarifie d'abord les besoins et les ordres de grandeur, je propose le design le plus simple qui y répond, puis je cherche ses goulots d'étranglement et la façon dont il tombe en panne ([Estimer la capacité](#estimer-la-capacite), [Résilience](#resilience)).
 - « Combien de serveurs pour un million d'utilisateurs actifs par jour ? » Pour répondre : je déroule le calcul de coin de table, du QPS moyen au pic puis à la loi de Little ([QPS moyen et pic](#qps-moyen-et-pic), [Loi de Little](#loi-de-little)).
 - « Comment documentes-tu une décision d'architecture ? » Pour répondre : je montre un ADR et les vues C4 que je dessine ([ADR](#adr), [Modèle C4](#modele-c4)).
+- « Comment encadres-tu le choix des technologies entre plusieurs équipes ? », « Qui décide qu'un outil est adopté ? » Pour répondre : je décris un radar d'entreprise tenu par les architectes avec un mandat, des critères écrits par anneau, des propositions ouvertes à toutes les équipes et une revue à rythme fixe, puis je le relie aux ADR et aux golden paths ([Tech radar d'entreprise](#tech-radar-dentreprise)).
 
 Ce qui fait une bonne réponse : elle nomme le compromis, ce que le choix apporte, ce qu'il coûte, et dans quelle situation je ferais l'inverse. Un style ou un motif présenté sans son coût sonne comme une réponse apprise.
 
@@ -1741,6 +1851,7 @@ Ce qui fait une bonne réponse : elle nomme le compromis, ce que le choix apport
 | je prends une décision dont personne ne se rappellera le pourquoi dans un an | ADR |
 | le code s'éloigne peu à peu du schéma d'architecture, sans que personne le remarque | fitness functions |
 | personne ne sait quels systèmes existent, qui les possède ni où sont les doublons | urbanisation : cartographie, carte des capacités, règles |
+| chaque équipe choisit ses outils seule, et je découvre en production un troisième broker ou un langage que personne d'autre ne connaît | tech radar d'entreprise, branché sur les golden paths et les ADR |
 | mon métier a des règles riches, comme les remises, que chaque changement de base ou de prestataire met en danger | architecture hexagonale, règle de dépendance vérifiée en CI |
 | plusieurs équipes se bloquent sur un même front : une seule mise en production commune, une file d'attente de merge requests | micro front-ends découpés par domaine, shell et contrat versionné |
 | j'ai un seul front, fait par une ou deux équipes qui se parlent tous les jours | front modulaire dans un monorepo, pas de micro front-ends |
@@ -1758,6 +1869,9 @@ Ce qui fait une bonne réponse : elle nomme le compromis, ce que le choix apport
 - [James Lewis et Martin Fowler, « Microservices » (2014)](https://martinfowler.com/articles/microservices.html)
 - [Martin Fowler, « MonolithFirst » (2015)](https://martinfowler.com/bliki/MonolithFirst.html)
 - [Alistair Cockburn, « Hexagonal Architecture » (2005)](https://alistair.cockburn.us/hexagonal-architecture/)
+- [Neal Ford, « Build your own Technology Radar », Thoughtworks (2016, reprise d'un billet de 2013)](https://www.thoughtworks.com/insights/blog/build-your-own-technology-radar)
+- [Zalando Engineering, « Technology Choices at Zalando: Updating our Tech Radar Process » (juillet 2020)](https://engineering.zalando.com/posts/2020/07/technology-choices-at-zalando-tech-radar-update.html)
+- [Zalando Engineering, « Building a Better Tech Radar » (janvier 2018)](https://engineering.zalando.com/posts/2018/01/building-tech-radar.html)
 - [Robert C. Martin, « The Clean Architecture » (2012)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - Alberto Brandolini, « Introducing EventStorming » (Leanpub, publié par parties depuis 2015 environ, à vérifier)
 - [Seth Gilbert et Nancy Lynch, « Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services » (2002)](https://dl.acm.org/doi/10.1145/564585.564601)

@@ -16,7 +16,7 @@ Faire de la veille, c'est suivre ce qui change dans mon métier (outils, pratiqu
 
 **<span class="term" data-term="rss-feed">Flux RSS</span>** : un fichier publié par un site, qui liste ses derniers articles. Un lecteur de flux (Feedly, Inoreader, NetNewsWire, Miniflux) regroupe tous les sites suivis dans une seule liste, sans algorithme ni publicité.
 
-**<span class="term" data-term="tech-radar">Radar technologique</span>** : un classement des technologies en quatre anneaux, popularisé par Thoughtworks (Technology Radar, publié deux fois par an depuis 2010) : **Adopt** (à utiliser), **Trial** (à essayer sur un vrai projet), **Assess** (à étudier), **Hold** (à éviter pour les nouveaux usages).
+**<span class="term" data-term="tech-radar">Radar technologique</span>** : un classement des technologies en quatre anneaux, popularisé par Thoughtworks (Technology Radar, publié deux fois par an depuis 2010) : **Adopt** (à utiliser), **Trial** (à essayer sur un vrai projet), **Assess** (à étudier), **Hold** (à éviter pour les nouveaux usages ; Thoughtworks l'appelle aujourd'hui Caution). Les radars publics et les outils pour en dessiner un sont dans [Panorama des outils : tech radar](outils.md#tech-radar-thoughtworks-byor-zalando-aoe-cncf), le radar d'entreprise dans [Architecture : tech radar d'entreprise](architecture.md#tech-radar-dentreprise).
 
 ## Pourquoi, quand et comment
 

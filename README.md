@@ -11,7 +11,7 @@ Mes pense-bêtes, à lire en ligne sur **[vincentbaticle.github.io/reminder](htt
 - [Git](docs/knowledge/git.md) : les commandes par situation, merge ou rebase, réparer une erreur, retrouver un commit perdu
 - [Design patterns](docs/knowledge/design-patterns.md) : Factory, Builder, Adapter, Decorator, Strategy, Observer, State, Repository, injection de dépendances, en PHP, Python et Java
 - [Principes de conception](docs/knowledge/principes-conception.md) : SOLID, STUPID, KISS, DRY, YAGNI, loi de Déméter, composition plutôt qu'héritage, cohésion et couplage, CUPID
-- [Architecture et systèmes distribués](docs/knowledge/architecture.md) : carte des échelles, styles, front-end et micro front-ends, architecture hexagonale, urbanisation du SI et TOGAF, DDD, CAP et PACELC, sagas, CQRS, résilience, haute disponibilité, RTO et RPO, estimation de capacité, C4
+- [Architecture et systèmes distribués](docs/knowledge/architecture.md) : carte des échelles, styles, front-end et micro front-ends, architecture hexagonale, urbanisation du SI et TOGAF, DDD, CAP et PACELC, sagas, CQRS, résilience, haute disponibilité, RTO et RPO, estimation de capacité, C4, tech radar d'entreprise
 - [SQL](docs/knowledge/sql.md) : requêtes, jointures, transactions, index, faire grandir une base (vertical ou horizontal), migrer un schéma sans interruption, pièges, injection, SQL pour la QA
 
 ### API et sécurité
@@ -28,8 +28,8 @@ Mes pense-bêtes, à lire en ligne sur **[vincentbaticle.github.io/reminder](htt
 
 ### Qualité et outils
 
-- [Qualité et tests](docs/knowledge/qualite.md) : pyramide, trophée, nid d'abeille, quadrants, ISO/IEC 25010, niveaux de test, tests synthétiques, Testcontainers, contrats, Gherkin, couverture, quality gates, CI, tests canary et blue-green, tests instables, revue de code
-- [Panorama des outils techniques](docs/knowledge/outils.md) : RabbitMQ, Kafka, Pub/Sub, Redis, bases, Kubernetes, CI, observabilité, tests, Checkly, avec mini benchmarks et quoi choisir
+- [Qualité et tests](docs/knowledge/qualite.md) : pyramide, trophée, nid d'abeille, quadrants, ISO/IEC 25010, niveaux de test, tests synthétiques, Testcontainers, contrats, Gherkin, couverture, quality gates, CI, tests canary et blue-green, A/B test, mutation testing, écoles de Londres et de Detroit, tests instables, revue de code
+- [Panorama des outils techniques](docs/knowledge/outils.md) : RabbitMQ, Kafka, Pub/Sub, Redis, bases, Kubernetes, CI, observabilité, tests, Checkly, tech radars, avec mini benchmarks et quoi choisir
 - [Developer Experience et plateforme](docs/knowledge/devx.md) : boucle interne et externe, CI rapide, platform engineering, golden paths, portail, documentation, onboarding, migrations à grande échelle
 - [Données et décision](docs/knowledge/donnees-decision.md) : plateforme de données (lakehouse, ETL, Spark, MLOps), décisions pilotées par les données, time to insight, temps réel, A/B testing, visualisation, gouvernance des données, data science, FinOps
 

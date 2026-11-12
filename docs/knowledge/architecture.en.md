@@ -80,6 +80,7 @@ A notion can span two scales: a **retry** is written in code but only makes sens
 | rendering strategies | | x | | | |
 | urbanization, TOGAF, Zachman | | | | | x |
 | C4, arc42, fitness functions | x | x | x | | |
+| company tech radar | | | | | x |
 
 ### Words that change meaning with the scale
 
@@ -1692,12 +1693,120 @@ forbidden_modules = my_api.billing.storage
 :material-book-open-variant: Reference docs: [Thoughtworks Technology Radar, "Architectural fitness function"](https://www.thoughtworks.com/radar/techniques/architectural-fitness-function) (accessed November 2026)
 { .doc-ref }
 
+### Company tech radar
+
+<a class="pill pill-scope pill-scope-enterprise" href="#map-of-scales">Scale · Enterprise</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+In a company of twenty teams, each one picks its own tools: three logging libraries, two brokers, a service written in a language only one person masters. The day that person leaves, nobody can maintain the service, and the platform team has to plug CI, observability and security scans into every technology, one by one. A **company <span class="term" data-term="tech-radar">tech radar</span>** makes these choices visible: the list of technologies the company supports, tries, studies or no longer wants in a new project, each with its justification.
+
+It is usually kept by the **architects**, or by a group of senior engineers covering every area (backend, front end, data, mobile, infrastructure). It is their tool to turn the technical strategy into rules each team applies on its own, without going through a committee for every project. Neal Ford, a member of Thoughtworks' Technology Advisory Board, advises keeping two: one for myself, for my career, and one for the company, for its technical choices ("Build your own Technology Radar", 2016). The tools to draw it are in [Tech tools landscape: tech radar](outils.md#tech-radar-thoughtworks-byor-zalando-aoe-cncf).
+
+!!! noob "As noob"
+    It is a restaurant's wine list, kept by the sommelier. The safe bets are at the top of the list (Adopt), the wine of the moment is served by the glass (Trial), the sommelier tastes new wines before offering them (Assess), and a bottle taken off the list is no longer ordered, but the open ones get finished (Hold). **The radar does not say what is forbidden: it says what the company knows how to serve, and why.**
+
+<figure class="diagram radar">
+<svg viewBox="-20 -20 280 285" role="img" aria-label="A radar: four rings from the centre to the edge, four quadrants by kind of technology (fictitious entries)">
+<circle class="set" cx="120" cy="120" r="110"/>
+<circle class="layer layer-1" cx="120" cy="120" r="82"/>
+<circle class="layer layer-2" cx="120" cy="120" r="56"/>
+<circle class="layer layer-3" cx="120" cy="120" r="30"/>
+<line class="set" x1="120" y1="10" x2="120" y2="230"/>
+<line class="set" x1="10" y1="120" x2="230" y2="120"/>
+<text class="label-strong" x="135" y="130" text-anchor="middle">Adopt</text>
+<text class="label-strong" x="163" y="130" text-anchor="middle">Trial</text>
+<text class="label-strong" x="189" y="130" text-anchor="middle">Assess</text>
+<text class="label-strong" x="216" y="130" text-anchor="middle">Hold</text>
+<text class="label-strong" x="-15" y="-6">Techniques</text>
+<text class="label-strong" x="255" y="-6" text-anchor="end">Tools</text>
+<text class="label-strong" x="-15" y="258">Platforms</text>
+<text class="label-strong" x="255" y="258" text-anchor="end">Languages &amp; Frameworks</text>
+<circle class="hit" cx="140" cy="100" r="4"/>
+<text x="146" y="97">Testcontainers</text>
+<circle class="hit" cx="88" cy="82" r="4"/>
+<text x="82" y="78" text-anchor="end">Pact</text>
+<circle class="hit" cx="105" cy="140" r="4"/>
+<text x="99" y="152" text-anchor="end">Kubernetes</text>
+<circle class="hit" cx="185" cy="195" r="4"/>
+<text x="185" y="210" text-anchor="middle">framework Y</text>
+</svg>
+<figcaption>A radar: four rings from the centre to the edge, four quadrants by kind of technology (fictitious entries)</figcaption>
+</figure>
+
+The four rings, with a meaning the company has to write down. Zalando, for example, redefined them in 2020 as follows:
+
+| Ring | Meaning at Zalando (2020) | What it changes for a team |
+|---|---|---|
+| Adopt | broad adoption, the company commits to invest long term | I can use it without asking, the platform supports it |
+| Trial | current experiments, in production | I try it on a real service, with someone accountable for the trial |
+| Assess | active study of promising technologies, outside production | I can read, prototype, write feedback, not deploy |
+| Hold | broad adoption discouraged; no new application may use it | I start nothing new with it; existing services keep running and migrate at their own pace |
+
+**When.** The signals: several teams (from five or six, a personal rule of thumb), the same question coming back with every new project ("which broker?", "which database?"), a platform team that can no longer support every technology, an orphan service in a language nobody knows any more. No radar needed for one or two teams who talk every day: one [ADR](#adr) per decision is enough.
+
+**Why.** The gain: consistent choices without a committee for every project; each team knows what is supported (CI, observability, security); fewer technologies to maintain and to teach newcomers; and an official path for new ideas (Assess, then Trial) instead of a quiet arrival in production. The cost: senior engineers' time at every review, and a risk of slowing innovation if Hold turns into "forbidden" without discussion.
+
+**How.**
+
+1. **Form the group**: architects and senior engineers from every area, with a clear mandate from technical leadership. Without a mandate, the radar gets ignored: it is the first problem Zalando describes in 2020, choices made by teams alone and entries added after the fact, once the technology was already in production.
+2. **Start from what exists**: what really runs in production (service catalog, declared dependencies, a survey of developers), not the group's preferences.
+3. **Write the criteria for each ring**: for example, for Adopt, the technology is plugged into CI, observability and security scans, at least two teams run it in production and the company can hire people who know it. For Trial, someone commits to removing the trial if it fails.
+4. **Open proposals**: any team proposes an entry or a ring change, through a merge request or an RFC, with its justification.
+5. **Review at a fixed pace**, every quarter or every six months, and publish: each entry keeps its history and the date of its last move.
+6. **Plug the radar into daily work**: <span class="term" data-term="golden-path">golden paths</span> and project templates only use Adopt technologies, departing from the radar requires an ADR, and a [fitness function](#fitness-functions) or a CI rule flags a Hold dependency in a new repository.
+
+The lifecycle of an entry:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Assess : a team proposes
+    Assess --> Trial : conclusive study and an owner found
+    Assess --> [*] : dropped
+    Trial --> Adopt : the trial holds in production
+    Trial --> Hold : the trial fails
+    Adopt --> Hold : replaced or no longer supported
+    Hold --> [*] : no longer used, archived
+```
+
+Example: an entry kept like code, one file per entry reviewed in a merge request (format inspired by the AOE generator, fictitious content):
+
+```
+radar/2026-11-01/consumer-driven-contracts.md
+---
+title: "Consumer-driven contracts (Pact)"
+ring: trial
+quadrant: techniques
+---
+Trial between orders-service and billing-service since September 2026.
+Owner: team-core's tech lead.
+Moves to Adopt if no integration regression reaches production
+for three months. If the trial fails, team-core removes Pact from its two repositories.
+```
+
+The radar replaces neither the ADR nor the golden path, the three fit together:
+
+| Tool | Scope | Question it answers |
+|---|---|---|
+| ADR | one decision, in one system | why this choice here, and not another? |
+| company tech radar | the whole company | which technologies are supported, tried, studied or to avoid, and why? |
+| golden path | a tooled path | how do I start a service with the Adopt choices already wired in? |
+
+Pitfalls:
+
+- **a radar without mandate or criteria**: kept by volunteers, with no rule to change rings, it only records after the fact what is already in production;
+- **Hold read as "forbidden, migrate everything"**: teams rewrite services that work, instead of simply starting nothing new with it;
+- **copying a public radar**: I take Thoughtworks' rings as company policy, while nobody where I work knows how to run the tool or supports it in CI;
+- **a frozen radar**: never reviewed, it recommends tools the company dropped, and nobody reads it any more.
+
+:material-book-open-variant: Reference docs: [Zalando Engineering, "Technology Choices at Zalando: Updating our Tech Radar Process"](https://engineering.zalando.com/posts/2020/07/technology-choices-at-zalando-tech-radar-update.html) (July 2020); [Neal Ford, "Build your own Technology Radar"](https://www.thoughtworks.com/insights/blog/build-your-own-technology-radar) (2016)
+{ .doc-ref }
+
 | I want to... | I use... |
 |---|---|
 | to explain the system to a newcomer or the business, without going into the code | C4 levels 1 and 2 |
 | to write a complete architecture document without starting from a blank page | arc42 template, useful sections only |
 | the team to still know a year from now why it picked one option over another | ADR in the repo |
 | the code not to quietly contradict the architecture, like `orders` importing `billing`'s internals | fitness functions in CI |
+| every new team to know which broker or database to pick, without a meeting, while the platform cannot support everything | company tech radar, kept by the architects |
 
 ## Pitfalls to avoid
 
@@ -1721,6 +1830,7 @@ The typical questions:
 - "How do you approach a system design exercise?" How I answer: I first clarify the needs and the orders of magnitude, propose the simplest design that meets them, then look for its bottlenecks and the way it fails ([Estimating capacity](#estimating-capacity), [Resilience](#resilience)).
 - "How many servers for one million daily active users?" How I answer: I walk through the back-of-the-envelope calculation, from average QPS to peak, then Little's law ([Average and peak QPS](#average-and-peak-qps), [Little's law](#littles-law)).
 - "How do you document an architecture decision?" How I answer: I show an ADR and the C4 views I draw ([ADR](#adr), [C4 model](#c4-model)).
+- "How do you frame technology choices across several teams?", "Who decides that a tool is adopted?" How I answer: I describe a company radar kept by architects with a mandate, written criteria per ring, proposals open to every team and a review at a fixed pace, then I link it to ADRs and golden paths ([Company tech radar](#company-tech-radar)).
 
 What makes a good answer: it names the trade-off, what the choice brings, what it costs, and in which situation I would do the opposite. A style or pattern presented without its cost sounds like a learned answer.
 
@@ -1741,6 +1851,7 @@ What makes a good answer: it names the trade-off, what the choice brings, what i
 | I am making a decision whose reason nobody will remember in a year | ADR |
 | the code drifts little by little from the architecture diagram, without anyone noticing | fitness functions |
 | nobody knows which systems exist, who owns them or where the duplicates are | urbanization: mapping, capability map, rules |
+| each team picks its tools alone, and I discover in production a third broker or a language nobody else knows | company tech radar, wired into golden paths and ADRs |
 | my business has rich rules, like discounts, that every change of database or provider puts at risk | hexagonal architecture, dependency rule checked in CI |
 | several teams block each other on one front end: one shared release, a queue of merge requests | micro front ends split by domain, shell and versioned contract |
 | I have a single front end, built by one or two teams that talk every day | modular front end in a monorepo, no micro front ends |
@@ -1758,6 +1869,9 @@ What makes a good answer: it names the trade-off, what the choice brings, what i
 - [James Lewis and Martin Fowler, "Microservices" (2014)](https://martinfowler.com/articles/microservices.html)
 - [Martin Fowler, "MonolithFirst" (2015)](https://martinfowler.com/bliki/MonolithFirst.html)
 - [Alistair Cockburn, "Hexagonal Architecture" (2005)](https://alistair.cockburn.us/hexagonal-architecture/)
+- [Neal Ford, "Build your own Technology Radar", Thoughtworks (2016, reposted from a 2013 post)](https://www.thoughtworks.com/insights/blog/build-your-own-technology-radar)
+- [Zalando Engineering, "Technology Choices at Zalando: Updating our Tech Radar Process" (July 2020)](https://engineering.zalando.com/posts/2020/07/technology-choices-at-zalando-tech-radar-update.html)
+- [Zalando Engineering, "Building a Better Tech Radar" (January 2018)](https://engineering.zalando.com/posts/2018/01/building-tech-radar.html)
 - [Robert C. Martin, "The Clean Architecture" (2012)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - Alberto Brandolini, "Introducing EventStorming" (Leanpub, published in parts since around 2015, to check)
 - [Seth Gilbert and Nancy Lynch, "Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services" (2002)](https://dl.acm.org/doi/10.1145/564585.564601)

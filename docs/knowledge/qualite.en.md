@@ -91,7 +91,7 @@ class InMemoryOrderRepository:
 ```
 `MagicMock` can play stub, spy and mock: the usage gives the name.
 
-Which one: a **fake** for my own interfaces (a repository, a cache), because it behaves like the real one and the test checks a result, not a sequence of calls; a **mock** only to check that an outgoing call did happen (an email sent, a debit requested); a **stub** to pin a neighbour's answer; a **dummy** for a parameter that does not matter.
+Which one: a **fake** for my own interfaces (a repository, a cache), because it behaves like the real one and the test checks a result, not a sequence of calls; a **mock** only to check that an outgoing call did happen (an email sent, a debit requested); a **stub** to pin a neighbour's answer; a **dummy** for a parameter that does not matter. Two testing schools disagree precisely on the place of mocks: see [London and Detroit schools](#london-and-detroit-schools-isolating-the-unit-or-not).
 
 The same choice, as a decision tree:
 
@@ -606,6 +606,80 @@ The **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** standard (
 :material-book-open-variant: Reference docs: [ISO 25000 portal, ISO/IEC 25010](https://iso25000.com/index.php/en/iso-25000-standards/iso-25010) (accessed November 2026)
 { .doc-ref }
 
+### London and Detroit schools: isolating the unit or not
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+I write the unit test of a service that computes an order's total and then saves it. Two questions come up straight away: is "the unit" the class alone or the whole behaviour? And its neighbours, the pricing and the repository, do I keep them real or replace them with [doubles](#test-double-mock-stub-fake)? Two schools of <span class="term" data-term="tdd">TDD</span> answer differently.
+
+- **The Detroit school**, also called **classicist** or **Chicago**: the unit is a behaviour, which may cross several classes. Neighbours stay real, except the slow ones or those outside my control (database, network, clock), replaced by a fake or a stub. The test checks **the result**: the final state. It is Kent Beck's style, "Test-Driven Development: By Example" (2002).
+- **The London school**, also called **mockist**: the unit is a class. All its neighbours are mocks, and the test checks **the exchanges**: which message goes to which neighbour. It comes from the London XP community, which invented mock objects (Mackinnon, Freeman and Craig, "Endo-Testing: Unit Testing with Mock Objects", 2000), and is described by Steve Freeman and Nat Pryce in "Growing Object-Oriented Software, Guided by Tests" (2009).
+
+Martin Fowler popularised the contrast in 2007 in "Mocks Aren't Stubs", under the names "classical" and "mockist". The city names come from where each style was born (Chrysler's C3 project in Detroit for the classicist school) [to check: origin reported by several authors, no single source].
+
+!!! noob "As noob"
+    Two ways to check a new car. Detroit: I take it for a drive and check it gets to the right place. London: I put each part on a test bench and check the pedal sends the right signal to the engine. The first check survives swapping a part, the second tells exactly which part is at fault. **Detroit checks the result, London checks the exchanges: most teams mix both.**
+
+The code under test:
+
+```python
+# Example: a service that asks pricing for the total, then saves
+class OrderService:
+    def __init__(self, pricing, repository):
+        self.pricing = pricing
+        self.repository = repository
+
+    def place(self, order):
+        order.total_cents = self.pricing.total(order)
+        self.repository.save(order)
+        return order
+```
+
+The same test in both schools:
+
+```python
+# Example: Detroit school, real pricing, fake repository, the result is checked
+def test_place_order_stores_total_with_vat():
+    repository = InMemoryOrderRepository()
+    service = OrderService(Pricing(vat_rate=0.2), repository)
+    service.place(Order(id=42, lines=[Line(price_cents=1000, qty=2)]))
+    assert repository.get(42).total_cents == 2400
+
+
+# Example: London school, every neighbour is a mock, the exchanges are checked
+def test_place_order_asks_pricing_then_saves():
+    pricing = Mock()
+    pricing.total.return_value = 2400
+    repository = Mock()
+    order = Order(id=42, lines=[])
+    OrderService(pricing, repository).place(order)
+    pricing.total.assert_called_once_with(order)
+    repository.save.assert_called_once_with(order)
+```
+
+What happens next:
+
+- **a VAT bug in `Pricing`**: the Detroit test fails, the London one stays green (only `Pricing`'s own test sees it). But with Detroit, ten other tests going through `Pricing` fail too, and I search longer for where the bug is;
+- **I merge `Pricing` into `OrderService`**, without changing the behaviour: the Detroit test stays green, the London one breaks, because it described how the work is done, not the result.
+
+| | Detroit (classicist, Chicago) | London (mockist) |
+|---|---|---|
+| the unit | a behaviour, one or several classes | a class |
+| the neighbours | real, except database, network, clock | mocks |
+| what the test checks | the final state, the result | the messages exchanged |
+| design direction | inside out: rules first | <span class="term" data-term="outside-in">outside-in</span>: from the acceptance test down to the classes |
+| strength | tests that survive refactoring | localised failure; tests reveal the interfaces between roles |
+| weakness | one bug fails many tests | tests tied to the implementation; a mock can lie about the real neighbour |
+
+**When.** Detroit by default for business rules and services that compute: it matches [the rule](#the-rule) of this page, prove the behaviour with real neighbours whenever possible. London when I design a flow from the outside in and the classes do not exist yet, or to check an outgoing effect (an email sent, a debit requested). Freeman and Pryce add a rule that limits lying mocks: only mock types I own, and wrap an external library in my own adapter before mocking it.
+
+**Why.** Being able to name the school explains team arguments that look technical: "this test breaks with every refactoring" (too much London) or "one bug fails forty tests" (Detroit without targeted tests). The choice changes the suite's maintenance cost, not its ability to find bugs.
+
+**How.** I decide per neighbour, not for the whole project: a real object or a fake when it is fast and mine, a mock when the exchange **is** the behaviour to check, a stub for an external neighbour. And I keep contract or integration tests on top, which prove what the mocks assume.
+
+:material-book-open-variant: Reference docs: [Martin Fowler, "Mocks Aren't Stubs"](https://martinfowler.com/articles/mocksArentStubs.html) (2007); [Steve Freeman and Nat Pryce, "Growing Object-Oriented Software, Guided by Tests"](http://www.growing-object-oriented-software.com/) (2009)
+{ .doc-ref }
+
 ### Which model for which question
 
 | Question | Model |
@@ -616,6 +690,7 @@ The **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** standard (
 | I hesitate between putting the effort before delivery (examples written before the code, tests in the MR) or after (monitoring in production) | shift-left and shift-right |
 | someone asks me why the team does not test everything, or why a suite that no longer changes finds no bugs anymore | seven ISTQB principles |
 | my team says "quality" but only talks about functionality, and I want to list the rest, like performance, security or accessibility | ISO/IEC 25010 |
+| my unit tests break with every refactoring although the behaviour did not change, or a single bug fails forty tests | London and Detroit schools, choose per neighbour |
 
 Sources:
 
@@ -628,6 +703,10 @@ Sources:
 - [Brian Marick, "Agile testing directions: tests and examples" (2003, link to check)](http://www.exampler.com/old-blog/2003/08/22/)
 - [ISTQB, Certified Tester Foundation Level syllabus v4.0 (2023)](https://www.istqb.org/certifications/certified-tester-foundation-level-ctfl-v4-0/)
 - [ISO/IEC 25010:2023, "Product quality model" (2023)](https://www.iso.org/standard/78176.html)
+- Kent Beck, "Test-Driven Development: By Example" (2002)
+- [Martin Fowler, "Mocks Aren't Stubs" (2007)](https://martinfowler.com/articles/mocksArentStubs.html)
+- [Steve Freeman and Nat Pryce, "Growing Object-Oriented Software, Guided by Tests" (2009)](http://www.growing-object-oriented-software.com/)
+- Tim Mackinnon, Steve Freeman and Philip Craig, "Endo-Testing: Unit Testing with Mock Objects", XP2000 conference (2000)
 
 ## Choosing the right test level
 
@@ -1037,9 +1116,78 @@ Rules:
 - show unit coverage and integration coverage **side by side, never added up**: a line executed by an <span class="term" data-term="integration-test">integration test</span> does not prove that its rule is right;
 - a component with low unit coverage but tested in integration is a hint: extract its rules into a pure module;
 - start with the files that have the most uncovered lines;
-- to measure whether tests really check: <span class="term" data-term="mutation-testing">mutation testing</span> (mutmut, Stryker, Infection).
+- to measure whether tests really check: [mutation testing](#mutation-testing-testing-the-tests) (mutmut, Stryker, Infection, PIT).
 
 :material-book-open-variant: Reference docs: [Martin Fowler, TestCoverage](https://martinfowler.com/bliki/TestCoverage.html) (2012); [Coverage.py](https://coverage.readthedocs.io/) (accessed November 2026)
+{ .doc-ref }
+
+### Mutation testing: testing the tests
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+My coverage shows 95%, but I do not know whether my tests would catch a real bug. **<span class="term" data-term="mutation-testing">Mutation testing</span>** answers that question: a tool plants small bugs in the code itself (replacing `<=` with `<`, `+` with `-`, `True` with `False`, removing a call), one at a time, and reruns the tests each time. Each modified version is called a **<span class="term" data-term="mutant">mutant</span>**.
+
+- if at least one test fails, the mutant is **killed**: the tests saw the bug;
+- if every test stays green, the mutant **survives**: that bug would reach production without anyone noticing.
+
+The **<span class="term" data-term="mutation-score">mutation score</span>** is the share of killed mutants. The idea dates from the 1970s: Richard DeMillo, Richard Lipton and Frederick Sayward, "Hints on Test Data Selection: Help for the Practicing Programmer" (IEEE Computer, 1978).
+
+!!! noob "As noob"
+    It is a fire alarm drill: I put a little smoke in a room on purpose and watch whether the alarm goes off. If it stays silent, the room is not protected, even though the detector is hanging on the ceiling. **Coverage says the detector is installed, mutation testing says whether it rings.**
+
+Example: the rule and its two tests.
+
+```python
+# Example: the rule under test, a refund never exceeds the amount paid
+def can_refund(paid_cents, asked_cents):
+    return asked_cents <= paid_cents
+
+
+# Avoid: two tests far from the limit, they pass on the code and on the mutant
+def test_refund_allowed():
+    assert can_refund(1000, 500) is True
+
+
+def test_refund_refused():
+    assert can_refund(1000, 1500) is False
+```
+
+Coverage is 100%. The tool tries mutants (simplified output, each tool has its own format):
+
+```
+mutant 1   asked_cents <= paid_cents   becomes   asked_cents < paid_cents    survived
+mutant 2   asked_cents <= paid_cents   becomes   asked_cents >= paid_cents   killed
+mutant 3   return ...                  becomes   return None                 killed
+mutation score: 2 killed out of 3, 67%
+```
+
+Mutant 1 survives: no test checks the exact limit, so a customer asking for a full refund could be refused without any test noticing. The missing test:
+
+```python
+# What changes: the exact limit, which kills mutant 1
+def test_refund_whole_amount():
+    assert can_refund(1000, 1000) is True
+```
+
+| Language | Tools |
+|---|---|
+| Python | mutmut, Cosmic Ray |
+| JavaScript, TypeScript, C#, Scala | Stryker (StrykerJS, Stryker.NET, Stryker4s) |
+| Java, JVM | PIT (pitest) |
+| PHP | Infection |
+
+**When.** On code where a bug is expensive (money, permissions, regulatory calculations), once coverage is already good and I want to know whether the assertions are worth anything. Not on the whole project at every MR: each mutant reruns the tests, so a 2 minute suite and 500 mutants means hours (example order of magnitude).
+
+**Why.** It is the only measure that judges the assertions and not just the execution. The cost: compute time, and **<span class="term" data-term="equivalent-mutant">equivalent mutants</span>**, which change the code without changing the behaviour (for example `i < len(x)` turned into `i != len(x)` in a loop that steps by 1): no test can kill them, so aiming for 100% makes no sense.
+
+**How.**
+
+1. Start with one critical module, not the whole repository.
+2. Read the survivors one by one: each is either a missing test, an equivalent mutant, or useless code to delete.
+3. In CI, limit the analysis to the files changed by the MR (Stryker, Infection and PIT can do it; to check for mutmut), and run the full analysis at night.
+4. Track the score on critical code over time, rather than enforcing a global threshold.
+
+:material-book-open-variant: Reference docs: [Stryker, "What is mutation testing?"](https://stryker-mutator.io/docs/) (accessed November 2026); [PIT, documentation](https://pitest.org/) (accessed November 2026)
 { .doc-ref }
 
 ### The inverted mapping trap
@@ -1279,6 +1427,53 @@ What to plan:
 The two combine: deploy v2 on green, test it, then send it traffic in steps like a canary. Sources: Martin Fowler, "BlueGreenDeployment" (2010); Danilo Sato, "CanaryRelease" (2014), on Martin Fowler's site.
 
 :material-book-open-variant: Reference docs: [Martin Fowler, BlueGreenDeployment](https://martinfowler.com/bliki/BlueGreenDeployment.html) (2010)
+{ .doc-ref }
+
+### Testing a feature in an A/B test
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+<a class="pill pill-practice" href="../livraison/#testing-in-production" title="level 4: it is driven by measurement">Practice · Production testing · L4</a>
+<a class="pill pill-dora" href="https://dora.dev/capabilities/team-experimentation/">DORA · Team experimentation</a>
+
+Product wants to know whether a "1-click order" button brings more orders. It runs an <span class="term" data-term="ab-test">A/B test</span>: half of the visitors, drawn at random, see the new button (B), the other half keep the old one (A), and the order rate is compared. The statistics (sample size, p-value, confidence interval) are in [Data and decisions: A/B testing](donnees-decision.md#ab-testing). Here, the QA question: **how do I make sure the experiment measures what it thinks it measures?** A bug in the setup does not crash the site: it skews the conclusion, without any alert.
+
+What I check:
+
+- **each variant works**: I force A then B in E2E tests, through a cookie, a header or a parameter meant for it, as for a canary;
+- **the assignment is sticky**: a visitor keeps the same variant from one page to the next and from one visit to the next (assignment computed from their identifier), otherwise they see both and the result means nothing;
+- **the measurement fires in both variants**: the "order placed" event is sent exactly once, with the variant name. It is the most common bug: B has a new confirmation page, the event was not added there, and B looks worse than it is;
+- **the observed split matches the planned split**: a clear gap between the expected and the observed 50/50 is called a <span class="term" data-term="sample-ratio-mismatch">sample ratio mismatch</span> and almost always signals a bug, not an effect of the variant;
+- **the end of the experiment**: the losing variant and its flag are removed, otherwise every future test has to cover two flows.
+
+```ts
+// Example: force variant B to test its flow end to end
+test("1-click order, variant B", async ({ page, context }) => {
+  await context.addCookies([{ name: "exp_checkout", value: "B", url: "https://shop.example.com" }]);
+  await page.goto("https://shop.example.com/cart");
+  await page.getByRole("button", { name: "Order in 1 click" }).click();
+  await expect(page.getByText("Order confirmed")).toBeVisible();
+});
+```
+
+A mismatch caught (example numbers):
+
+```
+expected     50% / 50%
+observed     A 10,400 visitors   B 9,600 visitors   (52% / 48%)
+chi-squared test: p < 0.001, the gap is not due to chance
+cause        variant B redirects before the "visit" event is sent
+decision     results invalid, fix then restart the experiment
+```
+
+| I want to... | I use... |
+|---|---|
+| I want to check that variant B works before half of the customers see it | E2E with the variant forced by cookie or header |
+| I want to be sure the experiment's conclusion is not skewed by a missing measurement | check the measurement event in each variant, once per action |
+| the visitor split is not the planned one, like 52/48 instead of 50/50 over 20,000 visitors | sample ratio mismatch check, find the bug before reading the result |
+| I want to know whether B really does better than A | the statistics in [Data and decisions](donnees-decision.md#ab-testing), not a QA test |
+
+:material-book-open-variant: Reference docs: [Ron Kohavi, Diane Tang and Ya Xu, "Trustworthy Online Controlled Experiments"](https://experimentguide.com/) (2020)
 { .doc-ref }
 
 ## Flaky tests and parallelisation
@@ -1610,6 +1805,9 @@ The typical questions:
 - "Is code coverage a good indicator?", "Which threshold should be enforced?" How I answer: I separate executed code from verified code, then talk about a gate on new code only ([What it says and what it does not](#what-it-says-and-what-it-does-not), [Two gates are enough](#two-gates-are-enough)).
 - "How do you test a canary deployment? And a blue-green one?" How I answer: I compare metrics step by step for the canary, and test green before the switch ([Testing a canary deployment](#testing-a-canary-deployment), [Testing a blue-green deployment](#testing-a-blue-green-deployment)), and [Progressive deployment](livraison.md#progressive-deployment) and [A/B testing](donnees-decision.md#ab-testing).
 - "What makes a good code review?", "How do you write a good bug report?" How I answer: I rank my comments by severity level and prove each one with `file:line` and a scenario that breaks; a bug report follows the same logic, with the steps to reproduce, the expected and the actual result, the environment and evidence (screenshot, trace, log) ([Proving every comment](#proving-every-comment), [Recorded scenario](#recorded-scenario-playwright-codegen)).
+- "What is mutation testing?", "Is 100% coverage enough?" How I answer: I show a mutant that survives despite 100% coverage, the boundary test that kills it, then the cost (compute time, equivalent mutants) and the targeted use on critical code ([Mutation testing](#mutation-testing-testing-the-tests)).
+- "Mockist or classicist?", "London or Detroit school?" How I answer: I contrast checking the exchanges with checking the result, give the strength and weakness of each, then say I choose per neighbour, Detroit by default and a mock when the exchange is the behaviour ([London and Detroit schools](#london-and-detroit-schools-isolating-the-unit-or-not)).
+- "How do you test a feature in an A/B test?" How I answer: I force each variant in E2E, check the sticky assignment, the measurement event in both variants and the observed split, and leave the conclusion to the statistics ([Testing a feature in an A/B test](#testing-a-feature-in-an-ab-test)).
 
 What makes a good answer: a lived (or realistic) example with the bug the test caught or let through, then the limit of the tool I mention. An "it depends" followed by the criteria beats a recited rule.
 
@@ -1636,3 +1834,6 @@ What makes a good answer: a lived (or realistic) example with the bug the test c
 | my team wonders how many tests to write at each level (unit, integration, E2E) | pyramid, trophy or honeycomb depending on context |
 | I am preparing a test plan and want to be sure I do not miss a kind of test, like exploratory or load testing | agile testing quadrants |
 | I want to list with the PO what "quality" covers beyond "it works", like performance, security or accessibility | ISO/IEC 25010 |
+| I have to test a feature shown to only half of the visitors, like a "1-click" button in an A/B test | each variant forced in E2E, measurement and split checked |
+| I write the tests of a service that computes and saves, and I do not want a refactoring to break them when the behaviour does not change | Detroit school: real neighbours, fake for the database |
+| I design a flow from the outside in while its classes do not exist yet, or I must check that an email is really sent | London school: mocks on the roles I own |

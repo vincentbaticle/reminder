@@ -91,7 +91,7 @@ class InMemoryOrderRepository:
 ```
 `MagicMock` sait jouer le stub, le spy et le mock : c'est l'usage qui donne le nom.
 
-Lequel choisir : un **fake** pour ses propres interfaces (un dépôt, un cache), parce qu'il se comporte comme le vrai et que le test vérifie un résultat, pas une suite d'appels ; un **mock** seulement pour vérifier qu'un appel sortant a bien eu lieu (un e-mail envoyé, un débit demandé) ; un **stub** pour fixer la réponse d'un voisin ; un **dummy** pour un paramètre sans importance.
+Lequel choisir : un **fake** pour ses propres interfaces (un dépôt, un cache), parce qu'il se comporte comme le vrai et que le test vérifie un résultat, pas une suite d'appels ; un **mock** seulement pour vérifier qu'un appel sortant a bien eu lieu (un e-mail envoyé, un débit demandé) ; un **stub** pour fixer la réponse d'un voisin ; un **dummy** pour un paramètre sans importance. Deux écoles de test s'opposent justement sur la place des mocks : voir [Écoles de Londres et de Detroit](#ecoles-de-londres-et-de-detroit-isoler-ou-non-lunite).
 
 Le même choix, en arbre de décision :
 
@@ -606,6 +606,80 @@ La norme **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** (prem
 :material-book-open-variant: Doc de référence : [ISO 25000 portal, ISO/IEC 25010](https://iso25000.com/index.php/en/iso-25000-standards/iso-25010) (consultée en novembre 2026)
 { .doc-ref }
 
+### Écoles de Londres et de Detroit : isoler ou non l'unité
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+J'écris le test unitaire d'un service qui calcule le total d'une commande puis l'enregistre. Deux questions arrivent tout de suite : est-ce que « l'unité », c'est la classe seule ou le comportement entier ? Et ses voisins, le calcul de prix et le dépôt, je les garde vrais ou je les remplace par des [doubles](#double-de-test-mock-stub-fake) ? Deux écoles de <span class="term" data-term="tdd">TDD</span> répondent différemment.
+
+- **L'école de Detroit**, dite aussi **classique** ou **de Chicago** : l'unité est un comportement, qui peut traverser plusieurs classes. Les voisins restent vrais, sauf ceux qui sont lents ou hors de mon contrôle (base, réseau, horloge), remplacés par un fake ou un stub. Le test vérifie **le résultat** : l'état final. C'est le style de Kent Beck, « Test-Driven Development: By Example » (2002).
+- **L'école de Londres**, dite aussi **mockiste** : l'unité est une classe. Tous ses voisins sont des mocks, et le test vérifie **les échanges** : quel message part vers quel voisin. Elle vient de la communauté XP de Londres, qui a inventé les mock objects (Mackinnon, Freeman et Craig, « Endo-Testing: Unit Testing with Mock Objects », 2000), et elle est décrite par Steve Freeman et Nat Pryce dans « Growing Object-Oriented Software, Guided by Tests » (2009).
+
+Martin Fowler a popularisé l'opposition en 2007 dans « Mocks Aren't Stubs », sous les noms « classical » et « mockist ». Les noms de villes viennent des lieux où chaque style est né (le projet C3 de Chrysler à Detroit pour l'école classique) [à vérifier : origine rapportée par plusieurs auteurs, pas de source unique].
+
+!!! noob "As noob"
+    Deux façons de contrôler une voiture neuve. Detroit : je fais un tour avec, et je vérifie qu'elle arrive au bon endroit. Londres : je pose chaque pièce sur un banc, et je vérifie que la pédale envoie le bon signal au moteur. Le premier contrôle survit à un changement de pièce, le second dit exactement quelle pièce est en cause. **Detroit vérifie le résultat, Londres vérifie les échanges : la plupart des équipes mélangent les deux.**
+
+Le code testé :
+
+```python
+# Exemple : un service qui demande le total au calcul de prix, puis enregistre
+class OrderService:
+    def __init__(self, pricing, repository):
+        self.pricing = pricing
+        self.repository = repository
+
+    def place(self, order):
+        order.total_cents = self.pricing.total(order)
+        self.repository.save(order)
+        return order
+```
+
+Le même test dans les deux écoles :
+
+```python
+# Exemple : école de Detroit, vrai calcul de prix, fake pour le dépôt, on vérifie le résultat
+def test_place_order_stores_total_with_vat():
+    repository = InMemoryOrderRepository()
+    service = OrderService(Pricing(vat_rate=0.2), repository)
+    service.place(Order(id=42, lines=[Line(price_cents=1000, qty=2)]))
+    assert repository.get(42).total_cents == 2400
+
+
+# Exemple : école de Londres, chaque voisin est un mock, on vérifie les échanges
+def test_place_order_asks_pricing_then_saves():
+    pricing = Mock()
+    pricing.total.return_value = 2400
+    repository = Mock()
+    order = Order(id=42, lines=[])
+    OrderService(pricing, repository).place(order)
+    pricing.total.assert_called_once_with(order)
+    repository.save.assert_called_once_with(order)
+```
+
+Ce qui se passe ensuite :
+
+- **un bug de TVA dans `Pricing`** : le test de Detroit échoue, celui de Londres reste vert (seul le test de `Pricing` le voit). Mais avec Detroit, dix autres tests qui passent par `Pricing` échouent aussi, et je cherche plus longtemps où est le bug ;
+- **je fusionne `Pricing` dans `OrderService`**, sans changer le comportement : le test de Detroit reste vert, celui de Londres casse, parce qu'il décrivait la façon de faire, pas le résultat.
+
+| | Detroit (classique, Chicago) | Londres (mockiste) |
+|---|---|---|
+| l'unité | un comportement, une ou plusieurs classes | une classe |
+| les voisins | vrais, sauf base, réseau, horloge | des mocks |
+| ce que le test vérifie | l'état final, le résultat | les messages échangés |
+| sens de conception | de l'intérieur vers l'extérieur : les règles d'abord | de l'extérieur vers l'intérieur (<span class="term" data-term="outside-in">outside-in</span>) : du test d'acceptation vers les classes |
+| force | tests robustes au refactoring | échec localisé ; les tests font apparaître les interfaces entre rôles |
+| faiblesse | un bug fait échouer beaucoup de tests | tests collés à l'implémentation ; un mock peut mentir sur le vrai voisin |
+
+**Quand.** Detroit par défaut pour les règles métier et les services qui calculent : c'est cohérent avec [la règle](#la-regle) de cette page, prouver le comportement avec de vrais voisins dès que c'est possible. Londres quand je conçois un parcours de l'extérieur vers l'intérieur et que les classes n'existent pas encore, ou pour vérifier un effet sortant (un e-mail envoyé, un débit demandé). Freeman et Pryce ajoutent une règle qui limite les mocks qui mentent : ne mocker que les types que je possède, et envelopper une bibliothèque externe dans mon propre adaptateur avant de le mocker.
+
+**Pourquoi.** Savoir nommer l'école explique des disputes d'équipe qui semblent techniques : « ce test casse à chaque refactoring » (trop de Londres) ou « un bug fait échouer quarante tests » (Detroit sans tests ciblés). Le choix change le coût de maintenance de la suite, pas sa capacité à trouver des bugs.
+
+**Comment.** Je décide par voisin, pas pour tout le projet : un vrai objet ou un fake quand il est rapide et à moi, un mock quand l'échange **est** le comportement à vérifier, un stub pour un voisin externe. Et je garde au-dessus des tests de contrat ou d'intégration, qui prouvent ce que les mocks supposent.
+
+:material-book-open-variant: Doc de référence : [Martin Fowler, « Mocks Aren't Stubs »](https://martinfowler.com/articles/mocksArentStubs.html) (2007) ; [Steve Freeman et Nat Pryce, « Growing Object-Oriented Software, Guided by Tests »](http://www.growing-object-oriented-software.com/) (2009)
+{ .doc-ref }
+
 ### Quel modèle pour quelle question
 
 | Question | Modèle |
@@ -616,6 +690,7 @@ La norme **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** (prem
 | j'hésite à mettre l'effort avant la livraison (exemples écrits avant le code, tests dans la MR) ou après (surveillance en production) | shift-left et shift-right |
 | on me demande pourquoi l'équipe ne teste pas tout, ou pourquoi une suite qui ne change plus ne trouve plus aucun bug | sept principes ISTQB |
 | mon équipe dit « qualité » mais ne parle que de fonctionnel, et je veux lister le reste, comme la performance, la sécurité ou l'accessibilité | ISO/IEC 25010 |
+| mes tests unitaires cassent à chaque refactoring alors que le comportement n'a pas changé, ou un seul bug fait échouer quarante tests | écoles de Londres et de Detroit, choisir par voisin |
 
 Sources :
 
@@ -628,6 +703,10 @@ Sources :
 - [Brian Marick, « Agile testing directions: tests and examples » (2003, lien à vérifier)](http://www.exampler.com/old-blog/2003/08/22/)
 - [ISTQB, syllabus Certified Tester Foundation Level v4.0 (2023)](https://www.istqb.org/certifications/certified-tester-foundation-level-ctfl-v4-0/)
 - [ISO/IEC 25010:2023, « Product quality model » (2023)](https://www.iso.org/standard/78176.html)
+- Kent Beck, « Test-Driven Development: By Example » (2002)
+- [Martin Fowler, « Mocks Aren't Stubs » (2007)](https://martinfowler.com/articles/mocksArentStubs.html)
+- [Steve Freeman et Nat Pryce, « Growing Object-Oriented Software, Guided by Tests » (2009)](http://www.growing-object-oriented-software.com/)
+- Tim Mackinnon, Steve Freeman et Philip Craig, « Endo-Testing: Unit Testing with Mock Objects », conférence XP2000 (2000)
 
 ## Choisir le bon niveau de test
 
@@ -1037,9 +1116,78 @@ Règles :
 - afficher la couverture unitaire et la couverture d'intégration **côte à côte, jamais additionnées** : une ligne exécutée par un <span class="term" data-term="integration-test">test d'intégration</span> ne prouve pas que sa règle est juste ;
 - un composant à faible couverture unitaire mais testé en intégration est un indice : extraire ses règles dans un module pur ;
 - commencer par les fichiers qui ont le plus de lignes non couvertes ;
-- pour mesurer si les tests vérifient vraiment : <span class="term" data-term="mutation-testing">mutation testing</span> (mutmut, Stryker, Infection).
+- pour mesurer si les tests vérifient vraiment : le [mutation testing](#mutation-testing-tester-les-tests) (mutmut, Stryker, Infection, PIT).
 
 :material-book-open-variant: Doc de référence : [Martin Fowler, TestCoverage](https://martinfowler.com/bliki/TestCoverage.html) (2012) ; [Coverage.py](https://coverage.readthedocs.io/) (consultée en novembre 2026)
+{ .doc-ref }
+
+### Mutation testing : tester les tests
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Ma couverture affiche 95 %, mais je ne sais pas si mes tests attraperaient un vrai bug. Le **<span class="term" data-term="mutation-testing">mutation testing</span>** répond à cette question : un outil introduit lui-même de petits bugs dans le code (remplacer `<=` par `<`, `+` par `-`, `True` par `False`, supprimer un appel), un à la fois, et relance les tests à chaque fois. Chaque version modifiée s'appelle un **<span class="term" data-term="mutant">mutant</span>**.
+
+- si au moins un test échoue, le mutant est **tué** : les tests ont vu le bug ;
+- si tous les tests restent verts, le mutant **survit** : ce bug-là passerait en production sans que personne le voie.
+
+Le **<span class="term" data-term="mutation-score">score de mutation</span>** est la part des mutants tués. L'idée date des années 1970 : Richard DeMillo, Richard Lipton et Frederick Sayward, « Hints on Test Data Selection: Help for the Practicing Programmer » (IEEE Computer, 1978).
+
+!!! noob "As noob"
+    C'est l'exercice incendie de l'alarme : je mets volontairement un peu de fumée dans une pièce et je regarde si l'alarme sonne. Si elle reste muette, la pièce n'est pas protégée, même si le détecteur est bien accroché au plafond. **La couverture dit que le détecteur est posé, le mutation testing dit s'il sonne.**
+
+Exemple : la règle et ses deux tests.
+
+```python
+# Exemple : la règle testée, un remboursement ne dépasse pas le montant payé
+def can_refund(paid_cents, asked_cents):
+    return asked_cents <= paid_cents
+
+
+# À éviter : deux tests loin de la limite, ils passent sur le code et sur le mutant
+def test_refund_allowed():
+    assert can_refund(1000, 500) is True
+
+
+def test_refund_refused():
+    assert can_refund(1000, 1500) is False
+```
+
+La couverture est de 100 %. L'outil essaie des mutants (sortie simplifiée, chaque outil a son format) :
+
+```
+mutant 1   asked_cents <= paid_cents   devient   asked_cents < paid_cents    survivant
+mutant 2   asked_cents <= paid_cents   devient   asked_cents >= paid_cents   tué
+mutant 3   return ...                  devient   return None                 tué
+score de mutation : 2 tués sur 3, 67 %
+```
+
+Le mutant 1 survit : aucun test ne vérifie la limite exacte, donc un client qui demande le remboursement total pourrait être refusé sans qu'un test le voie. Le test qui manque :
+
+```python
+# Ce qui change : la limite exacte, qui tue le mutant 1
+def test_refund_whole_amount():
+    assert can_refund(1000, 1000) is True
+```
+
+| Langage | Outils |
+|---|---|
+| Python | mutmut, Cosmic Ray |
+| JavaScript, TypeScript, C#, Scala | Stryker (StrykerJS, Stryker.NET, Stryker4s) |
+| Java, JVM | PIT (pitest) |
+| PHP | Infection |
+
+**Quand.** Sur le code où un bug coûte cher (argent, droits, calculs réglementaires), quand la couverture est déjà bonne et que je veux savoir si les assertions valent quelque chose. Pas sur tout le projet à chaque MR : chaque mutant relance les tests, donc une suite de 2 minutes et 500 mutants, c'est des heures (ordre de grandeur d'exemple).
+
+**Pourquoi.** C'est la seule mesure qui juge les assertions et pas seulement l'exécution. Le coût : du temps de calcul, et des **<span class="term" data-term="equivalent-mutant">mutants équivalents</span>**, qui changent le code sans changer le comportement (par exemple `i < len(x)` devenu `i != len(x)` dans une boucle qui avance de 1) : aucun test ne peut les tuer, donc viser 100 % n'a pas de sens.
+
+**Comment.**
+
+1. Commencer par un module critique, pas par tout le dépôt.
+2. Lire les survivants un par un : chacun est soit un test manquant, soit un mutant équivalent, soit du code inutile à supprimer.
+3. En CI, limiter l'analyse aux fichiers modifiés par la MR (Stryker, Infection et PIT savent le faire ; à vérifier pour mutmut), et lancer l'analyse complète la nuit.
+4. Suivre le score sur le code critique dans le temps, plutôt que d'imposer un seuil global.
+
+:material-book-open-variant: Doc de référence : [Stryker, « What is mutation testing? »](https://stryker-mutator.io/docs/) (consultée en novembre 2026) ; [PIT, documentation](https://pitest.org/) (consultée en novembre 2026)
 { .doc-ref }
 
 ### Le piège du mapping inversé
@@ -1279,6 +1427,53 @@ Ce qu'il faut prévoir :
 Les deux se combinent : déployer v2 sur green, la tester, puis lui envoyer le trafic par paliers comme une canary. Sources : Martin Fowler, « BlueGreenDeployment » (2010) ; Danilo Sato, « CanaryRelease » (2014), sur le site de Martin Fowler.
 
 :material-book-open-variant: Doc de référence : [Martin Fowler, BlueGreenDeployment](https://martinfowler.com/bliki/BlueGreenDeployment.html) (2010)
+{ .doc-ref }
+
+### Tester une fonctionnalité en A/B test
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+<a class="pill pill-practice" href="../livraison/#tester-en-production" title="niveau 4 : elle est pilotée par la mesure">Pratique · Tests en production · N4</a>
+<a class="pill pill-dora" href="https://dora.dev/capabilities/team-experimentation/">DORA · Team experimentation</a>
+
+Le produit veut savoir si un bouton « Commander en 1 clic » apporte plus de commandes. Il lance un <span class="term" data-term="ab-test">A/B test</span> : la moitié des visiteurs, tirée au hasard, voit le nouveau bouton (B), l'autre moitié garde l'ancien (A), et on compare le taux de commande. La statistique (taille d'échantillon, p-value, intervalle de confiance) est dans [Données et décision : A/B testing](donnees-decision.md#ab-testing). Ici, la question de la QA : **comment être sûr que l'expérience mesure bien ce qu'elle croit mesurer ?** Un bug dans le dispositif ne fait pas planter le site : il fausse la conclusion, sans aucune alerte.
+
+Ce que je vérifie :
+
+- **chaque variante marche** : je force A puis B dans les tests E2E, par un cookie, un en-tête ou un paramètre prévu pour ça, comme pour une canary ;
+- **l'affectation est stable** : un visiteur garde la même variante d'une page à l'autre et d'une visite à l'autre (affectation calculée à partir de son identifiant), sinon il voit les deux et le résultat ne veut plus rien dire ;
+- **la mesure part dans les deux variantes** : l'événement « commande validée » est envoyé une seule fois, avec le nom de la variante. C'est le bug le plus courant : B a une nouvelle page de confirmation, l'événement n'y a pas été ajouté, et B semble moins bonne qu'elle ne l'est ;
+- **la répartition observée colle à la répartition prévue** : un écart net entre 50/50 attendu et observé s'appelle un <span class="term" data-term="sample-ratio-mismatch">déséquilibre d'échantillon</span> (*sample ratio mismatch*) et signale presque toujours un bug, pas un effet de la variante ;
+- **la fin de l'expérience** : la variante perdante et son flag sont supprimés, sinon chaque test futur doit couvrir deux parcours.
+
+```ts
+// Exemple : forcer la variante B pour tester son parcours de bout en bout
+test("commande en 1 clic, variante B", async ({ page, context }) => {
+  await context.addCookies([{ name: "exp_checkout", value: "B", url: "https://shop.example.com" }]);
+  await page.goto("https://shop.example.com/cart");
+  await page.getByRole("button", { name: "Commander en 1 clic" }).click();
+  await expect(page.getByText("Commande confirmée")).toBeVisible();
+});
+```
+
+Un déséquilibre détecté (chiffres d'exemple) :
+
+```
+attendu      50 % / 50 %
+observé      A 10 400 visiteurs   B 9 600 visiteurs   (52 % / 48 %)
+test du khi-deux : p < 0,001, l'écart ne vient pas du hasard
+cause        la variante B redirige avant l'envoi de l'événement « visite »
+décision     résultats invalides, correction puis relance de l'expérience
+```
+
+| Je veux... | J'utilise... |
+|---|---|
+| je veux vérifier que la variante B fonctionne avant que la moitié des clients la voie | E2E avec la variante forcée par cookie ou en-tête |
+| je veux être sûr que la conclusion de l'expérience n'est pas faussée par une mesure manquante | vérifier l'événement de mesure dans chaque variante, une fois par action |
+| la répartition des visiteurs n'est pas celle prévue, comme 52/48 au lieu de 50/50 sur 20 000 visiteurs | contrôle de déséquilibre d'échantillon, chercher le bug avant de lire le résultat |
+| je veux savoir si B fait vraiment mieux que A | la statistique de [Données et décision](donnees-decision.md#ab-testing), pas un test de QA |
+
+:material-book-open-variant: Doc de référence : [Ron Kohavi, Diane Tang et Ya Xu, « Trustworthy Online Controlled Experiments »](https://experimentguide.com/) (2020)
 { .doc-ref }
 
 ## Tests instables et parallélisation
@@ -1610,6 +1805,9 @@ Les questions typiques :
 - « La couverture de code est-elle un bon indicateur ? », « Quel seuil imposer ? » Pour répondre : je distingue code exécuté et code vérifié, puis je parle d'un gate sur le nouveau code seulement ([Ce qu'elle dit et ce qu'elle ne dit pas](#ce-quelle-dit-et-ce-quelle-ne-dit-pas), [Deux gates suffisent](#deux-gates-suffisent)).
 - « Comment testes-tu un déploiement canary ? Et un blue-green ? » Pour répondre : je compare les métriques par paliers pour le canary, et je teste green avant la bascule ([Tester un déploiement canary](#tester-un-deploiement-canary), [Tester un déploiement blue-green](#tester-un-deploiement-blue-green)), et [Déploiement progressif](livraison.md#deploiement-progressif) et [A/B testing](donnees-decision.md#ab-testing).
 - « Qu'est-ce qui fait une bonne revue de code ? », « Comment rédiges-tu un bon rapport de bug ? » Pour répondre : je classe mes remarques par niveau de gravité et je prouve chacune par `fichier:ligne` et un scénario qui casse ; un rapport de bug suit la même logique, avec les étapes pour reproduire, le résultat attendu et le résultat obtenu, l'environnement et une preuve (capture, trace, journal) ([Prouver chaque remarque](#prouver-chaque-remarque), [Scénario enregistré](#scenario-enregistre-playwright-codegen)).
+- « Qu'est-ce que le mutation testing ? », « 100 % de couverture, c'est suffisant ? » Pour répondre : je montre un mutant qui survit malgré 100 % de couverture, le test de limite qui le tue, puis le coût (temps de calcul, mutants équivalents) et l'usage ciblé sur le code critique ([Mutation testing](#mutation-testing-tester-les-tests)).
+- « Mockiste ou classique ? », « École de Londres ou de Detroit ? » Pour répondre : j'oppose la vérification des échanges à celle du résultat, je donne la force et la faiblesse de chacune, puis je dis que je choisis par voisin, Detroit par défaut et un mock quand l'échange est le comportement ([Écoles de Londres et de Detroit](#ecoles-de-londres-et-de-detroit-isoler-ou-non-lunite)).
+- « Comment testes-tu une fonctionnalité en A/B test ? » Pour répondre : je force chaque variante en E2E, je vérifie l'affectation stable, l'événement de mesure dans les deux variantes et la répartition observée, et je laisse la conclusion à la statistique ([Tester une fonctionnalité en A/B test](#tester-une-fonctionnalite-en-ab-test)).
 
 Ce qui fait une bonne réponse : un exemple vécu (ou réaliste) avec le bug que le test a attrapé ou laissé passer, puis la limite de l'outil cité. Un « ça dépend » suivi des critères vaut mieux qu'une règle récitée.
 
@@ -1636,3 +1834,6 @@ Ce qui fait une bonne réponse : un exemple vécu (ou réaliste) avec le bug que
 | mon équipe se demande combien de tests écrire à chaque niveau (unitaire, intégration, E2E) | pyramide, trophée ou nid d'abeille selon le contexte |
 | je prépare un plan de test et je veux être sûr de n'oublier aucun type de test, comme l'exploratoire ou la charge | quadrants du test agile |
 | je veux lister avec le PO ce que « qualité » recouvre au-delà de « ça marche », comme la performance, la sécurité ou l'accessibilité | ISO/IEC 25010 |
+| je dois tester une fonctionnalité montrée à la moitié des visiteurs seulement, comme un bouton « en 1 clic » en A/B test | chaque variante forcée en E2E, mesure et répartition vérifiées |
+| j'écris les tests d'un service qui calcule et enregistre, et je ne veux pas qu'un refactoring les casse si le comportement ne change pas | école de Detroit : vrais voisins, fake pour la base |
+| je conçois un parcours de l'extérieur vers l'intérieur alors que ses classes n'existent pas encore, ou je dois vérifier qu'un e-mail part bien | école de Londres : mocks sur les rôles que je possède |

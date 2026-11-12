@@ -506,3 +506,11 @@
   font-style: normal;
   color: var(--md-default-fg-color--light);
 }
+
+.md-typeset figure.diagram.radar {
+  max-width: 24rem;
+}
+
+.md-typeset figure.radar svg text {
+  font-size: 7px;
+}

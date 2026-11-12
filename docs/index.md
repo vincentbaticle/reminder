@@ -77,9 +77,9 @@ hide:
 
     ---
 
-    Carte des échelles (code, application, système, infrastructure, entreprise), styles d'architecture, front-end (micro front-ends, design system, rendu, bundlers), architecture hexagonale (quand, pourquoi, comment), urbanisation du SI et TOGAF, DDD, CAP et PACELC, réplication et quorum, sagas, CQRS, résilience (retry, circuit breaker), haute disponibilité, RTO et RPO, estimation de capacité, C4 et fitness functions.
+    Carte des échelles (code, application, système, infrastructure, entreprise), styles d'architecture, front-end (micro front-ends, design system, rendu, bundlers), architecture hexagonale (quand, pourquoi, comment), urbanisation du SI et TOGAF, DDD, CAP et PACELC, réplication et quorum, sagas, CQRS, résilience (retry, circuit breaker), haute disponibilité, RTO et RPO, estimation de capacité, C4 et fitness functions, tech radar d'entreprise.
 
-    *:material-calendar-check: Mis à jour le 06/11/2026*
+    *:material-calendar-check: Mis à jour le 12/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/architecture.md)
 
@@ -175,9 +175,9 @@ hide:
 
     ---
 
-    pyramide, trophée, nid d'abeille, quadrants, ISO/IEC 25010, niveaux de test, tests synthétiques, Testcontainers, contrats, Gherkin, couverture, quality gates, CI, tests canary et blue-green, tests instables, revue.
+    pyramide, trophée, nid d'abeille, quadrants, ISO/IEC 25010, niveaux de test, tests synthétiques, Testcontainers, contrats, Gherkin, couverture, quality gates, CI, tests canary et blue-green, A/B test, mutation testing, écoles de Londres et de Detroit, tests instables, revue.
 
-    *:material-calendar-check: Mis à jour le 06/11/2026*
+    *:material-calendar-check: Mis à jour le 12/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/qualite.md)
 
@@ -185,9 +185,9 @@ hide:
 
     ---
 
-    RabbitMQ, Kafka, Pub/Sub, Redis, PostgreSQL, BigQuery, Kubernetes, Argo CD, CI, observabilité, Playwright, k6, Checkly : mini benchmarks et pourquoi l'un ou l'autre.
+    RabbitMQ, Kafka, Pub/Sub, Redis, PostgreSQL, BigQuery, Kubernetes, Argo CD, CI, observabilité, Playwright, k6, Checkly : mini benchmarks et pourquoi l'un ou l'autre, et les tech radars (Thoughtworks, CNCF, Zalando, BYOR).
 
-    *:material-calendar-check: Mis à jour le 06/11/2026*
+    *:material-calendar-check: Mis à jour le 12/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/outils.md)
 
@@ -197,7 +197,7 @@ hide:
 
     Décisions pilotées par les données, time to insight, temps réel, A/B testing, visualisation, gouvernance des données, data science, IA prédictive et générative, FinOps.
 
-    *:material-calendar-check: Mis à jour le 06/11/2026*
+    *:material-calendar-check: Mis à jour le 12/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/donnees-decision.md)
 
@@ -295,7 +295,7 @@ hide:
 
     Pourquoi, quand et comment faire sa veille, et les sources à suivre pour l'architecte, la DevX et la plateforme, la QA et le développeur.
 
-    *:material-calendar-check: Mis à jour le 05/11/2026*
+    *:material-calendar-check: Mis à jour le 12/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/veille.md)
 

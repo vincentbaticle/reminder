@@ -1566,6 +1566,63 @@ spec:
 :material-book-open-variant: Reference docs: [Backstage, What is Backstage?](https://backstage.io/docs/overview/what-is-backstage) (accessed November 2026)
 { .doc-ref }
 
+## Tech radar: Thoughtworks, BYOR, Zalando, AOE, CNCF
+
+<a class="pill pill-scope pill-scope-enterprise" href="../architecture/#map-of-scales">Scale · Enterprise</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+*Thoughtworks Technology Radar: complements CNCF Technology Radar, company radar*<br>
+*BYOR: competes with Zalando tech-radar, AOE Technology Radar, Backstage Tech Radar plugin*
+{ .tool-rel }
+
+My team is torn between two contract testing tools, and another team just picked a third one without telling anyone. A **<span class="term" data-term="tech-radar">tech radar</span>** answers this problem: a map of technologies, each placed in a ring that says what to do with it (adopt it, try it, study it or avoid it), with a few sentences explaining why. The justification is what makes a radar worth reading, not the ring alone.
+
+There are two families of tools: **public radars**, which give the opinion of outside experts, and **generators**, which draw my company's radar. Who decides the rings in a company, and how often, is explained in [Architecture: company tech radar](architecture.md#company-tech-radar). The personal radar, for my own tech watch, is in [Tech watch](veille.md#why-when-and-how).
+
+!!! info "Written on 2026-11-12"
+    Volume numbers, ring names and the state of the open source projects change. Check them again before quoting them.
+
+### Public radars
+
+| Radar | Who writes it | Pace | Rings | What I find there |
+|---|---|---|---|---|
+| [Thoughtworks Technology Radar](https://www.thoughtworks.com/radar) (since 2010, volume 35 in November 2026) | the Technology Advisory Board: about twenty senior technologists at Thoughtworks | twice a year | Adopt, Trial, Assess, Caution (the last ring was called Hold, "proceed with caution", at least until volume 30 in April 2024; date of the renaming to check) | an argued opinion on each entry, filed in one of four quadrants: Techniques, Platforms, Tools, Languages & Frameworks; the archive shows how an entry moved from one volume to the next |
+| [CNCF Technology Radar](https://radar.cncf.io/) (since June 2020) | the end user companies of the CNCF community | one edition per theme: continuous delivery, observability, secrets... | Adopt, Trial, Assess, sometimes Hold depending on the edition | what companies really run in production in the cloud native ecosystem |
+| [Zalando Tech Radar](https://opensource.zalando.com/tech-radar/) (public since 2016) | Zalando's principal engineers community | as decisions are made | Adopt, Trial, Assess, Hold | a real company radar, with its quadrants Languages, Infrastructure, Datastores, Data Management |
+| [AOE Technology Radar](https://www.aoe.com/techradar/) (creation date to check) | the company AOE | as decisions are made | Adopt, Trial, Assess, Hold | another company radar, with the history of each entry |
+
+A public radar gives one company's opinion on **its** context: Thoughtworks says so in its FAQ, its radar reflects the experience of its teams at its clients, without claiming to cover the whole market. I use it to open a discussion, not to settle it.
+
+### Drawing my company's radar
+
+| Tool | What it is | When to pick it |
+|---|---|---|
+| [BYOR, Build Your Own Radar](https://www.thoughtworks.com/radar/byor) (Thoughtworks, open source) | draws a radar from a Google Sheet, a CSV or a JSON file | a first radar in an hour, with nothing to host; online, it enforces the standard ring and quadrant names, a local install lets me change them and keep the radar private |
+| [Zalando tech-radar](https://github.com/zalando/tech-radar) (open source, MIT licence) | an HTML page, a JavaScript library and a configuration file: a static radar to host myself | a simple radar, on any static hosting |
+| [AOE Technology Radar](https://github.com/AOEpeople/aoe_technology_radar) (open source generator) | a static site generator: one Markdown file per entry, versioned in Git, with the history of moves, a search and a dashboard | a radar kept like code, every change reviewed in a merge request |
+| [Backstage Tech Radar plugin](https://github.com/backstage/community-plugins/tree/main/workspaces/tech-radar) | shows the radar in the developer portal, next to the service catalog; it reuses Zalando's drawing | a company that already runs Backstage |
+
+Example: the CSV file BYOR reads, one line per entry (fictitious content):
+
+```
+name,ring,quadrant,isNew,description
+Testcontainers,adopt,tools,FALSE,"Throwaway databases in integration tests, used by every team since 2025."
+Consumer-driven contracts,trial,techniques,TRUE,"Trial between orders-service and billing-service, to extend if it holds for three months."
+Bruno,assess,tools,TRUE,"API collections versioned in Git, to compare with Postman."
+Selenium,hold,tools,FALSE,"No new project: Playwright covers our needs with fewer flaky tests."
+```
+
+| I want to... | I use... |
+|---|---|
+| I want to know whether a tool everyone talks about is mature enough, before bringing it to my team, like a new testing framework | Thoughtworks Technology Radar, and the entry's history in the archive |
+| I work on Kubernetes and want to know what other companies really run in production, like for managing secrets | CNCF Technology Radar |
+| my company wants to publish its technical choices quickly, for a first workshop, without building anything | BYOR with a Google Sheet |
+| I want every ring change reviewed in a merge request and kept in history, like code | AOE generator, or Zalando tech-radar with its configuration in Git |
+| my teams already look up their services in Backstage and I want the radar in the same place | Backstage Tech Radar plugin |
+| I want to follow my own tech watch, not the company's | a personal radar ([Tech watch](veille.md#why-when-and-how)) |
+
+:material-book-open-variant: Reference docs: [Thoughtworks, Technology Radar FAQ](https://www.thoughtworks.com/radar/faq) (accessed November 2026); [Neal Ford, "Build your own Technology Radar"](https://www.thoughtworks.com/insights/blog/build-your-own-technology-radar) (2016)
+{ .doc-ref }
+
 ## Complementary or competing
 
 The pages mention many tools. Two tools can be:
@@ -1700,6 +1757,8 @@ flowchart LR
 | Jira + Confluence + Slack + Backstage | <span class="pill pill-rel pill-rel-complement">complementary</span> | tickets, documentation, chat, service portal: each has its own role |
 | Claude Code, Cursor, GitHub Copilot | <span class="pill pill-rel pill-rel-compete">competing</span> | AI coding assistants; some teams use two (one in the editor, one in the terminal) |
 | AI assistant + MCP servers | <span class="pill pill-rel pill-rel-complement">complementary</span> | MCP is a protocol: it plugs tools into any compatible assistant |
+| Thoughtworks Technology Radar + company radar | <span class="pill pill-rel pill-rel-complement">complementary</span> | the public radar gives the industry's opinion, the company's says what is supported where I work |
+| BYOR, Zalando tech-radar, AOE Technology Radar, Backstage plugin | <span class="pill pill-rel pill-rel-compete">competing</span> | four ways to draw the same company radar; pick one |
 
 ## Pitfalls to avoid
 
@@ -1722,6 +1781,8 @@ The typical questions:
 - "PostgreSQL or BigQuery?", "Why not search the catalogue with a `LIKE`?" How I answer: I contrast OLTP and OLAP, then I suggest a search engine fed from the database ([Databases](#databases-postgresql-mysql-bigquery), [Search and documents](#search-and-documents-elasticsearch-mongodb)).
 - "Terraform or Pulumi?", "What is the Terraform state, and where do you store it?" How I answer: I contrast declarative HCL with a real language, then I keep the state in a bucket with a lock, never in Git ([Terraform and OpenTofu](#terraform-and-opentofu-the-declarative-standard)).
 - "Playwright, Cypress or Selenium?", "How do you test a feature behind a feature flag?" How I answer: I go through the criteria of the table (browsers, auto-waiting, parallelism), then I test both flag positions while the flag exists ([Playwright, Cypress, Selenium](#playwright-cypress-selenium), [Feature flags: Unleash](#feature-flags-unleash)).
+
+- "Do you know the Technology Radar?", "How does your company choose its technologies?" How I answer: I describe the four rings and the justification of each entry, then I tell apart the public radar, which opens the discussion, from the company radar, which says what is supported where I work ([Tech radar](#tech-radar-thoughtworks-byor-zalando-aoe-cncf), [Architecture: company tech radar](architecture.md#company-tech-radar)).
 
 What makes a good answer: start from the need, not the tool, so I name the problem, the tool that solves it, what it costs (operations, licence, vendor lock-in) and the case where I would not pick it.
 
@@ -1746,6 +1807,7 @@ What makes a good answer: start from the need, not the tool, so I name the probl
 | Identity         | Auth0, Keycloak                  | buy or operate?                                             |
 | Testing          | pytest, Playwright, k6, Checkly  | API, UI, load, or production monitoring?                    |
 | Dev tooling      | mise, uv, ruff, yarn             | how to guarantee the same environment for everyone?         |
+| Tech radar       | Thoughtworks, CNCF, BYOR, Zalando, AOE | the industry's opinion, or the choices supported in my company? |
 
 ## Sources
 
@@ -1767,4 +1829,11 @@ What makes a good answer: start from the need, not the tool, so I name the probl
 - [Argo Workflows documentation (read in November 2026)](https://argo-workflows.readthedocs.io/)
 - [Flyway documentation (read in November 2026)](https://documentation.red-gate.com/flyway), [Liquibase](https://docs.liquibase.com/), [Alembic](https://alembic.sqlalchemy.org/)
 - [Caddy documentation, automatic HTTPS (read in November 2026)](https://caddyserver.com/docs/automatic-https)
+- [Thoughtworks, Technology Radar FAQ (read in November 2026)](https://www.thoughtworks.com/radar/faq)
+- [Neal Ford, "Build your own Technology Radar", Thoughtworks (2016, reposted from a 2013 post)](https://www.thoughtworks.com/insights/blog/build-your-own-technology-radar)
+- [Thoughtworks, Build Your Own Radar, GitHub repository (read in November 2026)](https://github.com/thoughtworks/build-your-own-radar)
+- [CNCF, "Introducing the CNCF Technology Radar" (June 2020)](https://www.cncf.io/blog/2020/06/12/introducing-the-cncf-technology-radar/)
+- [Zalando, tech-radar, GitHub repository (read in November 2026)](https://github.com/zalando/tech-radar)
+- [AOE, Technology Radar generator, GitHub repository (read in November 2026)](https://github.com/AOEpeople/aoe_technology_radar)
+- [Backstage, Tech Radar plugin (read in November 2026)](https://github.com/backstage/community-plugins/tree/main/workspaces/tech-radar)
 - [Traefik documentation (read in November 2026)](https://doc.traefik.io/traefik/), [Envoy](https://www.envoyproxy.io/docs)

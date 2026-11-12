@@ -153,7 +153,8 @@ Rules:
 - set **beforehand** the main indicator, the duration and the number of visitors needed (sample size calculation);
 - do not stop as soon as the result "looks good" (peeking multiplies false positives);
 - run for at least one full week, to cover quiet and busy days;
-- beware of the novelty effect: a new button attracts at first, then the effect fades.
+- beware of the novelty effect: a new button attracts at first, then the effect fades;
+- test the setup before reading the result: each variant works, the measurement fires in both, the observed split matches the planned one ([Quality: testing a feature in an A/B test](qualite.md#testing-a-feature-in-an-ab-test)).
 
 The **sample size calculation** says how many visitors each group needs to see a given gap, if it exists. It depends on the baseline rate, the smallest gap I want to detect, the significance threshold (5%) and the power (80%: the chance of seeing the gap if it is real).
 

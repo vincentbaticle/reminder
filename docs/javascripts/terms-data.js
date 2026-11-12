@@ -6398,6 +6398,36 @@ window.REMINDER_TERMS = {
    "definition": "Méthode de Basecamp décrite par Ryan Singer (2019) : des cycles de six semaines, un projet « façonné » avant le cycle avec un appétit fixe (le temps qu'on accepte d'y mettre) et un périmètre qui s'ajuste pour tenir dedans.",
    "example": "Appétit de deux semaines pour l'export CSV : à mi-parcours, on retire le filtre par date plutôt que de prolonger.",
    "example_is_code": false
+  },
+  "mutant": {
+   "term": "Mutant",
+   "definition": "Copie du code avec un seul petit changement introduit exprès par l'outil de mutation testing, pour voir si les tests le remarquent.",
+   "example": "# code d'origine\nreturn asked_cents <= paid_cents\n# mutant\nreturn asked_cents < paid_cents",
+   "example_is_code": true
+  },
+  "mutation-score": {
+   "term": "Score de mutation",
+   "definition": "Part des mutants tués par les tests. Il juge la qualité des assertions, là où la couverture ne mesure que l'exécution.",
+   "example": "80 mutants tués sur 100 : score de 80 %, et 20 survivants à lire un par un.",
+   "example_is_code": false
+  },
+  "equivalent-mutant": {
+   "term": "Mutant équivalent",
+   "definition": "Mutant qui change le code sans changer le comportement : aucun test ne peut le tuer, c'est pourquoi un score de 100 % est rarement atteignable.",
+   "example": "for i in range(n) remplacé par une boucle while i != n qui avance de 1 : même résultat.",
+   "example_is_code": false
+  },
+  "outside-in": {
+   "term": "Outside-in",
+   "definition": "Façon de développer qui part du comportement vu de l'extérieur (un test d'acceptation), puis descend vers les classes, en découvrant leurs interfaces grâce aux mocks.",
+   "example": "Je commence par le test « une commande payée envoie un e-mail », puis j'écris OrderService avec un mock de Mailer, puis Mailer lui-même.",
+   "example_is_code": false
+  },
+  "sample-ratio-mismatch": {
+   "term": "Déséquilibre d'échantillon (SRM)",
+   "definition": "Écart net entre la répartition prévue des visiteurs d'un A/B test et la répartition observée. Il signale presque toujours un bug du dispositif, et rend le résultat invalide.",
+   "example": "Prévu 50/50, observé 52/48 sur 20 000 visiteurs : la variante B perdait une partie de ses visites.",
+   "example_is_code": false
   }
  },
  "en": {
@@ -12795,6 +12825,36 @@ window.REMINDER_TERMS = {
    "term": "Shape Up",
    "definition": "Basecamp's method described by Ryan Singer (2019): six-week cycles, a project \"shaped\" before the cycle with a fixed appetite (the time one agrees to spend) and a scope that adjusts to fit in it.",
    "example": "Two-week appetite for the CSV export: halfway through, the date filter is dropped rather than extending.",
+   "example_is_code": false
+  },
+  "mutant": {
+   "term": "Mutant",
+   "definition": "Copy of the code with a single small change planted on purpose by the mutation testing tool, to see whether the tests notice it.",
+   "example": "# original code\nreturn asked_cents <= paid_cents\n# mutant\nreturn asked_cents < paid_cents",
+   "example_is_code": true
+  },
+  "mutation-score": {
+   "term": "Mutation score",
+   "definition": "Share of mutants killed by the tests. It judges the quality of the assertions, where coverage only measures execution.",
+   "example": "80 mutants killed out of 100: a score of 80%, and 20 survivors to read one by one.",
+   "example_is_code": false
+  },
+  "equivalent-mutant": {
+   "term": "Equivalent mutant",
+   "definition": "Mutant that changes the code without changing the behaviour: no test can kill it, which is why a 100% score is rarely reachable.",
+   "example": "i < n replaced by i != n in a loop that steps by 1: same result.",
+   "example_is_code": false
+  },
+  "outside-in": {
+   "term": "Outside-in",
+   "definition": "Way of developing that starts from the behaviour seen from outside (an acceptance test), then moves down to the classes, discovering their interfaces through mocks.",
+   "example": "I start with the test \"a paid order sends an email\", then write OrderService with a Mailer mock, then Mailer itself.",
+   "example_is_code": false
+  },
+  "sample-ratio-mismatch": {
+   "term": "Sample ratio mismatch (SRM)",
+   "definition": "Clear gap between the planned visitor split of an A/B test and the observed one. It almost always signals a bug in the setup, and invalidates the result.",
+   "example": "Planned 50/50, observed 52/48 over 20,000 visitors: variant B was losing some of its visits.",
    "example_is_code": false
   }
  }

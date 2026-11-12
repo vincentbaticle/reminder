@@ -157,7 +157,8 @@ Règles :
 - fixer **avant** l'indicateur principal, la durée et le nombre de visiteurs nécessaires (calcul de taille d'échantillon) ;
 - ne pas s'arrêter dès que le résultat « a l'air bon » (le « peeking » multiplie les faux positifs) ;
 - laisser tourner au moins une semaine complète, pour couvrir les jours creux et les jours pleins ;
-- se méfier de l'effet de nouveauté : un nouveau bouton attire au début, puis l'effet retombe.
+- se méfier de l'effet de nouveauté : un nouveau bouton attire au début, puis l'effet retombe ;
+- tester le dispositif avant de lire le résultat : chaque variante marche, la mesure part dans les deux, la répartition observée colle à la prévue ([Qualité : tester une fonctionnalité en A/B test](qualite.md#tester-une-fonctionnalite-en-ab-test)).
 
 Le **calcul de taille d'échantillon** dit combien de visiteurs il faut par groupe pour voir un écart donné, s'il existe. Il dépend du taux de départ, de l'écart minimal qu'on veut détecter, du seuil de significativité (5 %) et de la puissance (80 % : la chance de voir l'écart s'il est réel).
 

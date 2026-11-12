@@ -16,7 +16,7 @@ Tech watch means keeping up with what changes in my job (tools, practices, ideas
 
 **<span class="term" data-term="rss-feed">RSS feed</span>**: a file published by a site, listing its latest articles. A feed reader (Feedly, Inoreader, NetNewsWire, Miniflux) gathers all the followed sites in a single list, with no algorithm and no ads.
 
-**<span class="term" data-term="tech-radar">Technology radar</span>**: a classification of technologies into four rings, popularised by Thoughtworks (Technology Radar, published twice a year since 2010): **Adopt** (use it), **Trial** (try it on a real project), **Assess** (study it), **Hold** (avoid it for new uses).
+**<span class="term" data-term="tech-radar">Technology radar</span>**: a classification of technologies into four rings, popularised by Thoughtworks (Technology Radar, published twice a year since 2010): **Adopt** (use it), **Trial** (try it on a real project), **Assess** (study it), **Hold** (avoid it for new uses; Thoughtworks now calls it Caution). Public radars and the tools to draw one are in [Tech tools landscape: tech radar](outils.md#tech-radar-thoughtworks-byor-zalando-aoe-cncf), the company radar in [Architecture: company tech radar](architecture.md#company-tech-radar).
 
 ## Why, when and how
 

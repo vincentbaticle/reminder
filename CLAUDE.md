@@ -1,12 +1,12 @@
 # reminder
 
-Personal cheat sheets published as a local MkDocs Material site, in French (default) and English. Commands: `mise run serve`, `mise run build` (strict, must pass before any commit).
+Personal cheat sheets published as a MkDocs Material site, in French (default) and English. The repo is public and every push to `main` publishes the site on GitHub Pages (`.github/workflows/pages.yml`): anything committed is visible to anyone. Commands: `mise run serve`, `mise run build` (strict, must pass before any commit).
 
 ## Rule: every change is bilingual
 
 - Each page exists as `page.md` (French) and `page.en.md` (English), side by side. A change in one file is made in the other in the same commit.
 - Exception: `docs/knowledge/expressions.md` is bilingual by nature (French and English side by side) and exists only in French. The English site serves it through `fallback_to_default`, and the `.no-lang-switch` marker in the page disables the language switcher there (`docs/javascripts/ux.js`).
-- A new page needs both files, a `nav` entry in `mkdocs.yml` (French file name) under the right group, an English title in `nav_translations` when the title differs, a card in `docs/index.md` and `docs/index.en.md` under the matching `###` group (Knowledge groups: Code, API et sécurité, Exploitation, Qualité et outils, IA, Culture; Culture holds IT and company culture: seminal texts, eponymous laws, organization; other non technical pages go in Divers), and a line in the same group of `README.md`.
+- A new page needs both files, a `nav` entry in `mkdocs.yml` (French file name) under the right group, an English title in `nav_translations` when the title differs, a card in `docs/index.md` and `docs/index.en.md` under the matching `###` group (Knowledge groups: Code, API et sécurité, Exploitation, Qualité et outils, IA, Culture; Culture holds IT and company culture: seminal texts, eponymous laws, organization; other non technical pages go in Divers), and a line in the same group of `README.md`. How to run the site locally lives in the README only, not in a site page.
 - Links between pages use the French file name (`sql.md`, never `sql.en.md`). Anchors use the slug of the heading in the language of the page.
 - Exception: MkDocs does not rewrite links inside raw HTML (`<a href>` of the badges), so `href="sql.md#x"` gives a 404. In raw HTML, point to the built URL: `href="../sql/#x"`, for links to the same page too. `mkdocs build --strict` does not catch these, check the built `site/` for broken `href`.
 
@@ -90,4 +90,4 @@ This repo is personal. No company name, internal product or service name, collea
 
 - Commit as `Vincent Baticle <vincentbaticle@users.noreply.github.com>` (set in the local git config).
 - Conventional commits, with a `Co-Authored-By` trailer when Claude writes the commit.
-- Commit and push to `main` directly: the repo is private, no MR needed.
+- Commit and push to `main` directly, no MR needed. A push publishes the site within minutes: build with `mise run build` first.

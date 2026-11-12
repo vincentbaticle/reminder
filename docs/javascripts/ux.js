@@ -3,7 +3,10 @@
  * paragraphs made of a single bold label ("**Réponse générique**") get the `section-label` class,
  * switching language keeps the reading position (both languages share the same block structure),
  * pages that contain a `.no-lang-switch` marker (bilingual by nature) get a disabled language switcher,
- * and very tall Mermaid diagrams are scaled down so that one diagram does not fill several screens.
+ * very tall Mermaid diagrams are scaled down so that one diagram does not fill several screens,
+ * search results get a small flag showing their language (the search index holds both languages),
+ * a thin bar under the header shows how far the reader is in the page,
+ * and the home page "random page" button opens one of the cards at random.
  */
 (function () {
   const POSITION_KEY = "reminder-reading-position";
@@ -149,7 +152,85 @@
     }).observe(content, { childList: true, subtree: true });
   }
 
+  function siteRoot() {
+    const config = document.getElementById("__config");
+    let base = ".";
+    try {
+      base = JSON.parse(config.textContent).base || ".";
+    } catch (error) {
+      console.warn("Site base not found", error);
+    }
+    return new URL(base.replace(/\/?$/, "/"), window.location.href).pathname;
+  }
+
+  function resultLanguage(link, root) {
+    const path = new URL(link.href, window.location.href).pathname;
+    const relative = path.startsWith(root) ? path.slice(root.length) : path;
+    return relative === "en" || relative.startsWith("en/") ? "en" : "fr";
+  }
+
+  function flagSearchResults() {
+    const list = document.querySelector(".md-search-result__list");
+    if (!list) {
+      return;
+    }
+    const root = siteRoot();
+    const english = document.documentElement.lang.startsWith("en");
+    const labels = english
+      ? { fr: "Result in French", en: "Result in English" }
+      : { fr: "Résultat en français", en: "Résultat en anglais" };
+    function decorate() {
+      list.querySelectorAll("a.md-search-result__link").forEach(function (link) {
+        const article = link.querySelector(".md-search-result__article--document");
+        if (!article || article.querySelector(".lang-flag")) {
+          return;
+        }
+        const language = resultLanguage(link, root);
+        const flag = document.createElement("span");
+        flag.className = "lang-flag lang-flag--" + language;
+        flag.setAttribute("role", "img");
+        flag.setAttribute("aria-label", labels[language]);
+        flag.title = labels[language];
+        article.prepend(flag);
+      });
+    }
+    new MutationObserver(decorate).observe(list, { childList: true, subtree: true });
+  }
+
+  function showReadingProgress() {
+    if (!document.querySelector(".md-content article h2")) {
+      return;
+    }
+    const bar = document.createElement("div");
+    bar.className = "reading-progress";
+    document.body.appendChild(bar);
+    function update() {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = scrollable > 0 ? Math.min(1, window.scrollY / scrollable) : 0;
+      bar.style.transform = "scaleX(" + ratio.toFixed(4) + ")";
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  }
+
+  function wireRandomPage() {
+    const button = document.querySelector(".hero__random");
+    const links = Array.from(document.querySelectorAll(".grid.cards a[href]"));
+    if (!button || links.length === 0) {
+      return;
+    }
+    button.addEventListener("click", function (event) {
+      event.preventDefault();
+      const pick = links[Math.floor(Math.random() * links.length)];
+      window.location.href = pick.href;
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    wireRandomPage();
+    flagSearchResults();
+    showReadingProgress();
     disableLanguageSwitchWhenBilingual();
     linkHeaderTitle();
     markSectionLabels();

@@ -4,12 +4,25 @@ hide:
   - toc
 ---
 
-# Reminder
+# Reminder { .hero-title }
 
 !!! warning "Disclaimer"
     These notes are personal cheat sheets, not a source of truth. They reflect my own understanding and choices: their content remains subjective, despite the quotes and references it contains. It may be incomplete, simplified, inaccurate or outdated. Always check the official documentation before applying it. This content is provided as is, without any warranty: you use it at your own risk.
 
-My cheat sheets: a simple definition, a concrete example, and when to use what.
+<div class="hero" markdown>
+
+<p class="hero__tagline">A developer's cheat sheets: a simple definition, a concrete example, and when to use what.</p>
+
+<div class="hero__chips" markdown>
+<span class="hero__chip" markdown>:material-lightbulb-on-outline: One example per notion</span>
+<span class="hero__chip" markdown>:material-gesture-tap: Definitions on hover</span>
+<span class="hero__chip" markdown>:material-translate: French and English</span>
+<span class="hero__chip" markdown>:material-magnify: Search in both languages</span>
+</div>
+
+[:material-dice-multiple-outline: A random page](#){ .md-button .hero__random }
+
+</div>
 
 ??? tip "How to read the pages"
     Every page follows the same thread: **Terminology**, then one notion per heading, with its definition, an example and an "I want... I use..." table. Visual cues:
@@ -28,7 +41,7 @@ My cheat sheets: a simple definition, a concrete example, and when to use what.
 
 ### Code
 
-<div class="grid cards" markdown>
+<div class="grid cards group-code" markdown>
 
 -   :material-git:{ .lg .middle } **Git**
 
@@ -84,7 +97,7 @@ My cheat sheets: a simple definition, a concrete example, and when to use what.
 
 ### APIs and security
 
-<div class="grid cards" markdown>
+<div class="grid cards group-api" markdown>
 
 -   :material-api:{ .lg .middle } **REST and async APIs**
 
@@ -110,7 +123,7 @@ My cheat sheets: a simple definition, a concrete example, and when to use what.
 
 ### Operations
 
-<div class="grid cards" markdown>
+<div class="grid cards group-ops" markdown>
 
 -   :material-kubernetes:{ .lg .middle } **Containers, Kubernetes and deployment**
 
@@ -156,7 +169,7 @@ My cheat sheets: a simple definition, a concrete example, and when to use what.
 
 ### Quality and tools
 
-<div class="grid cards" markdown>
+<div class="grid cards group-quality" markdown>
 
 -   :material-check-decagram-outline:{ .lg .middle } **Quality and testing**
 
@@ -202,7 +215,7 @@ My cheat sheets: a simple definition, a concrete example, and when to use what.
 
 ### AI
 
-<div class="grid cards" markdown>
+<div class="grid cards group-ai" markdown>
 
 -   :material-robot-outline:{ .lg .middle } **Agents, skills and context**
 
@@ -228,7 +241,7 @@ My cheat sheets: a simple definition, a concrete example, and when to use what.
 
 ### Culture
 
-<div class="grid cards" markdown>
+<div class="grid cards group-culture" markdown>
 
 -   :material-book-open-page-variant-outline:{ .lg .middle } **Seminal texts**
 
@@ -264,7 +277,7 @@ My cheat sheets: a simple definition, a concrete example, and when to use what.
 
 ## Miscellaneous
 
-<div class="grid cards" markdown>
+<div class="grid cards group-misc" markdown>
 
 -   :material-translate:{ .lg .middle } **Common expressions (multilingual)**
 

@@ -4,12 +4,25 @@ hide:
   - toc
 ---
 
-# Reminder
+# Reminder { .hero-title }
 
 !!! warning "Avertissement"
     Ces notes sont des pense-bêtes personnels, pas une source de vérité. Elles reflètent ma compréhension et mes choix : leur contenu reste subjectif, malgré les citations et les références qu'il contient. Il peut être incomplet, simplifié, inexact ou dépassé. Vérifiez toujours dans la documentation officielle avant de l'appliquer. Ce contenu est fourni tel quel, sans aucune garantie : son utilisation se fait sous votre seule responsabilité.
 
-Mes pense-bêtes : une définition simple, un exemple concret, et quand utiliser quoi.
+<div class="hero" markdown>
+
+<p class="hero__tagline">Mes pense-bêtes de développeur : une définition simple, un exemple concret, et quand utiliser quoi.</p>
+
+<div class="hero__chips" markdown>
+<span class="hero__chip" markdown>:material-lightbulb-on-outline: Un exemple par notion</span>
+<span class="hero__chip" markdown>:material-gesture-tap: Définitions au survol</span>
+<span class="hero__chip" markdown>:material-translate: Français et anglais</span>
+<span class="hero__chip" markdown>:material-magnify: Recherche dans les deux langues</span>
+</div>
+
+[:material-dice-multiple-outline: Une page au hasard](#){ .md-button .hero__random }
+
+</div>
 
 ??? tip "Comment lire les pages"
     Chaque page suit le même fil : **Vocabulaire**, puis une notion par titre, avec sa définition, un exemple et un tableau « je veux... j'utilise... ». Repères visuels :
@@ -28,7 +41,7 @@ Mes pense-bêtes : une définition simple, un exemple concret, et quand utiliser
 
 ### Code
 
-<div class="grid cards" markdown>
+<div class="grid cards group-code" markdown>
 
 -   :material-git:{ .lg .middle } **Git**
 
@@ -84,7 +97,7 @@ Mes pense-bêtes : une définition simple, un exemple concret, et quand utiliser
 
 ### API et sécurité
 
-<div class="grid cards" markdown>
+<div class="grid cards group-api" markdown>
 
 -   :material-api:{ .lg .middle } **API REST et asynchrone**
 
@@ -110,7 +123,7 @@ Mes pense-bêtes : une définition simple, un exemple concret, et quand utiliser
 
 ### Exploitation
 
-<div class="grid cards" markdown>
+<div class="grid cards group-ops" markdown>
 
 -   :material-kubernetes:{ .lg .middle } **Conteneurs, Kubernetes et déploiement**
 
@@ -156,7 +169,7 @@ Mes pense-bêtes : une définition simple, un exemple concret, et quand utiliser
 
 ### Qualité et outils
 
-<div class="grid cards" markdown>
+<div class="grid cards group-quality" markdown>
 
 -   :material-check-decagram-outline:{ .lg .middle } **Qualité et tests**
 
@@ -202,7 +215,7 @@ Mes pense-bêtes : une définition simple, un exemple concret, et quand utiliser
 
 ### IA
 
-<div class="grid cards" markdown>
+<div class="grid cards group-ai" markdown>
 
 -   :material-robot-outline:{ .lg .middle } **Agents, skills et contexte**
 
@@ -228,7 +241,7 @@ Mes pense-bêtes : une définition simple, un exemple concret, et quand utiliser
 
 ### Culture
 
-<div class="grid cards" markdown>
+<div class="grid cards group-culture" markdown>
 
 -   :material-book-open-page-variant-outline:{ .lg .middle } **Textes fondateurs**
 
@@ -264,7 +277,7 @@ Mes pense-bêtes : une définition simple, un exemple concret, et quand utiliser
 
 ## Divers
 
-<div class="grid cards" markdown>
+<div class="grid cards group-misc" markdown>
 
 -   :material-translate:{ .lg .middle } **Expressions courantes (multilingue)**
 

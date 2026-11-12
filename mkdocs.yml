@@ -9,6 +9,9 @@ copyright: Contenu sous licence CC BY 4.0, fourni tel quel, sans aucune garantie
 theme:
   name: material
   language: fr
+  font:
+    text: Inter
+    code: JetBrains Mono
   icon:
     logo: material/notebook-heart-outline
   palette:
@@ -73,7 +76,6 @@ plugins:
             Sécurité: Security
             Panorama des outils techniques: Tech tools landscape
             Expressions courantes (multilingue): Common expressions (multilingual)
-            Accéder au site: Access the site
             Principes de conception: Design principles
             Livraison et pratiques d'ingénierie: Delivery and engineering practices
             Données et décision: Data and decisions
@@ -148,4 +150,3 @@ nav:
   - Divers:
       - Expressions courantes (multilingue): knowledge/expressions.md
       - Veille technique par métier: knowledge/veille.md
-  - Accéder au site: acces.md

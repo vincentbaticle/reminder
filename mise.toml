@@ -1,0 +1,19 @@
+[tools]
+python = "3.12"
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+
+[tasks.install]
+description = "Install MkDocs and its theme"
+run = "pip install -q -r requirements.txt"
+
+[tasks.serve]
+description = "Serve the site on http://127.0.0.1:8100 with live reload"
+depends = ["install"]
+run = "mkdocs serve -a 127.0.0.1:8100"
+
+[tasks.build]
+description = "Build the site and fail on broken links"
+depends = ["install"]
+run = "mkdocs build --strict"

@@ -73,7 +73,7 @@ What already lives elsewhere is not repeated here: DORA metrics, SPACE and the D
 
 The two loops have neither the same frequency nor the same acceptable duration, and I do not speed them up with the same tools. An example day for `ada` on `orders-service`:
 
-```
+``` { .text .ex-illus title="Illustration" }
 inner loop (on the laptop, dozens of times an hour)
   10:00:00  ada edits calculate_total()
   10:00:01  the server reloads the code by itself
@@ -146,7 +146,7 @@ Three rules:
 
 A newcomer's path becomes:
 
-```bash
+``` { .bash .ex-good title="Recommended" }
 git clone git@git.example.com:team-core/orders-service.git
 cd orders-service
 mise install
@@ -158,7 +158,7 @@ The matching `mise.toml` file is shown in the [Technical tools overview](outils.
 
 Avoid the setup script that assumes everything is already installed and running: with Docker stopped, the newcomer reads `Cannot connect to the Docker daemon` in the middle of forty lines of output, then `uv: command not found`, with no idea where to start.
 
-```bash
+``` { .bash .ex-bad title="Avoid" }
 # Avoid: no check at all, the first failing command gives a raw error
 docker compose up -d db
 uv sync
@@ -167,7 +167,7 @@ uv run pytest
 
 The version with `doctor`, which says what to fix:
 
-```python
+``` { .python .ex-good title="Recommended" }
 """Check that the laptop can run orders-service and explain how to fix it."""
 
 import shutil
@@ -240,7 +240,7 @@ Docker Compose describes, in a `compose.yaml` file, the <span class="term" data-
 
 Avoid running the service from an image holding a copy of the code made at build time: every change needs `docker compose up --build`, about two minutes per try (example), and forgetting `--build` means testing the old code.
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: code copied into the image, no volume and no reload
 services:
   my-api:
@@ -251,7 +251,7 @@ services:
 
 The version with a volume and reload:
 
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Example: my-api and its Postgres database, started together locally
 services:
   # Good: code mounted as a volume and --reload, a save is seen right away
@@ -317,7 +317,7 @@ I change one line and wait a minute to find out whether it works: after thirty t
 !!! noob "As noob"
     The build cache is coffee already brewed and kept warm: as long as nobody changed the beans or the water, I pour another cup without restarting the machine. The incremental build is remaking only the cup whose beans I changed. Limit: if the cache is wrong about what changed, it serves a stale result, hence the importance of the key that describes its inputs. The takeaway: **only redo what has changed inputs.**
 
-```bash
+``` { .bash .ex-ref title="Reference" }
 uvicorn my_api.main:app --reload
 pytest -x --lf
 pytest tests/test_orders.py::test_total_with_discount
@@ -378,7 +378,7 @@ A <span class="term" data-term="devcontainer">Dev Container</span> is a complete
 
 A <span class="term" data-term="remote-dev-environment">remote development environment</span> runs this workstation on a server or in the cloud; I connect to it from a local editor or a browser. Examples of this kind of tool: GitHub Codespaces, Coder, Gitpod (to check, the offer changes).
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "name": "orders-service",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
@@ -436,7 +436,7 @@ My product owner wants to click through the new order screen before the merge, b
 
 Avoid: a deployment with neither `auto_stop_in` nor `on_stop`. Each MR leaves a namespace behind, nobody deletes it, and three months later the cluster hosts 200 environments nobody looks at any more.
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: nothing destroys the environment, it stays after the merge
 preview:
   environment:
@@ -445,7 +445,7 @@ preview:
     - helm upgrade --install "front-mr-$CI_MERGE_REQUEST_IID" ./chart
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Good: address published in the MR, destroyed on close and after 5 days without activity
 preview:
   stage: deploy
@@ -552,7 +552,7 @@ The levers, in the order where they often pay off the most:
 
 Avoid the CI copied from project to project: each job waits for the previous stage to finish and downloads every dependency again, and tests run even when only the README changed, so 4 min of lint then 15 min of tests in a row (example numbers).
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: sequential stages, no cache, tests run for every change
 stages: [lint, test]
 
@@ -573,7 +573,7 @@ test:
 
 The same CI, reorganised:
 
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Good: shared base, uv cache keyed on the lockfile
 .python:
   image: python:3.12-slim
@@ -649,7 +649,7 @@ A <span class="term" data-term="versioned-component">CI component</span> is a re
 
 Avoid the floating version: each project takes the latest published version without going through an MR, so a mistake in the component turns every pipeline red the same morning.
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: floating version, one change to the component breaks every project at once
 include:
   - component: git.example.com/team-platform/ci/python@~latest
@@ -657,7 +657,7 @@ include:
 
 A project's `.gitlab-ci.yml`, with a pinned version:
 
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Good: one include line and a version, no more copied jobs
 include:
   - component: git.example.com/team-platform/ci/python@1.4.0
@@ -667,7 +667,7 @@ include:
 
 The component repository, `team-platform/ci`:
 
-```
+``` { .text .ex-illus title="Illustration" }
 team-platform/ci/
 ├── templates/
 │   └── python.yml      the "python" component
@@ -676,7 +676,7 @@ team-platform/ci/
 └── README.md
 ```
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # templates/python.yml
 # Example: parameters the component accepts, with their default
 spec:
@@ -704,7 +704,7 @@ The part before `---` declares the accepted parameters; `$[[ inputs.python_versi
 
 How a fix reaches the projects:
 
-```
+``` { .text .ex-illus title="Illustration" }
 day 0   the platform team adds the uv cache to the component, tags 1.5.0
 day 1   the dependency update bot (Renovate) opens an MR "python 1.4.0 -> 1.5.0" in each project
 day 1   each MR's CI runs with the new version; minor version and green CI: automatic merge
@@ -730,14 +730,15 @@ Twenty teams call my internal CLI `devctl` from their CI scripts, and a bot merg
 
 Avoid: renaming `--env` to `--target` in version 2.4.0. The bot merges this minor automatically, and the next morning every script that runs `devctl deploy --env staging` fails on an unknown option.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: option renamed in a minor version, existing scripts break
 @cli.command()
 @click.option("--target", required=True)
 def deploy(target):
     run_deploy(target)
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: the new option arrives in 2.4.0, the old one still works and warns until 3.0.0
 @cli.command()
 @click.option("--target")
@@ -894,7 +895,7 @@ A <span class="term" data-term="golden-path">golden path</span> covers a common 
 
 **Backstage Software Templates**: in the Backstage portal, a form starts the generation, creates the repository and registers it in the catalogue. A template is a YAML file that describes the requested parameters and the steps:
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: Backstage template, parameters asked in the form
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
@@ -1060,7 +1061,7 @@ My team has a wiki nobody updates: the code changes, the page stays, and it ends
 
 <figure class="diagram"><svg viewBox="0 0 220 160" role="img" aria-label="The four Diátaxis types"><rect class="layer layer-2" x="50" y="10" width="80" height="60"/><rect class="layer layer-1" x="130" y="10" width="80" height="60"/><rect class="layer layer-1" x="50" y="70" width="80" height="60"/><rect class="layer layer-2" x="130" y="70" width="80" height="60"/><text x="90" y="43" text-anchor="middle" class="label-strong">tutorial</text><text x="170" y="43" text-anchor="middle" class="label-strong">how-to guide</text><text x="90" y="103" text-anchor="middle" class="label-strong">explanation</text><text x="170" y="103" text-anchor="middle" class="label-strong">reference</text><text x="45" y="43" text-anchor="end">action</text><text x="45" y="103" text-anchor="end">cognition</text><text x="90" y="145" text-anchor="middle">study</text><text x="170" y="145" text-anchor="middle">work</text></svg><figcaption>The four Diátaxis types (Daniele Procida)</figcaption></figure>
 
-```text
+``` { .text .ex-illus title="Illustration" }
 orders-service/
 ├── mkdocs.yml
 └── docs/
@@ -1155,7 +1156,7 @@ Moving 300 repositories to a new Python version, retiring an internal library us
 
 An example Renovate configuration: automatic merge of patches and minor versions when CI is green, human review for major versions.
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "extends": ["config:recommended"],
   "packageRules": [
@@ -1178,7 +1179,7 @@ Preset and option names to check in the Renovate documentation.
 !!! noob "As noob"
     I move the kitchen light switch ten centimetres: the lease says nothing about it, but someone used to reach for it in the dark and will now fumble around. Software used by many people always has someone relying on a detail nobody promised (a sort order, an error message, a delay). The takeaway: **before removing something, find out who actually uses it, not just what the documentation says.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 month 0     announcement, migration guide, warning on every import of legacy-config
 month 1     codemod and automatic MRs in the 48 services that only use 2 functions
 month 2     lint rule: no new usage accepted
@@ -1205,7 +1206,7 @@ Example schedule. The end of the campaign is always the longest part: the last r
 
 The services must move from the `legacy_config` library to `team_config`, which exposes the same `load` function.
 
-```python
+``` { .python .ex-good title="Recommended" }
 # before
 from legacy_config import load
 
@@ -1218,7 +1219,7 @@ An <span class="term" data-term="ast-grep">ast-grep</span> rule makes the replac
 !!! noob "As noob"
     `sed` looks for letters, like a word processor's "find and replace"; ast-grep reads sentences, like a proofreader who can tell a verb from a noun. So it replaces the import of `legacy_config`, not the word `legacy_config` lying around in a comment. The takeaway: **the more the shape of the code to change varies, the more I need a tool that understands its structure.**
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # rules/legacy-config.yml
 # Example: ast-grep rule rewriting the import, whatever names are imported
 id: legacy-config-import
@@ -1232,14 +1233,14 @@ For a case this simple, `sed` is often enough: `git ls-files '*.py' | xargs sed 
 
 Avoid the unanchored replacement across every file: it also changes strings and names containing the same word, like the `legacy_config_overrides.yaml` file read at startup, which becomes `team_config_overrides.yaml` in the code, so it is not found and the service no longer starts.
 
-```bash
+``` { .bash .ex-bad title="Avoid" }
 # Avoid: replaces the word everywhere, not only in imports
 git ls-files | xargs sed -i 's/legacy_config/team_config/g'
 ```
 
 The loop that applies the rule and opens one MR per repository, from a `repos.txt` list (`team-core/orders-service`, `team-core/payments-service`...):
 
-```bash
+``` { .bash .ex-ref title="Reference" }
 # Example: for each repo in repos.txt, applies the rule and opens an MR
 RULE="$PWD/rules/legacy-config.yml"
 while read -r repo; do

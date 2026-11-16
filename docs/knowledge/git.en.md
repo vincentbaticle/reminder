@@ -37,7 +37,7 @@ flowchart LR
   L -- "git switch, git restore" --> W
 ```
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git status
 On branch feat/login
 Changes to be committed:          (staging area: goes into the next commit)
@@ -54,7 +54,7 @@ Untracked files:                  (never tracked by git)
 ### Commit
 A snapshot of the whole project at a given moment, with a message, an author and an identifier (<span class="term" data-term="git-sha">SHA</span>).
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git log --oneline
 a1b2c3d feat(login): add remember-me checkbox
 9f8e7d6 fix(api): handle empty payload
@@ -106,7 +106,7 @@ A fixed label on a commit, usually for a version.
 !!! noob "As noob"
     A branch is a bookmark that moves forward with each commit; a tag is a pin stuck once and for all on a precise page. `v1.2.0` will always point to the same commit, even if `main` moves a hundred commits ahead. The one thing to remember: **a tag does not move, and it has to be pushed explicitly (`git push origin v1.2.0`), otherwise it stays on my machine.**
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git tag v1.2.0
 $ git push origin v1.2.0
 ```
@@ -116,7 +116,7 @@ $ git push origin v1.2.0
 
 ### Repository (repo) and clone
 A **<span class="term" data-term="git-repository">repository</span>** is the project with its whole <span class="term" data-term="git-history">history</span>. **<span class="term" data-term="git-clone">Cloning</span>** means downloading a full copy of it to my machine.
-```
+``` { .text .ex-ref title="Reference" }
 $ git clone https://github.com/moi/my-repo.git
 ```
 
@@ -125,7 +125,7 @@ $ git clone https://github.com/moi/my-repo.git
 
 ### SHA
 The unique identifier of a commit, a string of 40 characters. People often use just the first 7.
-```
+``` { .text .ex-ref title="Reference" }
 a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0   full
 a1b2c3d                                     short
 ```
@@ -135,7 +135,7 @@ a1b2c3d                                     short
 
 ### Diff and hunk
 A **<span class="term" data-term="git-diff">diff</span>** shows the differences between two versions: `-` for removed lines, `+` for added lines. A **<span class="term" data-term="git-hunk">hunk</span>** is a block of neighboring changes within that diff.
-```
+``` { .text .ex-ref title="Reference" }
 @@ -12,3 +12,3 @@          (start of a hunk: line 12)
 -timeout = 30
 +timeout = 60
@@ -166,7 +166,7 @@ A file that pins the exact version of each <span class="term" data-term="depende
 
 ### SLI, SLO, SLA
 An **<span class="term" data-term="sli">SLI</span>** is the measured indicator, an **<span class="term" data-term="slo">SLO</span>** the internal target the team sets on that indicator, an **<span class="term" data-term="sla">SLA</span>** the contractual promise made to a customer, with a penalty if it is not kept, usually looser than the SLO. A Git practice almost never has an external customer, so no SLA, only a team SLO. Example (example figures), details in [Observability](observabilite.md#sli-slo-error-budget):
-```
+``` { .text .ex-illus title="Illustration" }
 SLI   median branch age at merge this month   1.6 days
 SLO   the team's target                       under 2 days
 SLA   n/a: no customer pays for the age of my branches
@@ -189,7 +189,7 @@ SLA   n/a: no customer pays for the age of my branches
 
 I always start from an up-to-date `main`, in the <span class="term" data-term="git-repository">repo</span> folder.
 
-```
+``` { .text .ex-good title="Recommended" }
 $ git fetch
 $ git switch -c feat/login origin/main
 ```
@@ -197,7 +197,7 @@ $ git switch -c feat/login origin/main
 
 Avoid: starting from my local `main` without a `fetch`. If it is a week old, my branch starts from a base dozens of commits behind, and the conflicts all show up at once at merge request time.
 
-```
+``` { .text .ex-bad title="Avoid" }
 # Avoid: local main never updated, stale base
 $ git switch main
 $ git switch -c feat/login
@@ -212,13 +212,13 @@ $ git switch -c feat/login
 
 Avoid: `git add .` adds everything lying around in the folder, including a `.env` missing from `.gitignore` or a debug file, and the message "fix" tells nobody what changed. The password in `.env` leaves with the next push.
 
-```
+``` { .text .ex-bad title="Avoid" }
 # Avoid: add everything without looking, meaningless message
 $ git add .
 $ git commit -m "fix"
 ```
 
-```
+``` { .text .ex-good title="Recommended" }
 # Good: I check, I add only my files, the message says what changes
 $ git status
 $ git add src/login.py
@@ -226,7 +226,7 @@ $ git commit -m "feat(login): add remember-me checkbox"
 ```
 
 I only want to <span class="term" data-term="git-commit">commit</span> part of the changes in a file:
-```
+``` { .text .ex-ref title="Reference" }
 $ git add -p src/login.py
 Stage this hunk [y,n,q,a,d,s,e,?]? y
 ```
@@ -240,7 +240,7 @@ Stage this hunk [y,n,q,a,d,s,e,?]? y
 
 Avoid: messages that say neither the nature nor the subject of the change. Six months later, `git log` no longer tells me which commit touched the login, and the release tool cannot tell whether to bump the version.
 
-```
+``` { .text .ex-bad title="Avoid" }
 # Avoid: vague messages, unreadable in git log
 fix
 wip
@@ -248,7 +248,7 @@ update stuff
 changes after review
 ```
 
-```
+``` { .text .ex-good title="Recommended" }
 # Good: type, scope, description of what changes
 type(scope): short description
 
@@ -283,7 +283,7 @@ Some release tools (cocogitto, semantic-release) compute the version from these 
 | `git fetch`  | downloads, touches nothing local                         | any time, safely: I want to see what others pushed before deciding what to do with it |
 | `git pull`   | `fetch` then <span class="term" data-term="merge-code">merges</span> into my current branch               | I am on `main`, with no local work in progress, and just want to get up to date |
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git fetch
 $ git log --oneline main..origin/main
 c4d5e6f fix(api): handle timeout
@@ -319,7 +319,7 @@ gitGraph
 !!! noob "As noob"
     Rebasing is taking my notes and copying them again at the end of a notebook that moved on without me: same content, but new pages (hence the new SHAs `D'` and `E'`). The one thing to remember: **rebase rewrites my commits, so I keep it for commits nobody else is using.**
 
-```
+``` { .text .ex-good title="Recommended" }
 # Good: I rebase a branch that is mine alone
 $ git fetch
 $ git rebase origin/main
@@ -327,7 +327,7 @@ $ git rebase origin/main
 
 Avoid: rebasing a branch others use. Here `grace` has already committed on `feat/checkout`: after my rebase and force push, her local commits sit on SHAs that no longer exist on the server, and her next `pull` mixes both histories into duplicates.
 
-```
+``` { .text .ex-bad title="Avoid" }
 # Avoid: rewriting a shared branch
 $ git switch feat/checkout
 $ git rebase origin/main
@@ -346,7 +346,7 @@ gitGraph
 ```
 
 **Merge**: creates a <span class="term" data-term="merge-commit">merge commit</span>. Faithful history but with forks.
-```
+``` { .text .ex-ref title="Reference" }
 $ git merge origin/main
 ```
 
@@ -382,7 +382,7 @@ After rebasing a branch that was already pushed, I have to <span class="term" da
 Example: on `main`, someone changed `timeout = 30` to `45`. On my branch, my commit `a1b2c3d` changed it to `60`.
 
 During a **rebase**, the top side (`HEAD`, "ours") is `origin/main`, the branch I am replaying onto, and the bottom side is **my** commit:
-```
+``` { .text .ex-ref title="Reference" }
 $ git rebase origin/main
 CONFLICT (content): Merge conflict in src/login.py
 error: could not apply a1b2c3d... feat(login): raise timeout to 60
@@ -394,7 +394,7 @@ timeout = 60
 >>>>>>> a1b2c3d (feat(login): raise timeout to 60)
 ```
 During a **merge**, it is the opposite: the top side is **my** branch, the bottom side is `origin/main`:
-```
+``` { .text .ex-ref title="Reference" }
 $ git merge origin/main
 CONFLICT (content): Merge conflict in src/login.py
 
@@ -413,11 +413,11 @@ timeout = 45
 Trap: during a rebase, `git checkout --ours src/login.py` takes the `main` version, not mine.
 
 I keep the right version and remove the <span class="term" data-term="conflict-marker">markers</span>. Resolved file (here I keep 60 after talking with whoever wrote 45):
-```
+``` { .text .ex-illus title="Illustration" }
 timeout = 60
 ```
 Then:
-```
+``` { .text .ex-ref title="Reference" }
 $ git add src/login.py
 $ git rebase --continue        (or git commit for a merge)
 ```
@@ -460,12 +460,12 @@ flowchart TD
 
 Avoid: `--force` overwrites the remote branch without looking. If a colleague pushed a fix commit on my branch while I was rebasing, their commit disappears from the server, with no error message.
 
-```
+``` { .text .ex-bad title="Avoid" }
 # Avoid: overwrites what was pushed in the meantime
 $ git push --force
 ```
 
-```
+``` { .text .ex-good title="Recommended" }
 # Good: refuses if the remote branch moved since my last fetch
 $ git push --force-with-lease
 ```
@@ -496,14 +496,14 @@ Key difference:
 
 Avoid: undoing a commit already merged into `main` with `reset` then a force push. Everyone who already fetched `main` still has the commit, and their next push brings it back (or their `pull` fails on diverged branches).
 
-```
+``` { .text .ex-bad title="Avoid" }
 # Avoid: rewriting main, already shared
 $ git switch main
 $ git reset --hard HEAD~1
 $ git push --force
 ```
 
-```
+``` { .text .ex-good title="Recommended" }
 # Good: a new commit that cancels the old one, history stays intact
 $ git switch main
 $ git revert a1b2c3d
@@ -513,7 +513,7 @@ $ git push
 !!! noob "As noob"
     `reset` tears the page out of the notebook: handy if nobody has read it, dangerous if others already copied it. `revert` writes a new page saying "I cancel what page 12 says". The one thing to remember: **anything already pushed and shared is undone with `revert`.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 revert
 main  A ── B ── C ── C'      (C' cancels C, everyone keeps C in the history)
 
@@ -555,7 +555,7 @@ Only `--hard` destroys uncommitted work. The removed commit can still be recover
 !!! noob "As noob"
     The reflog is my local copy's logbook: it records every place I have been, even those no branch shows any more. It stays on my machine and only covers what was committed. The one thing to remember: **a "lost" commit can almost always be found in `git reflog`.**
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git reflog
 9f8e7d6 HEAD@{0}: reset: moving to HEAD~1
 a1b2c3d HEAD@{1}: commit: feat(login): add remember-me checkbox
@@ -583,7 +583,7 @@ Safe variant: I create a branch on it instead of moving the current branch, `git
 !!! noob "As noob"
     `git stash` is putting my work in progress in a drawer to clear the desk, then taking it out later with `git stash pop`. The drawer is on my machine only: nothing is pushed, and a stash forgotten for three weeks often conflicts when I take it out. The one thing to remember: **a stash helps for a few minutes, a `wip` commit on my branch is safer for longer.**
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git stash
 $ git switch main
 ...
@@ -591,7 +591,7 @@ $ git switch feat/login
 $ git stash pop
 ```
 With a name, useful if I stack several:
-```
+``` { .text .ex-ref title="Reference" }
 $ git stash push -m "wip login form"
 $ git stash list
 stash@{0}: On feat/login: wip login form
@@ -604,7 +604,7 @@ stash@{0}: On feat/login: wip login form
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git cherry-pick c4d5e6f
 ```
 Example: a fix is on `release/1.2` and I also want it on `main`, without the rest of the branch.
@@ -633,13 +633,13 @@ The commit copied onto `main` gets a new SHA: it is a copy, not a move. `R1` and
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```
+``` { .text .ex-illus title="Illustration" }
 before                              after
 fix typo                            feat(login): add remember-me checkbox
 wip
 feat(login): add remember-me
 ```
-```
+``` { .text .ex-ref title="Reference" }
 $ git reset --soft origin/main
 $ git commit -m "feat(login): add remember-me checkbox"
 $ git push --force-with-lease
@@ -664,20 +664,20 @@ $ git push --force-with-lease
 | which commit broke a test that used to pass, for example in `v1.0` | `git bisect` |
 
 `git blame` shows, for each line, the commit, author and date of its last change:
-```
+``` { .text .ex-ref title="Reference" }
 $ git blame src/login.py
 a1b2c3d4 (ada   2026-03-02 10:14:05 +0100 12) def login(user):
 e7f8a9b0 (grace 2026-04-15 16:40:21 +0200 13)     timeout = 60
 a1b2c3d4 (ada   2026-03-02 10:14:05 +0100 14)     return open_session(user, timeout)
 ```
 `git log -S` lists the commits that added or removed that exact text, in any file:
-```
+``` { .text .ex-ref title="Reference" }
 $ git log -S "timeout = 60" --oneline
 e7f8a9b fix(login): raise timeout to 60
 ```
 
 `bisect` example: the test passed in `v1.0`, it fails now.
-```
+``` { .text .ex-ref title="Reference" }
 $ git bisect start
 $ git bisect bad
 $ git bisect good v1.0
@@ -715,7 +715,7 @@ Each round halves the range: 1,000 commits take about ten tests (2 to the power 
 The normal case: I work on one branch at a time, and `git switch` takes me from one to the other.
 
 `git worktree` is only for when I really need both at the same time, each in its own folder: for example two sessions running at the same time on the same repo, one on my branch, the other on a hotfix.
-```
+``` { .text .ex-ref title="Reference" }
 $ git worktree add ../my-repo-hotfix hotfix/crash
 $ git worktree remove ../my-repo-hotfix
 ```
@@ -729,7 +729,7 @@ $ git worktree remove ../my-repo-hotfix
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```
+``` { .text .ex-ref title="Reference" }
 $ cat .gitignore
 .env
 __pycache__/
@@ -737,13 +737,13 @@ node_modules/
 ```
 If the file is already tracked, `.gitignore` is not enough. Avoid: adding `.env` to `.gitignore` and thinking the job is done. Git keeps tracking a file that was already committed, so my next change to `.env` goes into the next commit.
 
-```
+``` { .text .ex-bad title="Avoid" }
 # Avoid: .gitignore does not apply to an already tracked file
 $ echo ".env" >> .gitignore
 $ git commit -am "chore: ignore .env"
 ```
 
-```
+``` { .text .ex-good title="Recommended" }
 # Good: stop tracking the file while keeping it on disk
 $ echo ".env" >> .gitignore
 $ git rm --cached .env

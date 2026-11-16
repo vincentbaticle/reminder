@@ -34,7 +34,7 @@ This page gathers what I need to know to build the part of the system the user s
 
 **<span class="term" data-term="core-web-vitals">Core Web Vitals</span>**: three Google measures of the real experience of a page, taken from real users:
 
-```
+``` { .text .ex-ref title="Reference" }
 LCP   time until the largest useful element is displayed     good: 2.5 s or less
 INP   delay between a click and the visible reaction of the page   good: 200 ms or less
 CLS   unexpected shifts of content during loading              good: 0.1 or less
@@ -72,7 +72,7 @@ The words to know:
 - **JSX** is the HTML-looking syntax inside JavaScript; a build tool translates it into function calls;
 - **hooks** (`useState`, `useEffect`...) are the functions that give a component state or effects (calling an API, subscribing to an event).
 
-```
+``` { .text .ex-illus title="Illustration" }
 1. the user clicks "add"                      setItems([...items, mug])
 2. React runs the Cart() function again       it returns the new description: 3 items
 3. React compares the old and the new one     only the badge, one line and the total changed
@@ -84,17 +84,21 @@ The words to know:
 
 The two most frequent beginner mistakes, and their fix:
 
-```jsx
+``` { .jsx .ex-bad title="Avoid" }
 // Avoid: changing the existing array, React sees the same object and redraws nothing
 function AddButton({ items, setItems, product }) {
   return <button onClick={() => { items.push(product); setItems(items); }}>Add</button>;
 }
+```
 
+``` { .jsx .ex-good title="Recommended" }
 // Good: create a new array, React sees the change and redraws
 function AddButton({ items, setItems, product }) {
   return <button onClick={() => setItems([...items, product])}>Add</button>;
 }
+```
 
+``` { .jsx .ex-bad title="Avoid" }
 // Avoid: an effect without a dependency list runs the call again at every render, so in a loop
 function OrderStatus({ orderId }) {
   const [status, setStatus] = useState(null);
@@ -103,7 +107,9 @@ function OrderStatus({ orderId }) {
   });
   return <p>{status}</p>;
 }
+```
 
+``` { .jsx .ex-good title="Recommended" }
 // Good: the effect only runs again when orderId changes, and cancels the call that became useless
 function OrderStatus({ orderId }) {
   const [status, setStatus] = useState(null);
@@ -163,13 +169,15 @@ A **web app** is an application running in the browser (often a <span class="ter
 - **separate storage**: the installed web app has its own cookies and storage, separate from Safari. A user logged in in Safari must log in again in the installed icon;
 - **screen**: the notch and the bottom bar eat part of the screen (the "safe areas"), and `100vh` sometimes includes the area hidden by the address bar, which cuts buttons at the bottom of the screen. `100dvh` (dynamic height) fixes this case.
 
-```html
+``` { .html .ex-bad title="Avoid" }
 <!-- Avoid: no viewport, the page shows as a zoomed-out desktop version; 100vh cuts the "Pay" button under Safari's bar -->
 <head>
   <title>shop-web</title>
   <style>.checkout { height: 100vh; }</style>
 </head>
+```
 
+``` { .html .ex-good title="Recommended" }
 <!-- Good: mobile viewport, manifest, iPhone home screen icon, dynamic height and safe-area margins -->
 <head>
   <title>shop-web</title>
@@ -184,7 +192,7 @@ A **web app** is an application running in the browser (often a <span class="ter
 
 The manifest, read by Safari and Chrome for installation:
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "name": "Shop",
   "start_url": "/",
@@ -212,12 +220,14 @@ sequenceDiagram
     SW-->>P: yesterday's cart, marked "offline"
 ```
 
-```javascript
+``` { .javascript .ex-bad title="Avoid" }
 // Avoid: cache everything forever, the user keeps the old version and the old prices
 self.addEventListener("fetch", (event) => {
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
 });
+```
 
+``` { .javascript .ex-good title="Recommended" }
 // Good: network first for data, cache only as a fallback
 self.addEventListener("fetch", (event) => {
   if (!event.request.url.includes("/api/")) return;
@@ -308,7 +318,7 @@ When not to apply it: a single team (or two that talk every day), a small applic
 
 **Example: one shell and three micro front ends.** Three teams, a shell owned by a platform team, a shared design system:
 
-```
+``` { .text .ex-illus title="Illustration" }
 shop-shell/              team-platform: layout, top level routes, session, errors
 ├─ src/routes.ts         /catalog/* to catalog, /cart/* to cart, /account/* to account
 ├─ src/layout/           header, menu, footer
@@ -337,7 +347,7 @@ flowchart TB
 
 The shell's Module Federation configuration (Webpack 5 or Rspack, same syntax; package names depend on the version, to check):
 
-```js
+``` { .js .ex-ref title="Reference" }
 const { ModuleFederationPlugin } = require("@module-federation/enhanced/rspack");
 
 // Example: the shell declares its remotes and shares React as a singleton
@@ -362,7 +372,7 @@ module.exports = {
 
 And the cart's, which exposes its entry point:
 
-```js
+``` { .js .ex-ref title="Reference" }
 // Example: the cart exposes its mount entry point
 new ModuleFederationPlugin({
   name: "cart",
@@ -380,7 +390,7 @@ The `remotes` URLs often point to a manifest loaded at startup rather than being
 
 **The contract between the shell and a micro front end.** It is the public API of each micro front end, to be treated like an API contract: written in a versioned package, changed with care.
 
-```ts
+``` { .ts .ex-ref title="Reference" }
 // Example: the props the shell passes to each micro frontend
 export interface MicroFrontendProps {
   basePath: string;
@@ -404,10 +414,12 @@ export type Mount = (element: HTMLElement, props: MicroFrontendProps) => Unmount
 3. Business data is read again from its API: the back end stays the source of truth, each micro front end keeps its own local state.
 4. To tell others about a fact, publish a browser event with a documented and versioned payload, like an event between services:
 
-    ```ts
+    ``` { .ts .ex-bad title="Avoid" }
     // Avoid: change the counter shown in the shell header directly
     document.querySelector("#header-cart-count")!.textContent = String(count + 1);
+    ```
 
+    ``` { .ts .ex-good title="Recommended" }
     // Good: a browser event with a documented payload to notify the others
     window.dispatchEvent(
       new CustomEvent("cart:item-added", { detail: { sku: "SKU-42", quantity: 1 } }),
@@ -445,7 +457,7 @@ export type Mount = (element: HTMLElement, props: MicroFrontendProps) => Unmount
 
 The cart's contract test (Vitest):
 
-```ts
+``` { .ts .ex-ref title="Reference" }
 import { describe, expect, it, vi } from "vitest";
 import { mount } from "../src/mount";
 
@@ -472,7 +484,7 @@ describe("cart-front honors the shell contract", () => {
 
 The end-to-end test on the assembly (Playwright), crossing catalog, shell and cart:
 
-```ts
+``` { .ts .ex-ref title="Reference" }
 import { expect, test } from "@playwright/test";
 
 // Example: E2E test that goes through catalog, shell and cart
@@ -528,7 +540,7 @@ The cost: an owner (at least one person, often a team), version management and m
 
 The tokens, as CSS variables:
 
-```css
+``` { .css .ex-ref title="Reference" }
 /* Example: the design system tokens, as CSS variables */
 :root {
   --color-primary: #1f6feb;
@@ -541,7 +553,7 @@ The tokens, as CSS variables:
 
 A story in CSF 3 format (Component Story Format, Storybook 7 and later, 2023; package names change with the version, to check):
 
-```tsx
+``` { .tsx .ex-ref title="Reference" }
 import type { Meta, StoryObj } from "@storybook/react";
 import { Button } from "./Button";
 
@@ -615,7 +627,7 @@ A **<span class="term" data-term="meta-framework">meta-framework</span>** brings
 
 A product page in ISR with Next.js (App Router, Next.js 15 syntax, to check against my version):
 
-```tsx
+``` { .tsx .ex-ref title="Reference" }
 // Example: the page is regenerated at most every 60 s (ISR)
 export const revalidate = 60;
 

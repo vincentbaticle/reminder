@@ -29,7 +29,7 @@ Ports, <span class="term" data-term="yaml">YAML</span> values and business route
 
 ### API, route, JSON
 An **<span class="term" data-term="api">API</span>** is a service's front door for other programs. A **<span class="term" data-term="endpoint">route</span>** (or endpoint) is one specific address of that API. Responses are often in **<span class="term" data-term="json">JSON</span>**, a text data format.
-```
+``` { .text .ex-illus title="Illustration" }
 GET /readyz         health route
 GET /v1/orders/42          business route
 {"id": 42, "title": "..."}   JSON response
@@ -61,7 +61,7 @@ A temporary copy of some data, kept close at hand to answer faster without recom
 
 ### Deadlock
 Two processes wait for each other and neither can move forward. The application is running but no longer answers.
-```
+``` { .text .ex-illus title="Illustration" }
 process A : holds row 1, waits for row 2
 process B : holds row 2, waits for row 1
 ```
@@ -71,7 +71,7 @@ process B : holds row 2, waits for row 1
 
 ### SLI, SLO, SLA
 An **<span class="term" data-term="sli">SLI</span>** is the measured indicator, an **<span class="term" data-term="slo">SLO</span>** the internal target the team sets on that indicator, an **<span class="term" data-term="sla">SLA</span>** the contractual promise made to a customer, with a penalty if it is not kept. The SLA is usually looser than the SLO, so the team reacts before it has to pay. A worked example (example figures), details in [Observability](observabilite.md#sli-slo-error-budget):
-```
+``` { .text .ex-illus title="Illustration" }
 SLI   share of my-api requests with no 5xx this month   99.93%
 SLO   the team's internal target                        99.9% over 30 days
 SLA   promised to the customer, 10% credit otherwise    99.5% per month
@@ -86,7 +86,7 @@ SLA   promised to the customer, 10% credit otherwise    99.5% per month
 { .tool-rel }
 
 **<span class="term" data-term="kubernetes">Kubernetes</span>** (often shortened to K8s) is the system that launches applications in <span class="term" data-term="container">containers</span>, watches them, restarts them and spreads the <span class="term" data-term="network-traffic">traffic</span>. A **<span class="term" data-term="cluster">cluster</span>** is the set of machines it manages, and each machine is a **<span class="term" data-term="node-k8s">node</span>**.
-```
+``` { .text .ex-illus title="Illustration" }
 cluster prod
 ├─ node 1 : pod my-api-abcde, pod worker-x1
 ├─ node 2 : pod my-api-fghij
@@ -124,7 +124,7 @@ The Kubernetes object that says "I want 3 copies of my-api, with this <span clas
 !!! noob "As noob"
     The Deployment is a restaurant's head chef: I say "I always want 3 cooks", they replace one who falls ill, and swap them one at a time when the recipe changes. The one thing to remember: **I describe the desired state, Kubernetes works to stay there.**
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: minimal Deployment, 3 copies of my-api
 kind: Deployment
 metadata:
@@ -154,7 +154,7 @@ When the image changes, the Deployment does not replace every pod at once: it pe
     It is a shift change in a shop that never closes: a new clerk arrives, and only once they are at their post does an old one leave. If the new one cannot run the till, the old one stays and customers notice nothing. The one thing to remember: **with `maxUnavailable: 0`, an old pod is stopped only once a new one is ready.**
 
 The setting I still come across: `Recreate`. It stops every pod before starting the new ones, so the API does not answer during the whole startup, and stays down if the new version does not start. It is only justified when two versions cannot run at the same time (for example a single copy holding an exclusive lock).
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: Recreate stops the 3 pods before starting the new ones, so an outage on every deployment
 spec:
   replicas: 3
@@ -162,7 +162,7 @@ spec:
     type: Recreate
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Good: rolling update, one extra pod at a time, no ready pod removed first
 spec:
   replicas: 3
@@ -172,7 +172,7 @@ spec:
       maxUnavailable: 0
 ```
 Moving from 1.4.0 to 1.4.1 with these settings (example times):
-```
+``` { .text .ex-illus title="Illustration" }
 time      pods 1.4.0   pods 1.4.1            total
 10:00:00  3 ready      0                     3
 10:00:01  3 ready      1 starting            4   (maxSurge: one extra pod)
@@ -185,7 +185,7 @@ time      pods 1.4.0   pods 1.4.1            total
 With `maxUnavailable: 0`, there are always 3 ready pods. If the 1.4.1 pods never become ready, the rollout stays stuck and the 1.4.0 pods keep serving.
 
 Going back to the previous version (<span class="term" data-term="rollback">rollback</span>) runs the same movement the other way:
-```
+``` { .text .ex-ref title="Reference" }
 $ kubectl rollout status deployment/my-api
 deployment "my-api" successfully rolled out
 $ kubectl rollout undo deployment/my-api
@@ -202,7 +202,7 @@ Pods are born and die, and their IP address changes every time. A **<span class=
 !!! noob "As noob"
     The Service is a company's switchboard number: staff change desks and direct lines, but I always dial the same number and the switchboard puts me through to someone available. The one thing to remember: **we call the Service, never a pod directly, because pods change address.**
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: Service sending port 80 to port 8080 of the app=my-api pods
 kind: Service
 metadata:
@@ -214,7 +214,7 @@ spec:
     - port: 80
       targetPort: 8080
 ```
-```
+``` { .text .ex-illus title="Illustration" }
 Service my-api (http://my-api:80)
 ├─ pod my-api-7f9c-abcde   label app=my-api, ready       receives traffic
 ├─ pod my-api-7f9c-fghij   label app=my-api, ready       receives traffic
@@ -245,7 +245,7 @@ flowchart LR
 
 The smallest unit Kubernetes runs. It holds one or more <span class="term" data-term="container">containers</span>.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Deployment my-api (prod)
 ├─ pod my-api-7f9c-abcde   (container my-api)
 ├─ pod my-api-7f9c-fghij   (container my-api)
@@ -261,7 +261,7 @@ The 3 <span class="term" data-term="pod">pods</span> are identical, and <span cl
 ### Container
 The application packaged with everything it needs to run, built from a <span class="term" data-term="docker-image">Docker image</span>.
 
-```
+``` { .text .ex-illus title="Illustration" }
 image my-api:1.4.2
 ├─ Python 3.12
 ├─ dependencies (requirements)
@@ -277,7 +277,7 @@ image my-api:1.4.2
 A <span class="term" data-term="http-request">request</span> that Kubernetes sends on its own, at regular intervals, to check a container's state. It then acts on the answer.
 
 The classic mistake: pointing the liveness probe at the same route as the readiness probe. That route queries MySQL, so the day the database goes down, the liveness of every pod fails and Kubernetes restarts them all in a loop. With `failureThreshold: 1`, a single pause of a few seconds (a slightly long garbage collection) is also enough to kill the container.
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: liveness on /readyz, which depends on MySQL, and one failure is enough to restart
 livenessProbe:
   httpGet:
@@ -287,7 +287,7 @@ livenessProbe:
   failureThreshold: 1
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Good: readiness, takes the pod out of traffic after 3 failures
 readinessProbe:
   httpGet:
@@ -313,7 +313,7 @@ livenessProbe:
 
 "<span class="term" data-term="readiness-probe">Readiness</span>" means "being ready". The question is: "are you ready to receive traffic?" If the probe fails, the pod stops receiving traffic, but it is not killed.
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00:00  GET /readyz  200  pod in rotation
 10:00:10  GET /readyz  503  MySQL unreachable
 10:00:20  GET /readyz  503
@@ -331,7 +331,7 @@ livenessProbe:
 !!! noob "As noob"
     Readiness is the swamped waiter who says "stop seating people at my tables for now": they get no new tables, but they stay on the floor. Liveness is the waiter who has frozen and no longer answers at all: they are sent out and come back fresh. The one thing to remember: **a failing readiness takes the pod out of traffic, a failing liveness restarts the container.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00:00  GET /livez  200      OK
 10:00:30  GET /livez  timeout  application stuck (deadlock)
 10:01:00  GET /livez  timeout
@@ -349,7 +349,7 @@ livenessProbe:
 !!! noob "As noob"
     It is a newcomer's first day: until they have finished settling in, nobody blames them for not answering the phone. Once settled, the usual rules apply. Limit: if they never finish settling in within the allowed time, the container is restarted anyway. The one thing to remember: **the startup probe protects the startup, then hands over to liveness and readiness.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00:00  container launched, loading the cache (40 s)
 10:00:10  startup probe  failure  (normal, still starting)
 10:00:40  startup probe  200      startup finished
@@ -389,7 +389,7 @@ Classic trap: I put the <span class="term" data-term="database">database</span> 
 ### Health check
 Generic term for "checking health". Probes are the Kubernetes version of the <span class="term" data-term="health-check">health check</span>.
 
-```
+``` { .text .ex-ref title="Reference" }
 $ curl -i http://localhost:8080/livez
 HTTP/1.1 200 OK
 ```
@@ -406,14 +406,14 @@ Each container declares what it consumes. The **request** is what Kubernetes res
     The request is my reserved seat on a train: Kubernetes only lets me board a carriage where that seat is free. The limit is the maximum allowed: too much CPU and I am slowed down, too much memory and I am put off the train (the container is killed, then restarted). The one thing to remember: **the request places the pod, the limit contains it.**
 
 The frequent omission: no `resources` block at all. The pod then falls into the *BestEffort* class: Kubernetes places it without reserving anything, it can take all the node's memory, it is the first evicted when the node runs short, and the HPA has no base to compute its percentage.
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: no resources block, nothing is reserved or capped
 containers:
   - name: my-api
     image: my-api:1.4.0
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Good: reserves 250m CPU and 256Mi, caps at 1 CPU and 512Mi
 resources:
   requests:
@@ -426,7 +426,7 @@ resources:
 `250m` means 0.25 CPU core. `Mi` is a mebibyte.
 
 Diagnosing a pod that keeps restarting:
-```
+``` { .text .ex-ref title="Reference" }
 $ kubectl describe pod my-api-7f9c-abcde
 ...
     State:          Running
@@ -475,7 +475,7 @@ The path of a change to production: package the application into an image, descr
     The image is a vacuum-packed ready meal: everything is inside, and it tastes the same in any kitchen with the same oven (a container engine). The container is a plate of that meal being served: one pack can fill several plates. The one thing to remember: **the image is the frozen template, the container is one run of that template.**
 
 The first-draft version works, but `python:latest` can move from one Python version to the next between two builds, `COPY . .` placed before the install reruns `pip install` for every changed line of code, and without `USER` the app runs as root: a flaw in the app then gives root rights inside the container.
-```dockerfile
+``` { .dockerfile .ex-bad title="Avoid" }
 # Avoid: latest image, code copied before the dependencies, app run as root
 FROM python:latest
 WORKDIR /app
@@ -484,7 +484,7 @@ RUN pip install -r requirements.txt
 CMD ["uvicorn", "my_api.main:app", "--host", "0.0.0.0", "--port", "8080"]
 ```
 
-```dockerfile
+``` { .dockerfile .ex-good title="Recommended" }
 # Good: Python image of my-api, run as a non-root user (USER 1000)
 FROM python:3.12-slim
 WORKDIR /app
@@ -495,7 +495,7 @@ USER 1000
 CMD ["uvicorn", "my_api.main:app", "--host", "0.0.0.0", "--port", "8080"]
 ```
 
-```
+``` { .text .ex-ref title="Reference" }
 $ docker build -t my-api:1.4.0 .
 $ docker run -p 8080:8080 my-api:1.4.0
 $ curl localhost:8080/readyz
@@ -528,7 +528,7 @@ The `my-api` image weighs 1.1 GB, and every changed line of code reruns the inst
 
 Avoid: code copied before the installation, on the full `python:3.12` image. Any file change invalidates the layer, so every dependency is reinstalled on every build; the image carries compilers, test and lint tools, `uv sync` without `--frozen` can resolve other versions from one build to the next, and the app runs as root.
 
-```dockerfile
+``` { .dockerfile .ex-bad title="Avoid" }
 # Avoid: code copied before dependencies, full image, dev tools in production, root
 FROM python:3.12
 WORKDIR /app
@@ -537,7 +537,7 @@ RUN pip install uv && uv sync
 CMD ["uv", "run", "uvicorn", "my_api.main:app", "--host", "0.0.0.0"]
 ```
 
-```dockerfile
+``` { .dockerfile .ex-good title="Recommended" }
 # syntax=docker/dockerfile:1
 # Good: common base, uv copied from its official image
 FROM python:3.12-slim AS base
@@ -571,7 +571,7 @@ CMD ["/app/.venv/bin/uvicorn", "my_api.main:app", "--host", "0.0.0.0"]
 
 The `.dockerignore` next to it:
 
-```
+``` { .text .ex-ref title="Reference" }
 .git
 .venv
 .uv-cache
@@ -580,7 +580,7 @@ tests
 *.md
 ```
 
-```
+``` { .text .ex-ref title="Reference" }
 $ docker build --target dev -t my-api:dev .
 $ docker build --target prod -t my-api:1.4.0 .
 ```
@@ -611,7 +611,7 @@ Rule: **the same image everywhere, the config changes per environment**. The `my
 !!! noob "As noob"
     It is a rental car: the same model leaves the garage for every customer, only the settings (ConfigMap) and the key (Secret) change. Limit: by default a Secret is only encoded, not encrypted, so who can read it must stay restricted. The one thing to remember: **we do not rebuild the image to change environment, we change its config.**
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: ConfigMap holding the non-secret config of my-api
 kind: ConfigMap
 metadata:
@@ -622,7 +622,7 @@ data:
 ```
 
 What I still find in repositories: the password written in clear in the manifest, so readable by anyone who can read Git, and a `latest` image, so no way to know which version runs or to go back to the previous one, since each node may have pulled a different `latest` image.
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: latest image and a clear-text password in the versioned manifest
 containers:
   - name: my-api
@@ -633,7 +633,7 @@ containers:
 ```
 
 The Deployment reads both in `env`:
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Good: LOG_LEVEL read from the ConfigMap, DB_PASSWORD from the Secret
 containers:
   - name: my-api
@@ -673,7 +673,7 @@ Traps: a Secret is only base64-encoded, not encrypted, so never commit it in cle
 !!! noob "As noob"
     A chart is a mail-merge letter with fields to fill in ("Dear {name}"); the values file is the list of recipients. The same letter goes to staging with 2 copies and to prod with 3. The one thing to remember: **the chart describes the shape once, the values say what changes per environment.**
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # templates/deployment.yaml (excerpt)
 # Example: Helm template, the name and replica count come from the values
 kind: Deployment
@@ -682,14 +682,14 @@ metadata:
 spec:
   replicas: {{ .Values.replicaCount }}
 ```
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # values-staging.yaml
 # Example: staging values, 2 copies
 replicaCount: 2
 image:
   tag: "1.4.0"
 ```
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # values-prod.yaml
 # Example: prod values, 3 copies of the same image
 replicaCount: 3
@@ -697,7 +697,7 @@ image:
   tag: "1.4.0"
 ```
 `helm template` shows the result without installing anything:
-```
+``` { .text .ex-ref title="Reference" }
 $ helm template my-api ./chart -f values-staging.yaml
 kind: Deployment
 metadata:
@@ -744,7 +744,7 @@ flowchart LR
 
 **Layered values.** Helm accepts several `-f` files: each one overrides the previous one, key by key. The common part goes in `values.yaml`, and only the differences go in the environment's file.
 
-```yaml title="values.yaml (common to every environment)"
+``` { .yaml .ex-ref title="Reference · values.yaml (common to every environment)" }
 # Example: image, port, probes and resources shared by every environment
 image:
   repository: registry.example.com/my-api
@@ -757,7 +757,7 @@ resources:
   requests: {cpu: 100m, memory: 256Mi}
 ```
 
-```yaml title="values-prod.yaml (only what changes)"
+``` { .yaml .ex-ref title="Reference · values-prod.yaml (only what changes)" }
 # Example: prod only declares its replicas and its autoscaling
 replicas: 3
 autoscaling:
@@ -765,7 +765,7 @@ autoscaling:
   maxReplicas: 10
 ```
 
-```
+``` { .text .ex-ref title="Reference" }
 $ helm template my-api platform/generic --version 3.2.0 \
     -f values.yaml -f values-prod.yaml
 ```
@@ -878,7 +878,7 @@ sequenceDiagram
 !!! noob "As noob"
     I think of a supermarket: open more checkouts when the queue grows (pod level), and open an extra room when there is no space left for another checkout (node level). The first takes seconds, the second takes longer. The one thing to remember: **the pod level adds copies, the node level adds room to host them.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 pod level  : how many copies of my-api?          HPA, KEDA, Knative
 node level : how many machines in the cluster?   Cluster Autoscaler, Karpenter
 ```
@@ -929,7 +929,7 @@ flowchart LR
   P -->|"consume CPU"| MS
 ```
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: HPA aiming at 70% average CPU, between 2 and 10 pods
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -953,7 +953,7 @@ spec:
 
 The math: desired pods = round up (current pods × current usage / target).
 
-```
+``` { .text .ex-illus title="Illustration" }
 time   pods  average CPU (% of request)   decision
 12:00  3     140%                         3 × 140 / 70 = 6 pods
 12:02  6     72%                          close to target: nothing
@@ -995,7 +995,7 @@ Pitfalls:
 { .tool-rel }
 
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: KEDA scales email-worker on the Kafka lag, from 0 to 12 pods
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -1030,7 +1030,7 @@ flowchart LR
   P -->|"read the messages"| K
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 time   lag of group email-worker    pods
 02:00  0                            0
 02:01  1,200                        1 (woken by KEDA), then 12 (1,200 / 100)
@@ -1061,7 +1061,7 @@ Same idea on RabbitMQ: `type: rabbitmq`, with `queueName: invoice-emails`, `mode
 
 **How**: we describe a Knative `Service` (not the Kubernetes [Service](#service)). Knative creates the Deployment, Service and routing, and a component (the *activator*) holds requests while a pod starts.
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: Knative Service from 0 to 10 pods, target of 20 concurrent requests per pod
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -1101,7 +1101,7 @@ spec:
 - **Cluster Autoscaler** (the historical Kubernetes project) grows or shrinks **node groups** defined in advance ("group e2-standard-4, from 3 to 20 machines"). Simple, available at every provider, but it does not choose the machine type.
 - **Karpenter** (created by AWS in 2021, version 1.0 in 2024, to check) looks at pending pods and orders the machine that fits them directly, with no predefined group. It also **consolidates**: it repacks pods to shut down underused nodes. It can target <span class="term" data-term="spot-instance">spot machines</span>. It runs mostly on AWS, and on Azure through its built-in equivalent (to check for other providers).
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: Karpenter NodePool, spot or on-demand, consolidates underused nodes
 apiVersion: karpenter.sh/v1
 kind: NodePool
@@ -1203,7 +1203,7 @@ flowchart LR
 
 **How**: install the operator (often through a [Helm](#helm-the-deployment-template) chart), then write its resources in Git, and [Argo CD](#argo-cd-git-decides-what-runs) applies them like everything else. Example with **Strimzi**, the CNCF Kafka operator (incubating project, to check):
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: Kafka cluster managed by the Strimzi operator
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
@@ -1219,7 +1219,7 @@ spec:
   entityOperator:
     topicOperator: {}
 ```
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: orders topic (6 partitions, 3 replicas), created by the operator
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
@@ -1234,7 +1234,7 @@ spec:
 
 Simplified extract: recent versions also need a `KafkaNodePool` describing the brokers (count, disks), and API versions change (check the Strimzi documentation). Creating the `orders` topic means opening an MR that adds this file: Strimzi creates it in Kafka, and recreates it if someone deletes it by hand.
 
-```
+``` { .text .ex-ref title="Reference" }
 $ kubectl get kafkatopic orders
 NAME     CLUSTER   PARTITIONS   REPLICATION FACTOR   READY
 orders   events    6            3                    True

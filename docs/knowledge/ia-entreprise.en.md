@@ -33,7 +33,7 @@ The names `team-core`, `TEAM_METRICS_ENABLED` and `TEAM_METRICS_ANONYMOUS` are f
 
 My team wants to know which skills are used, without reading anyone's conversations. To do that, the team plugin declares a `SessionEnd` <span class="term" data-term="hook">hook</span>. At the end of each session, a small script reads the session log, computes a few counters and sends a report to a team server.
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "hooks": {
     "SessionEnd": [
@@ -63,7 +63,7 @@ The hook receives on its standard input the session id and the path of its log (
 
 Avoid the report that ships the content of messages "to better understand usage": prompts, secrets pasted by mistake, customer data and file names all go to the team's server.
 
-```javascript
+``` { .javascript .ex-bad title="Avoid" }
 // Avoid: the report holds the text of every message, not only counters
 const report = {
   user: execSync("git config user.name").toString().trim(),
@@ -74,7 +74,7 @@ await fetch(ENDPOINT, { method: "POST", body: JSON.stringify(report) });
 
 The version that only sends counters:
 
-```javascript
+``` { .javascript .ex-good title="Recommended" }
 // Good: the whole sending code fits in one file with no dependency, readable in full
 import { readFileSync } from "node:fs";
 import { execSync } from "node:child_process";
@@ -154,7 +154,7 @@ An acceptable setup lets each person choose, with a simple, documented setting. 
 
 Claude Code can set environment variables for every session in the `env` block of `settings.json` (public Claude Code settings documentation, to check for the version in use):
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "env": {
     "TEAM_METRICS_ANONYMOUS": "true"
@@ -217,7 +217,7 @@ Each field on its own says nothing. Together, they form an often unique combinat
 !!! noob "As noob"
     It is the game "Guess Who?": "wears glasses", "has a moustache", "red hair" each rule out some faces, and after three clues often only one is left. In a report, the time, the tool used and the team play the same role. The takeaway: **it is combinations of harmless details that identify someone, not each detail on its own.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 "anonymous" report of October 20
 user: anonymous   day: 2026-10-20   model: largest model   duration: 3 h 10
 skills: { weekly-metrics: 2, rebase: 1 }   mcp: { observability: 14, tickets: 3 }
@@ -227,7 +227,7 @@ In a team of 30, only one person runs `weekly-metrics` every week, because they 
 #### 2. Cross-referencing with other company data
 The team receiving the reports often has access to other sources: <span class="term" data-term="git-history">Git history</span>, MRs, calendars, chat. These are exactly the "additional information" of the definition.
 
-```
+``` { .text .ex-illus title="Illustration" }
 anonymous report of October 20: commits: 3, MR created: yes, project hidden
 
 in GitLab, on October 20:
@@ -238,7 +238,7 @@ Only one MR created that day with 3 commits: the "anonymous" report is ada's. Ro
 
 #### 3. Small groups
 If results are shown per team, a team of 2 where one person chose to be named makes the other identifiable by subtraction:
-```
+``` { .text .ex-illus title="Illustration" }
 team A (2 people)       : 40 sessions in total
 ada (named)             : 31 sessions
 anonymous in team A     :  9 sessions  (necessarily grace)
@@ -249,7 +249,7 @@ If each anonymous report keeps the same technical identifier (a machine, install
 
 Avoid hiding the name but adding the machine name "to deduplicate": every report from ada carries the same `machine_id`, so identifying a single one of her sessions reveals them all.
 
-```javascript
+``` { .javascript .ex-bad title="Avoid" }
 // Avoid: name hidden, but a stable machine id on every report
 const report = {
   user: "anonymous",
@@ -290,7 +290,7 @@ The principle behind small groups is called **k-anonymity** (formalized in 2002)
 
 I do not want to maintain a plugin, and my team already has a collector for its applications' metrics? Without a plugin, Claude Code can itself send its metrics in <span class="term" data-term="opentelemetry">OpenTelemetry</span> format, to the same collector as other applications (see the [Observability](observabilite.md) page).
 
-```bash
+``` { .bash .ex-ref title="Reference" }
 # Example: turns on the built-in OpenTelemetry telemetry, to the team's collector
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_METRICS_EXPORTER=otlp
@@ -319,7 +319,7 @@ What is **excluded by default** and must be turned on explicitly:
 
 Avoid turning these variables on "for debugging" in the whole team's shared configuration, then forgetting them: every prompt and every command, with the secrets they sometimes contain, goes to the collector and stays there as long as the logs.
 
-```bash
+``` { .bash .ex-bad title="Avoid" }
 # Avoid: prompt content and tool details sent for the whole team
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_LOG_USER_PROMPTS=1
@@ -446,12 +446,13 @@ Five teams in my company have integrated an LLM. Each one has its own provider k
 
 Avoid: each service keeps the provider key and the exact model name in its code. The day the model is retired, or the key must be rotated after a leak, every service must be changed and redeployed, and nobody can tell which one blew up the bill.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: provider key and real model name in every service
 client = ProviderClient(api_key=os.environ["PROVIDER_API_KEY"])
 reply = client.generate(model="provider-a-large-2026-05", prompt=prompt)
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: the service calls the gateway with its team's key and a logical model name
 client = OpenAI(
     base_url="https://llm-gateway.internal.example/v1",
@@ -465,7 +466,7 @@ reply = client.chat.completions.create(
 
 Many gateways expose an API compatible with OpenAI's, which lets me keep a standard client. The routing configuration, on the gateway side:
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: logical names translated into real models, with a fallback model
 model_list:
   - model_name: chat-default

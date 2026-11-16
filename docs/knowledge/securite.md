@@ -31,7 +31,7 @@ Les noms de domaines, d'applications et de comptes sont des exemples.
 
 **Autorisation** : vérifier **ce que** j'ai le droit de faire. « Ada peut-elle voir la commande 42 ? »
 
-```
+``` { .text .ex-ref title="Référence" }
 401 Unauthorized   je ne sais pas qui tu es            (authentification ratée)
 403 Forbidden      je sais qui tu es, mais c'est non   (autorisation refusée)
 ```
@@ -122,12 +122,12 @@ Beaucoup de jetons sont des **JWT** (JSON Web Token) : trois parties en base64, 
 !!! noob "As noob"
     Un JWT, c'est une carte postale fermée par un cachet de cire : tout le monde peut lire ce qui est écrit, mais personne ne peut modifier le texte sans briser le cachet. L'API vérifie le cachet, pas le secret du contenu. La phrase à retenir : **un JWT est infalsifiable, pas confidentiel.**
 
-```
+``` { .text .ex-ref title="Référence" }
 eyJhbGciOiJSUzI1NiIsImtpZCI6ImsxIn0.eyJpc3MiOi4uLn0.Zm9vYmFy...
 └──── en-tête ────────────────────┘ └─ contenu ──┘ └ signature ┘
 ```
 Une fois décodé, le contenu :
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "iss": "https://my-tenant.eu.auth0.com/",
   "sub": "auth0|64f1c2",
@@ -151,10 +151,12 @@ Deux choses à retenir :
 
 L'erreur classique : lire le contenu du jeton avec une fonction qui ne vérifie pas la signature, souvent copiée d'un script de débogage. Un attaquant fabrique alors à la main un jeton avec `"scope": "admin"`, et l'API le croit. Fixer la liste des algorithmes acceptés bloque aussi un jeton qui annonce `"alg": "none"`.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : décode sans vérifier la signature, n'importe qui peut forger un jeton
 claims = jwt.decode(token, options={"verify_signature": False})
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : signature, algorithme, émetteur, audience et expiration vérifiés (PyJWT)
 signing_key = jwks_client.get_signing_key_from_jwt(token)
 claims = jwt.decode(
@@ -175,7 +177,7 @@ claims = jwt.decode(
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 Aujourd'hui, la plupart des API reçoivent le jeton comme ceci :
-```
+``` { .text .ex-ref title="Référence" }
 GET /orders/42
 Authorization: Bearer eyJhbGciOi...
 ```
@@ -191,12 +193,14 @@ Mon outil de statistiques doit lire les commandes, mais n'a aucune raison de pou
 
 Côté API, chaque route vérifie le scope qu'elle exige, pas seulement que le jeton est valide :
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : seul le jeton est vérifié, le jeton read:orders de l'outil de statistiques peut annuler une commande
 @app.post("/orders/{order_id}/cancel")
 def cancel_order(order_id: int, claims: dict = Depends(valid_token)):
     return orders.cancel(order_id)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : la route exige write:orders, sinon 403
 @app.post("/orders/{order_id}/cancel")
 def cancel_order(order_id: int, claims: dict = Depends(require_scope("write:orders"))):
@@ -252,7 +256,7 @@ sequenceDiagram
     Au vestiaire, on me donne un ticket pour récupérer mon manteau (le code). Avec PKCE, je dépose en plus l'empreinte d'un mot secret que je garde pour moi, et au retour il faut le ticket **et** le mot secret. Quelqu'un qui ramasse mon ticket repart sans manteau. La phrase à retenir : **un code intercepté ne sert à rien sans le secret resté dans l'application.**
 
 La requête de l'étape 2 :
-```
+``` { .text .ex-ref title="Référence" }
 https://my-tenant.eu.auth0.com/authorize
   ?response_type=code
   &client_id=abc123
@@ -278,7 +282,7 @@ Ici, personne ne se connecte : c'est un service qui a besoin d'un jeton pour lui
 !!! noob "As noob"
     C'est le badge d'un livreur attitré : personne ne se présente à l'accueil pour lui, il montre son propre badge et n'entre que là où ses livraisons l'autorisent. Si le badge est copié, n'importe qui entre à sa place : le `client_secret` se garde comme un mot de passe. La phrase à retenir : **Client Credentials, c'est un service qui prouve sa propre identité, sans personne derrière.**
 
-```
+``` { .text .ex-ref title="Référence" }
 $ curl -s https://my-tenant.eu.auth0.com/oauth/token \
     -H 'Content-Type: application/json' \
     -d '{
@@ -328,7 +332,7 @@ sequenceDiagram
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 Ma télé, ma console ou un outil en ligne de commande sur un serveur doit se connecter, mais il n'a pas de navigateur, ou taper un mot de passe avec une télécommande est pénible. L'appareil affiche donc un code, et je le saisis sur mon téléphone, où je me connecte normalement.
-```
+``` { .text .ex-illus title="Illustration" }
 Rendez-vous sur https://example.com/activate et entrez le code : WDJB-MJHT
 ```
 
@@ -396,7 +400,7 @@ Statut : c'est encore un **brouillon** de l'IETF (version 17, octobre 2026), pas
 Pas tout à fait. Ce qui disparaît, c'est le **flux Password** : l'application ne reçoit plus jamais le mot de passe de l'utilisateur. Mais l'utilisateur peut toujours se connecter avec un mot de passe, **sur la page du fournisseur d'identité**. Se passer complètement de mot de passe, c'est autre chose : les **passkeys** (WebAuthn), une connexion par empreinte ou par clé physique, que le fournisseur d'identité peut proposer en plus. DPoP, lui, ne concerne pas la connexion de l'utilisateur, mais la protection du jeton une fois obtenu.
 
 Une **<span class="term" data-term="passkey">passkey</span>** est une paire de clés créée par l'appareil (téléphone, ordinateur, clé physique) pour **un seul site** : la clé privée reste sur l'appareil, le site ne garde que la clé publique. **WebAuthn** (norme du W3C, première version en 2019) est l'API du navigateur qui fait ce dialogue :
-```
+``` { .text .ex-illus title="Illustration" }
 inscription : l'appareil crée une paire de clés pour example.com et envoie la clé publique au site
 connexion   :
 1. le site envoie un défi (challenge) : une valeur aléatoire à usage unique
@@ -451,7 +455,7 @@ sequenceDiagram
 ```
 
 La requête change ainsi :
-```
+``` { .text .ex-ref title="Référence" }
 avant (bearer)                              avec DPoP
 GET /orders/42                              GET /orders/42
 Authorization: Bearer eyJhbGciOi...         Authorization: DPoP eyJhbGciOi...
@@ -459,7 +463,7 @@ Authorization: Bearer eyJhbGciOi...         Authorization: DPoP eyJhbGciOi...
 ```
 
 La preuve est un petit JWT signé, différent à chaque requête :
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "htm": "GET",
   "htu": "https://orders-api.example.com/orders/42",
@@ -517,7 +521,7 @@ Un serveur d'autorisation publie à une adresse standard la liste de ses <span c
 | `/.well-known/oauth-authorization-server`       | métadonnées OAuth (RFC 8414, 2018)            |
 | `/.well-known/oauth-protected-resource`         | métadonnées d'une API protégée (RFC 9728, 2025) : « pour m'appeler, va chercher un jeton chez tel serveur » |
 
-```
+``` { .text .ex-ref title="Référence" }
 $ curl -s https://my-tenant.eu.auth0.com/.well-known/openid-configuration | jq
 {
   "issuer": "https://my-tenant.eu.auth0.com/",
@@ -574,7 +578,7 @@ Normalement, un administrateur crée chaque application cliente à la main dans 
 !!! noob "As noob"
     C'est une salle de sport où chacun s'inscrit seul à la borne au lieu de passer par l'accueil : pratique, mais sans contrôle, n'importe qui peut se créer cent badges. La phrase à retenir : **l'enregistrement dynamique facilite l'arrivée de nouveaux clients, au prix d'un guichet ouvert à tous qu'il faut encadrer.**
 
-```
+``` { .text .ex-ref title="Référence" }
 POST /oidc/register
 {
   "client_name": "Mon outil de reporting",
@@ -593,7 +597,7 @@ Utile quand des milliers de clients inconnus à l'avance doivent se connecter, p
 L'adresse d'enregistrement est **publiée dans les métadonnées**, donc connue de tout le monde. Si elle est ouverte sans contrôle, **n'importe qui peut créer une application** chez le fournisseur d'identité.
 
 Scénario d'attaque concret :
-```
+``` { .text .ex-illus title="Illustration" }
 1. l'attaquant lit registration_endpoint dans /.well-known/openid-configuration
 2. il enregistre une appli nommée « Outil RH officiel », avec SA propre adresse de retour
 3. il envoie à ada un lien de connexion vers la VRAIE page de connexion de l'entreprise
@@ -617,7 +621,7 @@ D'autres risques : des milliers de clients parasites créés en masse, et des ch
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 Au lieu de s'enregistrer, le client publie sa propre fiche sur **son** domaine, et son `client_id` **est** l'adresse de cette fiche :
-```
+``` { .text .ex-ref title="Référence" }
 client_id = https://reporting.example.com/oauth-client.json
 ```
 Le serveur d'autorisation télécharge la fiche et vérifie que l'adresse de retour demandée y figure. Il n'y a plus d'adresse d'enregistrement ouverte, et un `client_id` prouve au minimum qu'on contrôle le domaine. C'est la méthode que la spécification MCP recommande désormais (révision de juillet 2026), le DCR restant possible pour la compatibilité.
@@ -686,7 +690,7 @@ Dans Auth0, la demande de jeton précise l'API visée avec `audience`. Le jeton 
 !!! noob "As noob"
     Un billet de concert porte le nom de la salle : même authentique, il ne fait pas entrer dans la salle d'à côté. L'audience `aud` est ce nom de salle : un jeton fait pour l'API de facturation est refusé par l'API des commandes. La phrase à retenir : **un jeton valide ne suffit pas, il doit être fait pour mon API.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 jeton demandé avec audience = https://orders-api.example.com
 appel à orders-api    : accepté
 appel à billing-api   : refusé (aud ne correspond pas)
@@ -744,12 +748,14 @@ Le BOLA est le premier de la liste : c'est aussi le plus simple à tester, et so
 
 Le code fautif a l'air correct, parce qu'il vérifie bien le jeton :
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : le jeton est vérifié, mais pas le propriétaire, ada lit la commande 43 de grace
 @app.get("/orders/{order_id}")
 def get_order(order_id: int, user: User = Depends(current_user)):
     return orders_repo.get(order_id)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : la commande est cherchée parmi celles de l'utilisateur, sinon 404
 @app.get("/orders/{order_id}")
 def get_order(order_id: int, user: User = Depends(current_user)):
@@ -769,10 +775,12 @@ Je construis une requête (SQL, commande système) en collant du texte tapé par
 
 Le même piège existe avec une commande système. Ici, l'utilisateur fournit le nom d'un fichier à compresser ; s'il envoie `rapport.csv; rm -rf /data`, le shell exécute les deux commandes :
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : la saisie passe par le shell, le ; enchaîne une seconde commande
 subprocess.run(f"gzip {filename}", shell=True)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : liste d'arguments sans shell, la saisie reste un seul nom de fichier
 subprocess.run(["gzip", "--", filename], check=True)
 ```
@@ -794,10 +802,12 @@ Le XSS le plus courant vient d'un affichage qui insère du texte comme du HTML. 
 !!! noob "As noob"
     C'est un panneau d'affichage où chacun colle sa petite annonce. Si le panneau exécute les instructions écrites sur les annonces au lieu de les afficher, une annonce « donnez vos clés au porteur de ce message » devient un ordre pour tous les passants. La phrase à retenir : **ce que tape un utilisateur s'affiche comme du texte, jamais comme du code.**
 
-```javascript
+``` { .javascript .ex-bad title="À éviter" }
 // À éviter : le commentaire est interprété comme du HTML, son attribut onerror s'exécute
 commentEl.innerHTML = comment.body;
+```
 
+``` { .javascript .ex-good title="Recommandé" }
 // Bien : le commentaire est affiché comme du texte, les balises restent visibles et inertes
 commentEl.textContent = comment.body;
 ```
@@ -807,7 +817,7 @@ commentEl.textContent = comment.body;
 
 ### L'origine
 Une **origine** est le trio schéma + hôte + port d'une adresse. Le navigateur isole les origines entre elles : c'est la base de CSRF, CORS et <span class="term" data-term="samesite">SameSite</span>.
-```
+``` { .text .ex-ref title="Référence" }
 https://app.example.com:443/orders     origine de référence
 https://app.example.com/profile        même origine (le chemin ne compte pas, 443 est le port par défaut)
 http://app.example.com                 autre origine (schéma différent)
@@ -822,7 +832,7 @@ https://app.example.com:8443           autre origine (port différent)
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 Le CSRF (Cross-Site Request Forgery, falsification de requête intersite) en trois temps :
-```
+``` { .text .ex-illus title="Illustration" }
 1. ada est connectée à orders-api.example.com, son navigateur garde le cookie session=abc
 2. ada ouvre evil.example, qui contient un formulaire caché :
    <form action="https://orders-api.example.com/orders/42/cancel" method="POST"></form>
@@ -834,7 +844,7 @@ Le CSRF (Cross-Site Request Forgery, falsification de requête intersite) en tro
     Mon navigateur est comme un employé qui porte mon badge en permanence : un site malveillant lui tend un formulaire, il le dépose à la banque, et la banque voit mon badge et l'accepte. Le navigateur ne fait pas de différence entre un clic de ma part et une demande glissée par un autre site. La phrase à retenir : **le CSRF ne vole pas mon cookie, il fait agir mon navigateur à ma place.**
 
 La parade principale est l'attribut `SameSite` du cookie, qui dit au navigateur de ne pas joindre le cookie aux requêtes venues d'un autre site :
-```
+``` { .text .ex-ref title="Référence" }
 Set-Cookie: session=abc; HttpOnly; Secure; SameSite=Lax; Path=/
 ```
 
@@ -857,7 +867,7 @@ Une API appelée uniquement avec `Authorization: Bearer ...` n'est pas exposée 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 Par défaut, le JavaScript de `https://app.example.com` ne peut pas lire la réponse d'un appel vers `https://orders-api.example.com` (autre origine). **CORS** (Cross-Origin Resource Sharing) permet à l'API de dire quelles origines elle accepte. Pour une requête « non simple » (méthode `PUT` ou `DELETE`, en-tête `Authorization`, corps JSON), le navigateur envoie d'abord une requête `OPTIONS` de **pré-vérification** (preflight) :
-```
+``` { .text .ex-ref title="Référence" }
 OPTIONS /orders/42 HTTP/1.1
 Origin: https://app.example.com
 Access-Control-Request-Method: DELETE
@@ -876,10 +886,12 @@ Si l'origine n'est pas dans la réponse, le navigateur n'envoie pas le `DELETE`.
 
 Côté serveur, l'erreur courante est d'ouvrir CORS à tout le monde pour faire taire une erreur en développement, en gardant les cookies. Certains frameworks renvoient alors l'origine de l'appelant telle quelle, et n'importe quel site peut lire les réponses de l'API avec la session de l'utilisateur :
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : toutes les origines, avec les cookies
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : la liste des fronts connus, et seulement les méthodes utiles
 app.add_middleware(
     CORSMiddleware,
@@ -896,7 +908,7 @@ app.add_middleware(
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 L'en-tête **Content-Security-Policy** (<span class="term" data-term="csp">CSP</span>) dit au navigateur d'où la page a le droit de charger du code. Un script injecté par XSS depuis un autre domaine, ou écrit en ligne dans la page, est alors bloqué :
-```
+``` { .text .ex-ref title="Référence" }
 Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.example.com; object-src 'none'; frame-ancestors 'none'
 ```
 Ici : tout vient de la <span class="term" data-term="same-origin">même origine</span> par défaut, les scripts aussi depuis `cdn.example.com`, aucun plugin, et la page ne peut pas être affichée dans une iframe d'un autre site. Astuce : commencer par `Content-Security-Policy-Report-Only` pour voir ce qui casserait sans rien bloquer.
@@ -927,11 +939,13 @@ L'<span class="term" data-term="authorization">autorisation</span> répond à «
 
 Le **<span class="term" data-term="rbac">RBAC</span>** (*Role-Based Access Control*) attache les permissions à des rôles, et les rôles aux personnes : le rôle `support` peut `orders:read` et `orders:refund`, ada a le rôle `support`. Le modèle a été formalisé par David Ferraiolo et Richard Kuhn au NIST (1992), puis normalisé (ANSI INCITS 359, 2004).
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : des noms de rôles testés partout dans le code, ajouter un rôle oblige à relire chaque route
 if user.role == "admin" or user.role == "manager":
     refund(order)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : le code teste une permission, la table rôle vers permissions vit à un seul endroit
 ROLE_PERMISSIONS = {
     "support": {"orders:read", "orders:refund"},
@@ -953,14 +967,14 @@ def can(user, permission):
 
 L'**<span class="term" data-term="abac">ABAC</span>** (*Attribute-Based Access Control*, décrit par le NIST dans la SP 800-162, 2014) décide à partir d'attributs : ceux de la personne (rôle, pays, équipe), de la ressource (propriétaire, pays, montant, statut), de l'action, et du contexte (heure, réseau). La règle se lit comme une phrase : « un agent de support peut rembourser une commande de son pays jusqu'à 100 € ».
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : vérifier seulement le rôle
 def can_refund(user, order):
     return "support" in user.roles
 ```
 Avec le rôle seul, un agent de support en Espagne peut rembourser une commande française de 2 000 €, et rien dans le code ne l'en empêche.
 
-```python
+``` { .python .ex-good title="Recommandé" }
 # Bien : une règle qui combine le rôle, le pays de l'agent et le montant de la commande
 MAX_SUPPORT_REFUND_CENTS = 10_000
 
@@ -1010,13 +1024,14 @@ flowchart LR
   S --> D["Base<br/>requête filtrée<br/>par propriétaire"]
 ```
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : le front masque le bouton et la passerelle vérifie le jeton, mais la route rembourse n'importe quelle commande
 @app.post("/orders/{order_id}/refund")
 def refund_order(order_id: int, user: User = Depends(current_user)):
     return refunds.create(orders_repo.get(order_id))
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : le service vérifie la permission et cherche la commande parmi celles que l'agent peut voir
 @app.post("/orders/{order_id}/refund")
 def refund_order(order_id: int, user: User = Depends(current_user)):
@@ -1058,13 +1073,13 @@ Dans la première version, un appel `curl` direct, avec un jeton valide d'un sim
 
 
 ### Ce qu'il ne faut jamais faire
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : secret en dur dans le code, il finit dans Git pour toujours
 API_KEY = "sk_live_51H8..."
 ```
 Un secret dans le code finit dans Git, donc dans chaque clone, chaque fork, et l'<span class="term" data-term="git-history">historique</span> pour toujours.
 
-```python
+``` { .python .ex-good title="Recommandé" }
 # Bien : le secret est lu au démarrage, injecté par le gestionnaire de secrets ou la CI
 API_KEY = os.environ["PAYMENT_API_KEY"]
 ```
@@ -1112,7 +1127,7 @@ Jamais en clair, jamais avec un simple <span class="term" data-term="hash">hacha
     Hacher un mot de passe, c'est le passer au broyeur : on ne peut pas reconstituer la feuille, seulement broyer de nouveau un candidat et comparer. Un algorithme lent rend chaque essai coûteux pour un attaquant, et le sel est un ingrédient différent ajouté pour chaque personne, pour que deux mots de passe identiques ne donnent pas le même résultat. La phrase à retenir : **lent et salé, pour que deviner coûte cher, compte par compte.**
 
 En Python, avec la bibliothèque `argon2-cffi` :
-```python
+``` { .python .ex-bad title="À éviter" }
 import hashlib
 
 from argon2 import PasswordHasher
@@ -1124,9 +1139,9 @@ ph = PasswordHasher()
 # À éviter : SHA-256 sans sel, des milliards d'essais par seconde, et deux mots de passe égaux donnent la même empreinte
 def hash_password_fast(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
+```
 
-
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : argon2id, lent et salé, le sel est stocké dans le résultat
 def hash_password(password: str) -> str:
     return ph.hash(password)
@@ -1141,7 +1156,7 @@ def check_password(stored: str, attempt: str) -> bool:
     return True
 ```
 La chaîne stockée en base contient tout ce qu'il faut pour vérifier plus tard :
-```
+``` { .text .ex-ref title="Référence" }
 $argon2id$v=19$m=65536,t=3,p=4$c2VsYWxlYXRvaXJl$Zp3m0qN1YcG0...
  algo     version  paramètres     sel (base64)    empreinte (base64)
 ```
@@ -1328,7 +1343,7 @@ sequenceDiagram
 { .doc-ref }
 
 ### Avant et après
-```
+``` { .text .ex-illus title="Illustration" }
 avant (périmètre)                            après (zero trust)
 réseau plat, HTTP en clair                   mTLS partout, chiffré et authentifié
 une clé d'API commune à tous les services    une identité SPIFFE par service
@@ -1360,7 +1375,7 @@ Le flux [Client Credentials](#client-credentials-un-service-parle-a-un-service) 
 
 Exemple avec Istio : seul le <span class="term" data-term="service-account">compte de service</span> de orders-service peut appeler `POST /charges` sur payments-service.
 
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : tout service du namespace prod peut appeler payments-service, y compris un service compromis
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
@@ -1378,7 +1393,7 @@ spec:
             namespaces: ["prod"]
 ```
 Avec cette règle, n'importe quel service de `prod`, même un service oublié ou piraté, peut déclencher un paiement. La bonne version nomme le seul appelant légitime :
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : refus par défaut, seul orders-service peut faire POST /charges
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
@@ -1439,7 +1454,7 @@ Son article 25 impose la <span class="term" data-term="privacy-by-design">protec
 | <span class="term" data-term="standard-contractual-clauses">clauses contractuelles types</span> (CCT) | un contrat modèle publié par la Commission européenne (version de juin 2021), signé avec un fournisseur hors UE pour encadrer un transfert vers un pays sans décision d'adéquation |
 
 Une entrée du registre, en exemple :
-```
+``` { .text .ex-illus title="Illustration" }
 traitement : gestion des commandes  | finalité : livrer et facturer       | base légale : contrat (art. 6.1.b)
 données    : nom, adresse, e-mail   | destinataires : orders-service, billing-service, transporteur
 durée      : 10 ans après la commande (comptabilité, à vérifier par pays) | transferts hors UE : aucun
@@ -1470,7 +1485,7 @@ La <span class="term" data-term="pseudonymization">pseudonymisation</span> rédu
 ### Durée de conservation
 Chaque champ personnel a une finalité et une <span class="term" data-term="retention-period">durée de conservation</span>, écrites dans le registre des traitements. Les copies oubliées sont le piège : logs applicatifs, topics Kafka à <span class="term" data-term="message-retention">rétention</span> illimitée, exports dans un entrepôt de données, environnements de test alimentés avec des données de production.
 
-```
+``` { .text .ex-illus title="Illustration" }
 donnée                       durée (exemple)             mécanisme
 compte client actif          tant que le compte existe   suppression à la clôture
 commande                     10 ans (obligation comptable, à vérifier par pays)  archivage puis purge
@@ -1488,7 +1503,7 @@ Le <span class="term" data-term="crypto-shredding">crypto-shredding</span> répo
 !!! noob "As noob"
     Mes données personnelles sont rangées dans un coffre, et ce coffre est recopié dans des archives qu'on ne peut pas modifier. Plutôt que de fouiller toutes les archives, on détruit la seule clé du coffre : les copies restent, mais plus personne ne peut les ouvrir. Limite : tout dépend de la destruction réelle de la clé, y compris dans ses sauvegardes. La phrase à retenir : **effacer, ici, c'est jeter la clé.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 événement order.created dans Kafka
 { "order_id": "42", "customer_id": "cust-ada", "personal_data": "gAAAAABl...(chiffré avec la clé de cust-ada)" }
 
@@ -1553,7 +1568,7 @@ flowchart LR
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 Le scan compare les versions installées à une base de failles publiées (identifiants CVE ou GHSA). En Python avec `pip-audit` (en JavaScript, `npm audit` fait la même chose) :
-```
+``` { .text .ex-ref title="Référence" }
 $ pip-audit -r requirements.txt
 Found 1 known vulnerability in 1 package
 Name     Version ID                  Fix Versions
@@ -1586,7 +1601,7 @@ Ma grille, dans l'ordre :
 
 L'**OpenSSF Scorecard** (Open Source Security Foundation, lancé en 2020) automatise le point 4 : il note de 0 à 10 des vérifications sur le dépôt (projet maintenu, revue de code, protection de branche, dépendances épinglées, failles connues, versions signées, workflows CI dangereux). Les notes sont visibles sur deps.dev, ou en ligne de commande (un jeton GitHub est demandé) :
 
-```
+``` { .text .ex-ref title="Référence" }
 $ scorecard --repo=github.com/example-org/pdf-lib
 Aggregate score: 6.8 / 10
 CHECK                 SCORE  REASON
@@ -1600,11 +1615,13 @@ Sortie illustrative, dépôt fictif : noms des vérifications et format à véri
 
 Une fois choisie, si la bibliothèque est au cœur du métier, je l'isole derrière une petite interface à moi (*Adapter*, ou « Don't mock what you don't own », Steve Freeman et Nat Pryce, 2009) :
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : la bibliothèque appelée dans tout le code, en changer oblige à toucher chaque fichier
 pdf = pdflib.Document(page_size="A4")
 pdf.add_text(invoice.customer_name)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : une interface à moi, que le reste du code utilise
 class InvoiceRenderer(Protocol):
     def render(self, invoice: Invoice) -> bytes: ...
@@ -1675,7 +1692,7 @@ Un <span class="term" data-term="siem">SIEM</span> (*Security Information and Ev
 2. les envoyer vers le même collecteur que les autres journaux, avec un champ qui les distingue ;
 3. écrire avec l'équipe sécurité les deux ou trois règles propres au métier (un remboursement au-dessus d'un seuil, un export de toute la base client).
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:02:11  my-api  login_failed   user=ada  ip=203.0.113.7
 10:02:14  my-api  login_failed   user=ada  ip=203.0.113.7
    ... 38 échecs en 2 minutes
@@ -1706,7 +1723,7 @@ Un <span class="term" data-term="ndr">NDR</span> (*Network Detection and Respons
 - **Comportement** : Darktrace (commercial) apprend ce qui est normal pour chaque machine et signale l'écart ; Corelight (commercial) s'appuie sur Zeek, un moteur open source qui transforme le trafic en journaux lisibles.
 
 Une ligne de `conn.log` produite par Zeek, simplifiée :
-```
+``` { .text .ex-ref title="Référence" }
 ts          id.orig_h   id.resp_h      id.resp_p  proto  duration  orig_bytes  resp_bytes
 1730714400  10.0.4.12   198.51.100.20  443        tcp    3600.2    2147483648  5120
 ```
@@ -1730,7 +1747,7 @@ Un <span class="term" data-term="ips">IPS</span> (*Intrusion Prevention System*)
 { .tool-rel }
 
 
-```
+``` { .text .ex-ref title="Référence" }
 $ cscli decisions list
  ID  Source    Scope:Value       Reason                          Action  Duration
  12  crowdsec  Ip:203.0.113.7    crowdsecurity/http-bf-wordpress  ban     3h52m
@@ -1764,7 +1781,7 @@ Le <span class="term" data-term="cspm">CSPM</span> (*Cloud Security Posture Mana
 | Steampipe | interroge les API du cloud en SQL, comme si chaque type de ressource était une table | inventaire, questions ponctuelles, rapports |
 
 Cloud Custodian (projet de la CNCF, à vérifier pour son statut) applique de la <span class="term" data-term="policy-as-code">politique en code</span>. Exemple pour AWS : retirer l'accès public des buckets, et arrêter dans 3 jours les machines sans étiquette `team`.
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 policies:
   # Exemple : retire l'accès public des buckets S3
   - name: s3-no-public-grants
@@ -1784,7 +1801,7 @@ policies:
         op: stop
         days: 3
 ```
-```bash
+``` { .bash .ex-ref title="Référence" }
 custodian run --dryrun -s out/ policies.yml
 ```
 `--dryrun` liste les ressources visées sans agir : toujours commencer par là, puis passer en mode notification, puis seulement en correction automatique (syntaxe des filtres à vérifier dans la documentation).
@@ -1795,13 +1812,13 @@ Steampipe fait de l'<span class="term" data-term="cloud-asset-inventory">inventa
 *Kubernetes : concurrent de Cloud Run ; complémentaire de Docker, Helm, Argo CD*
 { .tool-rel }
 
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : liste les buckets S3 publics
 SELECT name, region, versioning_enabled
 FROM aws_s3_bucket
 WHERE bucket_policy_is_public;
 ```
-```
+``` { .text .ex-ref title="Référence" }
  name               | region    | versioning_enabled
 --------------------+-----------+-------------------
  my-test-reports    | eu-west-3 | false
@@ -1834,7 +1851,7 @@ Les règles de base sont dans [Les secrets](#les-secrets), et la présentation d
 **Pourquoi** : un secret copié dans un fichier `.env`, un ticket ou un message ne se révoque plus proprement ; personne ne sait qui l'a. Un gestionnaire dit qui a lu quoi et quand, et permet de changer le secret en un seul endroit. Le coût : une dépendance critique de plus (s'il tombe, les applications qui démarrent n'ont plus leurs secrets) et une façon de s'authentifier auprès de lui sans créer un nouveau secret à cacher.
 
 **Comment** : l'application s'authentifie avec son <span class="term" data-term="workload-identity">identité de charge de travail</span> (voir [Zero trust](#zero-trust-et-identite-entre-services)), puis demande un secret dynamique : un compte de base créé pour elle, qui expire seul.
-```
+``` { .text .ex-ref title="Référence" }
 $ vault read database/creds/my-api-readonly
 Key                Value
 ---                -----
@@ -1844,7 +1861,7 @@ username           v-my-api-readonly-8f3k2
 password           A1b2-C3d4-...
 ```
 Volé, ce compte ne sert qu'une heure, et la révocation du bail le supprime de la base. Côté humain, la CLI de 1Password lit un secret par une référence, sans le copier dans un fichier :
-```bash
+``` { .bash .ex-ref title="Référence" }
 op read "op://team-core/my-api-staging-db/password"
 ```
 (Sorties et syntaxes à vérifier selon les versions.)
@@ -1902,7 +1919,7 @@ stateDiagram-v2
 ```
 
 Une règle Semgrep maison qui repère une requête SQL construite par concaténation (voir [l'injection SQL](sql.md#securite-linjection-sql)) :
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : règle Semgrep qui signale une requête SQL construite par concaténation
 rules:
   - id: sql-string-concat

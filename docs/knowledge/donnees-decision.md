@@ -33,7 +33,7 @@ Un <span class="term" data-term="sli">SLI</span> (Service Level Indicator) est l
 
 **Traitement par lots (batch)** : les données sont collectées puis traitées d'un bloc, par exemple chaque nuit. **Flux (streaming)** : chaque événement est traité dès qu'il arrive, en quelques secondes.
 
-```
+``` { .text .ex-illus title="Illustration" }
 batch       00:00 à 23:59  les commandes s'accumulent
             02:00          le job nocturne calcule les chiffres de la veille
             09:00          le tableau de bord montre « hier : 1 200 commandes »
@@ -58,7 +58,7 @@ flowchart LR
 
 J'ouvre un tableau de bord en espérant qu'il me dise quoi faire : il ne le fera pas. Une décision **pilotée par les données** (data-driven decision making) part d'une question, pas d'un tableau de bord. J'écris **avant** de regarder les chiffres ce que je ferai selon le résultat, sinon je risque de trouver après coup une histoire qui colle aux chiffres.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Question   les clients abandonnent-ils le paiement à cause de l'étape 3-D Secure ?
 Mesure     taux d'abandon à chaque étape du paiement, sur 30 jours
 Décision   si plus de 20 % (exemple) des abandons ont lieu à l'étape 3-D Secure,
@@ -100,7 +100,7 @@ Pièges :
 
 Le <span class="term" data-term="time-to-insight">time to insight</span> est le délai entre le moment où quelque chose se passe et le moment où quelqu'un peut décider à partir de cette information.
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00  une mise en production casse le paiement par carte étrangère
 10:00  batch nocturne : visible le lendemain à 09:00 dans le rapport   time to insight : 23 h
 10:05  streaming + alerte sur le taux d'erreur du paiement             time to insight : 5 min
@@ -163,7 +163,7 @@ Un <span class="term" data-term="ab-test">A/B test</span> (expérience contrôl�
 
 À éviter, la comparaison avant et après la mise en ligne, sans groupe témoin : tout ce qui a changé en même temps (une campagne d'e-mails lancée le même lundi, la paie de fin de mois, une panne chez un concurrent) est mis au crédit du nouveau bouton.
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : avant et après la mise en ligne du bouton, sans groupe témoin
 select case when day < '2026-11-02' then 'avant' else 'après' end as periode,
        sum(orders) * 1.0 / sum(visitors) as conversion
@@ -174,7 +174,7 @@ group by 1;
 
 Le même bouton mesuré en A/B test, les deux groupes sur la même période :
 
-```
+``` { .text .ex-illus title="Illustration" }
 version A (bouton actuel)        10 000 visiteurs   300 commandes   3,00 %
 version B (bouton « en 1 clic ») 10 000 visiteurs   345 commandes   3,45 %
 écart : +0,45 point, soit +15 % relatifs
@@ -218,7 +218,7 @@ Le **calcul de taille d'échantillon** dit combien de visiteurs il faut par grou
 !!! noob "As noob"
     Pour entendre un murmure, il faut écouter plus longtemps que pour entendre un cri : plus l'écart cherché est petit, plus il faut de visiteurs pour le distinguer du bruit. Une puissance de 80 % veut dire qu'un écart réel de cette taille serait repéré 8 fois sur 10, et raté 2 fois. La phrase à retenir : **on calcule le nombre de visiteurs avant de lancer le test, pas après avoir vu le résultat.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 taux de départ        3 % de conversion (version A)
 écart à détecter      +0,5 point, soit 3,5 %
 seuil et puissance    5 % (bilatéral), 80 %
@@ -242,12 +242,14 @@ Les trois indicateurs du tableau, en une ligne chacun :
 
 À éviter, le mauvais dénominateur : diviser les commandes par les seuls visiteurs qui ont vu le panier, et pas par tous les visiteurs affectés à la variante, donne un taux dix fois plus haut que la réalité, et un écart entre variantes qui dépend de qui arrive au panier.
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : le dénominateur ne compte que les visiteurs qui ont vu le panier
 select count(distinct o.order_id) * 1.0 / count(distinct c.visitor_id) as conversion
 from cart_views c
 left join orders o on o.visitor_id = c.visitor_id;
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : commandes passées après l'affectation, divisées par tous les visiteurs de la variante
 select a.variant,
        count(distinct o.order_id) * 1.0 / count(distinct a.visitor_id) as conversion
@@ -290,11 +292,13 @@ Une bonne visualisation répond à une question en un coup d'œil. Choisir le gr
 
 À éviter, résumer un montant ou une durée par sa seule moyenne : 300 commandes à 40 € et 3 commandes professionnelles à 5 000 € donnent un panier moyen de 89 €, un montant que presque aucun client ne dépense.
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : la moyenne seule, tirée vers le haut par quelques très grosses commandes
 select avg(total_eur) as panier_moyen
 from fct_orders_paid;
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : le nombre de commandes, la moyenne, la médiane et le p95 côte à côte (syntaxe PostgreSQL)
 select count(*) as commandes,
        avg(total_eur) as moyenne,
@@ -344,7 +348,7 @@ Un <span class="term" data-term="data-contract">contrat de données</span> écri
 !!! noob "As noob"
     Un contrat de données, c'est le cahier des charges entre un fournisseur et un restaurant : quels produits, quel calibre, livrés à quelle heure, et qui appeler en cas de problème. Si le fournisseur change de calibre sans prévenir, le contrat le signale avant que les plats ne sortent ratés. La phrase à retenir : **le producteur d'une donnée s'engage par écrit sur ce qu'il livre, et la CI vérifie qu'il tient parole.**
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : contrat de données (responsable, schéma, fraîcheur, rétention, accès)
 dataset: orders_paid
 owner: team-orders
@@ -387,7 +391,7 @@ Source : DAMA International, « DAMA-DMBOK: Data Management Body of Knowledge »
 
 La **data science** extrait des connaissances des données avec des statistiques et de l'apprentissage automatique (machine learning). Un <span class="term" data-term="predictive-model">modèle prédictif</span> apprend sur l'historique pour estimer ce qui va probablement se passer.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Question     quels clients vont résilier leur abonnement le mois prochain ?
 Historique   24 mois de clients, avec leurs usages et s'ils ont résilié ou non
 Entraînement sur les 18 premiers mois
@@ -407,7 +411,7 @@ Pièges :
 
 La dérive se voit sur une courbe mensuelle de la précision (parmi les clients jugés « à risque », la part qui a vraiment résilié, connue un mois plus tard) :
 
-```
+``` { .text .ex-illus title="Illustration" }
 janvier   42 %   mise en production (210 sur 500)
 février   41 %
 mars      39 %   nouvelle offre lancée : les usages changent
@@ -464,7 +468,7 @@ Les deux se combinent : le modèle prédictif choisit **qui** contacter, le mod�
 
 Une **plateforme de données** est l'ensemble des briques qui amènent une donnée de l'application qui la produit jusqu'à la personne ou au modèle qui l'utilise. Les sections précédentes parlent de ce qu'on fait des chiffres ; celle-ci parle de la tuyauterie qui les fabrique.
 
-```
+``` { .text .ex-illus title="Illustration" }
 sources          intégration          stockage             transformation        usage
 orders-service ─┐                                                              ┌─ tableaux de bord
 payments-service├─ CDC, connecteurs ─> entrepôt ou lac ─> dbt, Spark ─────────┼─ application de données
@@ -508,7 +512,7 @@ Un <span class="term" data-term="data-warehouse">entrepôt de données</span> st
 
 
 **Comment** : les données arrivent en trois couches, souvent nommées bronze, argent, or (*medallion architecture*, terme popularisé par Databricks) ou brut, préparé, métier.
-```
+``` { .text .ex-illus title="Illustration" }
 raw.orders_events        copie brute des événements de orders-service, jamais modifiée
 staging.stg_orders       une ligne par commande, types corrigés, doublons retirés
 marts.fct_orders_paid    commandes payées, prêtes pour le tableau de bord du chiffre d'affaires
@@ -564,7 +568,7 @@ flowchart LR
 
 À éviter, le nom de table écrit en dur : dbt ne voit plus la dépendance, peut lancer ce modèle avant `stg_orders` et lire la version de la veille, et le lignage s'arrête là.
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : table écrite en dur, dbt ignore la dépendance et l'ordre d'exécution
 select order_id, customer_id, total_cents / 100.0 as total_eur, paid_at
 from analytics.staging.stg_orders
@@ -573,8 +577,8 @@ where status = 'paid'
 
 La version avec `ref()` :
 
-```sql
--- Exemple : modèle dbt, un SELECT qui déclare sa dépendance avec ref()
+``` { .sql .ex-good title="Recommandé" }
+-- Bien : modèle dbt, un SELECT qui déclare sa dépendance avec ref()
 select
     order_id,
     customer_id,
@@ -583,7 +587,7 @@ select
 from {{ ref('stg_orders') }}
 where status = 'paid'
 ```
-```bash
+``` { .bash .ex-ref title="Référence" }
 dbt build --select fct_orders_paid
 ```
 `dbt build` exécute le modèle puis ses tests (section suivante).
@@ -622,7 +626,7 @@ flowchart LR
 
 À éviter, ramener les données sur le driver pour les traiter avec pandas : `toPandas()` copie toutes les lignes dans la mémoire d'une seule machine, et le job s'arrête sur une erreur de mémoire dès que le lac dépasse quelques gigaoctets.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : toutes les commandes copiées sur le driver, les exécuteurs ne servent à rien
 orders = spark.read.parquet("gs://my-shop-lake/orders/").toPandas()
 daily = orders[orders["status"] == "paid"].groupby(["paid_at", "country"])["total_cents"].sum()
@@ -630,10 +634,10 @@ daily = orders[orders["status"] == "paid"].groupby(["paid_at", "country"])["tota
 
 La version qui laisse Spark répartir le calcul :
 
-```python
+``` { .python .ex-good title="Recommandé" }
 from pyspark.sql import SparkSession, functions as F
 
-# Exemple : chiffre d'affaires quotidien par pays avec Spark, lu et écrit en Parquet
+# Bien : chiffre d'affaires quotidien par pays avec Spark, lu et écrit en Parquet
 spark = SparkSession.builder.appName("daily_revenue").getOrCreate()
 
 orders = spark.read.parquet("gs://my-shop-lake/orders/")
@@ -704,7 +708,7 @@ flowchart LR
 Chaque test a une gravité : `error` arrête la suite, `warn` laisse passer et prévient (configuration `severity` de dbt). `dbt build` lance les tests juste après chaque modèle et saute les modèles en aval d'un test en échec : le tableau de bord garde le dernier chiffre juste plutôt que d'afficher un chiffre faux.
 
 **Comment**, avec les tests de dbt, déclarés à côté du modèle :
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : tests dbt déclarés à côté du modèle (unicité, non nul, relation, plage)
 models:
   - name: fct_orders_paid
@@ -726,7 +730,7 @@ models:
 (La clé s'appelle `tests` avant dbt 1.8, 2024, à vérifier ; `accepted_range` vient du paquet `dbt_utils`.)
 
 Great Expectations (open source, Python) fait la même chose hors de dbt, sur un DataFrame ou une table, et publie un rapport lisible :
-```python
+``` { .python .ex-ref title="Référence" }
 import great_expectations as gx
 
 # Exemple : la même vérification de plage avec Great Expectations, hors de dbt
@@ -757,7 +761,7 @@ Une <span class="term" data-term="data-app">application de données</span> est u
 **Pourquoi** : le gain, c'est le temps : une personne qui connaît Python livre un outil utilisable en une journée, sans équipe front. Le coût : chaque interaction relance le script, ce qui limite les performances, et l'application doit être hébergée, authentifiée et maintenue comme le reste.
 
 **Comment** :
-```python
+``` { .python .ex-ref title="Référence" }
 import pandas as pd
 import streamlit as st
 
@@ -768,7 +772,7 @@ country = st.selectbox("Pays", sorted(orders["country"].unique()))
 daily = orders[orders["country"] == country].groupby("day")["total_eur"].sum()
 st.line_chart(daily)
 ```
-```bash
+``` { .bash .ex-ref title="Référence" }
 streamlit run revenue_app.py
 ```
 
@@ -798,7 +802,7 @@ flowchart LR
 ```
 
 **1. Suivre et versionner** avec MLflow (open source, créé par Databricks en 2018) : chaque entraînement enregistre ses paramètres, ses métriques et le modèle produit ; le <span class="term" data-term="model-registry">registre de modèles</span> garde les versions et indique laquelle sert en production.
-```python
+``` { .python .ex-ref title="Référence" }
 import mlflow
 from sklearn.ensemble import RandomForestClassifier
 
@@ -822,7 +826,7 @@ with mlflow.start_run(run_name="churn-2026-11"):
 | performance réelle | le modèle a-t-il raison ? | précision mensuelle, connue quand les vraies réponses arrivent |
 
 Un rapport de dérive hebdomadaire compare la distribution de chaque variable à celle de l'entraînement, souvent avec le PSI (*Population Stability Index*) :
-```
+``` { .text .ex-illus title="Illustration" }
 semaine 45, modèle churn v7, référence : jeu d'entraînement
 variable             PSI    état
 orders_last_90d      0.27   dérive forte  (> 0.2)
@@ -867,7 +871,7 @@ part de valeurs vides : last_login_days 30 % (entraînement : 1 %)  alerte quali
 
 J'annonce « on a fait des économies sur le cloud », mais la facture a à peine bougé parce que le nombre de commandes a augmenté entre-temps. Une économie se prouve donc comme un gain de performance : par rapport à un **point de départ mesuré**, ramenée à une **unité** qui a du sens, comme le coût pour 1 000 commandes.
 
-```
+``` { .text .ex-illus title="Illustration" }
 avant    3 200 € de cloud par mois pour 4 millions de commandes   0,80 € les 1 000 commandes
 après    2 900 € de cloud par mois pour 5 millions de commandes   0,58 € les 1 000 commandes
 la facture totale a peu baissé, mais le coût unitaire a baissé de 27 % (chiffres d'exemple)
@@ -884,7 +888,7 @@ flowchart LR
 
 Les trois phases sur un mois, avec la facture « après » de l'exemple du dessus (chiffres d'exemple) :
 
-```
+``` { .text .ex-illus title="Illustration" }
 informer    étiquettes obligatoires sur chaque ressource :
             team=team-core  service=orders-service  env=prod
 

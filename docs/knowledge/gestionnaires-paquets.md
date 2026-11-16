@@ -105,7 +105,7 @@ flowchart TB
 
 J'écris dans le manifeste **ce que j'accepte**, le gestionnaire écrit dans le lockfile **ce qu'il a choisi**. Sans lockfile, deux installations à une semaine d'écart donnent des versions différentes : une dépendance transitive publie une version cassée le mardi, et le pipeline du mercredi échoue alors que personne n'a touché au code.
 
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "name": "orders-front",
   "dependencies": {
@@ -117,7 +117,7 @@ J'écris dans le manifeste **ce que j'accepte**, le gestionnaire écrit dans le 
 
 Le lockfile correspondant fige la version exacte, l'adresse de téléchargement et une empreinte du fichier (`integrity`), extrait de `package-lock.json` :
 
-```json
+``` { .json .ex-ref title="Référence" }
 "node_modules/date-fns": {
   "version": "3.6.0",
   "resolved": "https://registry.npmjs.org/date-fns/-/date-fns-3.6.0.tgz",
@@ -145,12 +145,14 @@ Le même couple existe partout :
 
 Options à vérifier sur la version installée : leur nom change d'une version majeure à l'autre.
 
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : npm install en CI peut réécrire le lockfile et installer une autre version que celle testée sur le poste
 install:
   script:
     - npm install
+```
 
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : npm ci installe exactement le lockfile, et échoue s'il ne correspond plus au package.json
 install:
   script:
@@ -225,7 +227,7 @@ Selon l'écosystème, la réponse change :
 
 Sortie typique côté Python, avec uv :
 
-```
+``` { .text .ex-ref title="Référence" }
 $ uv add pdf-lib mail-lib
   × No solution found when resolving dependencies:
   ╰─ Because pdf-lib==2.3.0 depends on http-core>=1,<2 and mail-lib==5.1.0
@@ -235,7 +237,7 @@ $ uv add pdf-lib mail-lib
 
 Sortie illustrative, paquets fictifs. Pour forcer une version d'une dépendance transitive (le temps qu'un mainteneur corrige), chaque outil a une soupape : `overrides` dans `package.json` (npm), `resolutions` (yarn), `pnpm.overrides`, `override-dependencies` (uv), `dependencyManagement` (Maven), `constraints` (Gradle).
 
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "overrides": {
     "http-core": "2.1.4"
@@ -279,7 +281,7 @@ Ce bloc force `http-core` 2.1.4 partout, même sous `pdf-lib` qui ne l'a pas tes
 
 Le « paquet non déclaré » est un piège réel : avec npm, `import debug from "debug"` marche dans mon code sans que `debug` soit dans mon `package.json`, parce qu'une de mes dépendances l'a installé à plat dans `node_modules`. Le jour où cette dépendance n'en a plus besoin, mon build casse. pnpm le refuse dès le début.
 
-```
+``` { .text .ex-ref title="Référence" }
 $ npm ls debug
 orders-front@1.0.0
 └─┬ express@4.21.1
@@ -316,7 +318,7 @@ Sortie illustrative : `debug` n'arrive que par `express`, donc mon code ne devra
 
 Le format du manifeste est standard : `pyproject.toml` (PEP 621, 2020) est lu par uv, PDM et Poetry 2. Depuis la PEP 751 (2025), un format de lockfile commun, `pylock.toml`, existe aussi (adoption à vérifier).
 
-```toml
+``` { .toml .ex-ref title="Référence" }
 # Exemple : pyproject.toml lu par uv, dépendances de production et de développement séparées
 [project]
 name = "orders-api"
@@ -331,7 +333,7 @@ dependencies = [
 dev = ["pytest>=8", "ruff>=0.7"]
 ```
 
-```
+``` { .text .ex-ref title="Référence" }
 $ uv add "sqlalchemy>=2"
 $ uv sync --locked
 $ uv run pytest
@@ -360,10 +362,12 @@ $ uv run pytest
 | .NET | NuGet | nuget.org | `packages.lock.json` à activer (`RestorePackagesWithLockFile`) |
 | Ruby | Bundler | RubyGems | `Gemfile` et `Gemfile.lock`, l'origine du couple manifeste et lockfile |
 
-```bash
+``` { .bash .ex-bad title="À éviter" }
 # À éviter : composer update en production installe des versions jamais testées
 composer update --no-dev
+```
 
+``` { .bash .ex-good title="Recommandé" }
 # Bien : composer install respecte composer.lock et refuse un lock désynchronisé
 composer install --no-dev --prefer-dist --classmap-authoritative
 ```
@@ -387,7 +391,7 @@ composer install --no-dev --prefer-dist --classmap-authoritative
 
 Dans un <span class="term" data-term="monorepo">monorepo</span>, j'ai plusieurs paquets dans un seul dépôt, par exemple un front, une API et une bibliothèque de composants partagée. Un **workspace** dit au gestionnaire : « ces dossiers sont des paquets à moi, relie-les entre eux au lieu de les télécharger ». Une modification de la bibliothèque est visible tout de suite dans le front, sans publier de version.
 
-```
+``` { .text .ex-illus title="Illustration" }
 shop/
 ├── pnpm-workspace.yaml      packages: ["apps/*", "packages/*"]
 ├── pnpm-lock.yaml           un seul lockfile pour tout le dépôt
@@ -398,7 +402,7 @@ shop/
     └── ui/package.json      "name": "@shop/ui"
 ```
 
-```
+``` { .text .ex-ref title="Référence" }
 $ pnpm --filter web add zod
 $ pnpm --filter "...@shop/ui" test
 ```
@@ -440,7 +444,7 @@ flowchart LR
   PROXY -->|"le reste, mis en cache"| PUB["npmjs.org, PyPI"]
 ```
 
-```ini
+``` { .ini .ex-good title="Recommandé" }
 # .npmrc
 # Bien : la portée @shop va toujours au registre interne, le reste passe par le miroir de l'entreprise
 @shop:registry=https://registry.example.com/npm/internal/
@@ -449,7 +453,7 @@ registry=https://registry.example.com/npm/proxy/
 
 Pour la CI, un **cache** du dossier de téléchargement (`~/.npm`, `~/.cache/uv`, `~/.composer/cache`), indexé sur l'empreinte du lockfile, évite de retélécharger les mêmes paquets à chaque pipeline :
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : cache GitLab CI des téléchargements d'uv, invalidé quand uv.lock change
 test:
   variables:
@@ -496,15 +500,17 @@ Installer un paquet, c'est exécuter le code de quelqu'un d'autre, parfois **pen
 | compte de mainteneur volé | une vraie bibliothèque populaire publie une version piégée pendant quelques heures | lockfile figé, délai minimum avant d'accepter une nouvelle version |
 | fichier modifié sur le registre ou en chemin | le paquet téléchargé n'est plus celui qui a été verrouillé | empreintes dans le lockfile, vérifiées à l'installation |
 
-```bash
+``` { .bash .ex-bad title="À éviter" }
 # À éviter : --extra-index-url fait chercher shop-auth sur PyPI aussi, et pip prend la version la plus haute des deux
 pip install --extra-index-url https://pypi.example.com/simple shop-auth
+```
 
+``` { .bash .ex-good title="Recommandé" }
 # Bien : un seul index, le registre de l'entreprise, qui sert PyPI en miroir et les paquets internes
 pip install --index-url https://pypi.example.com/simple --require-hashes -r requirements.txt
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # pnpm-workspace.yaml
 # Bien : une version publiée depuis moins d'un jour est refusée, et seul esbuild peut lancer un script d'installation
 minimumReleaseAge: 1440
@@ -516,7 +522,7 @@ onlyBuiltDependencies:
 
 **Provenance et SBOM.** La **<span class="term" data-term="package-provenance">provenance</span>** prouve qu'un paquet a été construit par tel workflow CI, à partir de tel commit, et non sur le poste de quelqu'un : `npm publish --provenance` et les attestations de PyPI (PEP 740, 2024) la publient, signée avec Sigstore. Un **<span class="term" data-term="sbom">SBOM</span>** (*Software Bill of Materials*) est la liste de tout ce que contient mon logiciel, dépendances transitives comprises, dans un format standard (CycloneDX, SPDX). Il répond en une minute à « suis-je touché par la faille publiée ce matin ? ».
 
-```
+``` { .text .ex-ref title="Référence" }
 $ npm audit signatures
 audited 412 packages in 2s
 412 packages have verified registry signatures
@@ -554,7 +560,7 @@ Sortie illustrative. Le SBOM se génère depuis le lockfile ou l'image (`syft`, 
 
 Un lockfile figé ne vieillit pas tout seul, il faut le faire avancer. Je regarde d'abord ce qui est en retard :
 
-```
+``` { .text .ex-ref title="Référence" }
 $ npm outdated
 Package    Current  Wanted  Latest  Location
 react       18.2.0  18.3.1  19.1.0  node_modules/react

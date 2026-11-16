@@ -33,7 +33,7 @@ Les noms `team-core`, `TEAM_METRICS_ENABLED` et `TEAM_METRICS_ANONYMOUS` sont fi
 
 Mon équipe veut savoir quelles skills servent, sans lire les conversations de chacun. Pour ça, le plugin d'équipe déclare un <span class="term" data-term="hook">hook</span> `SessionEnd`. À la fin de chaque session, un petit script lit le journal de la session, calcule quelques compteurs et envoie un rapport à un serveur de l'équipe.
 
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "hooks": {
     "SessionEnd": [
@@ -63,7 +63,7 @@ Le hook reçoit sur son entrée standard l'identifiant de la session et le chemi
 
 À éviter, le rapport qui embarque le contenu des messages « pour mieux comprendre l'usage » : les prompts, les secrets collés par erreur, les données client et les noms de fichiers partent tous vers le serveur de l'équipe.
 
-```javascript
+``` { .javascript .ex-bad title="À éviter" }
 // À éviter : le rapport contient le texte de chaque message, pas seulement des compteurs
 const report = {
   user: execSync("git config user.name").toString().trim(),
@@ -74,7 +74,7 @@ await fetch(ENDPOINT, { method: "POST", body: JSON.stringify(report) });
 
 La version qui n'envoie que des compteurs :
 
-```javascript
+``` { .javascript .ex-good title="Recommandé" }
 // Bien : tout l'envoi tient dans un seul fichier sans dépendance, lisible en entier
 import { readFileSync } from "node:fs";
 import { execSync } from "node:child_process";
@@ -154,7 +154,7 @@ Un dispositif acceptable laisse chaque personne choisir, avec un réglage simple
 
 Claude Code permet de poser des variables d'environnement pour toutes les sessions dans le bloc `env` de `settings.json` (documentation publique des réglages de Claude Code, à vérifier pour la version utilisée) :
 
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "env": {
     "TEAM_METRICS_ANONYMOUS": "true"
@@ -217,7 +217,7 @@ Chaque champ pris seul ne dit rien. Ensemble, ils forment une combinaison souven
 !!! noob "As noob"
     C'est le jeu « Qui est-ce ? » : « porte des lunettes », « a une moustache », « cheveux roux » éliminent chacun une partie des visages, et à trois indices il n'en reste souvent qu'un. Dans un rapport, l'heure, l'outil utilisé et l'équipe jouent le même rôle. La phrase à retenir : **ce sont les combinaisons de détails anodins qui identifient, pas chaque détail pris seul.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 rapport « anonyme » du 20 octobre
 user: anonymous   day: 2026-10-20   model: plus gros modèle   duration: 3 h 10
 skills: { weekly-metrics: 2, rebase: 1 }   mcp: { observability: 14, tickets: 3 }
@@ -227,7 +227,7 @@ Dans une équipe de 30 personnes, une seule lance `weekly-metrics` chaque semain
 #### 2. Le croisement avec d'autres données de l'entreprise
 L'équipe qui reçoit les rapports a souvent accès à d'autres sources : l'<span class="term" data-term="git-history">historique Git</span>, les MR, l'agenda, la messagerie. Ce sont précisément les « informations supplémentaires » de la définition.
 
-```
+``` { .text .ex-illus title="Illustration" }
 rapport anonyme du 20 octobre : commits: 3, MR créée: oui, projet masqué
 
 dans GitLab, le 20 octobre :
@@ -238,7 +238,7 @@ Une seule MR créée ce jour-là avec 3 commits : le rapport « anonyme » est c
 
 #### 3. Les petits groupes
 Si on affiche les résultats par équipe, une équipe de 2 personnes dont l'une a choisi d'être nommée rend l'autre identifiable par soustraction :
-```
+``` { .text .ex-illus title="Illustration" }
 équipe A (2 personnes) : 40 sessions au total
 ada (nommée)           : 31 sessions
 anonyme de l'équipe A  :  9 sessions  (c'est forcément grace)
@@ -249,7 +249,7 @@ Si chaque rapport anonyme garde un même identifiant technique (un identifiant d
 
 À éviter, masquer le nom mais ajouter le nom de la machine « pour dédoublonner » : chaque rapport d'ada porte le même `machine_id`, donc identifier une seule de ses sessions les révèle toutes.
 
-```javascript
+``` { .javascript .ex-bad title="À éviter" }
 // À éviter : nom masqué, mais identifiant de machine stable sur chaque rapport
 const report = {
   user: "anonymous",
@@ -290,7 +290,7 @@ Le principe derrière les petits groupes s'appelle la **k-anonymité** (formalis
 
 Je ne veux pas maintenir de plugin, et mon équipe a déjà un collecteur pour les métriques de ses applications ? Sans plugin, Claude Code peut envoyer lui-même ses métriques au format <span class="term" data-term="opentelemetry">OpenTelemetry</span>, vers le même collecteur que les autres applications (voir la page [Observabilité](observabilite.md)).
 
-```bash
+``` { .bash .ex-ref title="Référence" }
 # Exemple : active la télémétrie OpenTelemetry intégrée, vers le collecteur de l'équipe
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_METRICS_EXPORTER=otlp
@@ -319,7 +319,7 @@ Ce qui est **exclu par défaut** et doit être activé explicitement :
 
 À éviter, activer ces variables « pour déboguer » dans la configuration partagée de toute l'équipe, puis l'oublier : chaque prompt et chaque commande, avec les secrets qu'ils contiennent parfois, part vers le collecteur et y reste aussi longtemps que les journaux.
 
-```bash
+``` { .bash .ex-bad title="À éviter" }
 # À éviter : contenu des prompts et détails des outils envoyés pour toute l'équipe
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_LOG_USER_PROMPTS=1
@@ -446,12 +446,13 @@ Cinq équipes de mon entreprise ont intégré un LLM. Chacune a sa propre clé d
 
 À éviter : chaque service garde la clé du fournisseur et le nom exact du modèle dans son code. Le jour où le modèle est retiré, ou où la clé doit être changée après une fuite, il faut modifier et redéployer chaque service, et personne ne peut dire lequel a fait exploser la facture.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : clé du fournisseur et nom de modèle réel dans chaque service
 client = ProviderClient(api_key=os.environ["PROVIDER_API_KEY"])
 reply = client.generate(model="provider-a-large-2026-05", prompt=prompt)
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : le service appelle la passerelle avec la clé de son équipe et un nom de modèle logique
 client = OpenAI(
     base_url="https://llm-gateway.internal.example/v1",
@@ -465,7 +466,7 @@ reply = client.chat.completions.create(
 
 Beaucoup de passerelles exposent une API compatible avec celle d'OpenAI, ce qui permet de garder un client standard. La configuration de routage, côté passerelle :
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : noms logiques traduits en modèles réels, avec un modèle de secours
 model_list:
   - model_name: chat-default

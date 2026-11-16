@@ -107,7 +107,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     final class InvoiceService
@@ -130,6 +130,10 @@ classDiagram
             return (int) round($cents);
         }
     }
+    ```
+
+    ``` { .php .ex-good title="Recommandé" }
+    <?php
 
     // Ce qui change : la compta a sa classe, le total reste arrondi au centime
     final class InvoiceCalculator
@@ -154,7 +158,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     class InvoiceService:
         # À éviter : total demandé par le comptable, calculé via le rounded() partagé
         def total_cents(self, amount_cents: int) -> int:
@@ -167,8 +171,9 @@ classDiagram
         # À éviter : l'arrondir à l'euro pour l'affichage change aussi le total facturé
         def _rounded(self, cents: float) -> int:
             return round(cents)
+    ```
 
-
+    ``` { .python .ex-good title="Recommandé" }
     # Ce qui change : la compta a sa classe, le total reste arrondi au centime
     class InvoiceCalculator:
         def total_cents(self, amount_cents: int) -> int:
@@ -186,7 +191,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     final class InvoiceService {
         // À éviter : total demandé par le comptable, calculé via le rounded() partagé
         int totalCents(int amountCents) { return rounded(amountCents * 1.20); }
@@ -195,7 +200,9 @@ classDiagram
         // À éviter : l'arrondir à l'euro pour l'affichage change aussi le total facturé
         private int rounded(double cents) { return (int) Math.round(cents); }
     }
+    ```
 
+    ``` { .java .ex-good title="Recommandé" }
     // Ce qui change : la compta a sa classe, le total reste arrondi au centime
     final class InvoiceCalculator {
         int totalCents(int amountCents) { return (int) Math.round(amountCents * 1.20); }
@@ -252,7 +259,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : chaque nouveau mode rouvre ce calcul qui marche déjà
@@ -263,6 +270,10 @@ classDiagram
             'express' => 1500 + (int) ($kg * 200),
         };
     }
+    ```
+
+    ``` { .php .ex-good title="Recommandé" }
+    <?php
 
     // Bien : le contrat commun, chaque mode l'implémente
     interface Shipping
@@ -285,7 +296,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     from typing import Protocol
 
 
@@ -297,8 +308,9 @@ classDiagram
             case "express":
                 return 1500 + int(kg * 200)
         raise ValueError(mode)
+    ```
 
-
+    ``` { .python .ex-good title="Recommandé" }
     # Bien : le contrat commun, chaque mode l'implémente
     class Shipping(Protocol):
         def cost(self, kg: float) -> int: ...
@@ -318,7 +330,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : chaque nouveau mode rouvre ce calcul qui marche déjà
     static int shippingCost(String mode, double kg) {
         return switch (mode) {
@@ -327,7 +339,9 @@ classDiagram
             default -> throw new IllegalArgumentException(mode);
         };
     }
+    ```
 
+    ``` { .java .ex-good title="Recommandé" }
     // Bien : le contrat commun, chaque mode l'implémente
     interface Shipping { int cost(double kg); }
 
@@ -392,7 +406,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-illus title="Illustration" }
     <?php
 
     // Exemple : le dépôt modifiable, qui promet la lecture et l'écriture
@@ -401,6 +415,10 @@ classDiagram
         public function find(string $id): ?array { return null; }
         public function save(array $order): void { }
     }
+    ```
+
+    ``` { .php .ex-bad title="À éviter" }
+    <?php
 
     // À éviter : hérite de save() mais le fait planter, Liskov est cassé
     final class ArchiveRepository extends OrderRepository
@@ -410,6 +428,10 @@ classDiagram
             throw new LogicException('lecture seule');
         }
     }
+    ```
+
+    ``` { .php .ex-good title="Recommandé" }
+    <?php
 
     // Ce qui change : la lecture a son propre contrat
     interface OrderReader
@@ -432,7 +454,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-illus title="Illustration" }
     from typing import Protocol
 
 
@@ -443,14 +465,16 @@ classDiagram
 
         def save(self, order: dict) -> None:
             pass
+    ```
 
-
+    ``` { .python .ex-bad title="À éviter" }
     # À éviter : hérite de save() mais le fait planter, Liskov est cassé
     class ArchiveRepository(OrderRepository):
         def save(self, order: dict) -> None:
             raise NotImplementedError("lecture seule")
+    ```
 
-
+    ``` { .python .ex-good title="Recommandé" }
     # Ce qui change : la lecture a son propre contrat
     class OrderReader(Protocol):
         def find(self, order_id: str) -> dict | None: ...
@@ -469,19 +493,23 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-illus title="Illustration" }
     // Exemple : le dépôt modifiable, qui promet la lecture et l'écriture
     class OrderRepository {
         Optional<Order> find(String id) { return Optional.empty(); }
         void save(Order order) { }
     }
+    ```
 
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : hérite de save() mais le fait planter, Liskov est cassé
     final class ArchiveRepository extends OrderRepository {
         @Override
         void save(Order order) { throw new UnsupportedOperationException("lecture seule"); }
     }
+    ```
 
+    ``` { .java .ex-good title="Recommandé" }
     // Ce qui change : la lecture a son propre contrat
     interface OrderReader { Optional<Order> find(String id); }
     // Ce qui change : l'écriture aussi, à part
@@ -533,7 +561,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : chaque implémentation doit fournir les trois canaux
@@ -543,6 +571,10 @@ classDiagram
         public function sendSms(string $to, string $text): void;
         public function sendPush(string $to, string $text): void;
     }
+    ```
+
+    ``` { .php .ex-good title="Recommandé" }
+    <?php
 
     // Ce qui change : une interface pour le seul besoin SMS
     interface SmsSender
@@ -559,7 +591,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     from typing import Protocol
 
 
@@ -568,8 +600,9 @@ classDiagram
         def send_email(self, to: str, text: str) -> None: ...
         def send_sms(self, to: str, text: str) -> None: ...
         def send_push(self, to: str, text: str) -> None: ...
+    ```
 
-
+    ``` { .python .ex-good title="Recommandé" }
     # Ce qui change : une interface pour le seul besoin SMS
     class SmsSender(Protocol):
         def send_sms(self, to: str, text: str) -> None: ...
@@ -583,14 +616,16 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : chaque implémentation doit fournir les trois canaux
     interface Notifier {
         void sendEmail(String to, String text);
         void sendSms(String to, String text);
         void sendPush(String to, String text);
     }
+    ```
 
+    ``` { .java .ex-good title="Recommandé" }
     // Ce qui change : une interface pour le seul besoin SMS
     interface SmsSender { void sendSms(String to, String text); }
 
@@ -634,7 +669,7 @@ flowchart LR
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : le métier crée lui-même l'accès PostgreSQL, intestable sans base
@@ -645,6 +680,10 @@ flowchart LR
             (new PostgresOrderRepository())->save($order);
         }
     }
+    ```
+
+    ``` { .php .ex-good title="Recommandé" }
+    <?php
 
     // Ce qui change : le métier définit l'interface dont il a besoin
     interface OrderRepository
@@ -666,7 +705,7 @@ flowchart LR
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     from typing import Protocol
 
 
@@ -674,8 +713,9 @@ flowchart LR
     class PlaceOrderBefore:
         def handle(self, order: dict) -> None:
             PostgresOrderRepository().save(order)
+    ```
 
-
+    ``` { .python .ex-good title="Recommandé" }
     # Ce qui change : le métier définit l'interface dont il a besoin
     class OrderRepository(Protocol):
         def save(self, order: dict) -> None: ...
@@ -692,12 +732,14 @@ flowchart LR
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : le métier crée lui-même l'accès PostgreSQL, intestable sans base
     final class PlaceOrderBefore {
         void handle(Order order) { new PostgresOrderRepository().save(order); }
     }
+    ```
 
+    ``` { .java .ex-good title="Recommandé" }
     // Ce qui change : le métier définit l'interface dont il a besoin
     interface OrderRepository { void save(Order order); }
 
@@ -713,7 +755,7 @@ Cette « version en mémoire des tests » est un <span class="term" data-term="f
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-illus title="Illustration" }
     <?php
 
     // Exemple : un faux qui garde les commandes en mémoire pour les tests
@@ -730,7 +772,7 @@ Cette « version en mémoire des tests » est un <span class="term" data-term="f
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-illus title="Illustration" }
     # Exemple : un faux qui garde les commandes en mémoire pour les tests
     class InMemoryOrderRepository:
         def __init__(self) -> None:
@@ -742,7 +784,7 @@ Cette « version en mémoire des tests » est un <span class="term" data-term="f
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-illus title="Illustration" }
     // Exemple : un faux qui garde les commandes en mémoire pour les tests
     final class InMemoryOrderRepository implements OrderRepository {
         final List<Order> saved = new ArrayList<>();
@@ -840,7 +882,7 @@ Exemple : un collègue devra corriger mon code dans six mois. Une boucle de cinq
 
 **AHA** (*Avoid Hasty Abstractions*, Kent C. Dodds, vers 2019, date à vérifier) et **<span class="term" data-term="wrong-abstraction">la mauvaise abstraction</span>** (Sandi Metz, « The Wrong Abstraction », 2016) : « la duplication coûte bien moins cher que la mauvaise abstraction ». Une abstraction créée trop tôt finit par accumuler des paramètres et des `if` pour servir des cas qui n'ont rien à voir. Le remède de Sandi Metz : réintégrer le code dans chaque appelant, puis repartir de là.
 
-```text
+``` { .text .ex-illus title="Illustration" }
 Jour 1 : formatPrice(amount)                               2 appelants identiques, on factorise.
 Jour 30 : formatPrice(amount, currency, withTax)           un 3e appelant diffère un peu.
 Jour 90 : formatPrice(amount, currency, withTax, isB2b,    5 drapeaux, 12 combinaisons,
@@ -875,9 +917,12 @@ Jour 90 : formatPrice(amount, currency, withTax, isB2b,    5 drapeaux, 12 combin
 !!! noob "As noob"
     Pour se faire payer, un serveur ne prend pas le portefeuille du client pour y chercher sa carte : il lui demande de payer. Fouiller dans les objets des autres (`a.get_b().get_c()`) me lie à leur rangement intérieur. La phrase à retenir : **je demande à l'objet de faire, je ne vais pas chercher dans ses poches.**
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : traverse trois classes, casse si l'une change de structure
 city = order.get_customer().get_address().get_city()
+```
+
+``` { .python .ex-good title="Recommandé" }
 # Bien : seul Order sait où trouver la ville
 city = order.shipping_city()
 ```
@@ -916,12 +961,16 @@ flowchart LR
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : une sous-classe par combinaison d'envois
     class ReportWithEmail extends Report { }
     class ReportWithEmailAndPdf extends ReportWithEmail { }
+    ```
+
+    ``` { .php .ex-good title="Recommandé" }
+    <?php
 
     // Bien : le job reçoit la liste d'exportateurs voulue
     final class ReportJob
@@ -940,12 +989,13 @@ flowchart LR
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     # À éviter : une sous-classe par combinaison d'envois
     class ReportWithEmail(Report): ...
     class ReportWithEmailAndPdf(ReportWithEmail): ...
+    ```
 
-
+    ``` { .python .ex-good title="Recommandé" }
     # Bien : le job reçoit la liste d'exportateurs voulue
     class ReportJob:
         def __init__(self, report: Report, exporters: list[Exporter]) -> None:
@@ -959,11 +1009,13 @@ flowchart LR
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : une sous-classe par combinaison d'envois
     class ReportWithEmail extends Report { }
     class ReportWithEmailAndPdf extends ReportWithEmail { }
+    ```
 
+    ``` { .java .ex-good title="Recommandé" }
     // Bien : le job reçoit la liste d'exportateurs voulue
     final class ReportJob {
         private final Report report;
@@ -1007,7 +1059,7 @@ L'héritage reste juste pour une vraie relation « est un » qui respecte Liskov
 
 **<span class="term" data-term="separation-of-concerns">Séparation des préoccupations</span>** (Edsger Dijkstra, « On the role of scientific thought », 1974) : traiter séparément chaque aspect d'un problème (affichage, règle métier, stockage). C'est l'idée mère de la responsabilité unique et des architectures en couches ou hexagonales. En pratique, un découpage en trois dossiers :
 
-```
+``` { .text .ex-illus title="Illustration" }
 orders/
 ├── api/      # HTTP : lit la requête, appelle le domaine, renvoie la réponse
 ├── domain/   # règles métier et interfaces (OrderRepository) ; n'importe rien de infra/
@@ -1167,7 +1219,7 @@ Une **<span class="term" data-term="guard-clause">clause de garde</span>** est u
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : trois niveaux d'imbrication, le vrai calcul est caché tout à droite
@@ -1187,6 +1239,10 @@ Une **<span class="term" data-term="guard-clause">clause de garde</span>** est u
             throw new InvalidArgumentException('Order is required.');
         }
     }
+    ```
+
+    ``` { .php .ex-good title="Recommandé" }
+    <?php
 
     // Bien : chaque cas particulier sort tout de suite, le cas normal se lit à la fin
     function shippingFee(?Order $order): int
@@ -1207,7 +1263,7 @@ Une **<span class="term" data-term="guard-clause">clause de garde</span>** est u
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     # À éviter : trois niveaux d'imbrication, le vrai calcul est caché tout à droite
     def shipping_fee(order: Order | None) -> int:
         if order is not None:
@@ -1220,8 +1276,9 @@ Une **<span class="term" data-term="guard-clause">clause de garde</span>** est u
                 return 0
         else:
             raise ValueError("order is required")
+    ```
 
-
+    ``` { .python .ex-good title="Recommandé" }
     # Bien : chaque cas particulier sort tout de suite, le cas normal se lit à la fin
     def shipping_fee(order: Order | None) -> int:
         if order is None:
@@ -1236,7 +1293,7 @@ Une **<span class="term" data-term="guard-clause">clause de garde</span>** est u
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : trois niveaux d'imbrication, le vrai calcul est caché tout à droite
     static int shippingFee(Order order) {
         if (order != null) {
@@ -1253,7 +1310,9 @@ Une **<span class="term" data-term="guard-clause">clause de garde</span>** est u
             throw new IllegalArgumentException("Order is required.");
         }
     }
+    ```
 
+    ``` { .java .ex-good title="Recommandé" }
     // Bien : chaque cas particulier sort tout de suite, le cas normal se lit à la fin
     static int shippingFee(Order order) {
         if (order == null) {
@@ -1290,14 +1349,16 @@ Un **<span class="term" data-term="deep-module">module profond</span>** (*deep m
 
 **Comment** : je regarde un module depuis son appelant et je compte ce qu'il doit savoir. Si chaque appel suit la même séquence de cinq lignes, cette séquence appartient au module.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : module peu profond, chaque appelant connaît les cinq étapes et leur ordre
 conn = orders_db.open_connection()
 tx = orders_db.begin(conn)
 row = orders_db.serialize(order)
 orders_db.insert(tx, "orders", row)
 orders_db.commit(tx)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : module profond, une méthode qui cache connexion, transaction et format
 orders_repository.save(order)
 ```
@@ -1344,12 +1405,13 @@ La **<span class="term" data-term="design-by-contract">conception par contrat</s
 
 **Pourquoi** : sans contrat écrit, chaque côté vérifie « au cas où », ou aucun ne vérifie. Le contrat dit qui est responsable, et la méthode échoue dès l'entrée au lieu de corrompre l'état. C'est aussi la base de la [substitution de Liskov](#l-substitution-de-liskov) : une sous-classe peut assouplir les préconditions et renforcer les postconditions, jamais l'inverse.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : rien ne dit ce que la méthode exige, un montant négatif augmente le solde
 def withdraw(self, amount):
     self.balance -= amount
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : précondition vérifiée à l'entrée, postcondition et invariant écrits et contrôlés
 def withdraw(self, amount_cents: int) -> None:
     """Précondition : 0 < amount_cents <= balance.
@@ -1373,11 +1435,13 @@ Le **<span class="term" data-term="tolerant-reader">lecteur tolérant</span>** (
 
 **Quand** : je consomme l'API ou les événements d'une autre équipe, qui évoluent à leur rythme. **Quand ne pas** : tolérer un champ inconnu, oui ; tolérer une valeur fausse dans un champ que je lis, non. Je valide strictement ce que j'utilise.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : refuse tout champ inconnu, l'ajout de "currency" par billing-service casse mon service
 if set(payload) != {"invoice_id", "amount_cents"}:
     raise ValueError("unexpected fields")
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : lit seulement les deux champs utiles, valide leur valeur, ignore le reste
 invoice_id = str(payload["invoice_id"])
 amount_cents = int(payload["amount_cents"])
@@ -1404,14 +1468,16 @@ Quatre règles en découlent :
 - **Traduire à la frontière** : l'API renvoie un code HTTP et un message utile, sans trace d'exécution ni détail interne.
 - **Journaliser une seule fois** : à l'endroit qui traite l'erreur, pas à chaque couche qui la relance, sinon une panne produit cinq lignes de log.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : une panne réseau devient un succès, la commande passe "payée" sans paiement
 try:
     gateway.charge(order.total_cents, card)
 except Exception:
     pass
 order.mark_paid()
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : le refus métier est traité, la panne technique remonte et la commande reste en attente
 try:
     gateway.charge(order.total_cents, card)
@@ -1423,7 +1489,7 @@ order.mark_paid()
 
 **Le type résultat.** Au lieu de lever une exception pour une erreur attendue, la fonction peut renvoyer un <span class="term" data-term="result-type">type résultat</span> : soit un succès (`Ok(order)`), soit un échec (`Err("empty_cart")`). L'erreur apparaît dans la signature, et l'appelant ne peut pas l'oublier. C'est la règle en Rust (`Result<T, E>`), courant en Kotlin, Scala, F# et Haskell ; en Python ou en Java, il s'écrit à la main ou avec une bibliothèque, et les exceptions restent l'usage courant.
 
-```python
+``` { .python .ex-illus title="Illustration" }
 # Exemple : un résultat explicite, l'appelant doit regarder les deux cas
 @dataclass(frozen=True)
 class Ok:
@@ -1501,7 +1567,7 @@ Le **<span class="term" data-term="refactoring">refactoring</span>** (Martin Fow
 
 **Le refactoring préparatoire.** Kent Beck l'a résumé en 2012 : « pour chaque changement voulu, rendre le changement facile (attention, ça peut être difficile), puis faire le changement facile ». On me demande d'ajouter la livraison en Belgique. Le classique à éviter : un seul commit qui réorganise les tarifs et ajoute la Belgique, où le relecteur ne peut plus distinguer ce qui change de comportement.
 
-```python
+``` { .python .ex-good title="Recommandé" }
 # Exemple : point de départ, chaque tarif est codé en dur dans une chaîne de if
 def shipping_cost(country: str, weight_kg: float) -> float:
     if country == "FR":
@@ -1562,14 +1628,15 @@ Les tests de l'étape 4 sont des <span class="term" data-term="characterization-
 
 **Le seam.** Un <span class="term" data-term="seam">seam</span> (point de jonction) est un endroit où je peux changer le comportement du code sans modifier ce code. Le plus courant en langage objet : passer la dépendance gênante en paramètre, avec la vraie implémentation par défaut. Les appelants existants ne changent pas, et mon test passe un faux.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : l'API du transporteur et l'horloge sont créées dans la méthode, impossible de tester sans réseau
 def checkout(cart):
     carrier = CarrierApi()
     today = date.today()
     ...
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : un seam, la dépendance devient un paramètre avec la vraie valeur par défaut
 def checkout(cart, carrier: Carrier | None = None, today: date | None = None):
     carrier = carrier or CarrierApi()
@@ -1582,7 +1649,7 @@ def checkout(cart, carrier: Carrier | None = None, today: date | None = None):
 - **Sprout Method** (faire pousser) : j'écris la nouvelle logique dans une nouvelle fonction, testée à part, et je l'appelle depuis l'ancien code. L'ancien code change d'une ligne. Variante *Sprout Class* quand la nouvelle logique a besoin de ses propres dépendances.
 - **Wrap Method** (envelopper) : je renomme l'ancienne méthode et j'en crée une nouvelle, du même nom, qui appelle l'ancienne et ajoute le comportement avant ou après (journaliser, auditer).
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : un if de plus au milieu des 400 lignes, impossible à tester sans tout le checkout
 def checkout(cart):
     ...
@@ -1590,8 +1657,9 @@ def checkout(cart):
     if cart.subtotal_cents >= 5000:
         fee = 0
     ...
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : Sprout Method, la règle vit dans une fonction pure testée seule
 FREE_SHIPPING_THRESHOLD_CENTS = 5000
 
@@ -1638,7 +1706,7 @@ Seule la case « prudente et délibérée » est un vrai emprunt choisi. La case
 
 **Trouver la dette qui coûte : l'<span class="term" data-term="hotspot-analysis">analyse des points chauds</span>.** Adam Tornhill (« Your Code as a Crime Scene », 2015, 2e édition 2024) croise deux mesures tirées du dépôt : le **churn** (combien de fois un fichier a été modifié) et sa <span class="term" data-term="code-complexity">complexité</span>. Un fichier complexe que personne ne touche coûte peu ; un fichier complexe modifié chaque semaine est un **point chaud**, c'est là que le remboursement rapporte.
 
-```bash
+``` { .bash .ex-ref title="Référence" }
 # Exemple : les 10 fichiers les plus modifiés depuis un an (le churn), à croiser avec leur complexité
 git log --since="1 year ago" --name-only --format="" | sort | uniq -c | sort -rn | head -10
 ```

@@ -80,7 +80,7 @@ What separates an ethical hacker from a criminal is not the technique, it is the
 
 **Coordinated disclosure.** I find a vulnerability by chance on a site I am not testing: I do not exploit it further, I look for the security contact and warn them, then I leave time to fix it before talking about it publicly (often 90 days, the practice popularized by Google Project Zero). The `security.txt` file (RFC 9116, published in 2022) says where to write:
 
-```
+``` { .text .ex-ref title="Reference" }
 $ curl https://example.com/.well-known/security.txt
 Contact: mailto:security@example.com
 Expires: 2027-06-30T23:00:00.000Z
@@ -217,7 +217,7 @@ flowchart LR
 
 Example on the public target the nmap project allows for practice:
 
-```
+``` { .text .ex-ref title="Reference" }
 $ nmap -sV scanme.nmap.org
 PORT      STATE    SERVICE    VERSION
 22/tcp    open     ssh        OpenSSH 6.6.1p1 Ubuntu
@@ -230,10 +230,12 @@ Illustrative output, versions to check. Reading: two classic services, with thei
 
 For an authorized test, I pin the scope in a file, and the tool reads only that:
 
-```bash
+``` { .bash .ex-bad title="Avoid" }
 # Avoid: a whole range "just in case", which hits out-of-scope machines, so unauthorized ones
 nmap -sV -p- 203.0.113.0/24
+```
 
+``` { .bash .ex-good title="Recommended" }
 # Good: only the targets listed in the rules of engagement, at a rate that does not degrade the service
 nmap -sV --top-ports 1000 --max-rate 100 -iL scope.txt -oA results/staging-2026-03-02
 ```
@@ -263,7 +265,7 @@ I want to understand a SQL injection or an XSS other than by reading a definitio
 | Hack The Box | machines to compromise, harder | intermediate, advanced |
 | public CTFs | team competitions, often online, listed on CTFtime | all levels |
 
-```bash
+``` { .bash .ex-ref title="Reference" }
 # Example: run Juice Shop locally, reachable only from my machine
 docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop
 ```
@@ -291,7 +293,7 @@ The scanner reports 340 vulnerabilities on my images. I cannot fix everything th
 
 A CVSS vector reads piece by piece:
 
-```
+``` { .text .ex-ref title="Reference" }
 CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N
 ```
 
@@ -451,7 +453,7 @@ flowchart LR
 
 **When**: alongside the human pentest, on an acceptance environment with fake data, for a scope authorized in writing, as for a pentester. Not in production without explicit agreement and action limits. **Why**: shrink the time between introducing a vulnerability and discovering it, from months to hours. **How**: scope and rules of engagement given to the agent, sandbox, human review of each finding before a ticket, and each confirmed vulnerability turned into a regression test:
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: only the happy path is tested, the route can lose its owner check without any test turning red
 def test_ada_reads_her_order(api_client, ada_token, order_of_ada):
     response = api_client.get(
@@ -459,8 +461,9 @@ def test_ada_reads_her_order(api_client, ada_token, order_of_ada):
         headers={"Authorization": f"Bearer {ada_token}"},
     )
     assert response.status_code == 200
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: the confirmed vulnerability becomes a refusal test that runs on each merge request
 def test_ada_cannot_read_order_of_grace(api_client, ada_token, order_of_grace):
     response = api_client.get(

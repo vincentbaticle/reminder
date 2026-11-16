@@ -33,6 +33,10 @@ hide:
     | dotted underlined word | a definition on hover, with an example |
     | yellow **As noob** box | the notion explained simply, with an everyday picture |
     | diagram | the mechanism drawn out, worth reading before the text when the topic is new |
+    | <span class="pill pill-ex pill-ex-bad">Avoid</span> <span class="pill pill-ex pill-ex-good">Recommended</span> on top of a code block | a demo written for the example: the classic mistake, then the good practice; read it as advice, not as documentation |
+    | <span class="pill pill-ex pill-ex-ref">Reference</span> on top of a code block | the real syntax, command, output or format of a tool or a standard, as in its documentation; only the values (names, numbers) are made up |
+    | <span class="pill pill-ex pill-ex-illus">Illustration</span> on top of a code block | a made-up scenario that makes an idea concrete (timeline, calculation, tree, code sketch): neither official syntax nor advice |
+    | <span class="pill pill-ex pill-ex-compare">Comparison</span> on top of a code block | two versions side by side in one block, each named inside the block |
     | :material-book-open-variant: **Reference docs** | the official documentation or original source of the notion, dated |
     | italic line under a tool | the tools it competes with, complements or is replaced by ([overview](knowledge/outils.md#complementary-or-competing)) |
     | table of contents on the right | the page's sections; the site name at the top always leads back home |

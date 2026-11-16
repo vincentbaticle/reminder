@@ -80,7 +80,7 @@ Ce qui sépare un hacker éthique d'un pirate n'est pas la technique, c'est le c
 
 **La divulgation coordonnée.** Je trouve une faille par hasard sur un site que je ne teste pas : je ne l'exploite pas plus loin, je cherche le contact sécurité et je le préviens, puis je laisse le temps de corriger avant d'en parler publiquement (souvent 90 jours, l'usage popularisé par Google Project Zero). Le fichier `security.txt` (RFC 9116, publiée en 2022) indique où écrire :
 
-```
+``` { .text .ex-ref title="Référence" }
 $ curl https://example.com/.well-known/security.txt
 Contact: mailto:security@example.com
 Expires: 2027-06-30T23:00:00.000Z
@@ -217,7 +217,7 @@ flowchart LR
 
 Exemple sur la cible publique que le projet nmap autorise pour s'entraîner :
 
-```
+``` { .text .ex-ref title="Référence" }
 $ nmap -sV scanme.nmap.org
 PORT      STATE    SERVICE    VERSION
 22/tcp    open     ssh        OpenSSH 6.6.1p1 Ubuntu
@@ -230,10 +230,12 @@ Sortie illustrative, versions à vérifier. Lecture : deux services classiques, 
 
 Pour un test autorisé, je fige le périmètre dans un fichier, et l'outil ne lit que lui :
 
-```bash
+``` { .bash .ex-bad title="À éviter" }
 # À éviter : une plage entière « au cas où », qui touche des machines hors périmètre, donc non autorisées
 nmap -sV -p- 203.0.113.0/24
+```
 
+``` { .bash .ex-good title="Recommandé" }
 # Bien : seulement les cibles listées dans les règles d'engagement, à un débit qui ne dégrade pas le service
 nmap -sV --top-ports 1000 --max-rate 100 -iL scope.txt -oA results/staging-2026-03-02
 ```
@@ -263,7 +265,7 @@ Je veux comprendre une injection SQL ou un XSS autrement qu'en lisant une défin
 | Hack The Box | machines à compromettre, plus difficiles | intermédiaire, avancé |
 | CTF publics | compétitions en équipe, souvent en ligne, recensées sur CTFtime | tous niveaux |
 
-```bash
+``` { .bash .ex-ref title="Référence" }
 # Exemple : lancer Juice Shop en local, accessible seulement depuis ma machine
 docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop
 ```
@@ -291,7 +293,7 @@ Le scanner sort 340 failles sur mes images. Je ne peux pas tout corriger cette s
 
 Un vecteur CVSS se lit morceau par morceau :
 
-```
+``` { .text .ex-ref title="Référence" }
 CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N
 ```
 
@@ -451,7 +453,7 @@ flowchart LR
 
 **Quand** : en complément du pentest humain, sur un environnement de recette avec des données fictives, pour un périmètre autorisé par écrit, comme pour un pentesteur. Pas en production sans accord explicite et sans limites d'actions. **Pourquoi** : réduire le temps entre l'introduction d'une faille et sa découverte, de mois à heures. **Comment** : périmètre et règles d'engagement donnés à l'agent, bac à sable, revue humaine de chaque constat avant ticket, et chaque faille confirmée transformée en test de non-régression :
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : seul le cas heureux est testé, la route peut perdre son contrôle de propriétaire sans qu'aucun test ne rougisse
 def test_ada_reads_her_order(api_client, ada_token, order_of_ada):
     response = api_client.get(
@@ -459,8 +461,9 @@ def test_ada_reads_her_order(api_client, ada_token, order_of_ada):
         headers={"Authorization": f"Bearer {ada_token}"},
     )
     assert response.status_code == 200
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : la faille confirmée devient un test de refus qui tourne à chaque MR
 def test_ada_cannot_read_order_of_grace(api_client, ada_token, order_of_grace):
     response = api_client.get(

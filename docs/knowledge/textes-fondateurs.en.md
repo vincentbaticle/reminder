@@ -50,7 +50,7 @@ The laws that carry a name (Conway, Brooks, Hyrum, Goodhart...) are explained on
 
 Example: reading a paper citation like an identity card.
 
-```
+``` { .text .ex-illus title="Illustration" }
 DeCandia et al., "Dynamo: Amazon's Highly Available Key-value Store", SOSP 2007
 │           │                                                          │    │
 │           │                                                          │    └ year: the system described dates from then, not today's product
@@ -195,7 +195,7 @@ Book dates are those of the first edition unless stated otherwise. Dates marked 
 
 The texts on this page, in order. The most used ideas today (modules, consensus, sagas) are often more than thirty years old.
 
-```
+``` { .text .ex-illus title="Illustration" }
 1968  Conway (organization and system), Dijkstra (goto)
 1972  Parnas (information hiding)
 1975  Brooks (The Mythical Man-Month), Saltzer and Schroeder (security)
@@ -471,7 +471,7 @@ Between 2003 and 2012, Google, Amazon and LinkedIn described their internal syst
 
 **Example.** Consistent hashing places nodes and keys on a ring: each key goes to the first node found clockwise. Vector clocks count writes per node, to spot two versions written in parallel.
 
-```
+``` { .text .ex-illus title="Illustration" }
 ring 0 to 299, nodes A(0) B(100) C(200): key "cart:ada" hashed to 150 goes to C
 adding D(250): only keys between 200 and 250 move from A to D (about 1/N of the keys)
 with hash % N, almost every key would have changed node
@@ -585,7 +585,7 @@ Details in [SLI, SLO, error budget](observabilite.md#sli-slo-error-budget).
 
 **Example.** Hypermedia links (<span class="term" data-term="hateoas">HATEOAS</span>, "hypermedia as the engine of application state"): the response tells the client what it can do next.
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "id": 42,
   "status": "pending",
@@ -778,7 +778,7 @@ The AWS white paper "Disaster Recovery of Workloads on AWS" (2021) is cited in [
 
 **Example.** Double spending: spending the same digital coin twice, since it is only copyable data. The blockchain is a public ledger where each block contains the fingerprint (hash) of the previous one. Proof of work forces miners to search, by trial and error, for a number that gives the block a fingerprint starting with several zeros: it costs computing power, so rewriting history is expensive.
 
-```
+``` { .text .ex-illus title="Illustration" }
 ada sends the same coin to grace and to a merchant, at the same moment
 block 101 keeps the first transaction, the second is rejected as a double spend
 to cancel the payment to grace, one would have to redo the proof of work of block 101 and every later block, faster than the rest of the network

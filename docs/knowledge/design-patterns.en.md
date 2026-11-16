@@ -104,7 +104,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="Avoid" }
     <?php
 
     // Avoid: every caller picks the class, this if is copied wherever we notify
@@ -121,7 +121,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="Avoid" }
     # Avoid: every caller picks the class, this if is copied wherever we notify
     def notify_shipped(channel: str, customer_id: str) -> None:
         if channel == "email":
@@ -133,7 +133,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="Avoid" }
     // Avoid: every caller picks the class, this if is copied wherever we notify
     static void notifyShipped(String channel, String customerId) {
         Notifier notifier = null;
@@ -150,7 +150,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommended" }
     <?php
 
     // Example: the contract every notifier shares
@@ -189,7 +189,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommended" }
     # Example: one class per channel, with the same send() method
     class EmailNotifier:
         def send(self, to: str, text: str) -> None:
@@ -216,7 +216,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommended" }
     // Example: the contract every notifier shares
     interface Notifier {
         void send(String to, String text);
@@ -307,7 +307,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="Avoid" }
     <?php
 
     // Avoid: eight parameters in a row, nobody knows what the last four mean
@@ -316,14 +316,14 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="Avoid" }
     # Avoid: eight parameters in a row, nobody knows what the last four mean
     request = HttpRequest("https://my-api/orders", "POST", {"Idempotency-Key": "7f3c"}, 2.0, None, True, False, 3)
     ```
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="Avoid" }
     // Avoid: eight parameters in a row, nobody knows what the last four mean
     var request = new HttpRequest("https://my-api/orders", "POST", Map.of("Idempotency-Key", "7f3c"), 2.0, null, true, false, 3);
     ```
@@ -332,7 +332,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommended" }
     <?php
 
     // Example: the final immutable object the builder produces
@@ -373,7 +373,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommended" }
     from dataclasses import dataclass, field
 
 
@@ -416,7 +416,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommended" }
     import java.util.HashMap;
     import java.util.Map;
 
@@ -499,7 +499,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="Avoid" }
     <?php
 
     // Avoid: reads and parses the configuration file again on every call
@@ -512,7 +512,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="Avoid" }
     import json
 
 
@@ -524,7 +524,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="Avoid" }
     // Avoid: reads and parses the configuration file again on every call
     static String databaseUrl() throws IOException {
         var config = new Properties();
@@ -537,7 +537,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-illus title="Illustration" }
     <?php
 
     // Example: a single instance, created once, then always returned
@@ -564,7 +564,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-illus title="Illustration" }
     from functools import cache
 
 
@@ -585,7 +585,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-illus title="Illustration" }
     // Example: a single instance, created once, then always returned
     enum Settings {
         INSTANCE;
@@ -670,7 +670,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="Avoid" }
     <?php
 
     // Avoid: business code talks to the bank directly, conversion included, at every payment
@@ -682,7 +682,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="Avoid" }
     # Avoid: business code talks to the bank directly, conversion included, at every payment
     def checkout(bank: LegacyBankClient, customer_id: str, amount_cents: int) -> str:
         return bank.make_payment(customer_id, amount_cents / 100)["ref"]
@@ -690,7 +690,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="Avoid" }
     // Avoid: business code talks to the bank directly, conversion included, at every payment
     static String checkout(LegacyBankClient bank, String customerId, int amountCents) {
         return bank.makePayment(customerId, amountCents / 100.0).get("ref");
@@ -701,7 +701,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommended" }
     <?php
 
     // Example: the interface my code expects (cents, charge())
@@ -737,7 +737,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommended" }
     from typing import Protocol
 
 
@@ -771,7 +771,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommended" }
     import java.util.Map;
 
     // Example: the interface my code expects (cents, charge())
@@ -861,7 +861,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="Avoid" }
     <?php
 
     // Avoid: the cache is mixed with database access, it cannot be removed without editing the class
@@ -882,7 +882,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="Avoid" }
     import time
 
 
@@ -900,7 +900,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="Avoid" }
     // Avoid: the cache is mixed with database access, it cannot be removed without editing the class
     final class DatabaseProductRepository {
         private final Map<Integer, String> cache = new HashMap<>();
@@ -915,7 +915,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommended" }
     <?php
 
     // Example: the interface shared by the real repository and the decorator
@@ -953,7 +953,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommended" }
     import time
     from typing import Protocol
 
@@ -988,7 +988,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommended" }
     import java.util.HashMap;
     import java.util.Map;
 
@@ -1077,7 +1077,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="Avoid" }
     <?php
 
     // Avoid: every controller rewrites the stock, payment, shipping sequence itself
@@ -1092,7 +1092,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="Avoid" }
     # Avoid: every controller rewrites the stock, payment, shipping sequence itself
     def checkout_controller(order_id: int, customer_id: str, sku: str, amount_cents: int) -> str:
         Inventory().reserve(sku, 1)
@@ -1103,7 +1103,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="Avoid" }
     // Avoid: every controller rewrites the stock, payment, shipping sequence itself
     static String checkoutController(int orderId, String customerId, String sku, int amountCents) {
         new Inventory().reserve(sku, 1);
@@ -1117,7 +1117,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommended" }
     <?php
 
     // Example: the three subsystems, to call in the right order
@@ -1151,7 +1151,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommended" }
     # Example: the three subsystems, to call in the right order
     class Inventory:
         def reserve(self, sku: str, quantity: int) -> None: ...
@@ -1186,7 +1186,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommended" }
     // Example: the three subsystems, to call in the right order
     final class Inventory { void reserve(String sku, int quantity) {} }
 
@@ -1275,7 +1275,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="Avoid" }
     <?php
 
     // Avoid: every method repeats the access check, and margin() forgot it
@@ -1300,7 +1300,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="Avoid" }
     # Avoid: every method repeats the access check, and margin() forgot it
     class ReportService:
         def __init__(self, user_roles: set[str]) -> None:
@@ -1317,7 +1317,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="Avoid" }
     // Avoid: every method repeats the access check, and margin() forgot it
     final class ReportService {
         private final Set<String> userRoles;
@@ -1341,7 +1341,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommended" }
     <?php
 
     // Example: the interface shared by the real service and the proxy
@@ -1376,7 +1376,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommended" }
     from typing import Protocol
 
 
@@ -1409,7 +1409,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommended" }
     import java.util.Set;
 
     // Example: the interface shared by the real service and the proxy
@@ -1528,7 +1528,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="Avoid" }
     <?php
 
     // Avoid: the controller writes its own SQL and mixes the database with the business rule
@@ -1546,7 +1546,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="Avoid" }
     # Avoid: the controller writes its own SQL and mixes the database with the business rule
     def show_order(connection, order_id: int) -> str:
         row = connection.execute(
@@ -1559,7 +1559,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="Avoid" }
     // Avoid: the controller writes its own SQL and mixes the database with the business rule
     static String showOrder(Connection connection, int orderId) throws SQLException {
         var statement = connection.prepareStatement("SELECT id, customer_id, total_cents FROM orders WHERE id = ?");
@@ -1576,7 +1576,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommended" }
     <?php
 
     // Example: the business object, with nothing about the database
@@ -1625,7 +1625,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommended" }
     from dataclasses import dataclass
     from typing import Protocol
 
@@ -1676,7 +1676,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommended" }
     import java.util.HashMap;
     import java.util.Map;
     import java.util.Optional;
@@ -1769,7 +1769,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="Avoid" }
     <?php
 
     // Avoid: the service builds its database and notifier, they cannot be replaced in a test
@@ -1788,7 +1788,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="Avoid" }
     import psycopg
 
 
@@ -1801,7 +1801,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="Avoid" }
     // Avoid: the service builds its database and notifier, they cannot be replaced in a test
     final class OrderService {
         private final OrderRepository repository;
@@ -1818,7 +1818,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommended" }
     <?php
 
     // Good: receives its dependencies through the constructor, does not create them
@@ -1852,7 +1852,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommended" }
     # Good: receives its dependencies through the constructor, does not create them
     class OrderService:
         def __init__(self, repository: OrderRepository, notifier: Notifier) -> None:
@@ -1877,7 +1877,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommended" }
     // Good: receives its dependencies through the constructor, does not create them
     final class OrderService {
         private final OrderRepository repository;
@@ -1911,7 +1911,7 @@ The `FakeNotifier` in the tests is a <span class="term" data-term="fake-object">
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-illus title="Illustration" }
     <?php
 
     // Example: a fake that records the messages instead of sending them
@@ -1929,7 +1929,7 @@ The `FakeNotifier` in the tests is a <span class="term" data-term="fake-object">
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-illus title="Illustration" }
     # Example: a fake that records the messages instead of sending them
     class FakeNotifier:
         def __init__(self) -> None:
@@ -1941,7 +1941,7 @@ The `FakeNotifier` in the tests is a <span class="term" data-term="fake-object">
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-illus title="Illustration" }
     // Example: a fake that records the messages instead of sending them
     final class FakeNotifier implements Notifier {
         final List<List<String>> sent = new ArrayList<>();
@@ -2000,7 +2000,7 @@ flowchart LR
 
     Without a container:
 
-    ```php
+    ``` { .php .ex-illus title="Illustration" }
     <?php
 
     // Example: without a container, the entry point wires everything by hand
@@ -2009,7 +2009,7 @@ flowchart LR
 
     With the Symfony container, `config/services.yaml` turns on autowiring and says which class to use for each interface:
 
-    ```yaml
+    ``` { .yaml .ex-ref title="Reference" }
     services:
         # Example: autowiring reads the constructor types
         _defaults:
@@ -2031,14 +2031,14 @@ flowchart LR
 
     Without a container:
 
-    ```python
+    ``` { .python .ex-illus title="Illustration" }
     # Example: without a container, the entry point wires everything by hand
     service = OrderService(PostgresOrderRepository(dsn), SmtpNotifier())
     ```
 
     With a minimal hand-written container (a class that centralizes the wiring and keeps the instance):
 
-    ```python
+    ``` { .python .ex-illus title="Illustration" }
     # Example: a minimal container that centralises the wiring and keeps the instance
     class Container:
         def __init__(self, dsn: str) -> None:
@@ -2063,14 +2063,14 @@ flowchart LR
 
     Without a container:
 
-    ```java
+    ``` { .java .ex-illus title="Illustration" }
     // Example: without a container, the entry point wires everything by hand
     var service = new OrderService(new JdbcOrderRepository(dataSource), new SmtpNotifier(mailSender));
     ```
 
     With Spring, annotate the classes and keep constructor injection: Spring finds the single implementation of each interface and passes it to the constructor.
 
-    ```java
+    ``` { .java .ex-ref title="Reference" }
     // Example: the service keeps constructor injection
     @Service
     class OrderService {

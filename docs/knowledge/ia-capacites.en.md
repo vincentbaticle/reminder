@@ -51,7 +51,7 @@ The words this page uses everywhere, in one sentence each; each one has its deta
 **<span class="term" data-term="headless-mode">Non-interactive mode</span> (headless)**: the agent run with nobody in front of the screen, with `claude -p "..."`, for example in a CI job that reviews every MR ([details](#non-interactive-mode-headless)).
 
 **JSON and jq**: JSON is a text data format (`{"file_path": "src/app.py"}`). `jq` is a command-line tool that extracts a value from JSON.
-```
+``` { .text .ex-ref title="Reference" }
 $ echo '{"tool_input": {"file_path": "src/app.py"}}' | jq -r '.tool_input.file_path'
 src/app.py
 ```
@@ -78,7 +78,7 @@ src/app.py
 
 An action the model can trigger: read a file, run a command, search the web. Without tools, it can only talk.
 
-```
+``` { .text .ex-illus title="Illustration" }
 me     : "how many tests are failing?"
 model  : calls the Bash tool with "pytest -q"
 tool   : "3 failed, 120 passed"
@@ -97,7 +97,7 @@ The agent can ask for my confirmation before using a tool. If I click "yes" a hu
 
 Avoid: allowing everything in the shell "so I am no longer bothered". `Bash(*)` lets `git push --force` through without confirmation, and `cat .env` reads the file the `Read(.env)` rule was supposed to protect, because that rule targets the Read tool, not a shell command (behaviour to check for the version used).
 
-```json
+``` { .json .ex-bad title="Avoid" }
 {
   "permissions": {
     "allow": ["Bash(*)"],
@@ -108,7 +108,7 @@ Avoid: allowing everything in the shell "so I am no longer bothered". `Bash(*)` 
 
 The version that only allows reading and tests:
 
-```json
+``` { .json .ex-good title="Recommended" }
 {
   "permissions": {
     "allow": [
@@ -139,7 +139,7 @@ A standard for plugging external tools into the agent. An **<span class="term" d
 !!! noob "As noob"
     MCP is the USB port of AI agents: a common plug, so that the same tool (access to tickets, to a database, to a browser) connects to any compatible agent without a custom adapter. The takeaway: **an MCP server gives the agent hands, and each hand is a tool I allow or not.**
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "mcpServers": {
     "github": {
@@ -191,7 +191,7 @@ An MCP server is a list of **tools**. Each tool has a name, a description writte
 
 Avoid: a catch-all tool, with a vague description and free-form parameters. The model guesses the values of `action` ("create", "new", "add"), nothing stops it from sending `env: "production"`, and a `400` error with no explanation makes it retry at random.
 
-```json
+``` { .json .ex-bad title="Avoid" }
 {
   "name": "orders",
   "description": "Handles orders.",
@@ -208,7 +208,7 @@ Avoid: a catch-all tool, with a vague description and free-form parameters. The 
 
 Here is a well-described tool, as the AI sees it:
 
-```json
+``` { .json .ex-good title="Recommended" }
 {
   "name": "create_order",
   "description": "Create test orders in the dev or staging environment. Returns one order id per order. Use get_order to follow them.",
@@ -265,7 +265,7 @@ Consequence: comparing a service's OpenAPI with the tools of its MCP server show
 
 In Claude Code, an MCP tool is named `mcp__<server>__<tool>`, for example `mcp__shop__create_order`. That is the name found in permissions and in logs.
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "permissions": {
     "allow": ["mcp__shop__get_order", "mcp__shop__list_orders"]
@@ -282,7 +282,7 @@ Every Friday, I explain the same steps to the agent again to write the release n
 
 Avoid: a vague description and fuzzy steps. The agent never triggers it, since "helper for releases" looks like no sentence I actually say, and when I run it by hand, it improvises, sometimes publishing without showing me the result.
 
-```markdown
+``` { .markdown .ex-bad title="Avoid" }
 ---
 name: release-notes
 description: Helper for releases.
@@ -292,13 +292,13 @@ Do the release notes properly.
 
 The version that triggers and gets followed step by step:
 
-```
+``` { .text .ex-good title="Recommended" }
 .claude/skills/release-notes/
 ├─ SKILL.md
 └─ scripts/collect_commits.sh
 ```
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 ---
 name: release-notes
 description: Write release notes from the commits since the last tag. Use for "release notes", "what changed since v1.2".
@@ -339,7 +339,7 @@ What makes a good skill:
 
 It is not one or the other. A tool **does** an action, a skill **says what to do and in which order**. A skill calls tools.
 
-```
+``` { .text .ex-illus title="Illustration" }
 skill "prepare the E2E test data"
 1. check whether the test order exists  : tool get_order
 2. otherwise, create it                 : tool create_order
@@ -386,7 +386,7 @@ A model that works in a loop: it thinks, calls a tool, reads the result, starts 
 !!! noob "As noob"
     A chatbot answers once and stops, like an information desk. An agent is more like an intern given a task: it tries, looks at the result, fixes, tries again, until it is done or stuck. The takeaway: **an agent is a model plus a loop of tools; its quality depends on what it can check by itself.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 task: "make the test_login test pass"
 1. runs pytest               : failure, KeyError 'exp'
 2. reads src/auth.py         : sees the bug
@@ -420,7 +420,7 @@ An agent launched by the main agent for a subtask, with **its own context**. It 
 !!! noob "As noob"
     A sub-agent is like sending a colleague to dig through the archives for me: they read thirty binders and come back with one page of notes. My desk (my context) stays clear, but I only see their summary, not what they skimmed. The takeaway: **delegate the reading, and double-check their "I found nothing".**
 
-```markdown
+``` { .markdown .ex-ref title="Reference" }
 ---
 name: code-reviewer
 description: Reviews a diff for bugs and security issues. Read-only.
@@ -433,7 +433,7 @@ You do not modify anything.
 
 A more tightly scoped example, an agent that repairs E2E tests:
 
-```markdown
+``` { .markdown .ex-good title="Recommended" }
 ---
 name: e2e-test-healer
 description: Heals failing Playwright tests. Only edits selector files.
@@ -447,7 +447,7 @@ and report the test as still failing.
 
 Avoid: the same agent with no tool list, no scope and no budget. It inherits every tool, and "until they pass" allows it to change the assertions or delete the test, or to loop for hours on a test broken by a real bug.
 
-```markdown
+``` { .markdown .ex-bad title="Avoid" }
 ---
 name: e2e-test-healer
 description: Fixes tests.
@@ -518,14 +518,14 @@ The article's advice: start with the simplest pattern that works, and add autono
 - **Plan-and-execute**: the model first writes a full plan, then carries it out step by step. [Plan mode](#plan-mode) is a version of it where a human approves the plan first.
 - **Reflexion** (Shinn et al., 2023): after a failure, the agent writes down what went wrong and tries again with that note. [Memory](ia-agents.md#memory) applies the same idea from one session to the next.
 
-```
+``` { .text .ex-illus title="Illustration" }
 plan-and-execute: "add a phone field to the users API"
   plan     : 1. SQL migration  2. User model  3. OpenAPI schema  4. tests
   step 1   : writes migrations/012_add_phone.sql
   step 2..4: run in order, the plan is only revisited on failure
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 Reflexion: "make test_refund pass"
   try 1    : pytest fails, AssertionError: 0 != 500
   note     : "I rounded before subtracting the fees, it must be the reverse"
@@ -561,13 +561,14 @@ A **<span class="term" data-term="structured-output">structured output</span>**:
 
 Avoid posting the model's answer as is: one sentence before the JSON makes `json.loads` crash, and a made-up line produces a comment on a line the MR does not change, or a refusal from the forge's API.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: answer read without a schema and posted without checking it matches the diff
 review = json.loads(response.text)
 for item in review:
     post_mr_comment(item["file"], item["line"], item["message"])
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: the shape is validated by the schema, the content is checked against the diff before posting
 review = ReviewList.model_validate_json(response.text)
 changed = changed_lines(diff)
@@ -579,7 +580,7 @@ for item in review.items:
 !!! noob "As noob"
     A structured output is a form with boxes instead of a free-form letter: every expected box must be filled in, and the "severity" box only offers three choices. The form guarantees that a program will be able to read it, not that what is written in it is true. The takeaway: **the schema guarantees the shape, not the content.**
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "type": "object",
   "properties": {
@@ -608,7 +609,7 @@ Before judging an agent, I need to see what it did: which files it read, which c
 
 Example: log every tool call, then count the most called tools.
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "hooks": {
     "PostToolUse": [
@@ -626,7 +627,7 @@ Example: log every tool call, then count the most called tools.
 }
 ```
 
-```bash
+``` { .bash .ex-ref title="Reference" }
 jq -r .t ~/agent-tools.log | sort | uniq -c | sort -rn
 ```
 
@@ -658,7 +659,7 @@ For QA, the shift is clear: I do not compare the output with an exact expected v
 - **Evals**: a fixed set of cases, replayed on every change of prompt, skill or model, like a <span class="term" data-term="regression">regression</span> suite.
 - **<span class="term" data-term="llm-as-judge">LLM as a judge</span> (LLM-as-a-judge)**: a second model scores the answer against a written grid. Useful to judge a text, but itself non-deterministic: a human checks its scores on a sample.
 
-```
+``` { .text .ex-illus title="Illustration" }
 eval: "make test_login pass", 10 runs
   pytest passes                        9/10
   no test file modified                9/10
@@ -667,7 +668,7 @@ eval: "make test_login pass", 10 runs
 
 Example of a grid given to the judge to score an MR summary, and its answer:
 
-```
+``` { .text .ex-illus title="Illustration" }
 Score each criterion from 1 to 5, answer in JSON.
 1. accuracy: nothing is made up compared with the diff
 2. completeness: every modified file is mentioned
@@ -675,7 +676,7 @@ Score each criterion from 1 to 5, answer in JSON.
 4. conciseness: 10 lines at most
 ```
 
-```json
+``` { .json .ex-illus title="Illustration" }
 {"accuracy": 5, "completeness": 3, "usefulness": 4, "conciseness": 5,
  "justification": "migrations/012_add_phone.sql is not mentioned"}
 ```
@@ -737,7 +738,7 @@ flowchart TD
 
 Example 1: format every modified file.
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "hooks": {
     "PostToolUse": [
@@ -761,7 +762,7 @@ Example 2: block a badly formed commit. The hook receives the tool call as JSON 
 
 Avoid exiting with code 1 and writing the message to standard output: for Claude Code, code 1 is a non-blocking error, so the commit goes through anyway and the model never sees the message (codes to check in the hooks docs).
 
-```bash
+``` { .bash .ex-bad title="Avoid" }
 #!/bin/bash
 # Avoid: exit code 1 and message on stdout, the commit is not blocked
 CMD=$(jq -r '.tool_input.command // empty')
@@ -773,9 +774,9 @@ fi
 
 The version that really blocks:
 
-```bash
+``` { .bash .ex-good title="Recommended" }
 #!/bin/bash
-# Example: hook that rejects a non conventional commit (exit code 2)
+# Good: hook that rejects a non conventional commit (exit code 2)
 CMD=$(jq -r '.tool_input.command // empty')
 echo "$CMD" | grep -q 'git commit' || exit 0
 MSG=$(echo "$CMD" | sed -nE 's/.*-m "([^"]*)".*/\1/p')
@@ -800,7 +801,7 @@ My team wrote skills, agents and a hook, and everyone copies them by hand into t
 !!! noob "As noob"
     A plugin is a toolcase prepared once and lent to the whole team, instead of everyone copying their own box and adapting it their way. The marketplace is the cupboard where the cases are stored, with their version number. The takeaway: **I install the same shared version, instead of copies that drift apart.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 team-marketplace/
 └─ plugins/
    ├─ dev-tools/
@@ -813,7 +814,7 @@ team-marketplace/
       └─ hooks/hooks.json            (loads the QA rules at startup)
 ```
 
-```
+``` { .text .ex-ref title="Reference" }
 /plugin marketplace add git@git.example.com:team/team-marketplace.git
 /plugin install dev-tools@team-marketplace
 /plugin install qa-tools@team-marketplace --scope project
@@ -868,7 +869,7 @@ What a mod can do that the other extensions cannot:
 
 #### What Claude writes
 
-```
+``` { .text .ex-illus title="Illustration" }
 my-prs/
 ├─ .claude-plugin/plugin.json     (the plugin manifest)
 └─ hooks/
@@ -876,7 +877,7 @@ my-prs/
    └─ register.js                 (the mod's code)
 ```
 
-```javascript
+``` { .javascript .ex-ref title="Reference" }
 // Example: constants and state shared by every hook of the module
 const PANE = 'my-prs'
 const FIVE_MINUTES = 5 * 60 * 1000
@@ -974,7 +975,7 @@ Where it works: the terminal (v2.1.287 or later, `claude --version`), the Code t
 
 Concrete example: I want to add a "phone" field to the sign-up form.
 
-```
+``` { .text .ex-illus title="Illustration" }
 1. I turn on plan mode, then ask:
    "add an optional phone field to the sign-up form"
 
@@ -1017,7 +1018,7 @@ A script that orchestrates several agents: for example 4 agents each review a di
 !!! noob "As noob"
     It is a review committee: four specialists read the same contract, each with their own checklist (legal, finance, security, style), then a fifth sorts their remarks and discards the false alarms. It is more reliable than a single reviewer, but five times the cost. The takeaway: **several specialised eyes, then a sort, and only when the stakes pay the bill.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 review ┬─ bugs agent        ─┐
        ├─ security agent    ─┼─ verifier agent ─ confirmed remarks
        ├─ perf agent        ─┤
@@ -1039,7 +1040,7 @@ I want a task to run with nobody in front of the screen, like an automatic revie
 
 Avoid the job that skips every confirmation, with a production token and no turn limit: an instruction hidden in the diff can make it push code or call production, and an agent going round in circles burns tokens until the job's maximum duration.
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: no permission checked, production token, no turn limit
 review-bot:
   stage: review
@@ -1051,8 +1052,8 @@ review-bot:
 
 The read-only version, with listed tools and a bounded number of turns (options to check for the version used):
 
-```yaml
-# Example: CI job that runs the agent headless on every MR
+``` { .yaml .ex-good title="Recommended" }
+# Good: CI job that runs the agent headless on every MR
 review-bot:
   stage: review
   script:
@@ -1073,7 +1074,7 @@ Pitfalls: no browser to log in, so MCPs that require a login must get a token th
 
 I am waiting for a pipeline to finish and come back to check every ten minutes. A recurring task does it for me: it runs at a regular interval, in the session or in the cloud.
 
-```
+``` { .text .ex-ref title="Reference" }
 /loop 10m check the pipeline of MR !42 and tell me if it fails
 /schedule every Monday at 9am: generate the weekly test report
 ```

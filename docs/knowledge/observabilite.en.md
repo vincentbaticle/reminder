@@ -68,7 +68,7 @@ flowchart LR
 ### Log
 A line of text written by the app at a given moment.
 
-```json
+``` { .json .ex-illus title="Illustration" }
 {"time": "2026-10-20T10:00:10Z", "level": "ERROR", "msg": "MySQL connection refused", "pod": "my-api-7f9c-abcde"}
 ```
 
@@ -79,11 +79,13 @@ A structured log (in JSON, one field per piece of information) can be filtered l
 
 The classic trap: building the message by concatenation, and slipping a secret into it along the way.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: free text built by hand, and the access token ends up in the logs
 logger.error("Payment failed for " + user.email + " order " + str(order_id)
              + " token=" + request.headers["Authorization"])
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: fixed message, data in fields, no secret and no raw personal data
 logger.error("payment failed", extra={"order_id": order_id, "user_id": user.id,
                                       "error_code": exc.code})
@@ -97,7 +99,7 @@ In the version to avoid, the log tool cannot group the errors (every message is 
 ### Metric
 A number measured over time.
 
-```
+``` { .text .ex-illus title="Illustration" }
 time    requests/s   error rate      CPU
 10:00   120          0.1%            35%
 10:05   118          0.1%            36%
@@ -118,7 +120,7 @@ A metric has a type, which tells how to read it. Three types cover almost everyt
 | Gauge       | an instant value, which goes up and down          | `memory_bytes`                   | look at the value itself                 |
 | Histogram   | a spread of values across ranges (buckets)        | `http_request_duration_seconds`  | derive percentiles from it (p95)         |
 
-```
+``` { .text .ex-ref title="Reference" }
 http_requests_total{route="/v1/orders", status="500"}   1,204
 memory_bytes{pod="my-api-7f9c-abcde"}                   268,435,456
 
@@ -134,13 +136,15 @@ Trap: I add a `user_id` label to `http_requests_total` to know who is calling. E
 !!! noob "As noob"
     A metric with its labels is a grid of counters: one counter per combination of values. With `route` (20 values) and `status` (10 values), I have at most 200 counters; if I add `user_id`, I get one counter per user, multiplied by everything else. The one thing to remember: **each label multiplies the number of series, so I only put a small, finite set of values in it.**
 
-```python
+``` { .python .ex-bad title="Avoid" }
 from prometheus_client import Counter
 
 # Avoid: user_id and the raw URL as labels, one series per user and per order id
 REQUESTS = Counter("http_requests_total", "HTTP requests", ["user_id", "path", "status"])
 REQUESTS.labels(user_id=user.id, path=request.url.path, status=resp.status_code).inc()
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: the route template (/v1/orders/{id}) and the HTTP code, a few hundred series at most
 REQUESTS = Counter("http_requests_total", "HTTP requests", ["route", "status"])
 REQUESTS.labels(route="/v1/orders/{id}", status=resp.status_code).inc()
@@ -171,7 +175,7 @@ The full path of a <span class="term" data-term="http-request">request</span>, e
 !!! noob "As noob"
     A trace is parcel tracking: each step (drop-off, sorting, truck, delivery) is a span with its time and duration, and the tracking number (the trace ID) links every step of the same parcel. The one thing to remember: **a trace tells the journey of a single request, step by step.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 Trace abc123 (a call to /readyz)
 └─ span 1 : GET /readyz        12 ms
    └─ span 2 : MySQL connection        4 ms
@@ -197,7 +201,7 @@ gantt
 ### Span
 One step of a trace.
 
-```
+``` { .text .ex-illus title="Illustration" }
 name:       SELECT 1
 trace_id:   abc123
 span_id:    s3
@@ -211,7 +215,7 @@ A readiness probe every 10 s, with 3 spans each time, makes 8,640 traces but 25,
 ### Trace ID
 The <span class="term" data-term="trace-id">identifier</span> shared by all the spans of the same trace, it is what links them together.
 
-```
+``` { .text .ex-illus title="Illustration" }
 span s1  trace_id abc123   GET /readyz
 span s2  trace_id abc123   MySQL connection
 span s3  trace_id abc123   SELECT 1
@@ -221,7 +225,7 @@ span s9  trace_id def456   GET /livez   (another trace)
 ### Parent / child span
 The <span class="term" data-term="parent-span">parent</span> is the span that triggers the other one.
 
-```
+``` { .text .ex-illus title="Illustration" }
 s1  GET /readyz      parent: none (root span)
 s2  MySQL connection        parent: s1
 s3  SELECT 1                parent: s2
@@ -235,7 +239,7 @@ A trace is only "end to end" if the `trace_id` travels from one service to the n
 !!! noob "As noob"
     It is a patient's file number moving from reception to radiology: if reception forgets to pass it on, radiology opens a new file and nobody connects the two. The one thing to remember: **without the `traceparent` passed along, each service starts its own trace and the journey is cut.**
 
-```
+``` { .text .ex-ref title="Reference" }
 orders-service calls payments-service:
 
 POST /v1/payments HTTP/1.1
@@ -265,7 +269,7 @@ sequenceDiagram
 
 payments-service reads the header, keeps the same `trace_id` and creates its spans as children of the calling span. The <span class="term" data-term="observability-backend">backend</span> stitches both pieces into a single tree:
 
-```
+``` { .text .ex-illus title="Illustration" }
 Trace 4bf92f35... (POST /v1/orders)
 └─ orders-service    POST /v1/orders            310 ms
    ├─ orders-service    INSERT orders              8 ms
@@ -301,12 +305,14 @@ The code, often a library, that automatically creates the <span class="term" dat
 !!! noob "As noob"
     Instrumentation is the set of sensors fitted in a car: once plugged in, they measure everything, on every trip, without the driver thinking about it. Limit: they also measure the engine idling in the car park, like the probes here. The one thing to remember: **instrumentation produces spans on its own, but does not sort the useful from the noise.**
 
-```python
+``` { .python .ex-bad title="Avoid" }
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 # Avoid: excluding probes at the source to cut the noise, the failing probe disappears with the others
 FastAPIInstrumentor.instrument_app(app, excluded_urls="readyz,livez")
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: automatic instrumentation of every route, sorting happens in the collector
 FastAPIInstrumentor.instrument_app(app)
 ```
@@ -337,7 +343,7 @@ An intermediate service that receives traces from the apps, can filter or transf
 !!! noob "As noob"
     The collector is the postal sorting centre: every app drops its mail at the same place, the centre throws away the flyers, groups the rest and sends it to the right recipient. Switching the destination tool happens at the sorting centre, without touching each app. The one thing to remember: **a rule in the collector applies to every service, without touching their code.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 my-api     ──┐
 other-api  ──┼──  OTel Collector  ──  Grafana / Datadog
 worker     ──┘    (filters, samples)
@@ -371,7 +377,7 @@ The tool where we browse the data. Examples: Grafana (Tempo, Loki), Datadog, Hon
 ### APM (Application Performance Monitoring)
 The part of the backend dedicated to app traces and performance.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Service my-api, last 24 h
 route                 calls     p95 latency   errors
 GET /readyz    8,640     15 ms         0
@@ -437,7 +443,7 @@ flowchart TD
 !!! noob "As noob"
     Let us picture 100 customers at a counter: the average mixes those served in one minute with those who waited an hour, and describes nobody. The p95 answers "95 customers out of 100 were served in under how long?". The one thing to remember: **the average hides the worst-served customers, the p95 brings them out.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 100 requests: 94 at 15 ms, 6 at 900 ms
 average : 68 ms   (looks like no real request)
 p50     : 15 ms   (the "typical" request)
@@ -471,13 +477,13 @@ A <span class="term" data-term="profiler">profiler</span> measures where a progr
 4. I fix one cause at a time, measure again, and stop when the target is reached.
 5. I keep a test or an alert so the problem does not come back.
 
-```
+``` { .text .ex-ref title="Reference" }
 $ py-spy record -o export.svg -- python -m my_api.export --month 2026-10
 ```
 
 The export's flame graph, summarised as text:
 
-```
+``` { .text .ex-illus title="Illustration" }
 main.export_month                                         100 %
 ├── csv_writer.write_rows                                  92 %
 │   └── format_customer_name                               90 %
@@ -487,13 +493,14 @@ main.export_month                                         100 %
 
 `format_customer_name` is called for every row, and the last release added an SQL query in it to read the customer's language: it is a hidden <span class="term" data-term="n-plus-one">N+1</span>.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: one SQL query per exported row, hidden in a formatting function
 def format_customer_name(order):
     language = db.fetch_customer_language(order.customer_id)
     return localize(order.customer_name, language)
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: languages are loaded in a single query before the loop
 def export_month(orders):
     languages = db.fetch_customer_languages({o.customer_id for o in orders})
@@ -537,7 +544,7 @@ Keeping only part of the <span class="term" data-term="trace-distributed">traces
 !!! noob "As noob"
     It is an opinion poll: instead of asking the whole country, we ask a sample, for far less money. Limit: a rare case (one error in a thousand) can slip through, hence tail sampling below. The one thing to remember: **we keep part of the traces to pay less, at the risk of missing rare cases.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 10,000 traces received, sampling at 10%, 1,000 traces kept
 ```
 
@@ -549,7 +556,7 @@ Keeping only part of the <span class="term" data-term="trace-distributed">traces
 
 The decision is made at the start of the <span class="term" data-term="http-request">request</span>, before knowing how it will end. An error can therefore be thrown away.
 
-```
+``` { .text .ex-illus title="Illustration" }
 1,000 requests, head sampling at 10%
 900 OK      : ~90 kept
 100 errors  : ~10 kept, ~90 lost
@@ -563,7 +570,7 @@ The decision is made at the end, once the trace is complete, in the <span class=
 !!! noob "As noob"
     Head sampling is picking at the cinema entrance which viewers we will interview; tail sampling is picking at the exit, once we know who hated the film. The one thing to remember: **tail sampling keeps errors and slow requests, at the cost of waiting for each trace to finish in the collector.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 trace                 status  duration  decision
 GET /readyz    OK      12 ms     dropped (normal probe)
 GET /readyz    ERROR   5 s       kept    (failing probe)
@@ -624,10 +631,10 @@ Data that takes up space but brings nothing: it costs storage and hides the usef
 
 If each <span class="term" data-term="log">log</span> line carries the `trace_id` of the current request, we go from a slow <span class="term" data-term="trace-distributed">trace</span> straight to the logs of that exact request, instead of searching through millions of lines.
 
-```json
+``` { .json .ex-illus title="Illustration" }
 {"level": "ERROR", "msg": "MySQL connection refused", "trace_id": "abc123", "span_id": "s3"}
 ```
-```
+``` { .text .ex-illus title="Illustration" }
 trace abc123, span s3 "SELECT 1" in error
   logs filtered on trace_id = abc123: "MySQL connection refused"
 ```
@@ -710,13 +717,13 @@ Each arrow assumes a link set up in advance: the dashboard address in the alert,
 !!! noob "As noob"
     The error budget is a stock of jokers for the month: a 99.5% SLO gives me the right to fail 0.5% of requests. While jokers remain, we ship and take risks; once they are gone, we stop risky changes and fix things. The one thing to remember: **the error budget turns reliability into a quantity we spend to ship.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 SLI = good requests / total requests
 from the 1st to the 12th: 800,000 requests, 792,500 without 5xx and under 300 ms
 SLI = 792,500 / 800,000 = 99.06%   (below the 99.5% SLO)
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 SLO 99.5% over 30 days, 2,000,000 requests
 budget: 10,000 failed requests
 already used by the 12th of the month: 7,500 (75%)
@@ -748,7 +755,7 @@ The burn rate tells how fast the error budget is going, compared with the "right
 !!! noob "As noob"
     It is fuel consumption on a trip: at burn rate 1, the tank runs dry right on arrival; at burn rate 10, I break down a tenth of the way. The one thing to remember: **we alert on how fast the budget melts, not only on how much is left.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 budget 10,000 failed requests over 30 days
 right pace (burn rate 1)     : ~333 failed per day, 4,000 by the 12th
 actual by the 12th           : 7,500 failed
@@ -777,7 +784,7 @@ At 14.4, the 30-day budget would be empty in just over 2 days.
 - **<span class="term" data-term="sla">SLA</span> (agreement)**: the written commitment to a client, with a consequence when it is not met (service credit, penalty). It is usually looser than the SLO, so the team is alerted well before it has to pay: a recommended practice, not part of the definition.
 - **<span class="term" data-term="ita">ITA</span> (tolerated downtime, from the French "indisponibilité tolérée")**: the same percentage turned into total downtime over the period. It is the form the business and on-call people understand: "we are allowed 43 minutes of outage this month". The acronym is less common than SLA (to check depending on the organisation); we also meet MTD (maximum tolerable downtime) or RTO, which talk about the length of a single outage, not a total.
 
-```
+``` { .text .ex-illus title="Illustration" }
 SLA (client contract)   99.5% per month   ITA 3 h 36 min    10% credit beyond that
 SLO (internal target)   99.9% per month   ITA 43 min 12 s   alert, freeze on risky changes
 SLI measured this month 99.93%            30 min of outage  SLO met, SLA met
@@ -825,7 +832,7 @@ A good <span class="term" data-term="alert-monitoring">alert</span> describes wh
 
 The same difference in Prometheus rules:
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 groups:
   - name: my-api
     rules:
@@ -834,7 +841,12 @@ groups:
         expr: rate(container_cpu_usage_seconds_total{container="my-api"}[5m]) > 0.85
         labels:
           severity: page
+```
 
+``` { .yaml .ex-good title="Recommended" }
+groups:
+  - name: my-api
+    rules:
       # Good: pages on the burn rate of the /v1/orders SLO (99.5%), long window and short window
       - alert: MyApiOrdersErrorBudgetBurn
         expr: |
@@ -876,7 +888,7 @@ flowchart LR
   RT -->|info| CH["Team channel"]
 ```
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: by default, alerts grouped to the team channel
 route:
   receiver: team-core-chat
@@ -918,7 +930,7 @@ The `severity` label is set in the rule, not in the tool: the team that writes t
 
 [Kubernetes probes](kubernetes.md#probe) call the service every 10 to 30 seconds, day and night. The <span class="term" data-term="instrumentation">instrumentation</span> traces them like real <span class="term" data-term="network-traffic">traffic</span>. On a lightly used service, they end up making up almost all the <span class="term" data-term="trace-distributed">traces</span>.
 
-```
+``` { .text .ex-illus title="Illustration" }
 my-api: readiness every 10 s (3 spans), liveness every 30 s (1 span)
 
 env       spans 24 h   of which probes   share
@@ -931,7 +943,7 @@ These numbers are examples, computed from the probe rate above. In dev, the 20,0
 Why not simply exclude `/readyz` and `/livez` in the instrumentation: we would also lose the trace of a slow or failing <span class="term" data-term="probe">probe</span>, the one that explains why Kubernetes removed or restarted a <span class="term" data-term="pod">pod</span>.
 
 The solution: **<span class="term" data-term="tail-sampling">tail sampling</span> in the <span class="term" data-term="otel-collector">collector</span>**. It sees each finished trace and decides:
-```
+``` { .text .ex-illus title="Illustration" }
 GET /readyz   OK      12 ms   dropped
 GET /readyz   ERROR   5 s     kept
 GET /v1/orders/42    OK      120 ms  kept

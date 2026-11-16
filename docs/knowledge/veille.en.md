@@ -52,7 +52,7 @@ Tech watch means keeping up with what changes in my job (tools, practices, ideas
 !!! noob "As noob"
     Sorting what I read is like sorting my mail: most envelopes go to recycling, a few call for action, one or two deserve to be filed. If I keep everything "just in case", I can no longer find anything. The takeaway: **reading is only half the work, the other half is deciding what to do with it.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 my-radar.md (example)
 | Date       | Topic                  | Ring   | Source                         | Why                             |
 |------------|------------------------|--------|--------------------------------|---------------------------------|

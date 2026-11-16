@@ -26,7 +26,7 @@ Livrer, c'est faire arriver une modification du logiciel jusqu'aux utilisateurs 
 
 **Livraison continue** : chaque version qui passe le pipeline est **prête** à partir en production ; une personne décide encore du moment. **Déploiement continu** : la même chose, sans la décision humaine : chaque fusion part en production si tous les contrôles sont verts.
 
-```
+``` { .text .ex-illus title="Illustration" }
 intégration continue   push    lint + tests       fusion dans main
 livraison continue     main    build + tests      version prête     bouton « déployer » (humain)
 déploiement continu    main    build + tests      version prête     production (automatique)
@@ -79,7 +79,7 @@ La **conception technique** répond, avant d'écrire le code, à trois questions
 
 Squelette d'un document de conception en six titres, rempli pour un cas court (chiffres d'exemple) :
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 # orders-service : ne plus perdre de commande quand payments-service est lent
 
 ## Problème
@@ -104,7 +104,7 @@ Métrique orders_pending_payment (nombre et âge) ; alerte si plus de 50 command
 
 L'ADR garde ensuite la décision seule, en quelques lignes :
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 # ADR 012 : publier les commandes payées sur une file plutôt qu'appeler email-service
 
 Statut : accepté (2026-03-14)
@@ -167,7 +167,7 @@ Le <span class="term" data-term="trunk-based-development">trunk-based developmen
 !!! noob "As noob"
     C'est faire la vaisselle au fil du repas plutôt qu'une fois par semaine : chaque assiette prend une minute, alors qu'une semaine de vaisselle empilée prend une soirée, et des verres cassent au passage. La phrase à retenir : **intégrer souvent par petits morceaux coûte moins cher qu'intégrer rarement par gros blocs.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 branches longues   jour 1   ada crée feature/checkout
                    jour 15  fusion : 40 fichiers en conflit, 2 jours pour les résoudre
                    jour 17  les tests d'intégration révèlent une incompatibilité avec le travail de grace
@@ -219,7 +219,7 @@ Le code pas fini est caché derrière un <span class="term" data-term="feature-f
 !!! noob "As noob"
     Un feature flag, c'est la porte fermée d'une pièce en travaux : la pièce existe déjà dans la maison, mais personne n'y entre tant qu'on n'a pas ouvert. Branch by abstraction, c'est poser une prise standard au mur pour pouvoir changer l'appareil branché derrière sans refaire l'électricité. La phrase à retenir : **mettre du code en production et l'ouvrir aux utilisateurs deviennent deux gestes séparés.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 étape 1   PaymentGateway (interface)             orders-service n'appelle plus que l'interface
           └── LegacyPaymentClient                l'ancienne implémentation, seule branchée
 
@@ -277,7 +277,7 @@ Ces contrôles tournent à deux endroits. D'abord sur mon poste, au moment du co
 
 Exemple de commit refusé par un hook, avec l'outil pre-commit :
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git commit -m "feat(orders): remboursement partiel"
 trim trailing whitespace.................................Passed
 check for added large files..............................Passed
@@ -292,12 +292,14 @@ Location:    src/orders/refunds.py:12
 
 Je retire la clé, je la lis depuis une variable d'environnement, et je commite à nouveau. Sans le hook, la clé serait partie dans l'historique Git, visible dans chaque clone. Supprimer la ligne dans un commit suivant ne suffit pas : elle reste dans l'historique, donc il faut aussi révoquer la clé.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 import os
 
 # À éviter : la clé en dur part dans l'historique Git au premier push, lisible par quiconque clone le dépôt
 PAYMENTS_API_KEY = "a3f9c2e8-orders-prod-key-0042"
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : la clé vient de l'environnement, injectée par la CI ou le gestionnaire de secrets, et le code plante tôt si elle manque
 PAYMENTS_API_KEY = os.environ["PAYMENTS_API_KEY"]
 ```
@@ -320,14 +322,16 @@ Les familles de contrôles, au-delà du lint et des tests :
 
 Un seul fichier, `.pre-commit-config.yaml`, liste les hooks et leurs versions ; la CI lance le même fichier avec `pre-commit run --all-files` (ou `prek run --all-files`), donc le poste et la CI appliquent exactement les mêmes règles. Cela ne tient que si chaque hook est épinglé sur une version précise : avec une branche comme `main`, chaque poste récupère la version du jour où il a installé ses hooks, et une nouvelle règle de lint peut faire échouer la CI sur du code que personne n'a touché.
 
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : rev suit une branche, donc la version du hook change sans prévenir et varie d'un poste à l'autre
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: main
     hooks:
       - id: ruff
+```
 
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : chaque hook est épinglé sur une version, mise à jour par une MR dédiée (Renovate ou pre-commit autoupdate)
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -403,7 +407,7 @@ Les deux pratiques partagent le même pipeline, et une seule chose les sépare :
 !!! noob "As noob"
     En cuisine, la livraison continue, c'est le plat dressé et posé sur le passe : il est prêt, et le serveur décide quand l'apporter à table. Le déploiement continu, c'est le plat qui part en salle dès qu'il passe le contrôle du chef, sans attendre personne. La phrase à retenir : **livraison continue, toujours prêt et un humain appuie ; déploiement continu, personne n'appuie.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 fusion dans main  10:00
   build de l'image, tests, analyse de sécurité          10:00 à 10:08
   déploiement automatique sur l'environnement de recette 10:09
@@ -432,7 +436,7 @@ flowchart LR
 
 Le même pipeline écrit pour GitLab CI. La version à éviter est courante dans un premier pipeline écrit vite : le token de déploiement s'affiche dans les logs du job (lisibles par tous les membres du projet) dès que la variable n'est pas masquée, chaque job retélécharge toutes les dépendances, et un test rouge n'empêche pas le déploiement.
 
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : secret affiché dans les logs, aucun cache, tests rouges tolérés, donc le déploiement part quand même
 test:
   stage: test
@@ -448,7 +452,7 @@ deploy:
     - ./deploy.sh --token "$DEPLOY_TOKEN"
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : les tests bloquent, le cache réutilise les dépendances, le secret n'est jamais affiché
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -521,7 +525,7 @@ Je viens de déployer une nouvelle version de `orders-service` et je ne suis pas
 
 Les <span class="term" data-term="stop-criteria">critères d'arrêt</span> sont les seuils, écrits avant de commencer, au-delà desquels on revient en arrière sans débattre. Un canary qui les applique (chiffres d'exemple) :
 
-```
+``` { .text .ex-illus title="Illustration" }
 critère d'arrêt : taux d'erreur du canary > 2 x celui de l'ancienne version, alors poids remis à 0 %
 
 14:00  canary à 5 % du trafic
@@ -549,7 +553,7 @@ Piège : à 5 % pendant 10 min, il y a peu de requêtes, et 2 erreurs sur 300 su
 
 Un feature flag ouvert « à 10 % » doit répartir les **clients**, pas les requêtes. Une erreur fréquente tire au sort à chaque appel : le même client voit le nouveau paiement sur une page et l'ancien sur la suivante, son panier passe d'un format à l'autre, et les métriques du palier mélangent les deux versions.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 import random
 import zlib
 
@@ -559,8 +563,9 @@ ROLLOUT_PERCENT = 10
 # À éviter : tirage au sort à chaque requête, donc un même client alterne entre l'ancien et le nouveau paiement
 def new_checkout_enabled(user_id: str) -> bool:
     return random.random() * 100 < ROLLOUT_PERCENT
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : un hash stable du client le place toujours dans le même seau (crc32 et non hash(), qui change à chaque démarrage de Python)
 def new_checkout_enabled(user_id: str) -> bool:
     bucket = zlib.crc32(f"checkout.new-flow:{user_id}".encode()) % 100
@@ -689,7 +694,7 @@ flowchart LR
   E --> RW["Retravail<br/>déploiements marqués<br/>correctif d'incident, sur le total"]
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 deploy  sha      env   déployé à         commit le plus ancien  incident lié    prévu
 d-101   a1b2c3   prod  2026-10-06 10:12  2026-10-05 16:40       aucun           oui
 d-102   d4e5f6   prod  2026-10-06 15:30  2026-10-06 11:02       inc-7, 35 min   oui
@@ -778,7 +783,7 @@ flowchart LR
   A --> P
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 Plan    le lead time est de 5 jours, dont 3 à attendre une revue (exemple)
 Do      règle d'équipe : une MR reçoit une première revue dans la demi-journée
 Check   4 semaines plus tard : lead time médian de 2 jours

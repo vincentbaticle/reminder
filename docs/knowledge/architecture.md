@@ -56,7 +56,7 @@ Sous chaque titre, en plus des pastilles d'échelle, deux pastilles le disent :
 
 **<span class="term" data-term="quality-attribute">Attribut de qualité</span>** : une propriété mesurable du système autre que ce qu'il fait : performance, disponibilité, sécurité, coût, facilité à le faire évoluer. Ce sont eux, plus que les fonctionnalités, qui décident de l'architecture. On les écrit sous forme de scénario mesurable, en six parties (détail, arbre d'utilité et ATAM dans [Scénarios de qualité, arbre d'utilité et ATAM](#scenarios-de-qualite-arbre-dutilite-et-atam)) :
 
-```
+``` { .text .ex-illus title="Illustration" }
 source         un pic de 2 000 clients simultanés (soldes)
 stimulus       ils passent commande en même temps
 environnement  fonctionnement normal, pic de charge
@@ -73,7 +73,7 @@ mesure         p99 sous 800 ms, 0 commande perdue
 
 **<span class="term" data-term="broker">Broker</span>** (courtier de messages) : un serveur intermédiaire qui reçoit des messages d'un service et les garde jusqu'à ce que d'autres services viennent les lire. L'émetteur ne parle qu'au broker, jamais directement aux destinataires : il n'a pas besoin de savoir qui ils sont, ni s'ils sont en ligne à ce moment-là. Exemples : Apache Kafka, RabbitMQ, Google Pub/Sub, Amazon SQS. Deux formes : la **file** (chaque message est une tâche prise par un seul consommateur, puis supprimée) et le **sujet** ou topic (chaque message est un fait que tous les abonnés lisent, chacun à son rythme).
 
-```
+``` { .text .ex-illus title="Illustration" }
 sans broker   orders-service --HTTP--> email-service      email en panne : l'appel échoue, la commande aussi
 avec broker   orders-service --publie OrderPaid--> [broker] --> email-service lit quand il revient
               le message attend dans le broker pendant la panne, la commande réussit
@@ -175,7 +175,7 @@ Un **<span class="term" data-term="monolith">monolithe</span>** est une seule ap
 
 Un **<span class="term" data-term="modular-monolith">monolithe modulaire</span>** se déploie d'un bloc, mais son code est découpé en modules aux frontières strictes : chaque module expose une interface publique, et les autres n'ont pas le droit d'importer ses détails internes.
 
-```
+``` { .text .ex-illus title="Illustration" }
 my-api/
 ├── orders/      api.py (public), domain/, storage/ (privé)
 ├── billing/     api.py (public), domain/, storage/ (privé)
@@ -204,7 +204,7 @@ J'ai des traitements qui n'arrivent que de temps en temps, comme une miniature �
 
 Le **<span class="term" data-term="cold-start">démarrage à froid</span>** (cold start) est le temps que met le fournisseur à créer une instance quand aucune n'est prête : télécharger le code, lancer le runtime, exécuter l'initialisation. Il ne frappe que la première requête après une période sans trafic. Exemple pour une fonction qui crée une miniature (chiffres d'exemple, ils varient selon le langage, la taille du paquet et le fournisseur) :
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00:00.000  photo.jpg déposée dans le bucket, l'événement déclenche la fonction
 10:00:00.000  aucune instance prête : démarrage à froid (1,5 s)
 10:00:01.500  la fonction s'exécute : 20 ms de travail, miniature écrite
@@ -222,7 +222,7 @@ facture       2 invocations et leur durée, rien pour les 15 min d'attente
 
 Dans une **<span class="term" data-term="event-driven-architecture">architecture orientée événements</span>**, un service annonce un fait (« commande payée ») sur un [broker](#vocabulaire), et les services intéressés réagissent, sans que l'émetteur les connaisse.
 
-```
+``` { .text .ex-illus title="Illustration" }
 appel direct      orders-service appelle billing, stock, email : si email tombe, la commande échoue
 événements        orders-service publie OrderPaid ; billing, stock, email consomment à leur rythme
 ```
@@ -245,7 +245,7 @@ L'**<span class="term" data-term="hexagonal-architecture">architecture hexagonal
 
 Ce que l'architecture hexagonale évite : un cas d'usage qui appelle lui-même le prestataire et la base. Le jour où l'entreprise change de prestataire de paiement, il faut réécrire la règle métier, et chaque test du paiement a besoin du réseau et d'une vraie base.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : la règle métier connaît l'URL du prestataire et le SQL
 class PayOrder:
     def run(self, order_id: str, amount_cents: int) -> bool:
@@ -260,13 +260,13 @@ class PayOrder:
 
 La même chose avec un port :
 
-```python
-# Exemple : le port, l'interface dont le métier a besoin
+``` { .python .ex-good title="Recommandé" }
+# Bien : le port, l'interface dont le métier a besoin
 class PaymentGateway(Protocol):
     def charge(self, order_id: str, amount_cents: int) -> bool: ...
 
 
-# Exemple : le cas d'usage, qui ne connaît que le port
+# Bien : le cas d'usage, qui ne connaît que le port
 class PayOrder:
     def __init__(self, gateway: PaymentGateway) -> None:
         self.gateway = gateway
@@ -321,7 +321,7 @@ Quand ne pas l'appliquer : un CRUD sans règle, un script, un prototype jetable,
 
 **Comment.** Une arborescence type :
 
-```
+``` { .text .ex-illus title="Illustration" }
 orders_service/
 ├─ domain/                    règles pures, aucun import technique
 │  └─ order.py                Order, Money, transitions d'état
@@ -353,7 +353,7 @@ Les étapes :
 
 Le test du cas d'usage, avec un faux branché sur le port (ce n'est pas un mock à travers une frontière réseau : la frontière, c'est le port, et l'adaptateur réel a ses propres tests d'intégration) :
 
-```python
+``` { .python .ex-good title="Recommandé" }
 # Bien : un faux branché sur le port, pas un mock à travers le réseau
 class FakeGateway:
     def __init__(self, accept: bool) -> None:
@@ -374,7 +374,7 @@ def test_pay_order_charges_the_full_amount() -> None:
 
 La règle de dépendance vérifiée à chaque pipeline (import-linter, contrat `layers` : une couche du haut peut importer celles du bas, jamais l'inverse) :
 
-```ini
+``` { .ini .ex-ref title="Référence" }
 # Exemple : contrat layers, le haut importe le bas, jamais l'inverse
 [importlinter:contract:hexagon]
 name = le métier ne dépend d'aucun adaptateur
@@ -510,7 +510,7 @@ flowchart LR
 
 L'**<span class="term" data-term="event-storming">event storming</span>** (Alberto Brandolini, présenté vers 2013) est un atelier : experts métier et développeurs collent sur un mur, dans l'ordre du temps, tous les événements métier au passé (« commande passée », « paiement accepté », « colis expédié »). Les zones où le vocabulaire change et où les acteurs changent dessinent les contextes bornés.
 
-```
+``` { .text .ex-illus title="Illustration" }
 temps ─────────────────────────────────────────────────────────────────>
 [client]       panier créé, article ajouté, commande passée
 [client]       paiement accepté
@@ -535,7 +535,7 @@ Mon entreprise a une équipe front, une équipe back et une équipe base de donn
 
 Le mécanisme est simple : pour que deux morceaux de code s'intègrent finement, leurs auteurs doivent se parler souvent. Une équipe ne peut pas modifier tous les jours un code qui appartient à une autre, donc elle passe par une interface, et l'architecture se cale sur les frontières entre équipes. Ce n'est pas une règle à appliquer : c'est une observation, qui se vérifie que je la connaisse ou non.
 
-```
+``` { .text .ex-illus title="Illustration" }
 organisation                       architecture qui en sort
 équipe front                       une appli front
 équipe back                        une API générique, sans métier précis
@@ -639,7 +639,7 @@ Conséquence : beaucoup de bases ne sont ni « CP » ni « AP » au sens strict.
 !!! noob "As noob"
     Deux agences d'une banque tiennent le même registre et se le synchronisent par téléphone. Si la ligne coupe, chaque agence choisit : refuser les opérations jusqu'au retour de la ligne (cohérence), ou continuer avec ce qu'elle sait, au risque d'un solde pas à jour (disponibilité). Et même quand la ligne marche, appeler l'autre agence avant chaque opération prend du temps : c'est le choix latence ou cohérence de PACELC. La phrase à retenir : **la coupure, je la subis ; ce que je choisis, c'est comment me comporter pendant.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 coupure entre deux centres, un client veut lire son solde
 choix C   « service momentanément indisponible »   (une banque)
 choix A   affiche le solde d'il y a 3 secondes       (un compteur de likes)
@@ -671,7 +671,7 @@ flowchart TD
 !!! noob "As noob"
     C'est une chaîne de magasins qui change un prix : le siège envoie la nouvelle étiquette, et chaque magasin la colle quelques minutes plus tard. Pendant ce court moment, deux magasins affichent deux prix différents, mais tous finissent par afficher le même. La phrase à retenir : **à terme veut dire « bientôt pareil partout », pas « tout de suite ».**
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00:00.000  ada change son adresse (écrite sur la base principale)
 10:00:00.050  ada recharge la page, lue sur un réplica en retard : ancienne adresse
 10:00:00.300  le réplica a rattrapé : nouvelle adresse
@@ -748,7 +748,7 @@ Les horloges de deux machines ne sont jamais parfaitement synchronisées : trier
 !!! noob "As noob"
     Deux personnes notent l'heure sur leur propre montre, et l'une avance de deux minutes : trier leurs notes par heure peut placer une réponse avant sa question. L'horloge logique remplace l'heure par un numéro : quand je reçois un message, je prends un numéro plus grand que le sien, donc une réponse vient toujours après sa question. Limite : pour deux événements sans lien entre eux, les numéros ne disent rien de l'ordre réel. La phrase à retenir : **pour ordonner ce qui s'enchaîne, je compte les échanges au lieu de lire l'heure.**
 
-```python
+``` { .python .ex-illus title="Illustration" }
 # Exemple : horloge de Lamport, un compteur à la place de l'heure
 class LamportClock:
     def __init__(self) -> None:
@@ -783,7 +783,7 @@ Sur un réseau, on ne sait pas toujours si une requête a abouti : la réponse p
 
 Exemple : `POST` n'est pas idempotent par nature (voir [méthodes HTTP](api-rest-async.md#les-methodes-http)), le client le rend sûr avec une **<span class="term" data-term="idempotency-key">clé d'idempotence</span>** qu'il génère une fois par paiement.
 
-```
+``` { .text .ex-illus title="Illustration" }
 1. client   POST /charges  Idempotency-Key: 7f3a...  {"order": "A42", "amount": 4990}
 2. serveur  débite la carte, stocke (7f3a..., hash du corps, réponse 201, created_at) dans idempotency_keys
 3. client   la réponse se perd : timeout au bout de 2 s
@@ -794,7 +794,7 @@ Exemple : `POST` n'est pas idempotent par nature (voir [méthodes HTTP](api-rest
 
 La table `idempotency_keys(key, request_hash, response, created_at)` est purgée après un délai (24 h par exemple). Piège : écrire la clé et faire le débit dans la même transaction, sinon deux retries simultanés passent tous les deux.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : vérifier puis écrire en deux temps, deux retries simultanés passent tous les deux
 def charge(key: str, order: str, amount: int) -> Response:
     if db.find_key(key) is None:
@@ -802,8 +802,9 @@ def charge(key: str, order: str, amount: int) -> Response:
         db.save_key(key, response)
         return response
     return db.find_key(key).response
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : la clé est réservée par une contrainte d'unicité avant de débiter
 def charge(key: str, order: str, amount: int) -> Response:
     with db.transaction():
@@ -846,7 +847,7 @@ Cette section parle d'**architecture des données**, pas de découpage du code :
 
 Chaque service est seul propriétaire de ses données : les autres passent par son API ou ses événements, jamais par ses tables. Si trois services lisent la même **<span class="term" data-term="shared-database">base partagée</span>**, un simple renommage de colonne les casse tous les trois, donc plus personne n'ose y toucher. Conséquence : une opération métier qui touche plusieurs services ne peut plus tenir dans une seule transaction de base. Le **<span class="term" data-term="two-phase-commit">commit à deux phases</span>** (2PC) existe, mais bloque tout le monde si le coordinateur tombe :
 
-```
+``` { .text .ex-illus title="Illustration" }
 phase 1  coordinateur -> stock, billing : "prêts à valider ?" (prepare)
          stock : oui (verrouille 1 article) ; billing : oui (verrouille le montant)
 phase 2  coordinateur -> stock, billing : "validez" (commit) ; chacun applique et libère ses verrous
@@ -879,7 +880,7 @@ Mon nouveau service doit stocker ses données, et quelqu'un propose déjà « un
 
 **Comment.** Exemple d'une place de marché fictive : 5 millions de produits aux attributs variables, des commandes, une recherche plein texte et des recommandations.
 
-```
+``` { .text .ex-illus title="Illustration" }
 commandes, paiements   PostgreSQL : transactions sur plusieurs tables, pas de discussion
 catalogue              PostgreSQL, attributs variables dans une colonne JSONB indexée
 recherche plein texte  OpenSearch, alimenté depuis PostgreSQL, reconstructible à tout moment
@@ -965,7 +966,7 @@ Une compensation n'efface pas le passé : un remboursement n'est pas « jamais d
 !!! noob "As noob"
     Dans un restaurant, la cuisine suit des règles strictes pour préparer chaque commande, et l'ardoise du jour sert aux clients à lire ce qui est disponible. L'ardoise est recopiée depuis la cuisine, sous une forme pensée pour être lue d'un coup d'œil, et elle peut avoir un plat de retard. La phrase à retenir : **un modèle pour écrire juste, un autre pour lire vite, avec un léger décalage entre les deux.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 écriture   POST /orders           modèle Order (règles métier)  table orders
 lecture    GET /dashboard/sales   vue sales_by_day (pré-calculée, mise à jour par événement)
 ```
@@ -993,7 +994,7 @@ Utile quand lecture et écriture ont des formes ou des volumes très différents
 
 En **<span class="term" data-term="event-sourcing">event sourcing</span>** (décrit par Martin Fowler en 2005), on ne stocke pas l'état courant mais la suite des événements ; l'état se recalcule en les rejouant.
 
-```
+``` { .text .ex-illus title="Illustration" }
 compte 42 : Ouvert(0) ; Crédité(100) ; Débité(30) ; Débité(20)   état recalculé : 50
 ```
 
@@ -1001,14 +1002,15 @@ Gain : un historique complet et vérifiable, la possibilité de construire de no
 
 Le format des événements finit toujours par changer, alors que le journal, lui, ne se réécrit pas : c'est ce qui fait sa valeur. Exemple : `CreditIssued` version 1 portait `amount` en euros décimaux ; la version 2 porte `amount_cents` et `currency`. La technique standard est l'**<span class="term" data-term="upcasting">upcasting</span>** : le code de lecture convertit chaque ancien événement vers le format courant juste avant de l'appliquer, et le journal garde les versions 1 telles quelles. Chaque événement porte donc un numéro de version de schéma dès le premier jour.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : réécrire le journal en place, l'historique qui fait foi est modifié
 def migrate_journal(store):
     for event in store.all_events("CreditIssued"):
         event["amount_cents"] = round(event.pop("amount") * 100)
         store.overwrite(event)
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : le journal reste intact, la lecture convertit les anciennes versions
 def upcast(raw: dict) -> dict:
     if raw["type"] != "CreditIssued" or raw.get("schema_version", 1) != 1:
@@ -1064,7 +1066,7 @@ Sans limite, mon appel vers un service lent peut attendre des minutes, et mon pr
 
 Réessayer aide pour les erreurs passagères, à condition d'attendre de plus en plus longtemps (**<span class="term" data-term="exponential-backoff">backoff exponentiel</span>**) et d'ajouter du hasard (**<span class="term" data-term="jitter">gigue</span>**), sinon tous les clients réessaient à la même milliseconde (Marc Brooker, « Exponential Backoff And Jitter », AWS Architecture Blog, 2015).
 
-```python
+``` { .python .ex-illus title="Illustration" }
 import random
 import time
 
@@ -1072,8 +1074,9 @@ import time
 BASE_DELAY_S = 0.1
 MAX_DELAY_S = 5.0
 MAX_ATTEMPTS = 4
+```
 
-
+``` { .python .ex-bad title="À éviter" }
 # À éviter : réessaie tout, tout de suite, sans fin
 def call_with_naive_retry(call):
     while True:
@@ -1081,8 +1084,9 @@ def call_with_naive_retry(call):
             return call()
         except Exception:
             continue
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : backoff exponentiel avec gigue, seulement sur une erreur passagère
 def call_with_retry(call):
     for attempt in range(MAX_ATTEMPTS):
@@ -1159,7 +1163,7 @@ Le **<span class="term" data-term="load-shedding">délestage</span>** refuse vol
 
 Exemple chiffré (chiffres d'exemple) :
 
-```
+``` { .text .ex-illus title="Illustration" }
 délestage        capacité 500 req/s, il en arrive 700
                  les 200 les moins importantes (recommandations, recherche) reçoivent un 503 immédiat
                  le checkout reste servi à 100 %, sans timeout pour personne
@@ -1198,11 +1202,13 @@ Exemple de fenêtre glissante par compteur, à 10:01:15 (chiffres d'exemple) : l
 
 **Comment.** Pour commencer, la fenêtre fixe suffit souvent ; le seau à jetons est le bon choix si je veux tolérer des rafales courtes. Le piège classique est le compteur gardé dans la mémoire de chaque instance :
 
-```python
+``` { .python .ex-illus title="Illustration" }
 # Exemple : 100 requêtes par fenêtre d'une minute
 WINDOW_SECONDS = 60
 LIMIT_PER_WINDOW = 100
+```
 
+``` { .python .ex-bad title="À éviter" }
 # À éviter : un compteur dans la mémoire de chaque instance, jamais remis à zéro
 local_counts: dict[str, int] = {}
 
@@ -1210,8 +1216,9 @@ local_counts: dict[str, int] = {}
 def check_rate_limit_local(api_key: str) -> bool:
     local_counts[api_key] = local_counts.get(api_key, 0) + 1
     return local_counts[api_key] <= LIMIT_PER_WINDOW
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : fenêtre fixe partagée dans Redis, INCR est atomique et l'expiration nettoie les vieilles fenêtres
 def check_rate_limit(redis, api_key: str, now: float) -> tuple[bool, int]:
     window = int(now // WINDOW_SECONDS)
@@ -1276,7 +1283,7 @@ Un **<span class="term" data-term="spof">SPOF</span>** (single point of failure)
 
 La **<span class="term" data-term="availability">disponibilité</span>** est la part du temps où le système répond correctement. 99,9 % autorise environ 8 h 45 d'arrêt par an (43 min par mois) ; 99,99 %, environ 53 min par an. La **<span class="term" data-term="composite-availability">disponibilité composée</span>** se calcule à partir des briques :
 
-```
+``` { .text .ex-illus title="Illustration" }
 en série (il faut A ET B)          A × B
   my-api 99,9 % appelle billing 99,9 %   0,999 × 0,999 = 0,998    soit 99,8 %
 
@@ -1327,7 +1334,7 @@ Répartir sur trois zones ne suffit pas si la reprise dépend d'une action penda
 !!! noob "As noob"
     C'est la roue de secours déjà dans le coffre, plutôt que le numéro du dépanneur : le jour de la crevaison, je n'ai besoin de personne, et surtout pas d'un dépanneur débordé par tous les automobilistes en panne au même endroit. Le prix : je transporte toujours une roue qui ne sert presque jamais. La phrase à retenir : **pendant la panne, je n'ai rien à créer ni à demander : tout ce qu'il faut tourne déjà.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 dynamique   2 zones portent chacune 50 % de la charge ; une zone tombe
             l'autoscaling doit créer des machines dans la zone restante, via une API elle-même saturée
             en attendant, la zone survivante reçoit 100 % de la charge avec 50 % de capacité
@@ -1345,7 +1352,7 @@ statique    3 zones dimensionnées chacune pour 50 % de la charge (150 % au tota
 
 Deux chiffres à fixer avec le métier avant de choisir une stratégie : le **<span class="term" data-term="rto">RTO</span>** (combien de temps le service peut rester arrêté) et le **<span class="term" data-term="rpo">RPO</span>** (combien de données récentes on accepte de perdre, exprimé en durée).
 
-```
+``` { .text .ex-illus title="Illustration" }
 sauvegarde toutes les 24 h, restauration en 4 h
 panne à 18:00, dernière sauvegarde à 02:00
 RPO réel : 16 h de commandes perdues    RTO réel : retour à 22:00
@@ -1428,7 +1435,7 @@ Un **<span class="term" data-term="back-of-envelope">calcul de coin de table</sp
 
 Le **<span class="term" data-term="qps">QPS</span>** (requêtes par seconde) moyen se déduit de l'usage ; on dimensionne sur le pic.
 
-```
+``` { .text .ex-illus title="Illustration" }
 1 000 000 utilisateurs actifs par jour × 20 requêtes chacun = 20 000 000 requêtes par jour
 20 000 000 / 86 400 s                                       ≈ 230 QPS en moyenne
 pic (soirée, soldes) : × 5 (exemple)                        ≈ 1 200 QPS
@@ -1461,7 +1468,7 @@ La **<span class="term" data-term="littles-law">loi de Little</span>** (John Lit
 !!! noob "As noob"
     Imaginons une boulangerie : s'il entre 2 clients par minute et que chacun reste 5 minutes, il y a en moyenne 10 personnes dans la boutique. Si le service ralentit à 10 minutes par client, la boutique en contient 20, sans un seul client de plus à l'entrée. La phrase à retenir : **quand le traitement ralentit, le nombre de requêtes en attente grimpe, même à trafic constant.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 1 200 requêtes/s × 0,2 s de traitement = 240 requêtes en cours en moyenne
 si la base ralentit à 1 s : 1 200 × 1 = 1 200 requêtes en cours
 un pool de 300 connexions sature : les requêtes attendent, la latence grimpe encore
@@ -1580,15 +1587,16 @@ Une fois le cache placé, reste à décider qui le remplit et ce qui se passe à
 
 **Comment.** Le cache-aside en Python, avec Redis :
 
-```python
+``` { .python .ex-illus title="Illustration" }
 import json
 
 from redis.exceptions import RedisError
 
 # Exemple : durée de vie de 10 minutes, filet de sécurité si une invalidation se perd
 PRICE_TTL_S = 600
+```
 
-
+``` { .python .ex-bad title="À éviter" }
 # À éviter : aucune durée de vie, et une panne de Redis fait échouer la page entière
 def get_price_naive(redis, db, product_id: int) -> dict:
     cached = redis.get(f"price:{product_id}")
@@ -1596,8 +1604,9 @@ def get_price_naive(redis, db, product_id: int) -> dict:
         cached = json.dumps(db.read_price(product_id))
         redis.set(f"price:{product_id}", cached)
     return json.loads(cached)
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : durée de vie bornée, et lecture directe de la source si Redis est indisponible
 def get_price(redis, db, product_id: int) -> dict:
     key = f"price:{product_id}"
@@ -1641,7 +1650,7 @@ Quatre protections, qui se combinent :
 | stale-while-revalidate | servir la copie un peu périmée pendant qu'une seule requête la rafraîchit en arrière-plan | `Cache-Control: public, max-age=60, stale-while-revalidate=30` (RFC 5861, 2010) |
 | rafraîchissement anticipé probabiliste | une requête rafraîchit l'entrée un peu avant son expiration, avec une probabilité qui augmente à l'approche | Vattani, Chierichetti et Lowenstein, VLDB 2015 |
 
-```python
+``` { .python .ex-illus title="Illustration" }
 import random
 import threading
 
@@ -1650,8 +1659,9 @@ BASE_TTL_S = 600
 TTL_JITTER = 0.1
 _locks: dict[str, threading.Lock] = {}
 _locks_guard = threading.Lock()
+```
 
-
+``` { .python .ex-bad title="À éviter" }
 # À éviter : chaque requête qui trouve le cache vide reconstruit la fiche, toutes en même temps et avec le même TTL
 def get_product_naive(cache, db, product_id: int) -> dict:
     key = f"product:{product_id}"
@@ -1660,8 +1670,9 @@ def get_product_naive(cache, db, product_id: int) -> dict:
         product = db.build_product(product_id)
         cache.set(key, product, ex=BASE_TTL_S)
     return product
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : une seule reconstruction par clé et par instance, TTL avec gigue
 def get_product(cache, db, product_id: int) -> dict:
     key = f"product:{product_id}"
@@ -1737,7 +1748,7 @@ Pendant un déploiement, l'ancienne et la nouvelle version du code tournent **en
 
 Exemple : renommer la colonne `customer_name` en `full_name`.
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : renommer d'un coup, les pods encore en ancienne version plantent sur customer_name
 ALTER TABLE customers RENAME COLUMN customer_name TO full_name;
 
@@ -1751,7 +1762,7 @@ UPDATE customers SET full_name = customer_name WHERE full_name IS NULL;
 ALTER TABLE customers DROP COLUMN customer_name;
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 lundi      déploiement 1 : colonne full_name ajoutée, le code écrit dans les deux colonnes
 mardi      déploiement 2 : les anciennes lignes recopiées, le code lit full_name
 mercredi   vérification : plus aucune requête sur customer_name (logs, recherche dans le code)
@@ -1769,14 +1780,15 @@ La même idée vaut pour une API : j'ajoute le champ ou la route nouvelle, j'att
 
 **Déployer**, c'est mettre le code sur les serveurs ; **activer** (release), c'est le rendre visible aux utilisateurs. Un feature flag sépare les deux : je fusionne et je déploie tous les jours un code éteint, puis le produit l'allume quand il veut, d'abord pour 1 % des clients (Pete Hodgson, « Feature Toggles », martinfowler.com, 2017).
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : l'activation codée en dur, impossible à couper en cas de bug sans redéployer
 def shipping_fee(order: Order) -> Money:
     if date.today() >= date(2026, 12, 1):
         return new_shipping_fee(order)
     return legacy_shipping_fee(order)
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : le nouveau calcul part en production éteint, et s'allume par client
 def shipping_fee(order: Order) -> Money:
     if flags.is_enabled("new-shipping-fee", customer_id=order.customer_id):
@@ -1938,7 +1950,7 @@ Les règles d'urbanisme classiques :
 
 ### Exemple : une cartographie fictive
 
-```
+``` { .text .ex-illus title="Illustration" }
 Zone Relation client
 ├─ Quartier Prospects ........ crm-app
 └─ Quartier Comptes clients .. customer-referential   (référentiel : seul à écrire le client)
@@ -2130,7 +2142,7 @@ Une **<span class="term" data-term="fitness-function">fitness function</span>** 
 
 Exemple en Python avec import-linter, fichier `.importlinter` vérifié à chaque pipeline :
 
-```ini
+``` { .ini .ex-ref title="Référence" }
 # Exemple : orders ne peut pas importer billing.storage, vérifié en CI
 [importlinter:contract:orders-isolation]
 name = orders n'importe que l'API publique de billing
@@ -2220,7 +2232,7 @@ stateDiagram-v2
 
 Exemple : une entrée tenue comme du code, un fichier par entrée relu en merge request (format inspiré du générateur AOE, contenu fictif) :
 
-```
+``` { .text .ex-illus title="Illustration" }
 radar/2026-11-01/contrats-pilotes-par-le-consommateur.md
 ---
 title: "Contrats pilotés par le consommateur (Pact)"

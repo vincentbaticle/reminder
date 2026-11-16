@@ -36,7 +36,7 @@ In the examples, the accounts `ada`, `grace` and `dennis` are fictitious test us
 - **Scenario**: an end-to-end user journey, written in sentences, that chains several actions and ends with an expected result.
 - **Test design technique**: a method that gives a reason for each test case (partitions, boundary values, decision table...), instead of picking values at random.
 
-```
+``` { .text .ex-illus title="Illustration" }
 rule       : the age must be between 18 and 65 inclusive
 test case  : age 17, expected "refused"           (boundary value, picked by a technique)
 scenario   : ada signs up at 17, sees the error message, fixes it, then signs up
@@ -129,7 +129,7 @@ Example criteria, written under the risk matrix:
 
 A written opinion, for a version 5.0 planned at 6 pm (fictitious example):
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 QA opinion, version 5.0, 3:30 pm
 
 | Exit criterion                        | State                                        | OK  |
@@ -205,7 +205,7 @@ Workflow: QA proposes the graph, the <span class="term" data-term="product-owner
 The name says what happens, the `Goal` says why it matters: the risk covered.
 
 The mistake: a scenario written as a click script. The PO cannot challenge anything in it, and a restyling breaks the scenario although the behaviour did not change.
-```gherkin
+``` { .gherkin .ex-bad title="Avoid" }
 # Avoid: selectors, a URL and a pause in the steps, and a name that says nothing
 Scenario: Test 1
   Given I open "https://shop.example.com/login"
@@ -217,7 +217,7 @@ Scenario: Test 1
 
 The right version:
 
-```gherkin
+``` { .gherkin .ex-good title="Recommended" }
 # Good: the name says what happens, the Goal says the risk covered
 @tool-playwright
 Feature: Place an order
@@ -237,7 +237,7 @@ Good practices:
 - <span class="term" data-term="playwright">Playwright</span>: fresh context per scenario, elements found by role and label, `expect(...)`, never `sleep`.
 
 A performance threshold can also be a scenario:
-```gherkin
+``` { .gherkin .ex-ref title="Reference" }
 # Example: a performance threshold written as a scenario
 Scenario: The storefront holds a small rush
   Goal: ten customers at once still get a fast answer.
@@ -285,7 +285,7 @@ The same `.feature` file runs with a tool specific to each language: the tool bi
 
 A PO clicks through the journey, the tool records it. Trap: the person records with **their own** account without saying so, and the test fails for everyone else. Hence a template that forces it to be explicit:
 
-```gherkin
+``` { .gherkin .ex-good title="Recommended" }
 # Good: the template forces me to state which account and data are used
 Given "ada", a customer of the company who can order
 And the stock of "BK-0004" holds at least 1 item
@@ -293,7 +293,7 @@ When ...
 Then the page shows every step done and the order paid
 ```
 What the same journey gives when recorded without a template:
-```gherkin
+``` { .gherkin .ex-bad title="Avoid" }
 # Avoid: the raw recording, the person's implicit account and no Then
 Given I am logged in
 When I click "Place order"
@@ -335,13 +335,14 @@ A <span class="term" data-term="boundary-value">boundary value</span> is the val
 
 The 3-value variant also catches a bound written `age == 18` instead of `age >= 18`: 19 would be refused, and only the 19 case shows it.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: random values, far from the bounds, that pass even if the rule says < 65
 @pytest.mark.parametrize(("age", "expected"), [(25, True), (40, True), (10, False)])
 def test_validate_age_random_values(age, expected):
     assert validate_age(age) is expected
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: one value per partition, then 3-value boundaries, each case named
 @pytest.mark.parametrize(
     ("age", "expected"),
@@ -449,7 +450,7 @@ Why it is often enough: D. Richard Kuhn, Dolores Wallace and Albert Gallo ("Soft
 
 The PICT tool (Microsoft, open source) generates the cases from a file of parameters and constraints, here `payment.pict`:
 
-```text
+``` { .text .ex-ref title="Reference" }
 # Example: four parameters and one business constraint, a private customer does not pay by bank transfer
 Browser:  Chrome, Firefox, Safari, Edge
 Language: fr, en, de
@@ -487,13 +488,14 @@ I test a function that splits a bill between several people, in cents. With hand
 !!! noob "As noob"
     Instead of trying three keys I picked myself, I hand a ring of a thousand random keys to someone who looks for the one that opens the door when it should not. If they find one, they bring me back the simplest. The takeaway: **I write the rule, the tool looks for the counterexample.**
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: two hand-picked examples, the 1 cent for 2 people case is never tried
 def test_split_bill():
     assert split_bill(10_000, 4) == [2_500, 2_500, 2_500, 2_500]
     assert split_bill(1_000, 2) == [500, 500]
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: three properties checked on hundreds of generated inputs
 @given(st.integers(min_value=0, max_value=10**9), st.integers(min_value=1, max_value=100))
 def test_split_invariants(total_cents, people):
@@ -556,7 +558,7 @@ The cycle:
 
 A charter and its notes, in Markdown (fictitious example):
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 ## Charter
 Explore the CSV contact import
 with malformed, large and multilingual files
@@ -649,7 +651,7 @@ Two patterns avoid copying twenty required fields into every test:
 - **<span class="term" data-term="test-data-builder">Test Data Builder</span>** (Nat Pryce, 2007): a builder with valid default values; the test only changes what matters to it (`OrderBuilder().with_total(12_000)`).
 - **Object Mother** (Martin Fowler, 2006): ready-made, named objects (`customers.premium()`). Simple at first, it grows one method per variant (`premium_with_expired_card_in_belgium()`): the Builder scales better.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: a shared account, every field copied, and nothing says which one matters
 def test_refund_is_capped():
     order = api.post(
@@ -658,8 +660,9 @@ def test_refund_is_capped():
         headers={"X-User-Id": "qa-user-1"},
     ).json()
     assert api.post(f"/orders/{order['id']}/refunds", json={"amount_cents": 15_000}).status_code == 422
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: a builder with valid defaults, each test only changes what matters
 @dataclass
 class OrderBuilder:
@@ -723,14 +726,16 @@ In production code, I factor out: one piece of knowledge in one place (<span cla
 | data creation, in a <span class="term" data-term="test-fixture">fixture</span> or a builder | the business case, in the test name |
 | login and navigation | the assertion, in the test and not hidden in a Page Object |
 
-```typescript
+``` { .typescript .ex-bad title="Avoid" }
 // Avoid: a generic scenario with options, the failure does not say which business case breaks
 test("order scenarios", async ({ page }) => {
   for (const type of ["paid", "refunded", "promo"]) {
     await runOrderScenario(page, type, { verify: true, withPromo: type === "promo" });
   }
 });
+```
 
+``` { .typescript .ex-good title="Recommended" }
 // Good: one test per business case, with its data and its expected result visible
 test("a paid order shows up with the Paid status", async ({ ordersPage, createOrder }) => {
   await createOrder({ reference: "CMD-1001", status: "paid" });
@@ -771,12 +776,13 @@ The mistakes he lists: writing all the tests at once before the code, mixing ref
 
 The **three laws of TDD** (Robert C. Martin, around 2005, to check) state the same discipline more bluntly: no production code without a failing test; no more test than needed to fail (not compiling counts as failing); no more production code than needed to pass the test.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the expected value copied from what the code returns today (its limit is 8), the test freezes the bug
 def test_strength():
     assert password_strength("abcdefghijk", email="ada@example.test") == "ok"
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: 1st round, red. the expected value comes from the rule (12 characters minimum), written by hand
 def test_11_characters_is_too_short():
     assert password_strength("abcdefghijk", email="ada@example.test") == "too_short"
@@ -815,15 +821,16 @@ His method: identify the place to change, find a point from which to observe the
 !!! noob "As noob"
     It is the photo of the room before moving the furniture: it does not say whether the decor was nice, it lets me see everything that moved. The takeaway: **a characterization test protects the current behaviour, not the intended one.**
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the rule added in the middle of the 400 lines, impossible to test without the database and the carrier
 def checkout(cart):
     fee = carrier_api.quote(cart).fee_cents
     if cart.subtotal_cents >= 5_000:
         fee = 0
     return save_order(cart, fee, created_at=datetime.now())
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: the new rule in a pure function, test-driven (sprout method)
 def shipping_fee(subtotal_cents, base_fee_cents):
     return 0 if subtotal_cents >= 5_000 else base_fee_cents
@@ -932,14 +939,14 @@ The expected fields come from the IEEE 829 test incident report (1998 and 2008 e
 
 To avoid, a report that gives no data, no environment and no expected result:
 
-```markdown
+``` { .markdown .ex-bad title="Avoid" }
 Title: Cart broken
 The promo code does not work, see screenshot. Urgent!!
 ```
 
 Good, the same finding reported in full (fictitious example):
 
-```markdown
+``` { .markdown .ex-good title="Recommended" }
 Title: The cart total ignores the promo code after a quantity change
 
 Environment: integration, front 2.8.1, cart API 1.14.0, Chrome 130, macOS
@@ -1025,11 +1032,13 @@ An automated tool finds only part of the problems: it sees that a field has no l
 1. **automated**: axe-core in the Playwright tests, limited to WCAG A and AA rules, failing the test on any violation;
 2. **manual**, on critical journeys: do everything with the keyboard (Tab, Enter, Escape), check that the focus is visible and follows a logical order, trigger an error and listen to it with a <span class="term" data-term="screen-reader">screen reader</span> (NVDA, VoiceOver), zoom to 200%.
 
-```typescript
+``` { .typescript .ex-bad title="Avoid" }
 // Avoid: every rule on the whole page, and a count printed that nobody reads
 const results = await new AxeBuilder({ page }).analyze();
 console.log(results.violations.length);
+```
 
+``` { .typescript .ex-good title="Recommended" }
 // Good: WCAG A and AA rules, limited to the form, and the test fails on any violation
 test("the payment form meets WCAG A and AA", async ({ page }) => {
   await page.goto("/checkout/payment");

@@ -81,6 +81,17 @@ Personal cheat sheets published as a MkDocs Material site, in French (default) a
 
 - Every page (expressions excepted) ends, before its sources, with `## Mesurer le succès` (see above), `## Pièges à éviter` / `## Pitfalls to avoid` (5 to 8 first-person bullets: the mistake, its consequence, what to do instead) and `## Ce qu'on demande en entretien` / `## What interviews ask` (typical questions as quotes, then how to answer, with links to the page's sections).
 
+## Rule: kind of every code block
+
+- Every non-Mermaid code block declares what it is in a title bar, through the superfences attribute form: ```` ``` { .python .ex-bad title="À éviter" } ````. The language class comes first (`.text` when there is none). Five kinds, styled in `extra.css` and explained in the "Comment lire les pages" box of the home page:
+    - `.ex-bad` `À éviter` / `Avoid` and `.ex-good` `Recommandé` / `Recommended`: a demo written to teach, the mistake and the fix. Read as advice.
+    - `.ex-ref` `Référence` / `Reference`: the real syntax, command, output or format of a tool or a standard, as its documentation shows it; only names and numbers are made up.
+    - `.ex-illus` `Illustration`: a made-up scenario, timeline, calculation, tree or code sketch (a design pattern, a fake) that makes an idea concrete, with no verdict and no claim to be official syntax.
+    - `.ex-compare` `Comparaison` / `Comparison`: only for text blocks that put two versions side by side in columns. A code block never mixes verdicts: the mistake and the fix go in two consecutive blocks.
+- A block that already has a title keeps it after the kind: `title="Référence · values.yaml (commun à tous les environnements)"`.
+- The fix shown right after an `À éviter` block is `Recommandé`, never `Référence`, and its comment label is `Bien :`, not `Exemple :`.
+- Same kind in both page languages and in every language tab.
+
 ## Rule: verdict comments in code examples
 
 - In every code or config block (not Mermaid, JSON, Markdown, CLI output or logs), a one-line comment above each function, method, class, query or meaningful block tells the reader what they are looking at, with a fixed label: `À éviter :` / `Avoid:`, `Bien :` / `Good:`, `Ce qui change :` / `What changes:` (the "after" of a before/after pair), `Exemple :` / `Example:` (neutral). Same comment in every language tab and in both page languages.

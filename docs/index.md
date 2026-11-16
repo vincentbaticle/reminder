@@ -33,6 +33,10 @@ hide:
     | mot souligné en pointillé | une définition au survol, avec un exemple |
     | encadré jaune **As noob** | la notion expliquée simplement, avec une image du quotidien |
     | schéma | le mécanisme dessiné, à lire avant le texte quand on découvre le sujet |
+    | <span class="pill pill-ex pill-ex-bad">À éviter</span> <span class="pill pill-ex pill-ex-good">Recommandé</span> en tête d'un bloc de code | une démonstration écrite pour l'exemple : l'erreur classique, puis la bonne pratique ; à lire comme un avis, pas comme une doc |
+    | <span class="pill pill-ex pill-ex-ref">Référence</span> en tête d'un bloc de code | la syntaxe, la commande, la sortie ou le format réels d'un outil ou d'une norme, comme dans sa documentation ; seules les valeurs (noms, nombres) sont inventées |
+    | <span class="pill pill-ex pill-ex-illus">Illustration</span> en tête d'un bloc de code | un scénario inventé pour rendre une idée concrète (chronologie, calcul, arborescence, schéma de code) : ni une syntaxe officielle, ni un avis |
+    | <span class="pill pill-ex pill-ex-compare">Comparaison</span> en tête d'un bloc de code | deux versions côte à côte dans le même bloc, chacune nommée dans le bloc |
     | :material-book-open-variant: **Doc de référence** | la documentation officielle ou la source d'origine de la notion, datée |
     | ligne en italique sous un outil | les outils concurrents, complémentaires ou qui le remplacent ([vue d'ensemble](knowledge/outils.md#complementaires-ou-concurrents)) |
     | sommaire à droite | les sections de la page ; le nom du site en haut ramène toujours à l'accueil |

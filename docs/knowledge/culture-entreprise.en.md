@@ -51,7 +51,7 @@ Management, product and strategy books are here. The founding technical papers a
 
 A leadership meeting sentence, decoded:
 
-```
+``` { .text .ex-illus title="Illustration" }
 "The quarter's P&L is under pressure: we freeze headcount and push back CAPEX projects;
  the top OKR remains time to market for the new payment."
 
@@ -88,7 +88,7 @@ Sociologist Ron Westrum classifies organizations by the way information flows in
 
 The same incident in the three cultures:
 
-```
+``` { .text .ex-illus title="Illustration" }
 pathological    grace reports that the orders-service backup has not worked for 2 weeks.
                 She is blamed for not seeing it earlier. Next time, she will keep quiet.
 bureaucratic    the ticket is created, but it falls within no team's scope. It waits.
@@ -155,7 +155,7 @@ A learning organization turns its experiences into shared practices, instead of 
 
 Avoid: a postmortem that stops at a name. The team learns that admitting a mistake is costly, so the next slip will be hidden, and the migration can still lock the orders table with no time limit.
 
-```
+``` { .text .ex-bad title="Avoid" }
 postmortem: payment outage, 03/11, 42 min
 cause     ada ran the migration without checking
 action    ada will be more careful next time
@@ -163,7 +163,7 @@ action    ada will be more careful next time
 
 A postmortem skeleton, then a typical one-hour retrospective agenda (examples):
 
-```
+``` { .text .ex-illus title="Illustration" }
 postmortem: payment outage, 3 Nov, 42 min
 timeline      14:02 migration started; 14:05 5xx alerts; 14:44 rollback
 causes        the migration locks the orders table, no lock timeout
@@ -289,7 +289,7 @@ team-billing needs a new field in the payment library owned by team-core. It ope
 3. Discussions happen in writing, in MRs and tickets, so the decision stays readable by everyone.
 4. For a large change, the contributor first opens a ticket to discuss it, before writing the code.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Without InnerSource
   week 0   team-billing opens a ticket "add the installment_count field"
   week 6   still waiting behind team-core's priorities
@@ -345,7 +345,7 @@ A <span class="term" data-term="two-pizza-team">two-pizza team</span> is small e
 - an **objective**: qualitative, motivating, what we want to change;
 - two to five **key results**: measurable, checkable at the end of the period, outcomes and not tasks.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Objective       Teams ship without waiting for CI (Q3)
 Key result 1    p95 pipeline time: from 28 min to 10 min
 Key result 2    flaky test rate: from 4% to under 1%
@@ -465,7 +465,7 @@ Jeff Bezos, in his 2015 letter to shareholders, distinguishes two kinds of decis
 - **type 1**: a <span class="term" data-term="one-way-door">one-way door</span>, hard or impossible to undo; it deserves time and care;
 - **type 2**: a two-way door, a <span class="term" data-term="reversible-change">reversible change</span>; it should be made fast, by a small group.
 
-```
+``` { .text .ex-illus title="Illustration" }
 type 1   choose the main database of the new platform
          sign a five-year contract with a vendor
 type 2   choose a logging library behind an interface
@@ -485,7 +485,7 @@ The trap described in the letter: applying the heavy type 1 process to every dec
 
 An **RFC** (Request for Comments) is a document that proposes a change and asks for feedback before the decision. The name comes from the Internet: RFC 1 was published in 1969 by Steve Crocker. In companies, people also say design doc. The template fits in a few headings:
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 # RFC 014: usage-based billing in billing-service
 
 Status: in review until 11/15 (example)
@@ -510,7 +510,7 @@ The final decision is then kept in an <span class="term" data-term="adr">ADR</sp
 
 In the <span class="term" data-term="advice-process">advice process</span>, anyone can make a decision, provided they have sought the advice of the people affected and of experts. The decider does not have to follow that advice. The principle comes from Dennis Bakke ("Joy at Work", 2005) and was taken up by Frederic Laloux ("Reinventing Organizations", 2014). Andrew Harmel-Law applies it to software architecture in "Scaling the Practice of Architecture, Conversationally" (martinfowler.com, 2021).
 
-```
+``` { .text .ex-illus title="Illustration" }
 1. ada wants to replace the RabbitMQ queue of orders-service with a Kafka topic
 2. she asks for advice from billing-service (consumer), the platform team and grace (Kafka expert)
 3. billing-service worries about message order; the platform team prefers to wait for the cluster upgrade
@@ -529,7 +529,7 @@ In the <span class="term" data-term="advice-process">advice process</span>, anyo
 
 <span class="term" data-term="disagree-and-commit">Disagree and commit</span>: we voice our disagreement during the discussion, then, once the decision is made, we commit to making it succeed as if it were our own. Bezos describes it in his 2016 letter; the phrase is often traced back to Intel and Andy Grove (to check). It is not "shut up and obey": the disagreement is voiced, written down, and can be revisited if the facts change.
 
-```
+``` { .text .ex-illus title="Illustration" }
 the team picks MongoDB for the catalog, grace would have preferred PostgreSQL
 grace writes her disagreement in the ADR: "risk: reports with costly joins"
 then she designs the best MongoDB schema she can, without slowing the project
@@ -547,7 +547,7 @@ six months later, if reports become a problem, her written objection is used to 
 
 The <span class="term" data-term="narrative-memo">narrative memo</span> replaces slides with a full text, read silently by everyone at the start of the meeting. The idea goes back to a 2004 email by Jeff Bezos banning PowerPoint from leadership meetings (to check; the six-page length is the form reported later). A text forces ideas to be linked together, where a bullet list lets them sit side by side.
 
-```
+``` { .text .ex-illus title="Illustration" }
 slide     "Context: latency, costs, technical debt"
 memo      "The p99 latency of orders-service has doubled since January, because each order
            calls four services. The redesign removes two of those calls; it costs three months
@@ -614,7 +614,7 @@ Their seven principles of lean software: eliminate waste, amplify learning, deci
 
 <span class="term" data-term="value-stream-mapping">Value stream mapping</span> (Mike Rother and John Shook, "Learning to See", 1998) draws each step of a request with its work time and its wait time.
 
-```
+``` { .text .ex-illus title="Illustration" }
 step                     work       wait before the next step
 specification            4 h        5 days (prioritization)
 development              2 days     2 days (code review)
@@ -677,7 +677,7 @@ flowchart LR
 !!! noob "As noob"
     A bakery serves one person per minute. With ten people ahead of me, I wait about ten minutes; with twenty, twenty minutes, even though the baker does not work any slower. The law only holds on average and for a stable queue, where more people do not keep coming in than going out. The takeaway: **at the same throughput, the more work waiting, the longer each request waits.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 team-core finishes 5 tickets per week
 with 20 tickets in progress   average lead time = 20 / 5 = 4 weeks
 with 10 tickets in progress   average lead time = 10 / 5 = 2 weeks
@@ -696,7 +696,7 @@ If my team wants to ship faster without working more, it starts fewer things at 
 
 The <span class="term" data-term="kanban">Kanban</span> method for knowledge work (David J. Anderson, "Kanban: Successful Evolutionary Change for Your Technology Business", 2010) starts from what exists: visualize the work, limit work in progress, manage flow, make policies explicit, improve in small steps.
 
-```
+``` { .text .ex-illus title="Illustration" }
 TO DO       IN PROGRESS (max 3)    IN REVIEW (max 2)    DONE
 TCK-41      TCK-38 ada             TCK-35               TCK-30
 TCK-42      TCK-39 grace           TCK-36               TCK-31
@@ -757,7 +757,7 @@ The <span class="term" data-term="jobs-to-be-done">Jobs to be done</span> framew
 
 Avoid: writing the need as an already chosen solution. I lock myself into a dashboard before knowing whether the manager needs a dashboard, a simple "all transfers went out" notification, or an alert only when one fails.
 
-```
+``` { .text .ex-bad title="Avoid" }
 As a         manager,
 I want       a dashboard listing the transfers and their status,
 so that      I see the transfers.
@@ -765,7 +765,7 @@ so that      I see the transfers.
 
 Good: the situation, the progress wanted and the reason, without assuming the solution.
 
-```
+``` { .text .ex-good title="Recommended" }
 When    I prepare the payroll of my 12 employees at the end of the month,
 I want  to be sure every transfer went out,
 so I    don't spend Monday answering worried employees.
@@ -815,7 +815,7 @@ Ryan Singer describes Basecamp's method in "Shape Up" (2019, free book online):
 
 One cycle, on an example:
 
-```
+``` { .text .ex-illus title="Illustration" }
 previous cycle   shaping: grace shapes "accounting export" (problem, sketch, pitfalls), appetite 6 weeks
 cooldown         betting table: 3 shaped projects, 2 picked; the 3rd is not put in a backlog
 weeks 1 to 6     the team builds; in week 4, it cuts the PDF export to stay within the appetite
@@ -859,7 +859,7 @@ I give a **range per slice**, not a single number: "slice 1 in about a week, the
 
 So that everyone understands the same thing, I run an **Example Mapping** session (Matt Wynne, 2015) with product and testing: in 25 minutes, one card per rule, concrete example cards under each rule, and one card per open question. Lots of red question cards means the slice is not ready. The chosen examples become the <span class="term" data-term="acceptance-criteria">acceptance criteria</span>, written in <span class="term" data-term="gherkin">Gherkin</span>.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Rule: the cart is kept on the server for a logged-in customer
   Example: ada adds 2 keyboards on her computer, finds them on another browser
   Example: a product removed from the catalogue stays visible as unavailable, out of the total
@@ -868,7 +868,7 @@ Rule: at login, the anonymous cart joins the account's cart
   Question: how long do we keep an abandoned cart?
 ```
 
-```gherkin
+``` { .gherkin .ex-ref title="Reference" }
 # language: en
 # Example: acceptance criteria of slice 1, from the Example Mapping
 Feature: cart kept on the server
@@ -948,7 +948,7 @@ Reading: build what is in genesis or custom-built and differentiates (recommenda
 
 Richard Rumelt ("Good Strategy Bad Strategy", 2011) gives the kernel of a good strategy: a **diagnosis** (what is really going on), a **guiding policy** (the chosen approach) and **coherent actions** (that reinforce each other). He spots bad strategy by four signs: fluff, failure to face the real challenge, mistaking goals for strategy, and bad strategic objectives.
 
-```
+``` { .text .ex-compare title="Comparison" }
 bad        "Become the leader of the developer platform, innovative and customer-centric."
 
 good       diagnosis   teams lose 30% of their time on CI and environments
@@ -999,7 +999,7 @@ Clayton Christensen ("The Innovator's Dilemma", 1997) explains why well-managed 
 !!! noob "As noob"
     Buying a car is CAPEX: a large sum up front, which the accounts spread over the years the car is used. Leasing it monthly is OPEX: a regular expense, counted as it goes. The takeaway: **two options with a similar total cost do not show up the same way in the accounts, and that often weighs on the decision.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 buy 3 servers for €30,000, depreciated over 3 years  CAPEX: €10,000 per year in the income statement
 rent the equivalent in the cloud, €1,200 per month   OPEX:  €14,400 per year
 (example figures)
@@ -1036,7 +1036,7 @@ Example figures. The most forgotten line is almost always human time.
 
 <span class="term" data-term="roi">ROI</span> is computed as (gain - cost) / cost. The **payback period** says how long it takes to recover the investment.
 
-```
+``` { .text .ex-illus title="Illustration" }
 cost: automate acceptance testing, 2 people for 2 months, i.e. €40,000
 gain: 10 fewer days of manual acceptance testing per month, i.e. €5,000 per month
 
@@ -1100,7 +1100,7 @@ The <span class="term" data-term="pyramid-principle">pyramid principle</span> (B
 
 Avoid: telling the story in chronological order. The request comes at the end, when the director has already tuned out or the meeting is ending, and the decision is postponed.
 
-```
+``` { .text .ex-bad title="Avoid" }
 In 2019, we created orders-service to replace the old ordering module.
 In March, a first outage; in June, a second; in September, a third.
 We analysed the causes, tried several fixes, compared three options...
@@ -1109,7 +1109,7 @@ So I am asking for two people from team-core for two quarters.
 
 Good: the same request with the SCQA pattern, the answer visible by the fourth line.
 
-```
+``` { .text .ex-good title="Recommended" }
 Situation     orders-service has handled every order since 2019.
 Complication  it caused 3 outages this half-year, 14 h without orders in total.
 Question      should we rework it now?
@@ -1138,7 +1138,7 @@ flowchart TD
 
 A one-pager fits on one page and reads in two minutes:
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 # Request: rework orders-service in steps
 
 Decision needed: 2 people from team-core for 2 quarters, by 11/30
@@ -1213,7 +1213,7 @@ Always present the "do nothing" option with its cost, make the <span class="term
 
 Many companies offer two parallel tracks beyond senior level: the <span class="term" data-term="ic-track">individual contributor track</span> (staff, principal, distinguished) and the management track (manager, director, vice president). Both have comparable pay levels; neither is a promotion from the other.
 
-```
+``` { .text .ex-illus title="Illustration" }
                  senior engineer
                 /               \
    staff engineer                engineering manager

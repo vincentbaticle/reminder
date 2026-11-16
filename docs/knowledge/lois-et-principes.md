@@ -89,7 +89,7 @@ flowchart TB
 
 **Origine** : Frederick Brooks, « The Mythical Man-Month » (1975). Brooks lui-même la qualifie de simplification excessive dans l'édition anniversaire de 1995.
 
-```
+``` { .text .ex-illus title="Illustration" }
 canaux de communication = n × (n - 1) / 2
 4 personnes  :  6 canaux
 8 personnes  : 28 canaux
@@ -111,7 +111,7 @@ nouvel arrivant : 2 à 4 semaines avant d'être utile (exemple), en occupant un 
 
 **Origine** : Cyril Northcote Parkinson, article dans The Economist, novembre 1955. Dans son livre « Parkinson's Law » (1957), il décrit aussi la loi de futilité : un comité passe plus de temps sur l'abri à vélos que sur la centrale nucléaire, d'où le mot « bikeshedding » (Poul-Henning Kamp, liste de diffusion FreeBSD, 1999).
 
-```
+``` { .text .ex-illus title="Illustration" }
 sprint de 2 semaines, tâche estimée à 3 jours
 jours 1 à 3  : la fonctionnalité marche
 jours 4 à 10 : refactoring « pendant qu'on y est », options, polish
@@ -130,7 +130,7 @@ jours 4 à 10 : refactoring « pendant qu'on y est », options, polish
 
 **Origine** : Laurence J. Peter et Raymond Hull, « The Peter Principle » (1969), un livre satirique. Une étude sur des vendeurs (Benson, Li et Shue, « Promotions and the Peter Principle », 2019, à vérifier) trouve un effet mesurable : les meilleurs vendeurs promus deviennent des managers moins bons.
 
-```
+``` { .text .ex-illus title="Illustration" }
 ada, meilleure développeuse de team-core  ──  promue manager
 compétence évaluée : le code
 compétence demandée : recruter, arbitrer, faire grandir les autres
@@ -149,7 +149,7 @@ compétence demandée : recruter, arbitrer, faire grandir les autres
 
 **Origine** : Derek J. de Solla Price, « Little Science, Big Science » (1963), à propos des publications scientifiques.
 
-```
+``` { .text .ex-illus title="Illustration" }
 100 contributeurs à un dépôt  : ~10 font la moitié des commits
 400 contributeurs             : ~20 font la moitié des commits
 ```
@@ -169,7 +169,7 @@ compétence demandée : recruter, arbitrer, faire grandir les autres
 
 **Origine** : expression des années 1990, attribution incertaine (à vérifier). Avelino et al., « A Novel Approach for Estimating Truck Factors » (2016), trouvent un <span class="term" data-term="bus-factor">bus factor</span> de 1 ou 2 sur la majorité des 133 projets GitHub populaires étudiés (à vérifier).
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git shortlog -sn --since="1 year" -- billing/
    412  ada
      9  grace
@@ -202,7 +202,7 @@ bus factor de billing/ : 1
 
 **Origine** : Douglas Hofstadter, « Gödel, Escher, Bach » (1979), à propos des programmes d'échecs.
 
-```
+``` { .text .ex-illus title="Illustration" }
 estimation           : 2 semaines
 estimation « prudente » avec marge Hofstadter : 3 semaines
 réel                 : 5 semaines
@@ -221,7 +221,7 @@ réel                 : 5 semaines
 
 **Origine** : Tom Cargill (Bell Labs), citée par Jon Bentley dans sa chronique « Programming Pearls », Communications of the ACM, septembre 1985.
 
-```
+``` { .text .ex-illus title="Illustration" }
 semaine 1 à 4 : le cas nominal marche, démo réussie  (« 90 % fini »)
 semaine 5 à 8 : erreurs, reprises, migration, droits, logs, doc
 total         : 180 % du temps prévu
@@ -240,7 +240,7 @@ total         : 180 % du temps prévu
 
 **Origine** : Vilfredo Pareto, « Cours d'économie politique » (1896), sur la répartition des terres en Italie. Le nom de <span class="term" data-term="pareto-principle">principe de Pareto</span> vient de Joseph Juran, dans les années 1940 et 1950 (à vérifier).
 
-```
+``` { .text .ex-illus title="Illustration" }
 orders-service, bugs des 12 derniers mois (exemple)
 module          part du code   part des bugs
 checkout        15 %           62 %
@@ -264,7 +264,7 @@ le reste        75 %           17 %
 
 **Origine** : Daniel Kahneman et Amos Tversky, « Intuitive Prediction: Biases and Corrective Procedures » (1979). Le remède proposé ensuite est la <span class="term" data-term="reference-class-forecasting">prévision par classe de référence</span> (Kahneman et Dan Lovallo, 1993 ; Bent Flyvbjerg, 2006).
 
-```
+``` { .text .ex-illus title="Illustration" }
 vue de l'intérieur : « la migration prend 3 sprints, on connaît le code »
 vue de l'extérieur : nos 5 dernières migrations ont pris 4, 6, 5, 9 et 7 sprints
 estimation corrigée : 6 sprints, avec la médiane des cas passés
@@ -272,7 +272,7 @@ estimation corrigée : 6 sprints, avec la médiane des cas passés
 
 **En pratique** : partir des durées réelles des projets semblables, puis ajuster, plutôt que d'additionner des tâches. C'est la base de la <span class="term" data-term="throughput-forecasting">prévision par débit</span> : on compte les tickets réellement terminés par semaine, au lieu d'additionner des estimations.
 
-```
+``` { .text .ex-illus title="Illustration" }
 débit des 6 dernières semaines : 6, 9, 8, 7, 10, 8 tickets terminés (médiane 8)
 reste à faire                  : 40 tickets
 prévision                      : 40 / 8 = environ 5 semaines
@@ -308,7 +308,7 @@ Les chiffres sont des exemples. Le débit mesuré contient déjà tout ce que le
 
 **Origine** : Charles Goodhart, économiste, dans des articles sur la politique monétaire présentés en 1975 : « toute régularité statistique observée tend à s'effondrer dès qu'on s'appuie dessus pour piloter ». La phrase célèbre est de l'anthropologue Marilyn Strathern, « Improving ratings: audit in the British University system » (1997).
 
-```
+``` { .text .ex-illus title="Illustration" }
 objectif : 80 % de couverture de code sur my-api
 résultat : la couverture passe de 55 % à 81 % en un mois
 réalité  : 120 tests ajoutés sans assertion, aucun bug de plus détecté
@@ -335,7 +335,7 @@ flowchart LR
 
 **Origine** : Donald T. Campbell, « Assessing the Impact of Planned Social Change » (1976, publié en revue en 1979).
 
-```
+``` { .text .ex-illus title="Illustration" }
 objectif : moins de 3 incidents majeurs par trimestre
 effet    : les incidents sont déclarés « mineurs », les postmortems disparaissent
 au final : moins d'incidents comptés, autant de pannes, moins d'apprentissage
@@ -373,7 +373,7 @@ au final : moins d'incidents comptés, autant de pannes, moins d'apprentissage
 
 **Origine** : Hyrum Wright, ingénieur chez Google, formulée vers 2012 (date à vérifier), publiée sur hyrumslaw.com et popularisée par « Software Engineering at Google » (2020).
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : billing-service dépend du texte d'erreur de orders-service, hors contrat
 if "stock insuffisant" in response.json()["detail"]:
     retry_later()
@@ -382,7 +382,7 @@ if "stock insuffisant" in response.json()["detail"]:
 
 **En pratique** : un client peut dépendre de tout ce qu'il voit, même hors contrat, comme `billing-service` qui lit le texte d'un message d'erreur. Toute modification visible est donc potentiellement une <span class="term" data-term="breaking-change">rupture</span>. On publie des codes d'erreur stables, on randomise ce qui ne doit pas être figé (ordre des clés, par exemple, pour qu'aucun client ne puisse s'y fier), et on prépare les <span class="term" data-term="deprecation">retraits annoncés</span> avec un inventaire des usages réels. Détails dans [Expérience développeur](devx.md).
 
-```go
+``` { .go .ex-good title="Recommandé" }
 // Bien : Go rend l'ordre d'une map aléatoire, aucun client ne peut s'y fier
 m := map[string]int{"a": 1, "b": 2, "c": 3}
 for k := range m {
@@ -406,7 +406,7 @@ for k := range m {
 
 **Origine** : Jon Postel, RFC 760 (spécification d'IP, janvier 1980), repris dans RFC 761 (TCP, 1980). Critique officielle : Martin Thomson et David Schinazi, RFC 9413 « Maintaining Robust Protocols » (juin 2023), après Eric Allman, « The Robustness Principle Reconsidered », ACM Queue (2011).
 
-```
+``` { .text .ex-illus title="Illustration" }
 un proxy accepte un en-tête mal formé et le corrige à sa façon
 le serveur derrière l'interprète autrement
 deux lectures différentes de la même requête : porte ouverte au « request smuggling »
@@ -414,7 +414,7 @@ deux lectures différentes de la même requête : porte ouverte au « request sm
 
 Le **<span class="term" data-term="request-smuggling">request smuggling</span>** (contrebande de requête) : deux serveurs à la suite, un proxy puis l'application, découpent différemment la même requête HTTP. Ce que le proxy voit comme le corps d'une seule requête, l'application le lit comme le début d'une deuxième requête, qui échappe ainsi aux contrôles du proxy.
 
-```
+``` { .text .ex-illus title="Illustration" }
 POST /orders HTTP/1.1
 Content-Length: 30
 Transfer-Encoding: chunked
@@ -447,7 +447,7 @@ La parade : rejeter toute requête qui porte les deux en-têtes ou un en-tête a
 
 Le même principe dans mon propre code : un format de date ambigu accepté « pour rendre service » finit lu de deux façons différentes par deux services.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : deviner le format ; « 03/04/2026 » donne le 3 avril ici, le 4 mars dans un service qui essaie le format américain en premier
 def parse_date(raw: str) -> date:
     for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y"):
@@ -456,8 +456,9 @@ def parse_date(raw: str) -> date:
         except ValueError:
             continue
     raise ValueError(raw)
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : un seul format documenté, tout le reste est refusé avec un message clair
 def parse_date(raw: str) -> date:
     try:
@@ -477,10 +478,12 @@ def parse_date(raw: str) -> date:
 
 **Origine** : Brian Kernighan et P. J. Plauger, « The Elements of Programming Style » (première édition en 1974, la citation est souvent rattachée à la deuxième édition de 1978, à vérifier).
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : astucieux, mais tout tient sur une ligne difficile à déboguer
 r = {k: v for d in ds for k, v in d.items() if v and not k.startswith("_")}
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : débogable, une étape par ligne
 result = {}
 for d in ds:
@@ -505,7 +508,7 @@ for d in ds:
 
 **Origine** : John Gall, « General Systemantics » (1975), souvent réédité sous le titre « Systemantics ».
 
-```
+``` { .text .ex-illus title="Illustration" }
 v1 : un monolithe, une base, un déploiement par jour          (marche)
 v2 : on extrait billing-service quand l'équipe double         (marche)
 contre-exemple : 12 microservices, un bus d'événements et un service mesh dès le jour 1
@@ -527,7 +530,7 @@ contre-exemple : 12 microservices, un bus d'événements et un service mesh dès
 
 **Origine** : Meir M. Lehman, à partir d'études sur l'OS/360 d'IBM : premières lois en 1974, huit lois au total en 1996. Article de référence : « Programs, Life Cycles, and Laws of Software Evolution », Proceedings of the IEEE (1980).
 
-```
+``` { .text .ex-illus title="Illustration" }
 année   fonctionnalités   dépendances   temps de build   (exemple)
 2022    40                35            4 min
 2024    65                80            11 min
@@ -547,7 +550,7 @@ année   fonctionnalités   dépendances   temps de build   (exemple)
 
 **Origine** : Jamie Zawinski, développeur chez Netscape, années 1990 (date exacte à vérifier). Le Jargon File la cite comme « Law of Software Envelopment ».
 
-```
+``` { .text .ex-illus title="Illustration" }
 outil de tickets, v1 : des tickets
 v3 : + commentaires + notifications
 v6 : + chat intégré + wiki + tableaux de bord + IA
@@ -566,7 +569,7 @@ v6 : + chat intégré + wiki + tableaux de bord + IA
 
 **Origine** : Eric S. Raymond, « The Cathedral and the Bazaar » (essai de 1997, livre en 1999), qui la nomme en l'honneur de Linus Torvalds.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Heartbleed (CVE-2014-0160), OpenSSL
 bug introduit en 2011 et publié en 2012, découvert en avril 2014 (dates à vérifier)
 code open source, utilisé partout, relu par très peu de personnes
@@ -585,7 +588,7 @@ code open source, utilisé partout, relu par très peu de personnes
 
 **Origine** : Niklaus Wirth, « A Plea for Lean Software », IEEE Computer, février 1995. Wirth l'attribue lui-même à Martin Reiser.
 
-```
+``` { .text .ex-illus title="Illustration" }
 éditeur de texte, 1995 : ~5 Mo de mémoire
 éditeur de texte, 2026 : ~500 Mo de mémoire (exemple, application embarquant un navigateur)
 temps de démarrage ressenti : comparable
@@ -593,13 +596,15 @@ temps de démarrage ressenti : comparable
 
 **En pratique** : sans garde-fou, mon appli grossit un peu à chaque version et personne ne le remarque. Un budget de performance (temps de chargement, mémoire, taille du bundle) vérifié en CI empêche cette dérive lente. Exemple de règle : le bundle front reste sous 250 Ko, sinon le pipeline échoue.
 
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : la taille est affichée mais jamais comparée au budget, le job reste vert à 600 Ko
 perf-budget:
   script:
     - npm run build
     - du -h dist/main.js
+```
 
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : budget de taille vérifié en CI, le pipeline échoue au-delà de 250 Ko
 perf-budget:
   script:
@@ -619,14 +624,14 @@ perf-budget:
 
 **Origine** : attribuée à Edward A. Murphy Jr., ingénieur sur des essais de traîneau-fusée de l'US Air Force vers 1949. Les récits divergent sur la phrase exacte et son auteur (à vérifier).
 
-```
+``` { .text .ex-illus title="Illustration" }
 « ce cas n'arrive jamais »
 1 requête sur 1 000 000 × 50 000 000 requêtes par mois = 50 fois par mois
 ```
 
 **En pratique** : à grande échelle, le rare devient quotidien : un cas sur un million arrive 50 fois par mois quand je sers 50 millions de requêtes. Je teste donc les cas d'erreur, je pose des <span class="term" data-term="timeout">timeouts</span>, je répète les pannes (<span class="term" data-term="chaos-engineering">chaos engineering</span>, exercices de reprise). Le chaos engineering consiste à provoquer volontairement une panne contrôlée pour vérifier une hypothèse de résilience :
 
-```
+``` { .text .ex-illus title="Illustration" }
 hypothèse   : si un pod de billing-service tombe, orders-service répond une erreur en moins de 2 s
 expérience  : en staging, kubectl delete pod billing-service-7f9c-abcde
 mesure      : POST /orders renvoie 503 en 1,2 s, aucune commande à moitié créée
@@ -661,7 +666,7 @@ conclusion  : hypothèse tenue ; une requête bloquée 30 s aurait révélé un 
 
 **Origine** : Gene Amdahl, « Validity of the Single Processor Approach to Achieving Large Scale Computing Capabilities », AFIPS Spring Joint Computer Conference (1967). La formule a été écrite plus tard à partir de son argument.
 
-```
+``` { .text .ex-illus title="Illustration" }
 S(N) = 1 / ((1 - p) + p / N)        p = part parallélisable, N = nombre de cœurs
 
 p = 0,9 :  N = 10   S ≈ 5,3
@@ -687,7 +692,7 @@ p = 0,9 :  N = 10   S ≈ 5,3
 
 **Origine** : John L. Gustafson, « Reevaluating Amdahl's Law », Communications of the ACM (mai 1988).
 
-```
+``` { .text .ex-illus title="Illustration" }
 S(N) = N - s × (N - 1)        s = part séquentielle mesurée sur le système parallèle
 
 s = 0,1 :  N = 10   S = 9,1
@@ -710,7 +715,7 @@ s = 0,1 :  N = 10   S = 9,1
 
 **Origine** : John D. C. Little, « A Proof for the Queuing Formula: L = λW », Operations Research (1961).
 
-```
+``` { .text .ex-illus title="Illustration" }
 100 requêtes/s × 0,3 s = 30 requêtes en cours
 la latence passe à 3 s : 300 requêtes en cours, le pool de 50 connexions sature
 ```
@@ -737,7 +742,7 @@ flowchart LR
 
 **Origine** : Neil Gunther, introduite en 1993, développée dans « Guerrilla Capacity Planning » (2007).
 
-```
+``` { .text .ex-illus title="Illustration" }
 C(N) = N / (1 + α(N - 1) + βN(N - 1))     α = contention, β = coordination
 α = 0,05, β = 0,001 (exemple) : pic vers N = racine((1 - α) / β) ≈ 31 instances
 au-delà, ajouter des instances fait baisser le débit
@@ -761,7 +766,7 @@ au-delà, ajouter des instances fait baisser le débit
 
 **Origine** : Gordon Moore, « Cramming More Components onto Integrated Circuits », Electronics (avril 1965) : doublement chaque année. Il révise en 1975 : doublement tous les deux ans. Les « 18 mois » souvent cités viennent d'une autre personne chez Intel, David House (à vérifier).
 
-```
+``` { .text .ex-illus title="Illustration" }
 doublement tous les 2 ans sur 20 ans : 2^10 ≈ 1 000 fois plus de transistors
 ```
 
@@ -790,22 +795,24 @@ doublement tous les 2 ans sur 20 ans : 2^10 ≈ 1 000 fois plus de transistors
 
 **Origine** : G. K. Chesterton, « The Thing » (1929), chapitre « The Drift from Domesticity ».
 
-```python
+``` { .python .ex-illus title="Illustration" }
 # Exemple : une barrière de Chesterton, une ligne étrange sans explication
 time.sleep(0.2)  # personne ne sait pourquoi
 ```
-```
+``` { .text .ex-ref title="Référence" }
 $ git log -S "time.sleep(0.2)" --oneline
 3f2a9c1 fix: l'API du fournisseur refuse plus de 5 appels par seconde
 ```
 
 **En pratique** : je tombe sur une règle, une config ou un bout de code étrange et je veux le supprimer. Je cherche d'abord pourquoi il est là : `git log`, ticket lié, question à l'équipe. Si personne ne sait, je le retire par étapes réversibles.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : la pause est retirée « parce qu'elle ne sert à rien », le fournisseur répond 429 au premier pic d'envois
 for invoice in invoices:
     provider.send(invoice)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : la barrière reste, avec sa raison écrite à côté
 for invoice in invoices:
     provider.send(invoice)
@@ -823,7 +830,7 @@ for invoice in invoices:
 
 **Origine** : Robert J. Hanlon, proposé pour « Murphy's Law Book Two » d'Arthur Bloch (1980). Des formulations proches existent avant, dont Robert Heinlein en 1941 (à vérifier).
 
-```
+``` { .text .ex-illus title="Illustration" }
 lundi 9 h : main est cassée par un merge de grace
 lecture malveillante : « elle ne teste jamais rien »
 lecture Hanlon      : la CI n'a pas lancé les tests d'intégration sur cette branche
@@ -842,7 +849,7 @@ lecture Hanlon      : la CI n'a pas lancé les tests d'intégration sur cette br
 
 **Origine** : attribué à Guillaume d'Ockham, XIVe siècle. La formule « il ne faut pas multiplier les entités sans nécessité » n'apparaît pas telle quelle dans ses écrits : elle est de John Punch (1639, à vérifier).
 
-```
+``` { .text .ex-illus title="Illustration" }
 symptôme : my-api renvoie des 500 depuis 10 h 02
 hypothèse A : attaque coordonnée + bug du load balancer + bit flip mémoire
 hypothèse B : le déploiement de 10 h 00
@@ -862,7 +869,7 @@ on vérifie B d'abord
 
 **Origine** : Theodore Sturgeon, écrivain de science-fiction, répondant aux critiques du genre, vers 1957 ; publiée dans Venture Science Fiction en 1958 (à vérifier).
 
-```
+``` { .text .ex-illus title="Illustration" }
 200 dépendances npm candidates pour parser des dates
 la plupart : abandonnées, sans tests, un seul mainteneur
 une poignée : maintenues, documentées, utilisées partout
@@ -881,7 +888,7 @@ une poignée : maintenues, documentées, utilisées partout
 
 **Origine** : attribuée à Ward Cunningham (inventeur du wiki) par Steven McGeady, vers 2010 (à vérifier). Cunningham a dit ne pas en être l'auteur : c'est un cas de citation mal attribuée.
 
-```
+``` { .text .ex-illus title="Illustration" }
 question posée en réunion : « qui sait comment marche le cache de my-api ? »  silence
 brouillon d'ADR posté : « le cache expire après 1 h »  trois corrections en 10 minutes
 ```
@@ -902,7 +909,7 @@ brouillon d'ADR posté : « le cache expire après 1 h »  trois corrections en 
 
 **Origine** : Justin Kruger et David Dunning, « Unskilled and Unaware of It », Journal of Personality and Social Psychology (1999).
 
-```
+``` { .text .ex-illus title="Illustration" }
 quartile au test     auto-évaluation (rang percentile)   rang réel   (forme des résultats, chiffres d'exemple)
 le plus faible       ~60                                  ~12
 le plus fort         ~75                                  ~85

@@ -34,7 +34,7 @@ Cette page rassemble ce qu'il faut savoir pour construire la partie du système 
 
 **<span class="term" data-term="core-web-vitals">Core Web Vitals</span>** : trois mesures de Google sur l'expérience réelle d'une page, prises chez les vrais utilisateurs :
 
-```
+``` { .text .ex-ref title="Référence" }
 LCP   temps avant l'affichage du plus gros élément utile    bon : 2,5 s ou moins
 INP   délai entre un clic et la réaction visible de la page   bon : 200 ms ou moins
 CLS   déplacements inattendus du contenu pendant le chargement  bon : 0,1 ou moins
@@ -72,7 +72,7 @@ Les mots à connaître :
 - le **JSX** est la syntaxe qui ressemble à du HTML dans le JavaScript ; un outil de build la traduit en appels de fonctions ;
 - les **hooks** (`useState`, `useEffect`...) sont les fonctions qui donnent à un composant de l'état ou des effets (appeler une API, s'abonner à un événement).
 
-```
+``` { .text .ex-illus title="Illustration" }
 1. l'utilisateur clique sur « ajouter »       setItems([...items, mug])
 2. React relance la fonction Cart()           elle renvoie la nouvelle description : 3 articles
 3. React compare l'ancienne et la nouvelle    seuls le badge, une ligne et le total ont changé
@@ -84,17 +84,21 @@ Les mots à connaître :
 
 Les deux erreurs les plus fréquentes des débutants, et leur correction :
 
-```jsx
+``` { .jsx .ex-bad title="À éviter" }
 // À éviter : modifier le tableau existant, React voit le même objet et ne redessine rien
 function AddButton({ items, setItems, product }) {
   return <button onClick={() => { items.push(product); setItems(items); }}>Ajouter</button>;
 }
+```
 
+``` { .jsx .ex-good title="Recommandé" }
 // Bien : créer un nouveau tableau, React voit le changement et redessine
 function AddButton({ items, setItems, product }) {
   return <button onClick={() => setItems([...items, product])}>Ajouter</button>;
 }
+```
 
+``` { .jsx .ex-bad title="À éviter" }
 // À éviter : un effet sans liste de dépendances relance l'appel à chaque rendu, donc en boucle
 function OrderStatus({ orderId }) {
   const [status, setStatus] = useState(null);
@@ -103,7 +107,9 @@ function OrderStatus({ orderId }) {
   });
   return <p>{status}</p>;
 }
+```
 
+``` { .jsx .ex-good title="Recommandé" }
 // Bien : l'effet ne se relance que si orderId change, et annule l'appel devenu inutile
 function OrderStatus({ orderId }) {
   const [status, setStatus] = useState(null);
@@ -163,13 +169,15 @@ Une **web app** est une application qui tourne dans le navigateur (souvent une <
 - **stockage séparé** : la web app installée a ses propres cookies et son propre stockage, séparés de Safari. Un utilisateur connecté dans Safari doit se reconnecter dans l'icône installée ;
 - **écran** : l'encoche et la barre du bas mangent une partie de l'écran (les « safe areas »), et `100vh` inclut parfois la zone cachée par la barre d'adresse, d'où des boutons coupés en bas de l'écran. `100dvh` (hauteur dynamique) règle ce cas.
 
-```html
+``` { .html .ex-bad title="À éviter" }
 <!-- À éviter : pas de viewport, la page s'affiche en version ordinateur dézoomée ; 100vh coupe le bouton « Payer » sous la barre de Safari -->
 <head>
   <title>shop-web</title>
   <style>.checkout { height: 100vh; }</style>
 </head>
+```
 
+``` { .html .ex-good title="Recommandé" }
 <!-- Bien : viewport mobile, manifeste, icône pour l'écran d'accueil iPhone, hauteur dynamique et marges de sécurité -->
 <head>
   <title>shop-web</title>
@@ -184,7 +192,7 @@ Une **web app** est une application qui tourne dans le navigateur (souvent une <
 
 Le manifeste, que Safari et Chrome lisent pour l'installation :
 
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "name": "Shop",
   "start_url": "/",
@@ -212,12 +220,14 @@ sequenceDiagram
     SW-->>P: panier d'hier, marqué « hors ligne »
 ```
 
-```javascript
+``` { .javascript .ex-bad title="À éviter" }
 // À éviter : tout mettre en cache pour toujours, l'utilisateur garde l'ancienne version et les anciens prix
 self.addEventListener("fetch", (event) => {
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
 });
+```
 
+``` { .javascript .ex-good title="Recommandé" }
 // Bien : réseau d'abord pour les données, cache seulement en secours
 self.addEventListener("fetch", (event) => {
   if (!event.request.url.includes("/api/")) return;
@@ -308,7 +318,7 @@ Quand ne pas l'appliquer : une seule équipe (ou deux qui se parlent tous les jo
 
 **Exemple : un shell et trois micro front-ends.** Trois équipes, un shell tenu par une équipe plateforme, un design system partagé :
 
-```
+``` { .text .ex-illus title="Illustration" }
 shop-shell/              team-platform : mise en page, routes de 1er niveau, session, erreurs
 ├─ src/routes.ts         /catalog/* vers catalog, /cart/* vers cart, /account/* vers account
 ├─ src/layout/           en-tête, menu, pied de page
@@ -337,7 +347,7 @@ flowchart TB
 
 La configuration Module Federation du shell (Webpack 5 ou Rspack, même syntaxe ; les noms de paquets dépendent de la version, à vérifier) :
 
-```js
+``` { .js .ex-ref title="Référence" }
 const { ModuleFederationPlugin } = require("@module-federation/enhanced/rspack");
 
 // Exemple : le shell déclare ses remotes et partage React en singleton
@@ -362,7 +372,7 @@ module.exports = {
 
 Et celle du panier, qui expose son point d'entrée :
 
-```js
+``` { .js .ex-ref title="Référence" }
 // Exemple : le panier expose son point d'entrée mount
 new ModuleFederationPlugin({
   name: "cart",
@@ -380,7 +390,7 @@ Les URL des `remotes` pointent souvent vers un manifeste chargé au démarrage p
 
 **Le contrat entre le shell et un micro front-end.** C'est l'API publique de chaque micro front-end, à traiter comme un contrat d'API : écrit dans un paquet versionné, changé avec prudence.
 
-```ts
+``` { .ts .ex-ref title="Référence" }
 // Exemple : les props que le shell passe à chaque micro front-end
 export interface MicroFrontendProps {
   basePath: string;
@@ -404,10 +414,12 @@ export type Mount = (element: HTMLElement, props: MicroFrontendProps) => Unmount
 3. Les données métier se relisent depuis leur API : le back-end reste la source de vérité, chaque micro front-end garde son propre état local.
 4. Pour prévenir les autres d'un fait, on publie un événement navigateur avec un contenu documenté et versionné, comme un événement entre services :
 
-    ```ts
+    ``` { .ts .ex-bad title="À éviter" }
     // À éviter : modifier directement le compteur affiché dans l'en-tête du shell
     document.querySelector("#header-cart-count")!.textContent = String(count + 1);
+    ```
 
+    ``` { .ts .ex-good title="Recommandé" }
     // Bien : un événement navigateur au contenu documenté pour prévenir les autres
     window.dispatchEvent(
       new CustomEvent("cart:item-added", { detail: { sku: "SKU-42", quantity: 1 } }),
@@ -445,7 +457,7 @@ export type Mount = (element: HTMLElement, props: MicroFrontendProps) => Unmount
 
 Le test de contrat du panier (Vitest) :
 
-```ts
+``` { .ts .ex-ref title="Référence" }
 import { describe, expect, it, vi } from "vitest";
 import { mount } from "../src/mount";
 
@@ -472,7 +484,7 @@ describe("cart-front respecte le contrat du shell", () => {
 
 Le test de bout en bout sur l'assemblage (Playwright), qui traverse catalogue, shell et panier :
 
-```ts
+``` { .ts .ex-ref title="Référence" }
 import { expect, test } from "@playwright/test";
 
 // Exemple : test E2E qui traverse catalogue, shell et panier
@@ -528,7 +540,7 @@ Le coût : un propriétaire (au minimum une personne, souvent une équipe), une 
 
 Les tokens, en variables CSS :
 
-```css
+``` { .css .ex-ref title="Référence" }
 /* Exemple : les tokens du design system, en variables CSS */
 :root {
   --color-primary: #1f6feb;
@@ -541,7 +553,7 @@ Les tokens, en variables CSS :
 
 Une story au format CSF 3 (Component Story Format, Storybook 7 et suivants, 2023 ; les noms de paquets changent selon la version, à vérifier) :
 
-```tsx
+``` { .tsx .ex-ref title="Référence" }
 import type { Meta, StoryObj } from "@storybook/react";
 import { Button } from "./Button";
 
@@ -615,7 +627,7 @@ Un **<span class="term" data-term="meta-framework">méta-framework</span>** appo
 
 Une fiche produit en ISR avec Next.js (App Router, syntaxe de Next.js 15, à vérifier selon la version) :
 
-```tsx
+``` { .tsx .ex-ref title="Référence" }
 // Exemple : la page est régénérée au plus toutes les 60 s (ISR)
 export const revalidate = 60;
 

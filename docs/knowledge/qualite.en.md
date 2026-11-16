@@ -44,7 +44,7 @@ In the examples, `my-api`, `orders-service` and `bank-partner` are fictitious se
 - **Regression**: something that used to work no longer works after a change.
 - **Escaped defect**: a defect that every check let through all the way to <span class="term" data-term="production-env">production</span>.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Monday    : the cart page shows the total             OK
 Tuesday   : MR "refactor VAT calculation" merged
 Wednesday : the total is wrong for carts > €100       regression, escaped to prod
@@ -83,7 +83,7 @@ A fake object that replaces a real neighbour during the test. The vocabulary com
 | **mock**  | the test checks that the expected call did happen                 | `bank.debit.assert_called_once_with("ada", 500)`              |
 
 The fake from the example, in full:
-```python
+``` { .python .ex-good title="Recommended" }
 # Good: a fake that behaves like the real repository, in memory
 class InMemoryOrderRepository:
     def __init__(self):
@@ -98,7 +98,7 @@ class InMemoryOrderRepository:
 `MagicMock` can play stub, spy and mock: the usage gives the name.
 
 The opposite mistake: a mock that redoes the calculation of the code under test. If the VAT rule is wrong, the mock is wrong in the same way, and the test stays green.
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the mock copies the VAT rule, the test compares the code with its own copy
 pricing = MagicMock()
 pricing.total.side_effect = lambda order: round(sum(l.price_cents * l.qty for l in order.lines) * 1.2)
@@ -121,7 +121,7 @@ flowchart TD
   Q4 -->|no| ST["stub, answer prepared in advance"]
 ```
 
-```python
+``` { .python .ex-illus title="Illustration" }
 # Example: a stub fixes the answer, it stays green if the real bank changes
 bank = MagicMock()
 bank.get_balance.return_value = {"balance_cents": 1200}
@@ -137,19 +137,21 @@ A test that passes or fails without the code changing.
 !!! noob "As noob"
     It is an alarm that goes off one night in three for no reason: after a week, nobody gets up, even on the night of the real burglary. The one thing to remember: **a flaky test teaches the team to ignore red.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 run 1 : passed
 run 2 : failed   TimeoutError: locator.click
 run 3 : passed   (same commit)
 ```
 
 The most frequent cause: a fixed wait. It is too short on the day the CI is loaded, and wastes time on every other day.
-```typescript
+``` { .typescript .ex-bad title="Avoid" }
 // Avoid: a fixed 2 s pause, red as soon as the confirmation takes 2.1 s to show
 await page.getByRole("button", { name: "Place order" }).click();
 await page.waitForTimeout(2000);
 expect(await page.locator("#status").textContent()).toBe("Order confirmed");
+```
 
+``` { .typescript .ex-good title="Recommended" }
 // Good: the assertion retries on its own until the text appears, or until the timeout
 await page.getByRole("button", { name: "Place order" }).click();
 await expect(page.getByText("Order confirmed")).toBeVisible();
@@ -164,7 +166,7 @@ An automatic rule that blocks a merge if a condition is not met.
 !!! noob "As noob"
     It is the security gate at an airport: it does not judge the trip, it refuses to let through a bag that holds a forbidden item, whoever the traveller is. The one thing to remember: **the gate does not make the code good, it automatically stops merging what breaks the rule.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 Quality gate "Standard", new code only
   new bugs              0       OK
   duplication           1.2%    OK  (< 3%)
@@ -185,7 +187,7 @@ A suite is a set of tests run together. They are named after their purpose and t
 | **synthetic**       | does production work right now, for a user?                  | every 10 min, a robot logs in to prod and opens its dashboard | seconds, in a loop |
 
 "Smoke" comes from electronics: I plug the device in, and if no smoke comes out, I can start the real tests. A red smoke test means "no point going further". It runs right after a <span class="term" data-term="deployment">deployment</span>:
-```
+``` { .text .ex-illus title="Illustration" }
 deployment to integration
   health check   OK     the service answers
   smoke          KO     login fails
@@ -195,7 +197,7 @@ deployment to integration
 ### Performance test
 A performance test sends traffic simulated by <span class="term" data-term="virtual-user">virtual users</span> (VU) and compares response times with thresholds. Below, 10 VUs for 30 s; the test fails if more than 5% of requests take longer than 500 ms or if more than 1% are errors.
 
-```js
+``` { .js .ex-ref title="Reference" }
 import http from "k6/http";
 import { check } from "k6";
 
@@ -215,7 +217,7 @@ export default function () {
 
 Summarized output (example, the exact layout depends on the k6 version):
 
-```
+``` { .text .ex-ref title="Reference" }
 $ k6 run orders.js
   ✓ http_req_duration..: avg=182ms med=160ms p(90)=310ms p(95)=420ms
   ✓ http_req_failed....: 0.21%  3 out of 1412
@@ -237,7 +239,7 @@ A crossed threshold shows `✗` and k6 exits with a non-zero code: the CI job tu
 
 **Ramp-up, plateau, ramp-down.** A VU is a loop that replays the `default` function endlessly, like a visitor going from page to page. For a load test, I ramp up gradually, hold a plateau, then ramp down:
 
-```
+``` { .text .ex-illus title="Illustration" }
 VU
 500 |        ______________________
     |       /                      \
@@ -248,7 +250,7 @@ VU
 ```
 The ramp-up shows at which load latency starts to climb, instead of an instant shock; the plateau lets caches, connection pools and queues settle before measuring.
 
-```js
+``` { .js .ex-bad title="Avoid" }
 // Avoid: 500 VUs at once, with no ramp-up and no threshold
 export const options = { vus: 500, duration: "30m" };
 
@@ -259,7 +261,7 @@ export default function () {
 ```
 Without a pause, 500 VUs send far more requests than 500 people, and a single product is served from the cache: the test measures the cache, not the application.
 
-```js
+``` { .js .ex-good title="Recommended" }
 // Good: 10 min ramp-up, 30 min plateau, ramp-down, and thresholds that fail the test
 export const options = {
   stages: [
@@ -303,7 +305,7 @@ A **synthetic test** (*synthetic monitoring*) is a small end-to-end test that ru
 !!! noob "As noob"
     It is a mystery shopper who walks into the shop every 10 minutes: they do not judge the new collection, they check that the door opens and the till works. The one thing to remember: **a synthetic test watches production continuously, it does not validate a new version.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 every 10 min, from Paris and Frankfurt:
   10:00  open /login, log in with the robot account, see "Dashboard"   OK  4.1 s
   10:10  same                                                          OK  4.3 s
@@ -343,7 +345,7 @@ The tools (Checkly, Datadog Synthetics) are compared in [Tech tools landscape](o
 ### Testing vocabulary
 
 **pytest**: the most common test framework in Python. A test is a function whose name starts with `test_`, in a `test_*.py` file, that checks its result with a plain `assert`. Here in `tests/test_orders.py`:
-```python
+``` { .python .ex-illus title="Illustration" }
 # Example: the function under test
 def order_total(lines):
     return sum(qty * price_cents for qty, price_cents in lines)
@@ -357,7 +359,7 @@ def test_total_of_two_lines():
 def test_empty_order_costs_nothing():
     assert order_total([]) == 0
 ```
-```
+``` { .text .ex-ref title="Reference" }
 $ pytest tests/test_orders.py
 ============================= test session starts ==============================
 collected 2 items
@@ -368,12 +370,12 @@ tests/test_orders.py ..                                                  [100%]
 ```
 
 **Assertion**: the line that checks a result. A test without an assertion checks nothing.
-```python
+``` { .python .ex-illus title="Illustration" }
 # Example: an assertion, the line that checks the result
 assert refund(1000, 500) == 500
 ```
 Classic trap: a `try` around the assertion. `AssertionError` inherits from `Exception`, so the failure is swallowed and the test is green whatever happens.
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the except also swallows the AssertionError, this test can never fail
 def test_refund_is_capped():
     try:
@@ -388,7 +390,7 @@ def test_refund_is_capped():
     It is the mise en place in a kitchen before service: every plate starts from a worktop prepared the same way, and the dishes get washed afterwards, even if the dish failed. The one thing to remember: **a fixture prepares and cleans up for each test, so that no test depends on another.**
 
 The mistake: tests that pass data to each other through a global variable. Run alone (`pytest -k no_orders`) or in another order with pytest-xdist, the 2nd test reads an empty dict and fails with a `KeyError`.
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the 2nd test relies on the customer created by the 1st, it breaks alone or in parallel
 CUSTOMER = {}
 
@@ -402,8 +404,8 @@ def test_new_customer_has_no_orders(db):
 ```
 
 The right version, with fixtures:
-```python
-# Example: a fixture created once per session, closed at the end
+``` { .python .ex-good title="Recommended" }
+# Good: a fixture created once per session, closed at the end
 @pytest.fixture(scope="session")
 def db():
     database = connect_test_database()
@@ -411,7 +413,7 @@ def db():
     database.close()
 
 
-# Example: a per-test fixture that depends on db and cleans up after
+# Good: a per-test fixture that depends on db and cleans up after
 @pytest.fixture
 def customer(db):
     user = db.create_user("ada")
@@ -419,7 +421,7 @@ def customer(db):
     db.delete_user(user.id)
 
 
-# Example: the test gets the fixtures through its parameter names
+# Good: the test gets the fixtures through its parameter names
 def test_new_customer_has_no_orders(db, customer):
     assert db.orders_of(customer.id) == []
 ```
@@ -427,18 +429,18 @@ def test_new_customer_has_no_orders(db, customer):
 **Test harness**: everything that lets a project's tests run: the framework, the fixtures, the config, the <span class="term" data-term="container">containers</span>, the launch command. "No harness yet" means that no test can run in CI for now.
 
 **Marker (or tag)**: a label put on a test to run a subset.
-```python
+``` { .python .ex-ref title="Reference" }
 # Example: a marker to run this test with pytest -m integration
 @pytest.mark.integration
 def test_order_is_saved(db): ...
 ```
-```
+``` { .text .ex-ref title="Reference" }
 $ pytest -m integration
 $ npx playwright test --grep @smoke
 ```
 
 **`@pytest.mark.parametrize`**: runs the same test with several data sets. Each row becomes a separate test in the report, and a red row does not stop the others from running.
-```python
+``` { .python .ex-ref title="Reference" }
 # Example: three data sets, so three separate tests in the report
 @pytest.mark.parametrize(
     ("lines", "expected"),
@@ -451,7 +453,7 @@ $ npx playwright test --grep @smoke
 def test_order_total(lines, expected):
     assert order_total(lines) == expected
 ```
-```
+``` { .text .ex-ref title="Reference" }
 $ pytest -v tests/test_orders.py
 tests/test_orders.py::test_order_total[lines0-0] PASSED
 tests/test_orders.py::test_order_total[lines1-500] PASSED
@@ -459,10 +461,12 @@ tests/test_orders.py::test_order_total[lines2-1300] PASSED
 ```
 
 **Selector**: the way an E2E test finds an element in the page.
-```typescript
+``` { .typescript .ex-bad title="Avoid" }
 // Avoid: an XPath that mirrors the layout, broken as soon as a div is wrapped around it
 page.locator("//div[3]/form/div[2]/button[1]")
+```
 
+``` { .typescript .ex-good title="Recommended" }
 // Good: by role and label, like a user, not by CSS class
 page.getByRole("button", { name: "Place order" })
 ```
@@ -473,12 +477,14 @@ By role and by label, like a user, rather than by a CSS class that changes at th
 !!! noob "As noob"
     It is the page's remote control: the test presses "sign in" without knowing which wires are behind it. If the screen changes, I rewire the remote once, not the hundred tests that use it. The one thing to remember: **a selector that changes is fixed in one place.**
 
-```typescript
+``` { .typescript .ex-bad title="Avoid" }
 // Avoid: every test repeats the selectors, one renamed label breaks dozens of files
 await page.getByLabel("Username").fill("ada");
 await page.getByLabel("Password").fill(password);
 await page.getByRole("button", { name: "Sign in" }).click();
+```
 
+``` { .typescript .ex-good title="Recommended" }
 // Good: the test calls a Page Object action, not selectors
 await loginPage.signIn("ada", password);
 ```
@@ -495,7 +501,7 @@ await loginPage.signIn("ada", password);
 **API contract**: the description of what an API accepts and returns: routes, parameters, formats, error codes.
 
 **OpenAPI**: the standard format for writing that contract, in <span class="term" data-term="yaml">YAML</span> or JSON. **AsyncAPI**: its equivalent for messages and events.
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: one contract route, required parameter and response format
 /balance:
   get:
@@ -521,7 +527,7 @@ await loginPage.signIn("ada", password);
 **CI (continuous integration)**: on every push, a machine fetches the code and automatically runs the lint, the tests and the checks.
 
 **Pipeline, stage, job**: the pipeline is the set of checks for one push. It is split into stages that contain jobs.
-```
+``` { .text .ex-illus title="Illustration" }
 pipeline #1234
 ├─ stage lint   : job ruff, job mypy
 ├─ stage test   : job unit, job integration
@@ -626,7 +632,7 @@ The share of each layer, schematically:
 
 Two real suites, with example numbers:
 
-```
+``` { .text .ex-illus title="Illustration" }
 orders-service (API, little logic,         checkout-front (React)
 many database and HTTP calls)
   E2E             :  10                      E2E                  :   8
@@ -661,7 +667,7 @@ The **<span class="term" data-term="agile-testing-quadrants">agile testing quadr
 !!! noob "As noob"
     It is a shopping list sorted by aisle: it does not tell me what to cook, it stops me forgetting a whole aisle. The one thing to remember: **the quadrants help spot the forgotten kind of test, they do not set an order.**
 
-```
+``` { .text .ex-illus title="Illustration" }
                      business facing
                             │
    Q2: functional tests,    │ Q3: exploratory tests,
@@ -690,7 +696,7 @@ The numbering is not an order: the four quadrants run in parallel. Their most us
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```
+``` { .text .ex-illus title="Illustration" }
 need ── design ── code ── MR ── acceptance ── production ── real usage
 <────── shift-left ──────────┤                 ├──────── shift-right ──────>
 ```
@@ -767,7 +773,7 @@ Martin Fowler popularised the contrast in 2007 in "Mocks Aren't Stubs", under th
 
 The code under test:
 
-```python
+``` { .python .ex-illus title="Illustration" }
 # Example: a service that asks pricing for the total, then saves
 class OrderService:
     def __init__(self, pricing, repository):
@@ -782,7 +788,7 @@ class OrderService:
 
 The same test in both schools:
 
-```python
+``` { .python .ex-illus title="Illustration" }
 # Example: Detroit school, real pricing, fake repository, the result is checked
 def test_place_order_stores_total_with_vat():
     repository = InMemoryOrderRepository()
@@ -808,7 +814,7 @@ What happens next:
 - **I merge `Pricing` into `OrderService`**, without changing the behaviour: the Detroit test stays green, the London one breaks, because it described how the work is done, not the result.
 
 The worst of both worlds: patching a private method. The test checks neither the result nor an exchange with a neighbour, only the internal plumbing: renaming `_apply_vat` breaks it, and a bug in the VAT calculation slips through, since the calculation is replaced.
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the test patches a private method and checks that it was called
 def test_place_order_applies_vat():
     order = Order(id=42, lines=[Line(price_cents=1000, qty=2)])
@@ -903,14 +909,14 @@ For each unit test of an API: **could a request prove it?** If so, what I need i
 | a customer orders and sees "paid"                    | E2E                           |
 
 Quick check on an API layer:
-```
+``` { .text .ex-ref title="Reference" }
 $ grep -rn "unittest.mock" tests/
 ```
 The result should be empty.
 
 ### Organising tests
 Two markers are enough, and the file name says which neighbour is used:
-```
+``` { .text .ex-illus title="Illustration" }
 tests/
 ├─ unit/
 │  └─ test_password_policy.py
@@ -958,13 +964,13 @@ Why: before, I had to start the broker by hand, and an "is it reachable?" probe 
 
 ### The example
 The mistake: a shared database on the default port. The test only works if someone ran `docker compose up` first, and two parallel CI jobs read and delete each other's keys.
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: a shared Redis, started by hand, on the fixed port 6379
 REDIS_URL = "redis://localhost:6379/0"
 ```
 
 The right version:
-```python
+``` { .python .ex-good title="Recommended" }
 # Good: a throwaway Redis container per session, skipped without Docker
 @pytest.fixture(scope="session")
 def redis_url() -> Iterator[str]:
@@ -1055,7 +1061,7 @@ A <span class="term" data-term="contract-test">contract test</span> checks that 
 !!! noob "As noob"
     It is the standard for a power socket: the socket maker and the appliance maker never talk, but each checks their product against the same standard. The contract test checks the shape of the socket, not what the appliance does. The one thing to remember: **the contract catches the partner who changes format, where a hand-written stub stays green.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 contract   : balance_cents: { type: integer }
 
 BEFORE bank-partner : 200 {"data": {"balance_cents": 1200}}
@@ -1123,7 +1129,7 @@ flowchart LR
 ```
 
 Example with Prism:
-```
+``` { .text .ex-ref title="Reference" }
 $ prism mock bank-partner.openapi.yaml
 
 $ curl -s -H 'X-Api-Key: any' 'localhost:4010/balance?username=ada'
@@ -1143,7 +1149,7 @@ Limit: Prism returns the same example for `ada` and `grace`. For per-customer re
 
 
 Typical error scenarios to cover with Microcks:
-```
+``` { .text .ex-illus title="Illustration" }
 bank-partner returns 500       my-api answers 502 with an explicit error
 bank-partner returns 404       my-api answers "unknown customer", cleanly
 partial metadata               my-api applies the planned default values
@@ -1157,7 +1163,7 @@ partial metadata               my-api applies the planned default values
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 My suite is green against mocks: that proves my code follows the **specification**, not that the partner still follows it. If `bank-partner` changes its format tomorrow, I will not see it. So I need a test that queries the real one:
-```
+``` { .text .ex-illus title="Illustration" }
 schemathesis : 50 generated requests (empty, accented, very long names)
 checks       : not_a_server_error, status_code_conformance, response_schema_conformance
 ```
@@ -1199,7 +1205,7 @@ Rules:
 !!! noob "As noob"
     Coverage is the list of museum rooms the visitor walked through: it does not say whether they looked at the paintings. The one thing to remember: **covered code is executed code, not necessarily verified code.**
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Example: the function under test
 def refund(paid_cents, asked_cents):
     return min(paid_cents, asked_cents)
@@ -1235,7 +1241,7 @@ The **<span class="term" data-term="mutation-score">mutation score</span>** is t
 
 Example: the rule and its two tests.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Example: the rule under test, a refund never exceeds the amount paid
 def can_refund(paid_cents, asked_cents):
     return asked_cents <= paid_cents
@@ -1252,7 +1258,7 @@ def test_refund_refused():
 
 Coverage is 100%. The tool tries mutants (simplified output, each tool has its own format):
 
-```
+``` { .text .ex-illus title="Illustration" }
 mutant 1   asked_cents <= paid_cents   becomes   asked_cents < paid_cents    survived
 mutant 2   asked_cents <= paid_cents   becomes   asked_cents >= paid_cents   killed
 mutant 3   return ...                  becomes   return None                 killed
@@ -1261,7 +1267,7 @@ mutation score: 2 killed out of 3, 67%
 
 Mutant 1 survives: no test checks the exact limit, so a customer asking for a full refund could be refused without any test noticing. The missing test:
 
-```python
+``` { .python .ex-good title="Recommended" }
 # What changes: the exact limit, which kills mutant 1
 def test_refund_whole_amount():
     assert can_refund(1000, 1000) is True
@@ -1291,12 +1297,12 @@ def test_refund_whole_amount():
 ### The inverted mapping trap
 I translate values from one system to another: `cancelled` becomes `void`, and `pending` stays `pending`. The 2nd value is spelled the same on both sides. So if I invert the mapping by mistake, every test on `pending` still passes. Only a test on `cancelled` reveals the error.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: only the value spelled the same on both sides is tested, the inversion stays green
 assert to_legacy("pending") == "pending"
 ```
 
-```python
+``` { .python .ex-good title="Recommended" }
 # Good: both branches pinned, an inversion makes one assertion fail
 assert to_legacy("cancelled") == "void"
 assert to_legacy("pending") == "pending"
@@ -1310,13 +1316,13 @@ Same idea when I rename a parameter: the route must accept the new name, and als
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 I rename a parameter across the whole API, and I want to be sure the old name is left nowhere. Rather than one test per route, I write a test that reads the whole OpenAPI contract and checks the rule everywhere:
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: one test per route, written for the routes known today
 def test_orders_route_uses_the_new_name(openapi):
     assert "orderStatus" not in parameters(openapi, "/orders")
 ```
 A `/orders/{id}/lines` route added the next month with the old `orderStatus` passes CI, and the API client is the one who finds the old name in production.
-```python
+``` { .python .ex-good title="Recommended" }
 # Good: one test checks the rule on the whole contract, future routes included
 def test_no_route_uses_the_old_name(openapi):
     for path, params in all_parameters(openapi):
@@ -1332,7 +1338,7 @@ It also covers the routes nobody has written yet.
 
 One page per system that says, **per functional domain** (not per repo), what is proven, by which test module, and what is not.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Domain "orders"
   proven     : state transitions (41 assertions), rejection of a forbidden transition
   proven by  : tests/integration/test_order_state.py
@@ -1422,12 +1428,12 @@ Deliberate choices:
 `allow_failure: true` is never a way to unblock a merge.
 
 Real case: an MR consumes a package version not yet published, the job is red. Switching it to `allow_failure` would have merged a known broken state. The red job was actually telling the order of things:
-```
+``` { .text .ex-illus title="Illustration" }
 1. merge the dependency's MR, the version is published
 2. rerun the consumer's pipeline, it passes
 ```
 Check before an MR:
-```
+``` { .text .ex-ref title="Reference" }
 $ git diff origin/main...HEAD -- '*.yml' | grep -n "allow_failure"
 ```
 
@@ -1440,7 +1446,7 @@ $ git diff origin/main...HEAD -- '*.yml' | grep -n "allow_failure"
 I want a green run locally to mean the same thing as a green run in CI. For that: a pinned version and a regenerated <span class="term" data-term="lockfile">lockfile</span>, never a package copied by hand on top.
 
 Real case: a local wheel installed on top of the pinned version, dependencies skipped. Tests green locally on an environment no pipeline will ever build, and a dependency was missing.
-```
+``` { .text .ex-ref title="Reference" }
 $ pip check
 $ pip show my-lib | grep Version      (compare with the lockfile)
 ```
@@ -1453,7 +1459,7 @@ $ pip show my-lib | grep Version      (compare with the lockfile)
 
 I commit, the <span class="term" data-term="pre-commit-hook">hook</span> passes, and yet CI is red. The reason: on commit, the hook only sees staged files, while CI checks every file of the branch.
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git add new_file.py          (untracked files are invisible to hooks)
 $ pre-commit run --all-files
 ```
@@ -1505,7 +1511,7 @@ flowchart LR
   AN -->|KO| RB["back to 100% on v1"]
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 step 1: v2 receives 5% of the traffic for 15 min
   smoke test forced on v2 (header X-Canary: 1)    green
   errors   v1 0.4%     v2 0.5%     threshold: gap under 0.5 point   OK
@@ -1545,7 +1551,7 @@ flowchart LR
   G --- DB
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00  v2 deployed on green, no traffic; blue (v1) serves 100% of users
 10:05  smoke and critical E2E tests on https://green.my-api.example: 24/24 green
 10:20  router switch: green serves 100%, blue stays ready
@@ -1595,7 +1601,7 @@ What I check:
 - **the end of the experiment**: the losing variant and its flag are removed, otherwise every future test has to cover two flows.
 
 The mistake: an E2E test that forces no variant. It lands on A or B depending on the draw, looks for a button that only exists in B, and becomes flaky.
-```ts
+``` { .ts .ex-bad title="Avoid" }
 // Avoid: no variant forced, the test is green one day out of two
 test("1-click order", async ({ page }) => {
   await page.goto("https://shop.example.com/cart");
@@ -1604,7 +1610,7 @@ test("1-click order", async ({ page }) => {
 });
 ```
 
-```ts
+``` { .ts .ex-ref title="Reference" }
 // Example: force variant B to test its flow end to end
 test("1-click order, variant B", async ({ page, context }) => {
   await context.addCookies([{ name: "exp_checkout", value: "B", url: "https://shop.example.com" }]);
@@ -1616,7 +1622,7 @@ test("1-click order, variant B", async ({ page, context }) => {
 
 A mismatch caught (example numbers):
 
-```
+``` { .text .ex-illus title="Illustration" }
 expected     50% / 50%
 observed     A 10,400 visitors   B 9,600 visitors   (52% / 48%)
 chi-squared test: p < 0.001, the gap is not due to chance
@@ -1774,7 +1780,7 @@ flowchart TD
 { .doc-ref }
 
 ### Failed or error
-```
+``` { .text .ex-ref title="Reference" }
 <failure>  the test ran, an assertion did not hold    the product misbehaves
 <error>    the test never reached an assertion        the setup is broken (fixture, page, service down)
 ```
@@ -1785,7 +1791,7 @@ Show them separately: `8/10 passed · 2 errors` does not tell the same story as 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 CI <span class="term" data-term="ci-artifact">artifacts</span> expire (often after 2 weeks). To follow trends, send every run to storage:
-```
+``` { .text .ex-illus title="Illustration" }
 test-reports/2026-10-23T09-15-00Z_pipeline-1234/
 ├─ junit.xml
 └─ report.html
@@ -1807,7 +1813,7 @@ An ISO 8601 UTC date at the start of the name: alphabetical order is chronologic
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```python
+``` { .python .ex-ref title="Reference" }
 import allure
 import pytest
 
@@ -1849,7 +1855,7 @@ Management asks me for a quality dashboard, and the first proposal contains the 
 !!! noob "As noob"
     Before buying a measuring device, I decide what I want to know: if I want to run faster, weighing myself every morning will not teach me much, timing my runs will. The takeaway: **I start from the goal and the question, never from the metric that is easy to get.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 Goal       : ship fewer defects to production
   Question : do our tests find the right bugs before production?
     Metric : escaped defects per month, by severity and by the stage that should have caught them
@@ -1885,7 +1891,7 @@ What is not there: the number of test cases written and the number of bugs per p
 
 The **Defect Detection Percentage** (DDP) measures the share of defects the tests catch before release:
 
-```
+``` { .text .ex-illus title="Illustration" }
 DDP = defects found before release / (defects found before + defects found after) × 100
 September: 20 found before production, 2 after, so 20 / 22 = 91%
 ```
@@ -1914,7 +1920,7 @@ My team wears itself out analysing every red run, even when it is one isolated f
 !!! noob "As noob"
     It is the yearly average rather than the mark of a single exam: one bad mark does not get me called in, a falling average does. The one thing to remember: **I alert on a measured trend, not on every red run.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 E2E tests  : pass rate ≥ 90% over 30 days   (example figure)
 API tests  : pass rate ≥ 98% over 30 days   (example figure)
 
@@ -1951,7 +1957,7 @@ Traps:
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```
+``` { .text .ex-illus title="Illustration" }
 pass 1 : raise everything (blocker, major, minor, nit), then sort
 pass 2 : blockers and majors down to zero
 pass 3 : non-regression and a clear verdict
@@ -1987,7 +1993,7 @@ On a large branch, 2 "blockers" on the list were wrong. Self-check before postin
 
 One or two sentences (the problem and the fix), and an applicable suggestion rather than prose:
 
-````
+```` { .text .ex-ref title="Reference" }
 ```suggestion:-0+0
 const hasMultipleDestinations = targets.length > 1;
 ```
@@ -2017,13 +2023,13 @@ When I apply feedback, I resolve the discussion. No need to reply "thanks, done"
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```typescript
+``` { .typescript .ex-bad title="Avoid" }
 // Avoid: if title is required, this fallback hides a data gap
 const title = product.title ?? product.name ?? "Untitled";
 ```
 If the <span class="term" data-term="api-contract">contract</span> says `title` is required, this fallback passes off a data gap as valid data. The test dataset looks fine, so does the interface, and the gap only shows up in <span class="term" data-term="production-env">production</span>.
 
-```typescript
+``` { .typescript .ex-good title="Recommended" }
 // What changes: the missing field raises an error instead of being hidden
 if (product.title === undefined) {
   throw new MissingFieldError("product.title");
@@ -2037,12 +2043,12 @@ Rule: a default is legitimate if the field is **optional** in the contract, it i
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: 128 is a magic number, nobody will know what it means
 if luminance > 128:
 ```
 Six months later, nobody knows whether 128 is a threshold, a buffer size or a coincidence.
-```python
+``` { .python .ex-good title="Recommended" }
 # What changes: the number gets a name and a docstring saying its role
 LUMINANCE_THRESHOLD = 128
 """Above this value, the text is drawn in black for contrast."""
@@ -2054,9 +2060,12 @@ LUMINANCE_THRESHOLD = 128
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: money as floats, rounding skews the result
 0.1 + 0.2        # 0.30000000000000004
+```
+
+``` { .python .ex-good title="Recommended" }
 # Good: money as integer cents, the math stays exact
 10 + 20          # 30 cents, exact
 ```
@@ -2068,7 +2077,7 @@ LUMINANCE_THRESHOLD = 128
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 A new responsibility becomes its own module, **in the same change**. Real case: a 1,385-line file, grown feature after feature with an "extract later" note. Nothing was ever extracted.
-```
+``` { .text .ex-ref title="Reference" }
 $ git diff origin/main...HEAD | grep -inE '^\+.*(todo|refactor later|extract later)'
 ```
 

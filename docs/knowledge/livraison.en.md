@@ -26,7 +26,7 @@ Delivering means getting a modification of the software all the way to users: a 
 
 **Continuous delivery**: every version that passes the pipeline is **ready** to go to production; a person still decides when. **Continuous deployment**: the same thing, without the human decision: every merge goes to production if all checks are green.
 
-```
+``` { .text .ex-illus title="Illustration" }
 continuous integration   push   lint + tests      merge into main
 continuous delivery      main   build + tests     version ready    "deploy" button (human)
 continuous deployment    main   build + tests     version ready    production (automatic)
@@ -79,7 +79,7 @@ flowchart LR
 
 A design doc skeleton with six headings, filled in for a short case (example figures):
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 # orders-service: stop losing orders when payments-service is slow
 
 ## Problem
@@ -104,7 +104,7 @@ Metric orders_pending_payment (count and age); alert if more than 50 orders have
 
 The ADR then keeps the decision alone, in a few lines:
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 # ADR 012: publish paid orders on a queue instead of calling email-service
 
 Status: accepted (2026-03-14)
@@ -163,7 +163,7 @@ An API's contract is set at this step: see [API first](api-rest-async.md#api-fir
 !!! noob "As noob"
     It is doing the dishes during the meal rather than once a week: each plate takes a minute, while a week of stacked dishes takes an evening, and a few glasses break on the way. The one thing to remember: **integrating often in small pieces costs less than integrating rarely in big chunks.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 long branches   day 1    ada creates feature/checkout
                 day 15   merge: 40 conflicting files, 2 days to resolve them
                 day 17   integration tests reveal an incompatibility with grace's work
@@ -215,7 +215,7 @@ Unfinished code is hidden behind a <span class="term" data-term="feature-flag">f
 !!! noob "As noob"
     A feature flag is the closed door of a room under renovation: the room already exists in the house, but nobody walks in until the door is opened. Branch by abstraction is fitting a standard socket on the wall so the appliance plugged in behind it can be swapped without rewiring. The one thing to remember: **putting code in production and opening it to users become two separate moves.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 step 1   PaymentGateway (interface)             orders-service only calls the interface
          └── LegacyPaymentClient                the old implementation, the only one wired
 
@@ -273,7 +273,7 @@ These checks run in two places. First on my machine, at commit time, as <span cl
 
 Example of a commit refused by a hook, with the pre-commit tool:
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git commit -m "feat(orders): partial refund"
 trim trailing whitespace.................................Passed
 check for added large files..............................Passed
@@ -288,12 +288,14 @@ Location:    src/orders/refunds.py:12
 
 I remove the key, read it from an environment variable, and commit again. Without the hook, the key would have gone into the Git history, visible in every clone. Deleting the line in a later commit is not enough: it stays in the history, so the key must be revoked too.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 import os
 
 # Avoid: the hardcoded key goes into the Git history on the first push, readable by anyone who clones the repository
 PAYMENTS_API_KEY = "a3f9c2e8-orders-prod-key-0042"
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: the key comes from the environment, injected by the CI or the secret manager, and the code fails early if it is missing
 PAYMENTS_API_KEY = os.environ["PAYMENTS_API_KEY"]
 ```
@@ -316,14 +318,16 @@ The families of checks, beyond lint and tests:
 
 A single file, `.pre-commit-config.yaml`, lists the hooks and their versions; the CI runs the same file with `pre-commit run --all-files` (or `prek run --all-files`), so the machine and the CI apply exactly the same rules. This only holds if each hook is pinned to a precise version: with a branch like `main`, each machine gets the version of the day it installed its hooks, and a new lint rule can fail the CI on code nobody touched.
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: rev follows a branch, so the hook version changes without warning and differs from one machine to another
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: main
     hooks:
       - id: ruff
+```
 
+``` { .yaml .ex-good title="Recommended" }
 # Good: each hook is pinned to a version, upgraded through a dedicated MR (Renovate or pre-commit autoupdate)
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -399,7 +403,7 @@ Both practices share the same pipeline, and a single thing separates them: who t
 !!! noob "As noob"
     In a kitchen, continuous delivery is the dish plated and set on the pass: it is ready, and the waiter decides when to bring it to the table. Continuous deployment is the dish that goes out to the dining room as soon as it passes the chef's check, without waiting for anyone. The one thing to remember: **continuous delivery, always ready and a human presses; continuous deployment, nobody presses.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 merge into main  10:00
   image build, tests, security scan                  10:00 to 10:08
   automatic deployment to the staging environment    10:09
@@ -428,7 +432,7 @@ flowchart LR
 
 The same pipeline written for GitLab CI. The version to avoid is common in a first pipeline written in a hurry: the deployment token shows up in the job logs (readable by every project member) as soon as the variable is not masked, each job downloads all dependencies again, and a red test does not stop the deployment.
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: secret printed in the logs, no cache, red tests tolerated, so the deployment goes out anyway
 test:
   stage: test
@@ -444,7 +448,7 @@ deploy:
     - ./deploy.sh --token "$DEPLOY_TOKEN"
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Good: tests block, the cache reuses dependencies, the secret is never printed
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -517,7 +521,7 @@ I just deployed a new version of `orders-service` and I am not yet sure it works
 
 <span class="term" data-term="stop-criteria">Stop criteria</span> are thresholds, written down before starting, beyond which we roll back without debate. A canary applying them (example figures):
 
-```
+``` { .text .ex-illus title="Illustration" }
 stop criterion: canary error rate > 2 x the old version's, then weight back to 0%
 
 14:00  canary at 5% of traffic
@@ -545,7 +549,7 @@ Trap: at 5% for 10 min there are few requests, and 2 errors out of 300 are enoug
 
 A feature flag opened "at 10%" must split **customers**, not requests. A frequent mistake draws lots on every call: the same customer sees the new checkout on one page and the old one on the next, their cart switches from one format to the other, and the step's metrics mix both versions.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 import random
 import zlib
 
@@ -555,8 +559,9 @@ ROLLOUT_PERCENT = 10
 # Avoid: a random draw on every request, so the same customer switches between the old and the new checkout
 def new_checkout_enabled(user_id: str) -> bool:
     return random.random() * 100 < ROLLOUT_PERCENT
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: a stable hash of the customer always puts them in the same bucket (crc32, not hash(), which changes on every Python start)
 def new_checkout_enabled(user_id: str) -> bool:
     bucket = zlib.crc32(f"checkout.new-flow:{user_id}".encode()) % 100
@@ -685,7 +690,7 @@ flowchart LR
   E --> RW["Rework<br/>deployments tagged as<br/>incident fix, over the total"]
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 deploy  sha      env   deployed at       oldest commit     linked incident  planned
 d-101   a1b2c3   prod  2026-10-06 10:12  2026-10-05 16:40  none             yes
 d-102   d4e5f6   prod  2026-10-06 15:30  2026-10-06 11:02  inc-7, 35 min    yes
@@ -774,7 +779,7 @@ flowchart LR
   A --> P
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 Plan    lead time is 5 days, 3 of them waiting for a review (example)
 Do      team rule: an MR gets a first review within half a day
 Check   4 weeks later: median lead time of 2 days

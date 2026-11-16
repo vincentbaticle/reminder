@@ -29,7 +29,7 @@ Les ports, les valeurs <span class="term" data-term="yaml">YAML</span> et les ro
 
 ### API, route, JSON
 Une **<span class="term" data-term="api">API</span>** est la porte d'entrée d'un service pour les autres programmes. Une **<span class="term" data-term="endpoint">route</span>** (ou endpoint) est une adresse précise de cette API. Les réponses sont souvent en **<span class="term" data-term="json">JSON</span>**, un format texte de données.
-```
+``` { .text .ex-illus title="Illustration" }
 GET /readyz         route de santé
 GET /v1/orders/42          route métier
 {"id": 42, "title": "..."}   réponse JSON
@@ -61,7 +61,7 @@ Une copie temporaire d'une donnée, gardée à portée de main pour répondre pl
 
 ### Deadlock (interblocage)
 Deux traitements s'attendent mutuellement et aucun ne peut avancer. L'appli tourne mais ne répond plus.
-```
+``` { .text .ex-illus title="Illustration" }
 traitement A : tient la ligne 1, attend la ligne 2
 traitement B : tient la ligne 2, attend la ligne 1
 ```
@@ -71,7 +71,7 @@ traitement B : tient la ligne 2, attend la ligne 1
 
 ### SLI, SLO, SLA
 Un **<span class="term" data-term="sli">SLI</span>** est l'indicateur mesuré, un **<span class="term" data-term="slo">SLO</span>** la cible interne que l'équipe se fixe sur cet indicateur, un **<span class="term" data-term="sla">SLA</span>** la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue. Le SLA est en général plus lâche que le SLO, pour que l'équipe réagisse avant de devoir payer. Exemple chiffré (chiffres d'exemple), le détail est dans [Observabilité](observabilite.md#sli-slo-budget-derreur) :
-```
+``` { .text .ex-illus title="Illustration" }
 SLI   part des requêtes de my-api sans 5xx ce mois-ci   99,93 %
 SLO   objectif interne de l'équipe                       99,9 % sur 30 jours
 SLA   promis au client, avoir de 10 % sinon              99,5 % par mois
@@ -86,7 +86,7 @@ SLA   promis au client, avoir de 10 % sinon              99,5 % par mois
 { .tool-rel }
 
 **<span class="term" data-term="kubernetes">Kubernetes</span>** (souvent abrégé K8s) est le système qui lance les applications dans des <span class="term" data-term="container">conteneurs</span>, les surveille, les redémarre et répartit le <span class="term" data-term="network-traffic">trafic</span>. Un **<span class="term" data-term="cluster">cluster</span>** est l'ensemble des machines qu'il gère, et chaque machine est un **<span class="term" data-term="node-k8s">nœud</span>** (node).
-```
+``` { .text .ex-illus title="Illustration" }
 cluster prod
 ├─ nœud 1 : pod my-api-abcde, pod worker-x1
 ├─ nœud 2 : pod my-api-fghij
@@ -124,7 +124,7 @@ L'objet Kubernetes qui dit « je veux 3 copies de my-api, avec telle <span class
 !!! noob "As noob"
     Le Deployment, c'est le chef d'équipe d'un restaurant : je lui dis « je veux toujours 3 cuisiniers », il en remplace un s'il tombe malade, et il les change un par un quand la recette évolue. La phrase à retenir : **je décris l'état voulu, Kubernetes s'occupe d'y rester.**
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : Deployment minimal, 3 copies de my-api
 kind: Deployment
 metadata:
@@ -154,7 +154,7 @@ Quand l'image change, le Deployment ne remplace pas tous les pods d'un coup : il
     C'est une relève d'équipe dans un magasin qui ne ferme jamais : un nouveau vendeur arrive, et c'est seulement quand il est à son poste qu'un ancien s'en va. Si le nouveau ne sait pas tenir la caisse, l'ancien reste et les clients ne voient rien. La phrase à retenir : **avec `maxUnavailable: 0`, un ancien pod n'est arrêté qu'une fois un nouveau prêt.**
 
 Le réglage qu'on croise encore : `Recreate`. Il arrête tous les pods avant de lancer les nouveaux, donc l'API ne répond plus pendant tout le démarrage, et reste coupée si la nouvelle version ne démarre pas. Il ne se justifie que si deux versions ne peuvent pas tourner en même temps (par exemple une seule copie qui tient un verrou exclusif).
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : Recreate arrête les 3 pods avant de lancer les nouveaux, donc une coupure à chaque déploiement
 spec:
   replicas: 3
@@ -162,7 +162,7 @@ spec:
     type: Recreate
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : rolling update, un pod en plus à la fois, aucun pod prêt retiré avant
 spec:
   replicas: 3
@@ -172,7 +172,7 @@ spec:
       maxUnavailable: 0
 ```
 Passage de 1.4.0 à 1.4.1 avec ces réglages (heures en exemple) :
-```
+``` { .text .ex-illus title="Illustration" }
 heure     pods 1.4.0   pods 1.4.1          total
 10:00:00  3 prêts      0                   3
 10:00:01  3 prêts      1 démarre           4   (maxSurge : un pod de plus)
@@ -185,7 +185,7 @@ heure     pods 1.4.0   pods 1.4.1          total
 Avec `maxUnavailable: 0`, il y a toujours 3 pods prêts. Si les pods 1.4.1 ne deviennent jamais prêts, le rollout reste bloqué et les 1.4.0 continuent de servir.
 
 Revenir à la version précédente (<span class="term" data-term="rollback">rollback</span>) refait le même mouvement dans l'autre sens :
-```
+``` { .text .ex-ref title="Référence" }
 $ kubectl rollout status deployment/my-api
 deployment "my-api" successfully rolled out
 $ kubectl rollout undo deployment/my-api
@@ -202,7 +202,7 @@ Les pods naissent et meurent, et leur adresse IP change à chaque fois. Un **<sp
 !!! noob "As noob"
     Le Service, c'est le numéro du standard d'une entreprise : les employés changent de bureau et de ligne directe, mais j'appelle toujours le même numéro, et le standard me passe quelqu'un de disponible. La phrase à retenir : **on appelle le Service, jamais un pod directement, parce que les pods changent d'adresse.**
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : Service qui envoie le port 80 vers le port 8080 des pods app=my-api
 kind: Service
 metadata:
@@ -214,7 +214,7 @@ spec:
     - port: 80
       targetPort: 8080
 ```
-```
+``` { .text .ex-illus title="Illustration" }
 Service my-api (http://my-api:80)
 ├─ pod my-api-7f9c-abcde   label app=my-api, prêt       reçoit du trafic
 ├─ pod my-api-7f9c-fghij   label app=my-api, prêt       reçoit du trafic
@@ -245,7 +245,7 @@ flowchart LR
 
 La plus petite unité que Kubernetes fait tourner. Il contient un ou plusieurs <span class="term" data-term="container">conteneurs</span>.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Deployment my-api (prod)
 ├─ pod my-api-7f9c-abcde   (conteneur my-api)
 ├─ pod my-api-7f9c-fghij   (conteneur my-api)
@@ -261,7 +261,7 @@ Les 3 <span class="term" data-term="pod">pods</span> sont identiques, et le <spa
 ### Conteneur
 L'appli empaquetée avec tout ce qu'il lui faut pour tourner, à partir d'une <span class="term" data-term="docker-image">image Docker</span>.
 
-```
+``` { .text .ex-illus title="Illustration" }
 image my-api:1.4.2
 ├─ Python 3.12
 ├─ dépendances (requirements)
@@ -277,7 +277,7 @@ image my-api:1.4.2
 Une <span class="term" data-term="http-request">requête</span> que Kubernetes envoie tout seul, à intervalle régulier, pour vérifier l'état d'un conteneur. Il agit ensuite selon la réponse.
 
 L'erreur classique : faire pointer la liveness sur la même route que la readiness. Cette route interroge MySQL, donc le jour où la base tombe, la liveness de tous les pods échoue et Kubernetes les redémarre tous en boucle. Avec `failureThreshold: 1`, une seule pause de quelques secondes (un ramasse-miettes un peu long) suffit en plus à tuer le conteneur.
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : liveness sur /readyz, qui dépend de MySQL, et un seul échec suffit pour redémarrer
 livenessProbe:
   httpGet:
@@ -287,7 +287,7 @@ livenessProbe:
   failureThreshold: 1
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : readiness, retire le pod du trafic après 3 échecs
 readinessProbe:
   httpGet:
@@ -313,7 +313,7 @@ livenessProbe:
 
 « <span class="term" data-term="readiness-probe">Readiness</span> » veut dire « le fait d'être prêt ». La question est : « es-tu prêt à recevoir du trafic ? » Si la probe échoue, le pod ne reçoit plus de trafic, mais il n'est pas tué.
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00:00  GET /readyz  200  pod dans le circuit
 10:00:10  GET /readyz  503  MySQL injoignable
 10:00:20  GET /readyz  503
@@ -331,7 +331,7 @@ livenessProbe:
 !!! noob "As noob"
     La readiness, c'est le serveur de restaurant débordé qui dit « ne m'envoie plus de tables pour l'instant » : on arrête de lui en donner, mais il reste en salle. La liveness, c'est le serveur figé qui ne répond plus du tout : on le fait sortir et revenir frais. La phrase à retenir : **readiness en échec retire le pod du trafic, liveness en échec redémarre le conteneur.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00:00  GET /livez  200      OK
 10:00:30  GET /livez  timeout  appli bloquée (deadlock)
 10:01:00  GET /livez  timeout
@@ -349,7 +349,7 @@ livenessProbe:
 !!! noob "As noob"
     C'est le premier jour d'un nouvel arrivant : tant qu'il n'a pas fini de s'installer, personne ne lui reproche de ne pas répondre au téléphone. Une fois installé, les règles habituelles s'appliquent. Limite : s'il ne finit jamais de s'installer dans le délai prévu, le conteneur est quand même redémarré. La phrase à retenir : **la startup probe protège le démarrage, puis passe la main à la liveness et à la readiness.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00:00  conteneur lancé, chargement du cache (40 s)
 10:00:10  startup probe  échec  (normal, encore en démarrage)
 10:00:40  startup probe  200    démarrage terminé
@@ -389,7 +389,7 @@ Piège classique : je mets la vérification de la <span class="term" data-term="
 ### Health check
 Terme générique pour « vérification de santé ». Les probes sont la version Kubernetes du <span class="term" data-term="health-check">health check</span>.
 
-```
+``` { .text .ex-ref title="Référence" }
 $ curl -i http://localhost:8080/livez
 HTTP/1.1 200 OK
 ```
@@ -406,14 +406,14 @@ Chaque conteneur déclare ce qu'il consomme. La **request** est ce que Kubernete
     La request, c'est ma place réservée dans un train : Kubernetes ne me fait monter que dans une voiture où cette place est libre. La limit, c'est le maximum autorisé : trop de CPU et on me ralentit, trop de mémoire et on me fait descendre (le conteneur est tué puis redémarré). La phrase à retenir : **la request sert à placer le pod, la limit sert à le contenir.**
 
 L'oubli fréquent : aucun bloc `resources`. Le pod passe alors dans la classe *BestEffort* : Kubernetes le place sans rien réserver, il peut prendre toute la mémoire du nœud, il est le premier expulsé quand le nœud en manque, et le HPA n'a pas de base pour calculer son pourcentage.
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : aucun bloc resources, rien n'est réservé ni plafonné
 containers:
   - name: my-api
     image: my-api:1.4.0
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : réserve 250m de CPU et 256Mi, plafonne à 1 CPU et 512Mi
 resources:
   requests:
@@ -426,7 +426,7 @@ resources:
 `250m` veut dire 0,25 cœur de CPU. `Mi` est un mébioctet.
 
 Diagnostic d'un pod qui redémarre :
-```
+``` { .text .ex-ref title="Référence" }
 $ kubectl describe pod my-api-7f9c-abcde
 ...
     State:          Running
@@ -475,7 +475,7 @@ Le chemin d'une modification jusqu'à la production : on emballe l'application d
     L'image, c'est un plat préparé sous vide : tout est dedans, et il a le même goût dans n'importe quelle cuisine équipée du même four (un moteur de conteneurs). Le conteneur, c'est une assiette de ce plat en train d'être servie : un même sachet peut en remplir plusieurs. La phrase à retenir : **l'image est le modèle figé, le conteneur est une exécution de ce modèle.**
 
 La version qu'on écrit au premier jet marche, mais `python:latest` peut passer d'une version de Python à la suivante d'un build à l'autre, `COPY . .` placé avant l'installation relance `pip install` à chaque ligne de code modifiée, et sans `USER` l'appli tourne en root : une faille dans l'appli donne alors les droits root dans le conteneur.
-```dockerfile
+``` { .dockerfile .ex-bad title="À éviter" }
 # À éviter : image latest, code copié avant les dépendances, appli lancée en root
 FROM python:latest
 WORKDIR /app
@@ -484,7 +484,7 @@ RUN pip install -r requirements.txt
 CMD ["uvicorn", "my_api.main:app", "--host", "0.0.0.0", "--port", "8080"]
 ```
 
-```dockerfile
+``` { .dockerfile .ex-good title="Recommandé" }
 # Bien : image Python de my-api, lancée en utilisateur non root (USER 1000)
 FROM python:3.12-slim
 WORKDIR /app
@@ -495,7 +495,7 @@ USER 1000
 CMD ["uvicorn", "my_api.main:app", "--host", "0.0.0.0", "--port", "8080"]
 ```
 
-```
+``` { .text .ex-ref title="Référence" }
 $ docker build -t my-api:1.4.0 .
 $ docker run -p 8080:8080 my-api:1.4.0
 $ curl localhost:8080/readyz
@@ -528,7 +528,7 @@ L'image de `my-api` fait 1,1 Go, et chaque ligne de code modifiée relance l'ins
 
 À éviter : le code copié avant l'installation, sur l'image complète `python:3.12`. Toute modification d'un fichier invalide la couche, donc toutes les dépendances se réinstallent à chaque build ; l'image embarque compilateurs, outils de test et lint, `uv sync` sans `--frozen` peut résoudre d'autres versions d'un build à l'autre, et l'appli tourne en root.
 
-```dockerfile
+``` { .dockerfile .ex-bad title="À éviter" }
 # À éviter : code copié avant les dépendances, image complète, outils de dev en production, root
 FROM python:3.12
 WORKDIR /app
@@ -537,7 +537,7 @@ RUN pip install uv && uv sync
 CMD ["uv", "run", "uvicorn", "my_api.main:app", "--host", "0.0.0.0"]
 ```
 
-```dockerfile
+``` { .dockerfile .ex-good title="Recommandé" }
 # syntax=docker/dockerfile:1
 # Bien : base commune, uv copié depuis son image officielle
 FROM python:3.12-slim AS base
@@ -571,7 +571,7 @@ CMD ["/app/.venv/bin/uvicorn", "my_api.main:app", "--host", "0.0.0.0"]
 
 Le `.dockerignore` à côté :
 
-```
+``` { .text .ex-ref title="Référence" }
 .git
 .venv
 .uv-cache
@@ -580,7 +580,7 @@ tests
 *.md
 ```
 
-```
+``` { .text .ex-ref title="Référence" }
 $ docker build --target dev -t my-api:dev .
 $ docker build --target prod -t my-api:1.4.0 .
 ```
@@ -611,7 +611,7 @@ Règle : **la même image partout, la config change par environnement**. L'image
 !!! noob "As noob"
     C'est une voiture de location : le même modèle sort du garage pour chaque client, seuls les réglages (ConfigMap) et la clé (Secret) changent. Limite : par défaut, un Secret est seulement encodé, pas chiffré, donc qui peut le lire doit rester restreint. La phrase à retenir : **on ne reconstruit pas l'image pour changer d'environnement, on change sa config.**
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : ConfigMap avec la config non secrète de my-api
 kind: ConfigMap
 metadata:
@@ -622,7 +622,7 @@ data:
 ```
 
 Ce que je trouve encore dans des dépôts : le mot de passe écrit en clair dans le manifeste, donc lisible par quiconque peut lire Git, et une image `latest`, donc impossible de savoir quelle version tourne ni de revenir à la précédente, puisque chaque nœud a pu tirer une image `latest` différente.
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : image latest et mot de passe en clair dans le manifeste versionné
 containers:
   - name: my-api
@@ -633,7 +633,7 @@ containers:
 ```
 
 Le Deployment lit les deux dans `env` :
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : LOG_LEVEL lu dans le ConfigMap, DB_PASSWORD dans le Secret
 containers:
   - name: my-api
@@ -673,7 +673,7 @@ Pièges : un Secret est seulement encodé en base64, pas chiffré, donc jamais e
 !!! noob "As noob"
     Un chart, c'est un modèle de lettre avec des champs à remplir (« Bonjour {nom} ») ; le fichier de values, c'est la liste des destinataires. La même lettre part à staging avec 2 copies et à la prod avec 3. La phrase à retenir : **le chart décrit la forme une seule fois, les values disent ce qui change par environnement.**
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # templates/deployment.yaml (extrait)
 # Exemple : modèle Helm, le nom et le nombre de copies viennent des values
 kind: Deployment
@@ -682,14 +682,14 @@ metadata:
 spec:
   replicas: {{ .Values.replicaCount }}
 ```
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # values-staging.yaml
 # Exemple : values de staging, 2 copies
 replicaCount: 2
 image:
   tag: "1.4.0"
 ```
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # values-prod.yaml
 # Exemple : values de prod, 3 copies de la même image
 replicaCount: 3
@@ -697,7 +697,7 @@ image:
   tag: "1.4.0"
 ```
 `helm template` affiche le résultat sans rien installer :
-```
+``` { .text .ex-ref title="Référence" }
 $ helm template my-api ./chart -f values-staging.yaml
 kind: Deployment
 metadata:
@@ -744,7 +744,7 @@ flowchart LR
 
 **Les values en couches.** Helm accepte plusieurs fichiers `-f` : le suivant écrase le précédent, clé par clé. On met le commun dans `values.yaml`, et seulement les différences dans le fichier de l'environnement.
 
-```yaml title="values.yaml (commun à tous les environnements)"
+``` { .yaml .ex-ref title="Référence · values.yaml (commun à tous les environnements)" }
 # Exemple : image, port, probes et ressources communs à tous les environnements
 image:
   repository: registry.example.com/my-api
@@ -757,7 +757,7 @@ resources:
   requests: {cpu: 100m, memory: 256Mi}
 ```
 
-```yaml title="values-prod.yaml (seulement ce qui change)"
+``` { .yaml .ex-ref title="Référence · values-prod.yaml (seulement ce qui change)" }
 # Exemple : la prod ne déclare que ses copies et son autoscaling
 replicas: 3
 autoscaling:
@@ -765,7 +765,7 @@ autoscaling:
   maxReplicas: 10
 ```
 
-```
+``` { .text .ex-ref title="Référence" }
 $ helm template my-api platform/generic --version 3.2.0 \
     -f values.yaml -f values-prod.yaml
 ```
@@ -878,7 +878,7 @@ L'<span class="term" data-term="autoscaling">autoscaling</span> ajuste la capaci
 !!! noob "As noob"
     Je pense à un supermarché : ouvrir plus de caisses quand la file s'allonge (étage pods), et ouvrir une salle de plus quand il n'y a plus la place d'installer une caisse (étage nœuds). La première action prend quelques secondes, la seconde plus longtemps. La phrase à retenir : **l'étage pods ajoute des copies, l'étage nœuds ajoute de la place pour les accueillir.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 étage pods   : combien de copies de my-api ?        HPA, KEDA, Knative
 étage nœuds  : combien de machines dans le cluster ? Cluster Autoscaler, Karpenter
 ```
@@ -929,7 +929,7 @@ flowchart LR
   P -->|"consomment du CPU"| MS
 ```
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : HPA qui vise 70 % de CPU moyen, entre 2 et 10 pods
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -953,7 +953,7 @@ spec:
 
 Le calcul : pods voulus = arrondi supérieur de (pods actuels × usage actuel / cible).
 
-```
+``` { .text .ex-illus title="Illustration" }
 heure  pods  CPU moyen (en % de la request)   décision
 12:00  3     140 %                            3 × 140 / 70 = 6 pods
 12:02  6     72 %                             proche de la cible : rien
@@ -995,7 +995,7 @@ Pièges :
 { .tool-rel }
 
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : KEDA dimensionne email-worker selon le lag Kafka, de 0 à 12 pods
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -1030,7 +1030,7 @@ flowchart LR
   P -->|"lisent les messages"| K
 ```
 
-```
+``` { .text .ex-illus title="Illustration" }
 heure  lag du groupe email-worker   pods
 02:00  0                            0
 02:01  1 200                        1 (réveil par KEDA), puis 12 (1 200 / 100)
@@ -1061,7 +1061,7 @@ Même idée sur RabbitMQ : `type: rabbitmq`, avec `queueName: invoice-emails`, `
 
 **Comment** : on décrit un `Service` Knative (différent du [Service](#service) Kubernetes). Knative crée Deployment, Service et routage, et un composant (l'*activator*) retient les requêtes pendant qu'un pod démarre.
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : Service Knative de 0 à 10 pods, cible de 20 requêtes simultanées par pod
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -1101,7 +1101,7 @@ spec:
 - **Cluster Autoscaler** (projet Kubernetes historique) agrandit ou réduit des **groupes de nœuds** définis à l'avance (« groupe e2-standard-4, de 3 à 20 machines »). Simple, présent chez tous les fournisseurs, mais il ne choisit pas le type de machine.
 - **Karpenter** (créé par AWS en 2021, version 1.0 en 2024, à vérifier) regarde les pods en attente et commande directement la machine qui leur convient, sans groupe prédéfini. Il **consolide** aussi : il replace les pods pour éteindre les nœuds sous-utilisés. Il peut viser des <span class="term" data-term="spot-instance">machines spot</span>. Il tourne surtout sur AWS, et sur Azure via son équivalent intégré (à vérifier pour les autres fournisseurs).
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : NodePool Karpenter, spot ou à la demande, consolide les nœuds sous-utilisés
 apiVersion: karpenter.sh/v1
 kind: NodePool
@@ -1203,7 +1203,7 @@ flowchart LR
 
 **Comment** : on installe l'opérateur (souvent par un chart [Helm](#helm-le-modele-de-deploiement)), puis on écrit ses ressources dans Git, et [Argo CD](#argo-cd-git-decide-de-ce-qui-tourne) les applique comme le reste. Exemple avec **Strimzi**, l'opérateur Kafka de la CNCF (projet en incubation, à vérifier) :
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : cluster Kafka géré par l'opérateur Strimzi
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
@@ -1219,7 +1219,7 @@ spec:
   entityOperator:
     topicOperator: {}
 ```
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : topic orders (6 partitions, 3 répliques), créé par l'opérateur
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
@@ -1234,7 +1234,7 @@ spec:
 
 Extrait simplifié : les versions récentes demandent aussi un `KafkaNodePool` qui décrit les brokers (nombre, disques), et les versions d'API changent (à vérifier dans la documentation Strimzi). Créer le topic `orders` revient à faire une MR qui ajoute ce fichier : Strimzi le crée dans Kafka, et le remet si quelqu'un le supprime à la main.
 
-```
+``` { .text .ex-ref title="Référence" }
 $ kubectl get kafkatopic orders
 NAME     CLUSTER   PARTITIONS   REPLICATION FACTOR   READY
 orders   events    6            3                    True

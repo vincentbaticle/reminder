@@ -89,7 +89,7 @@ flowchart TB
 
 **Origin**: Frederick Brooks, "The Mythical Man-Month" (1975). Brooks himself calls it an outrageous oversimplification in the 1995 anniversary edition.
 
-```
+``` { .text .ex-illus title="Illustration" }
 communication channels = n × (n - 1) / 2
 4 people  :  6 channels
 8 people  : 28 channels
@@ -111,7 +111,7 @@ newcomer  : 2 to 4 weeks before being useful (example), while taking time from a
 
 **Origin**: Cyril Northcote Parkinson, article in The Economist, November 1955. In his book "Parkinson's Law" (1957) he also describes the law of triviality: a committee spends more time on the bike shed than on the nuclear plant, hence the word "bikeshedding" (Poul-Henning Kamp, FreeBSD mailing list, 1999).
 
-```
+``` { .text .ex-illus title="Illustration" }
 2-week sprint, task estimated at 3 days
 days 1 to 3  : the feature works
 days 4 to 10 : "while we're at it" refactoring, options, polish
@@ -130,7 +130,7 @@ days 4 to 10 : "while we're at it" refactoring, options, polish
 
 **Origin**: Laurence J. Peter and Raymond Hull, "The Peter Principle" (1969), a satirical book. A study on salespeople (Benson, Li and Shue, "Promotions and the Peter Principle", 2019, to check) finds a measurable effect: the best salespeople, once promoted, become weaker managers.
 
-```
+``` { .text .ex-illus title="Illustration" }
 ada, best developer of team-core  ──  promoted to manager
 skill assessed : code
 skill required : hiring, arbitrating, growing others
@@ -149,7 +149,7 @@ skill required : hiring, arbitrating, growing others
 
 **Origin**: Derek J. de Solla Price, "Little Science, Big Science" (1963), about scientific publications.
 
-```
+``` { .text .ex-illus title="Illustration" }
 100 contributors to a repository : ~10 make half of the commits
 400 contributors                 : ~20 make half of the commits
 ```
@@ -169,7 +169,7 @@ skill required : hiring, arbitrating, growing others
 
 **Origin**: an expression from the 1990s, uncertain attribution (to check). Avelino et al., "A Novel Approach for Estimating Truck Factors" (2016), find a <span class="term" data-term="bus-factor">bus factor</span> of 1 or 2 on most of the 133 popular GitHub projects studied (to check).
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git shortlog -sn --since="1 year" -- billing/
    412  ada
      9  grace
@@ -202,7 +202,7 @@ bus factor of billing/: 1
 
 **Origin**: Douglas Hofstadter, "Gödel, Escher, Bach" (1979), about chess programs.
 
-```
+``` { .text .ex-illus title="Illustration" }
 estimate                           : 2 weeks
 "careful" estimate with a Hofstadter margin : 3 weeks
 actual                             : 5 weeks
@@ -221,7 +221,7 @@ actual                             : 5 weeks
 
 **Origin**: Tom Cargill (Bell Labs), quoted by Jon Bentley in his "Programming Pearls" column, Communications of the ACM, September 1985.
 
-```
+``` { .text .ex-illus title="Illustration" }
 weeks 1 to 4 : the happy path works, demo succeeds  ("90% done")
 weeks 5 to 8 : errors, retries, migration, permissions, logs, docs
 total        : 180% of the planned time
@@ -240,7 +240,7 @@ total        : 180% of the planned time
 
 **Origin**: Vilfredo Pareto, "Cours d'économie politique" (1896), on land distribution in Italy. The name <span class="term" data-term="pareto-principle">Pareto principle</span> comes from Joseph Juran, in the 1940s and 1950s (to check).
 
-```
+``` { .text .ex-illus title="Illustration" }
 orders-service, bugs over the last 12 months (example)
 module          share of code   share of bugs
 checkout        15%             62%
@@ -264,7 +264,7 @@ the rest        75%             17%
 
 **Origin**: Daniel Kahneman and Amos Tversky, "Intuitive Prediction: Biases and Corrective Procedures" (1979). The remedy proposed later is <span class="term" data-term="reference-class-forecasting">reference class forecasting</span> (Kahneman and Dan Lovallo, 1993; Bent Flyvbjerg, 2006).
 
-```
+``` { .text .ex-illus title="Illustration" }
 inside view  : "the migration takes 3 sprints, we know the code"
 outside view : our last 5 migrations took 4, 6, 5, 9 and 7 sprints
 corrected estimate : 6 sprints, the median of past cases
@@ -272,7 +272,7 @@ corrected estimate : 6 sprints, the median of past cases
 
 **In practice**: start from the real durations of similar projects, then adjust, rather than adding up tasks. It is the basis of <span class="term" data-term="throughput-forecasting">throughput forecasting</span>: I count the tickets actually finished per week, instead of adding up estimates.
 
-```
+``` { .text .ex-illus title="Illustration" }
 throughput, last 6 weeks : 6, 9, 8, 7, 10, 8 tickets finished (median 8)
 remaining                : 40 tickets
 forecast                 : 40 / 8 = about 5 weeks
@@ -308,7 +308,7 @@ The figures are examples. Measured throughput already contains everything estima
 
 **Origin**: Charles Goodhart, economist, in papers on monetary policy presented in 1975: "any observed statistical regularity will tend to collapse once pressure is placed upon it for control purposes". The famous sentence is by the anthropologist Marilyn Strathern, "Improving ratings: audit in the British University system" (1997).
 
-```
+``` { .text .ex-illus title="Illustration" }
 target : 80% code coverage on my-api
 result : coverage goes from 55% to 81% in a month
 reality: 120 tests added without assertions, not one extra bug caught
@@ -335,7 +335,7 @@ flowchart LR
 
 **Origin**: Donald T. Campbell, "Assessing the Impact of Planned Social Change" (1976, published in a journal in 1979).
 
-```
+``` { .text .ex-illus title="Illustration" }
 target : fewer than 3 major incidents per quarter
 effect : incidents get declared "minor", postmortems disappear
 in the end: fewer incidents counted, as many outages, less learning
@@ -373,7 +373,7 @@ in the end: fewer incidents counted, as many outages, less learning
 
 **Origin**: Hyrum Wright, engineer at Google, stated around 2012 (date to check), published on hyrumslaw.com and popularized by "Software Engineering at Google" (2020).
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: billing-service depends on the error text of orders-service, outside the contract
 if "insufficient stock" in response.json()["detail"]:
     retry_later()
@@ -382,7 +382,7 @@ if "insufficient stock" in response.json()["detail"]:
 
 **In practice**: a client can depend on anything it sees, even outside the contract, like `billing-service` reading the text of an error message. So any visible change is potentially a <span class="term" data-term="breaking-change">breaking change</span>. Publish stable error codes, randomize what must not be relied on (key order, for example, so that no client can depend on it), and prepare <span class="term" data-term="deprecation">deprecations</span> with an inventory of real usages. Details in [Developer experience](devx.md).
 
-```go
+``` { .go .ex-good title="Recommended" }
 // Good: Go randomizes map order, so no client can rely on it
 m := map[string]int{"a": 1, "b": 2, "c": 3}
 for k := range m {
@@ -406,7 +406,7 @@ for k := range m {
 
 **Origin**: Jon Postel, RFC 760 (IP specification, January 1980), repeated in RFC 761 (TCP, 1980). Official critique: Martin Thomson and David Schinazi, RFC 9413 "Maintaining Robust Protocols" (June 2023), after Eric Allman, "The Robustness Principle Reconsidered", ACM Queue (2011).
 
-```
+``` { .text .ex-illus title="Illustration" }
 a proxy accepts a malformed header and fixes it its own way
 the server behind it reads it differently
 two different readings of the same request: an open door to "request smuggling"
@@ -414,7 +414,7 @@ two different readings of the same request: an open door to "request smuggling"
 
 **<span class="term" data-term="request-smuggling">Request smuggling</span>**: two servers in a row, a proxy then the application, split the same HTTP request differently. What the proxy sees as the body of a single request, the application reads as the start of a second request, which thus escapes the proxy's checks.
 
-```
+``` { .text .ex-illus title="Illustration" }
 POST /orders HTTP/1.1
 Content-Length: 30
 Transfer-Encoding: chunked
@@ -447,7 +447,7 @@ The fix: reject any request carrying both headers or an ambiguous header, instea
 
 The same principle in my own code: an ambiguous date format accepted "to be helpful" ends up read two different ways by two services.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: guessing the format; "03/04/2026" gives 3 April here, 4 March in a service that tries the US format first
 def parse_date(raw: str) -> date:
     for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y"):
@@ -456,8 +456,9 @@ def parse_date(raw: str) -> date:
         except ValueError:
             continue
     raise ValueError(raw)
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: a single documented format, everything else is refused with a clear message
 def parse_date(raw: str) -> date:
     try:
@@ -477,10 +478,12 @@ def parse_date(raw: str) -> date:
 
 **Origin**: Brian Kernighan and P. J. Plauger, "The Elements of Programming Style" (first edition in 1974, the quote is often tied to the second edition of 1978, to check).
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: clever, but everything sits on one line that is hard to debug
 r = {k: v for d in ds for k, v in d.items() if v and not k.startswith("_")}
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: debuggable, one step per line
 result = {}
 for d in ds:
@@ -505,7 +508,7 @@ for d in ds:
 
 **Origin**: John Gall, "General Systemantics" (1975), often reissued under the title "Systemantics".
 
-```
+``` { .text .ex-illus title="Illustration" }
 v1 : a monolith, one database, one deployment a day          (works)
 v2 : billing-service extracted when the team doubles         (works)
 counterexample: 12 microservices, an event bus and a service mesh on day 1
@@ -527,7 +530,7 @@ counterexample: 12 microservices, an event bus and a service mesh on day 1
 
 **Origin**: Meir M. Lehman, from studies of IBM's OS/360: first laws in 1974, eight laws in total by 1996. Reference paper: "Programs, Life Cycles, and Laws of Software Evolution", Proceedings of the IEEE (1980).
 
-```
+``` { .text .ex-illus title="Illustration" }
 year   features   dependencies   build time   (example)
 2022   40         35             4 min
 2024   65         80             11 min
@@ -547,7 +550,7 @@ year   features   dependencies   build time   (example)
 
 **Origin**: Jamie Zawinski, developer at Netscape, 1990s (exact date to check). The Jargon File lists it as the "Law of Software Envelopment".
 
-```
+``` { .text .ex-illus title="Illustration" }
 ticketing tool, v1 : tickets
 v3 : + comments + notifications
 v6 : + built-in chat + wiki + dashboards + AI
@@ -566,7 +569,7 @@ v6 : + built-in chat + wiki + dashboards + AI
 
 **Origin**: Eric S. Raymond, "The Cathedral and the Bazaar" (essay in 1997, book in 1999), who named it in honor of Linus Torvalds.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Heartbleed (CVE-2014-0160), OpenSSL
 bug introduced in 2011 and released in 2012, found in April 2014 (dates to check)
 open source code, used everywhere, reviewed by very few people
@@ -585,7 +588,7 @@ open source code, used everywhere, reviewed by very few people
 
 **Origin**: Niklaus Wirth, "A Plea for Lean Software", IEEE Computer, February 1995. Wirth himself attributes it to Martin Reiser.
 
-```
+``` { .text .ex-illus title="Illustration" }
 text editor, 1995 : ~5 MB of memory
 text editor, 2026 : ~500 MB of memory (example, an app bundling a browser)
 perceived startup time : comparable
@@ -593,13 +596,15 @@ perceived startup time : comparable
 
 **In practice**: without a safeguard, my app grows a little with every release and nobody notices. A performance budget (load time, memory, bundle size) checked in CI stops that slow drift. Example rule: the front bundle stays under 250 KB, otherwise the pipeline fails.
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: the size is printed but never compared with the budget, the job stays green at 600 KB
 perf-budget:
   script:
     - npm run build
     - du -h dist/main.js
+```
 
+``` { .yaml .ex-good title="Recommended" }
 # Good: size budget checked in CI, the pipeline fails above 250 KB
 perf-budget:
   script:
@@ -619,14 +624,14 @@ perf-budget:
 
 **Origin**: attributed to Edward A. Murphy Jr., an engineer on US Air Force rocket sled tests around 1949. Accounts differ on the exact sentence and its author (to check).
 
-```
+``` { .text .ex-illus title="Illustration" }
 "that case never happens"
 1 request in 1,000,000 × 50,000,000 requests a month = 50 times a month
 ```
 
 **In practice**: at scale, the rare becomes daily: a one-in-a-million case happens 50 times a month when I serve 50 million requests. So I test error paths, I set <span class="term" data-term="timeout">timeouts</span>, I rehearse failures (<span class="term" data-term="chaos-engineering">chaos engineering</span>, recovery drills). Chaos engineering means causing a controlled failure on purpose to check a resilience hypothesis:
 
-```
+``` { .text .ex-illus title="Illustration" }
 hypothesis  : if a billing-service pod dies, orders-service answers an error within 2 s
 experiment  : in staging, kubectl delete pod billing-service-7f9c-abcde
 measurement : POST /orders returns 503 in 1.2 s, no half-created order
@@ -661,7 +666,7 @@ conclusion  : hypothesis holds; a request hanging for 30 s would have revealed a
 
 **Origin**: Gene Amdahl, "Validity of the Single Processor Approach to Achieving Large Scale Computing Capabilities", AFIPS Spring Joint Computer Conference (1967). The formula was written later from his argument.
 
-```
+``` { .text .ex-illus title="Illustration" }
 S(N) = 1 / ((1 - p) + p / N)        p = parallelizable share, N = number of cores
 
 p = 0.9 :  N = 10   S ≈ 5.3
@@ -687,7 +692,7 @@ p = 0.9 :  N = 10   S ≈ 5.3
 
 **Origin**: John L. Gustafson, "Reevaluating Amdahl's Law", Communications of the ACM (May 1988).
 
-```
+``` { .text .ex-illus title="Illustration" }
 S(N) = N - s × (N - 1)        s = sequential share measured on the parallel system
 
 s = 0.1 :  N = 10   S = 9.1
@@ -710,7 +715,7 @@ s = 0.1 :  N = 10   S = 9.1
 
 **Origin**: John D. C. Little, "A Proof for the Queuing Formula: L = λW", Operations Research (1961).
 
-```
+``` { .text .ex-illus title="Illustration" }
 100 requests/s × 0.3 s = 30 requests in flight
 latency rises to 3 s: 300 requests in flight, the pool of 50 connections saturates
 ```
@@ -737,7 +742,7 @@ flowchart LR
 
 **Origin**: Neil Gunther, introduced in 1993, developed in "Guerrilla Capacity Planning" (2007).
 
-```
+``` { .text .ex-illus title="Illustration" }
 C(N) = N / (1 + α(N - 1) + βN(N - 1))     α = contention, β = coordination
 α = 0.05, β = 0.001 (example): peak around N = sqrt((1 - α) / β) ≈ 31 instances
 beyond that, adding instances lowers throughput
@@ -761,7 +766,7 @@ beyond that, adding instances lowers throughput
 
 **Origin**: Gordon Moore, "Cramming More Components onto Integrated Circuits", Electronics (April 1965): doubling every year. He revised it in 1975: doubling every two years. The often quoted "18 months" comes from someone else at Intel, David House (to check).
 
-```
+``` { .text .ex-illus title="Illustration" }
 doubling every 2 years over 20 years: 2^10 ≈ 1,000 times more transistors
 ```
 
@@ -790,22 +795,24 @@ doubling every 2 years over 20 years: 2^10 ≈ 1,000 times more transistors
 
 **Origin**: G. K. Chesterton, "The Thing" (1929), chapter "The Drift from Domesticity".
 
-```python
+``` { .python .ex-illus title="Illustration" }
 # Example: a Chesterton fence, an odd line with no explanation
 time.sleep(0.2)  # nobody knows why
 ```
-```
+``` { .text .ex-ref title="Reference" }
 $ git log -S "time.sleep(0.2)" --oneline
 3f2a9c1 fix: the provider API refuses more than 5 calls per second
 ```
 
 **In practice**: I come across a rule, a config or a strange piece of code and want to remove it. I first find out why it is there: `git log`, linked ticket, a question to the team. If nobody knows, I remove it in reversible steps.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the pause is removed "because it does nothing", the provider answers 429 at the first burst of sends
 for invoice in invoices:
     provider.send(invoice)
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: the fence stays, with its reason written next to it
 for invoice in invoices:
     provider.send(invoice)
@@ -823,7 +830,7 @@ for invoice in invoices:
 
 **Origin**: Robert J. Hanlon, submitted to Arthur Bloch's "Murphy's Law Book Two" (1980). Close phrasings exist earlier, including Robert Heinlein in 1941 (to check).
 
-```
+``` { .text .ex-illus title="Illustration" }
 Monday 9 am: main is broken by a merge from grace
 malicious reading : "she never tests anything"
 Hanlon reading    : CI did not run the integration tests on that branch
@@ -842,7 +849,7 @@ Hanlon reading    : CI did not run the integration tests on that branch
 
 **Origin**: attributed to William of Ockham, 14th century. The phrase "entities must not be multiplied beyond necessity" does not appear as such in his writings: it is from John Punch (1639, to check).
 
-```
+``` { .text .ex-illus title="Illustration" }
 symptom: my-api returns 500s since 10:02
 hypothesis A: coordinated attack + load balancer bug + memory bit flip
 hypothesis B: the 10:00 deployment
@@ -862,7 +869,7 @@ check B first
 
 **Origin**: Theodore Sturgeon, science fiction writer, answering critics of the genre, around 1957; published in Venture Science Fiction in 1958 (to check).
 
-```
+``` { .text .ex-illus title="Illustration" }
 200 candidate npm packages to parse dates
 most of them: abandoned, untested, a single maintainer
 a handful   : maintained, documented, used everywhere
@@ -881,7 +888,7 @@ a handful   : maintained, documented, used everywhere
 
 **Origin**: attributed to Ward Cunningham (inventor of the wiki) by Steven McGeady, around 2010 (to check). Cunningham said he was not its author: it is a case of misattributed quote.
 
-```
+``` { .text .ex-illus title="Illustration" }
 question asked in a meeting: "who knows how the my-api cache works?"  silence
 draft ADR posted: "the cache expires after 1 h"  three corrections in 10 minutes
 ```
@@ -902,7 +909,7 @@ draft ADR posted: "the cache expires after 1 h"  three corrections in 10 minutes
 
 **Origin**: Justin Kruger and David Dunning, "Unskilled and Unaware of It", Journal of Personality and Social Psychology (1999).
 
-```
+``` { .text .ex-illus title="Illustration" }
 test quartile    self-assessment (percentile rank)   actual rank   (shape of the results, example numbers)
 lowest           ~60                                  ~12
 highest          ~75                                  ~85

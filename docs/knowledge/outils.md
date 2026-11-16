@@ -93,7 +93,7 @@ Un **journal d'événements** (*log*) distribué. Un message n'est pas une tâch
 !!! noob "As noob"
     Kafka ressemble au registre de bord d'un bateau plus qu'à une boîte aux lettres : chaque événement s'écrit à la suite du précédent, rien n'est effacé avant la fin de la durée de conservation, et chaque lecteur garde son propre marque-page (l'offset). Deux lecteurs lisent donc le même registre sans se gêner, et un nouveau venu peut repartir de la première page. La phrase à retenir : **lire un message Kafka ne le consomme pas, ça avance seulement mon marque-page.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 topic "orders" partition 0 : [créée 41] [payée 41] [créée 42] [payée 42] ...
                                                      ^                ^
                                  report-service (offset 2)   email-service (offset 4)
@@ -131,7 +131,7 @@ flowchart LR
 **<span class="term" data-term="kafka-connect">Kafka Connect</span>** et **<span class="term" data-term="debezium">Debezium</span>** : connecteurs prêts à l'emploi. Debezium lit les changements d'une base (<span class="term" data-term="cdc">CDC</span>, *change data capture*) et les publie dans Kafka sans toucher au code de l'application.
 
 Exemple : un connecteur Debezium qui suit la table `public.orders` d'une base PostgreSQL. On l'envoie à Kafka Connect avec `curl -X POST -H 'Content-Type: application/json' -d @orders-cdc.json http://kafka-connect:8083/connectors`.
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "name": "orders-cdc",
   "config": {
@@ -148,7 +148,7 @@ Exemple : un connecteur Debezium qui suit la table `public.orders` d'une base Po
 }
 ```
 Chaque `INSERT`, `UPDATE` ou `DELETE` devient un message dans le topic `orders-db.public.orders` (préfixe, schéma, table). Pour une commande créée (contenu simplifié, l'enveloppe exacte dépend du convertisseur) :
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "before": null,
   "after": { "id": 42, "customer_id": "cust-ada", "status": "CREATED" },
@@ -173,7 +173,7 @@ Chaque `INSERT`, `UPDATE` ou `DELETE` devient un message dans le topic `orders-d
 
 Le <span class="term" data-term="message-broker">broker</span> **managé** de Google Cloud. Un éditeur publie sur un **topic**, chaque **abonnement** (*subscription*) reçoit une copie. Pas de serveur, pas de partition à régler, montée en charge automatique. L'ordre n'est garanti que si on utilise une **clé d'ordre** (*ordering key*), et un mode <span class="term" data-term="exactly-once">exactly-once</span> existe en option ([documentation Google](https://cloud.google.com/pubsub/docs/subscription-overview), consultée en octobre 2026). La <span class="term" data-term="message-retention">rétention</span> par défaut est de 7 jours, extensible (à vérifier selon la configuration).
 
-```bash
+``` { .bash .ex-ref title="Référence" }
 gcloud pubsub topics publish order-events --message='{"order_id": 42}' --ordering-key=42
 ```
 Exemple : un fichier déposé dans un bucket déclenche un message Pub/Sub, qui réveille un service de traitement qui peut même tomber à zéro instance quand il n'y a rien à faire.
@@ -238,7 +238,7 @@ Mon équipe veut savoir si les messages sont traités à temps. Une file en bonn
 | Pub/Sub  | métriques Cloud Monitoring de l'abonnement | `num_undelivered_messages`, `oldest_unacked_message_age` |
 
 Exemple Kafka (colonnes simplifiées) : une seule partition décroche, le groupe n'est donc pas lent partout.
-```
+``` { .text .ex-ref title="Référence" }
 $ kafka-consumer-groups.sh --bootstrap-server kafka:9092 --describe --group billing
 GROUP    TOPIC   PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
 billing  orders  0          1200            1210            10
@@ -283,7 +283,7 @@ Alerter sur l'âge du plus vieux message plutôt que sur un nombre brut : 10 000
 
 Mon service relit sans cesse une donnée lente à obtenir, comme la fiche d'un produit, et chaque lecture fait attendre l'utilisateur. **Redis** est une base **en mémoire** de type <span class="term" data-term="key-value-store">clé-valeur</span> : très rapide (lecture en moins d'une milliseconde, ordre de grandeur courant), mais limitée par la RAM. On l'utilise comme **cache** (une copie temporaire de cette donnée lente à obtenir), et aussi pour des compteurs, des verrous, des sessions ou des files simples.
 
-```bash
+``` { .bash .ex-ref title="Référence" }
 SET catalog:product:42 '{"title":"Lampe"}' EX 300   # expire dans 300 s
 GET catalog:product:42
 INCR rate-limit:ada:2026-10-23T10:15                # compteur de limite de débit
@@ -294,7 +294,7 @@ Exemple : `catalog-service` met 200 ms à construire la fiche d'un produit. Il l
     C'est le post-it collé sur l'écran avec le numéro qu'on appelle souvent : plus rapide que d'ouvrir l'annuaire, mais si le numéro change, le post-it ment jusqu'à ce que quelqu'un le remplace. La phrase à retenir : **un cache est une copie rapide et jetable, la vérité reste dans la base.**
 
 L'erreur la plus courante : une clé posée sans expiration. Si l'invalidation oublie un cas, comme un prix modifié par un import de nuit, la fiche reste fausse indéfiniment.
-```bash
+``` { .bash .ex-bad title="À éviter" }
 # À éviter : aucune expiration, la fiche périmée reste en cache sans limite de durée
 SET catalog:product:42 '{"title":"Lampe"}'
 ```
@@ -334,7 +334,7 @@ sequenceDiagram
 
 
 **Observer le cache.** Un cache se juge à son **taux de hit** : la part des lectures servies par Redis sans aller à la source. Redis compte les hits, les misses et les clés évincées depuis son démarrage :
-```
+``` { .text .ex-ref title="Référence" }
 $ redis-cli INFO stats | grep -E 'keyspace_hits|keyspace_misses|evicted_keys'
 keyspace_hits:950000
 keyspace_misses:50000
@@ -390,7 +390,7 @@ flowchart TD
 
 Deux bases **relationnelles** OLTP open source : tables, jointures, <span class="term" data-term="db-transaction">transactions</span>. PostgreSQL est plus riche (<span class="term" data-term="jsonb">JSONB</span>, types avancés, extensions, contraintes plus strictes). MySQL (et son cousin MariaDB) est historiquement très répandu avec PHP, simple et rapide sur les lectures classiques.
 
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : PostgreSQL, chercher dans une colonne JSON indexée
 SELECT id FROM orders WHERE metadata @> '{"channel": "mobile"}';
 ```
@@ -412,10 +412,12 @@ L'**entrepôt de données** (*data warehouse*) managé de Google : OLAP, stockag
 !!! noob "As noob"
     Une base en lignes range chaque commande dans une fiche complète, comme un classeur ; une base en colonnes range toutes les valeurs d'un même champ ensemble, comme un tableur qu'on lirait colonne par colonne. Pour additionner le chiffre d'affaires de cinq ans, BigQuery ne lit que la colonne des montants, pas les adresses ni les commentaires. La phrase à retenir : **en colonnes, je paie et j'attends pour les colonnes que je lis, pas pour toute la table.**
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : SELECT * lit et facture toutes les colonnes de toutes les lignes, même pour un simple total
 SELECT * FROM analytics.orders;
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : ne coûte que le volume des colonnes lues, jamais de SELECT *
 SELECT country, SUM(total_cents) / 100 AS revenue
 FROM analytics.orders
@@ -461,18 +463,18 @@ Mon équipe ajoute une colonne `status` à la table `orders` : la modification d
 **Quand** : dès qu'une base vit plus longtemps qu'un prototype et existe en plusieurs environnements. **Pourquoi** : fini le `ALTER TABLE` lancé à la main en prod et oublié en staging. Chaque environnement sait où il en est, et la migration est relue en MR avec le code qui en a besoin. Coût : une migration déjà appliquée ne se modifie plus, on en écrit une nouvelle.
 
 Ce que la migration remplace :
-```bash
+``` { .bash .ex-bad title="À éviter" }
 # À éviter : un ALTER TABLE lancé à la main en prod, que staging ne reçoit jamais et que personne ne relit
 psql "$PROD_DATABASE_URL" -c "ALTER TABLE orders ADD COLUMN status text"
 ```
 La version versionnée :
-```
+``` { .text .ex-good title="Recommandé" }
 db/migration/
 ├─ V1__create_orders.sql
 ├─ V2__add_orders_status.sql
 └─ V3__index_orders_customer_id.sql
 ```
-```bash
+``` { .bash .ex-ref title="Référence" }
 flyway migrate
 ```
 
@@ -517,7 +519,7 @@ Les frameworks ont souvent le leur (Django, Rails, Doctrine en PHP, Prisma) : on
 { .tool-rel }
 
 
-```json
+``` { .json .ex-ref title="Référence" }
 GET /products/_search
 { "query": { "match": { "title": { "query": "lampe bureu", "fuzziness": "AUTO" } } } }
 ```
@@ -525,7 +527,7 @@ Exemple : la barre de recherche d'un catalogue trouve « lampe de bureau » malg
 
 **MongoDB** : une base **documentaire**. Chaque enregistrement est un document JSON, sans schéma imposé par la base. Pratique quand chaque élément a une forme différente, piégeux quand on a besoin de jointures et de transactions sur plusieurs collections.
 
-```js
+``` { .js .ex-ref title="Référence" }
 // Exemple : insérer un document de forme libre, puis chercher dans un champ imbriqué
 db.products.insertOne({ _id: 42, title: "Lampe", options: { colors: ["noir", "blanc"] } })
 db.products.find({ "options.colors": "noir" })
@@ -594,7 +596,7 @@ J'ai un travail fait de plusieurs étapes qui prennent du temps, et si l'une éc
 
 **Comment** : on enchaîne des **nœuds** dans un éditeur visuel. Chaque nœud reçoit les données du précédent.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Webhook (POST /new-bug)
 └─ IF priority = "P1"
    ├─ vrai : Slack, message dans #incidents
@@ -621,7 +623,7 @@ Le workflow s'exporte en JSON, à ranger dans Git pour garder un historique.
 **Comment** : un **DAG** (graphe d'étapes) en Python décrit l'ordre.
 
 L'erreur classique : du travail en haut du fichier du DAG. Le planificateur relit chaque fichier toutes les 30 secondes par défaut (à vérifier selon la version), donc la requête part en boucle, même quand aucune tâche ne tourne.
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : une requête au niveau du module, rejouée à chaque lecture du fichier par le planificateur
 customers = warehouse.fetch_all("SELECT id FROM customers")
 
@@ -629,7 +631,7 @@ with DAG("daily_revenue", schedule="0 3 * * *", start_date=datetime(2026, 1, 1),
     load = PythonOperator(task_id="load", python_callable=load_to_warehouse, op_args=[customers])
 ```
 
-```python
+``` { .python .ex-ref title="Référence" }
 # Exemple : DAG lancé chaque jour à 3 h, extract puis load
 with DAG("daily_revenue", schedule="0 3 * * *", start_date=datetime(2026, 1, 1), catchup=False):
     extract = PythonOperator(task_id="extract", python_callable=extract_orders)
@@ -658,7 +660,7 @@ with DAG("daily_revenue", schedule="0 3 * * *", start_date=datetime(2026, 1, 1),
 **Comment** :
 
 L'erreur qui casse la reprise : du code non déterministe dans le workflow. Au rejeu, `datetime.now()` ne renvoie plus la même heure, la branche prise change, et Temporal lève une erreur de non-déterminisme ; l'appel HTTP direct, lui, n'est pas noté dans l'historique et peut repartir une deuxième fois.
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : l'heure système et un appel réseau direct dans le code du workflow
 @workflow.run
 async def run(self, order_id: int) -> None:
@@ -666,7 +668,7 @@ async def run(self, order_id: int) -> None:
         httpx.post(f"https://payments.example.com/charge/{order_id}")
 ```
 
-```python
+``` { .python .ex-ref title="Référence" }
 # Exemple : workflow durable, paiement, attente de 3 jours, puis mail d'avis
 @workflow.defn
 class OrderWorkflow:
@@ -696,7 +698,7 @@ Exemple : « payer, attendre 3 jours, envoyer une demande d'avis ». Si le worke
 
 **Comment** :
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : workflow Argo en DAG, render attend la fin d'extract
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
@@ -769,7 +771,7 @@ spec:
 
 Mon application produit des fichiers, comme des photos produit ou des rapports de tests, et je ne veux les mettre ni dans la base ni sur le disque d'un serveur qui peut disparaître. Un **bucket** (Google Cloud Storage, Amazon S3) stocke des **objets** : un fichier plus ses métadonnées, sous une clé (`products/42/photo.jpg`). Quasi illimité, peu cher, accessible par HTTP. Pas un disque : on ne modifie pas un fichier en place, on le remplace.
 
-```bash
+``` { .bash .ex-ref title="Référence" }
 gcloud storage cp report.html gs://my-test-reports/2026-10-23/report.html
 ```
 Exemple : les rapports HTML de tests de la CI vont dans un bucket, la base ne garde que le lien.
@@ -861,7 +863,7 @@ Ces outils ne font pas tous la même chose : la plupart **créent des ressources
 **Comment** :
 
 L'erreur à ne pas faire : un secret écrit dans le fichier HCL. Il part dans Git, et aussi en clair dans le fichier d'état que Terraform écrit après chaque `apply`.
-```hcl
+``` { .hcl .ex-bad title="À éviter" }
 # À éviter : le mot de passe en clair, donc dans l'historique Git et dans terraform.tfstate
 resource "google_sql_user" "app" {
   name     = "app"
@@ -870,7 +872,7 @@ resource "google_sql_user" "app" {
 }
 ```
 
-```hcl
+``` { .hcl .ex-ref title="Référence" }
 # Exemple : bucket dont les fichiers sont supprimés après 90 jours
 resource "google_storage_bucket" "test_reports" {
   name     = "my-test-reports"
@@ -881,7 +883,7 @@ resource "google_storage_bucket" "test_reports" {
   }
 }
 ```
-```bash
+``` { .bash .ex-ref title="Référence" }
 terraform plan
 terraform apply
 ```
@@ -921,7 +923,7 @@ flowchart LR
 
 **Comment** :
 
-```
+``` { .text .ex-illus title="Illustration" }
 infra/
 ├─ terragrunt.hcl
 ├─ staging/
@@ -929,7 +931,7 @@ infra/
 └─ prod/
    └─ reports-bucket/terragrunt.hcl
 ```
-```hcl
+``` { .hcl .ex-ref title="Référence" }
 # Exemple : config prod qui réutilise le module bucket et ne fixe que ses entrées
 include "root" {
   path = find_in_parent_folders()
@@ -963,14 +965,14 @@ Le fichier racine porte une seule fois la configuration de l'état. La commande 
 
 **Comment** :
 
-```python
+``` { .python .ex-ref title="Référence" }
 import pulumi_gcp as gcp
 
 # Exemple : une boucle Python crée un bucket par équipe
 for team in ["team-core", "team-data"]:
     gcp.storage.Bucket(f"{team}-reports", location="EU")
 ```
-```bash
+``` { .bash .ex-ref title="Référence" }
 pulumi preview
 pulumi up
 ```
@@ -995,7 +997,7 @@ pulumi up
 
 **Comment** (groupe d'API à vérifier selon le fournisseur et la version) :
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : un bucket décrit comme une ressource Kubernetes
 apiVersion: storage.gcp.upbound.io/v1beta1
 kind: Bucket
@@ -1029,13 +1031,13 @@ spec:
 **Comment** :
 
 L'erreur qui casse l'idempotence : une commande shell à la place d'un module. Elle est rejouée à chaque passage et ajoute une ligne de plus dans le fichier à chaque fois.
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : echo >> à chaque lancement, la directive est dupliquée et nginx refuse de redémarrer
 - name: add proxy config
   ansible.builtin.shell: echo "include /etc/nginx/proxy.conf;" >> /etc/nginx/nginx.conf
 ```
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : playbook qui installe nginx puis le démarre
 - name: reverse proxy
   hosts: web
@@ -1051,7 +1053,7 @@ L'erreur qui casse l'idempotence : une commande shell à la place d'un module. E
         state: started
         enabled: true
 ```
-```bash
+``` { .bash .ex-ref title="Référence" }
 ansible-playbook -i inventory.ini proxy.yml --check
 ansible-playbook -i inventory.ini proxy.yml
 ```
@@ -1074,7 +1076,7 @@ ansible-playbook -i inventory.ini proxy.yml
 
 **Comment** :
 
-```hcl
+``` { .hcl .ex-ref title="Référence" }
 # Exemple : la source, l'image de base et le nom de l'image produite
 source "googlecompute" "runner" {
   project_id          = "my-project"
@@ -1092,7 +1094,7 @@ build {
   }
 }
 ```
-```bash
+``` { .bash .ex-ref title="Référence" }
 packer build runner.pkr.hcl
 ```
 Ansible peut servir de `provisioner` à la place du script shell : Packer fabrique, Ansible configure, Terraform crée les machines à partir de l'image.
@@ -1156,7 +1158,7 @@ flowchart LR
 
 **Quand** : dès qu'une application ou la CI a besoin d'un secret. Jamais un secret en clair dans Git, ni dans un fichier Terraform.
 
-```bash
+``` { .bash .ex-ref title="Référence" }
 vault kv get -field=password secret/prod/my-api/database
 ```
 
@@ -1195,7 +1197,7 @@ J'ai plusieurs services derrière une même adresse, et chacun devrait vérifier
 
 **KrakenD** : passerelle déclarative (un fichier JSON), <span class="term" data-term="stateless">sans état</span>, très rapide, qui sait agréger plusieurs appels backend en une réponse.
 
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "endpoint": "/v1/orders/{id}",
   "backend": [{ "host": ["http://orders-service"], "url_pattern": "/orders/{id}" }]
@@ -1205,7 +1207,7 @@ J'ai plusieurs services derrière une même adresse, et chacun devrait vérifier
 **nginx** : serveur web et <span class="term" data-term="reverse-proxy">reverse proxy</span> généraliste. Sert des fichiers statiques, fait du routage et de la <span class="term" data-term="tls-termination">terminaison TLS</span>. Souvent utilisé comme **<span class="term" data-term="ingress">Ingress</span>** dans Kubernetes.
 
 Un **Ingress** est un objet Kubernetes qui décrit comment le trafic HTTP venu de l'extérieur du cluster est routé vers les services internes, selon le nom de domaine et le chemin. Un **contrôleur d'Ingress** (nginx, Traefik, celui du fournisseur cloud) lit ces objets et fait le routage réel. Exemple : `api.example.com/orders` part vers orders-service.
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : route api.example.com/orders vers orders-service
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -1280,7 +1282,7 @@ Un reverse proxy reçoit les requêtes à la place des services, termine le HTTP
 
 
 Le même site en Caddy, HTTPS compris :
-```
+``` { .text .ex-ref title="Référence" }
 # Exemple : reverse proxy vers orders-service, HTTPS géré par Caddy
 api.example.com {
     reverse_proxy orders-service:8080
@@ -1335,14 +1337,14 @@ api.example.com {
 
 
 L'erreur qui ment : faire passer le job quoi qu'il arrive.
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : || true transforme tout échec de pytest en succès, le pipeline reste vert avec des tests rouges
 test:
   script:
     - pytest || true
 ```
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : job GitLab CI qui lance pytest et publie le rapport JUnit
 test:
   stage: test
@@ -1416,13 +1418,13 @@ Mon équipe veut livrer un nouveau tunnel de paiement sans l'imposer à tout le 
 { .tool-rel }
 
 
-```python
+``` { .python .ex-ref title="Référence" }
 # Exemple : nouveau parcours si le flag est actif pour cet utilisateur, sinon l'ancien
 if unleash.is_enabled("new-checkout", context={"userId": "ada"}):
     return new_checkout(cart)
 return old_checkout(cart)
 ```
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : le flag lu une seule fois au démarrage, l'éteindre dans l'interface ne change rien avant le prochain redémarrage
 NEW_CHECKOUT = unleash.is_enabled("new-checkout")
 ```
@@ -1467,7 +1469,7 @@ Les notions (logs, métriques, traces, SLO) sont dans [Observabilité](observabi
 !!! noob "As noob"
     OpenTelemetry, c'est la prise électrique standard : l'application produit ses logs, métriques et traces dans un format commun, et n'importe quel outil compatible (Datadog, Grafana ou un autre) peut s'y brancher. Changer d'outil revient à changer d'appareil, pas à refaire l'installation électrique. La phrase à retenir : **on instrumente une fois avec le standard, et on choisit ou change l'outil de stockage ensuite.**
 
-```python
+``` { .python .ex-ref title="Référence" }
 from opentelemetry import trace
 
 # Exemple : l'appel à save_order est mesuré dans un span create_order
@@ -1564,14 +1566,14 @@ Les notions (pyramide, contrats, <span class="term" data-term="flaky-test">tests
 
 Le framework de test Python de référence : des fonctions `test_*`, des `assert` simples, des **fixtures** pour préparer les données ([exemples](qualite.md#le-vocabulaire-des-tests)). Idéal pour les tests d'API.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : aucun assert, le test passe même quand l'API répond 500 avec un corps JSON d'erreur
 def test_get_order(api_client):
     response = api_client.get("/orders/42")
     print(response.json())
 ```
 
-```python
+``` { .python .ex-ref title="Référence" }
 # Exemple : un test pytest, la fixture api_client est injectée
 def test_get_order_returns_200(api_client):
     response = api_client.get("/orders/42")
@@ -1593,7 +1595,7 @@ def test_get_order_returns_200(api_client):
 
 Deux **clients d'API** pour envoyer des requêtes à la main, les ranger en collections et les rejouer. **Postman** : le plus répandu, collections stockées dans son cloud. **Bruno** : open source, collections en fichiers texte dans le dépôt Git, donc relues en MR avec le code.
 
-```
+``` { .text .ex-ref title="Référence" }
 # orders/get-order.bru
 get {
   url: {{baseUrl}}/orders/42
@@ -1624,7 +1626,7 @@ assert {
 
 Trois outils de test **de bout en bout** (E2E) qui pilotent un vrai navigateur.
 
-```ts
+``` { .ts .ex-bad title="À éviter" }
 // À éviter : une pause fixe et une classe CSS générée ; isVisible() n'attend pas, donc le test dépend de la vitesse de la page
 test("ada voit sa commande", async ({ page }) => {
   await page.goto("/orders/42");
@@ -1633,7 +1635,7 @@ test("ada voit sa commande", async ({ page }) => {
 });
 ```
 
-```ts
+``` { .ts .ex-ref title="Référence" }
 // Exemple : test Playwright qui ouvre la page et vérifie le titre
 test("ada voit sa commande", async ({ page }) => {
   await page.goto("/orders/42");
@@ -1669,12 +1671,12 @@ test("ada voit sa commande", async ({ page }) => {
 
 Trois outils de **test de charge** : simuler des centaines d'<span class="term" data-term="virtual-user">utilisateurs virtuels</span> (VU) pour mesurer latence et erreurs.
 
-```js
+``` { .js .ex-bad title="À éviter" }
 // À éviter : aucun seuil, k6 sort avec le code 0 même si le p95 atteint 5 s, donc la CI reste verte
 export const options = { vus: 50, duration: "1m" };
 ```
 
-```js
+``` { .js .ex-ref title="Référence" }
 // Exemple : 50 VU pendant 1 min, en échec si le p95 dépasse 300 ms
 import http from "k6/http";
 export const options = { vus: 50, duration: "1m", thresholds: { http_req_duration: ["p(95)<300"] } };
@@ -1714,7 +1716,7 @@ Mon site peut casser en production alors que tous les tests de la CI étaient ve
 
 **Checkly** : plateforme SaaS de tests synthétiques dont les tests sont du **Playwright** standard. Le même code peut donc servir en CI et en surveillance de production. Elle suit l'approche *monitoring as code* : les tests et leur fréquence sont décrits dans le dépôt, et la CI les déploie avec la CLI Checkly.
 
-```ts
+``` { .ts .ex-ref title="Référence" }
 // checkly.config.ts
 // Exemple : checks lancés toutes les 10 min depuis deux régions
 import { defineConfig } from "checkly";
@@ -1729,7 +1731,7 @@ export default defineConfig({
   },
 });
 ```
-```bash
+``` { .bash .ex-ref title="Référence" }
 npx checkly test     # lance les checks une fois, depuis les runners Checkly
 npx checkly deploy   # les publie : ils tournent ensuite toutes les 10 min
 ```
@@ -1795,13 +1797,13 @@ Capacités constatées dans la documentation des éditeurs en octobre 2026 (à v
 { .tool-rel }
 
 
-```toml
+``` { .toml .ex-bad title="À éviter" }
 # À éviter : « latest » donne une version différente selon le poste et le jour du run de CI
 [tools]
 python = "latest"
 ```
 
-```toml
+``` { .toml .ex-ref title="Référence" }
 # mise.toml
 # Exemple : versions des outils du projet et une tâche test
 [tools]
@@ -1869,7 +1871,7 @@ Comparatif détaillé par langage, lockfiles, résolution des conflits, registre
 
 **Jira** : suivi des tickets et des sprints. **Confluence** : wiki d'équipe. **Slack** : messagerie instantanée. **Backstage** : portail développeur open source (créé par Spotify) qui recense tous les services, leurs propriétaires, leur documentation, et propose des modèles pour créer un nouveau service.
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # catalog-info.yaml, à la racine du dépôt, lu par Backstage
 # Exemple : fiche du service dans le catalogue, avec son équipe propriétaire
 apiVersion: backstage.io/v1alpha1
@@ -1941,7 +1943,7 @@ Un radar public donne l'avis d'une entreprise sur **son** contexte : Thoughtwork
 
 Exemple : le fichier CSV que lit BYOR, une ligne par entrée (contenu fictif) :
 
-```
+``` { .text .ex-ref title="Référence" }
 name,ring,quadrant,isNew,description
 Testcontainers,adopt,tools,FALSE,"Bases jetables dans les tests d'intégration, utilisé par toutes les équipes depuis 2025."
 Contrats pilotés par le consommateur,trial,techniques,TRUE,"Essai entre orders-service et billing-service, à étendre si l'essai tient trois mois."

@@ -33,7 +33,7 @@ An <span class="term" data-term="sli">SLI</span> (Service Level Indicator) is th
 
 **Batch processing**: data is collected then processed in one block, for example every night. **Streaming**: each event is processed as soon as it arrives, within seconds.
 
-```
+``` { .text .ex-illus title="Illustration" }
 batch       00:00 to 23:59  orders pile up
             02:00           the nightly job computes yesterday's figures
             09:00           the dashboard shows "yesterday: 1,200 orders"
@@ -58,7 +58,7 @@ flowchart LR
 
 I open a dashboard hoping it will tell me what to do: it will not. A **data-driven decision** starts from a question, not from a dashboard. I write down **before** looking at the numbers what I will do depending on the result, or I may find afterwards a story that fits the numbers.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Question   do customers abandon checkout because of the 3-D Secure step?
 Measure    abandonment rate at each checkout step, over 30 days
 Decision   if more than 20% (example) of abandonments happen at the 3-D Secure step,
@@ -100,7 +100,7 @@ Traps:
 
 <span class="term" data-term="time-to-insight">Time to insight</span> is the delay between the moment something happens and the moment someone can decide based on that information.
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:00  a release breaks payment by foreign card
 10:00  nightly batch: visible the next day at 09:00 in the report   time to insight: 23 h
 10:05  streaming + alert on the payment error rate                   time to insight: 5 min
@@ -163,7 +163,7 @@ An <span class="term" data-term="ab-test">A/B test</span> (controlled experiment
 
 Avoid comparing before and after the release, with no control group: everything that changed at the same time (an email campaign launched the same Monday, end-of-month payday, an outage at a competitor) gets credited to the new button.
 
-```sql
+``` { .sql .ex-bad title="Avoid" }
 -- Avoid: before and after the button release, with no control group
 select case when day < '2026-11-02' then 'before' else 'after' end as period,
        sum(orders) * 1.0 / sum(visitors) as conversion
@@ -174,7 +174,7 @@ group by 1;
 
 The same button measured in an A/B test, both groups over the same period:
 
-```
+``` { .text .ex-illus title="Illustration" }
 version A (current button)       10,000 visitors   300 orders   3.00%
 version B ("1-click" button)     10,000 visitors   345 orders   3.45%
 gap: +0.45 point, that is +15% relative
@@ -218,7 +218,7 @@ The **sample size calculation** says how many visitors each group needs to see a
 !!! noob "As noob"
     To hear a whisper I have to listen longer than to hear a shout: the smaller the gap I am looking for, the more visitors I need to tell it apart from the noise. A power of 80% means that a real gap of that size would be caught 8 times out of 10, and missed twice. The takeaway: **I work out the number of visitors before starting the test, not after seeing the result.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 baseline rate          3% conversion (version A)
 gap to detect          +0.5 point, that is 3.5%
 threshold and power    5% (two-sided), 80%
@@ -242,12 +242,14 @@ The three indicators of the table, one line each:
 
 Avoid the wrong denominator: dividing orders by only the visitors who saw the cart, instead of every visitor assigned to the variant, gives a rate ten times higher than reality, and a gap between variants that depends on who reaches the cart.
 
-```sql
+``` { .sql .ex-bad title="Avoid" }
 -- Avoid: the denominator only counts visitors who saw the cart
 select count(distinct o.order_id) * 1.0 / count(distinct c.visitor_id) as conversion
 from cart_views c
 left join orders o on o.visitor_id = c.visitor_id;
+```
 
+``` { .sql .ex-good title="Recommended" }
 -- Good: orders placed after assignment, divided by every visitor of the variant
 select a.variant,
        count(distinct o.order_id) * 1.0 / count(distinct a.visitor_id) as conversion
@@ -290,11 +292,13 @@ A good visualisation answers a question at a glance. Pick the chart from the que
 
 Avoid summarising an amount or a duration by its average alone: 300 orders at €40 and 3 business orders at €5,000 give an average basket of €89, an amount almost no customer spends.
 
-```sql
+``` { .sql .ex-bad title="Avoid" }
 -- Avoid: the average alone, pulled up by a few very large orders
 select avg(total_eur) as average_basket
 from fct_orders_paid;
+```
 
+``` { .sql .ex-good title="Recommended" }
 -- Good: order count, average, median and p95 side by side (PostgreSQL syntax)
 select count(*) as orders,
        avg(total_eur) as average,
@@ -344,7 +348,7 @@ A <span class="term" data-term="data-contract">data contract</span> writes these
 !!! noob "As noob"
     A data contract is the specification between a supplier and a restaurant: which products, which size, delivered at what time, and whom to call when something goes wrong. If the supplier changes the size without warning, the contract flags it before the dishes go out wrong. The takeaway: **the producer of a piece of data commits in writing to what it delivers, and CI checks that it keeps its word.**
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: data contract (owner, schema, freshness, retention, access)
 dataset: orders_paid
 owner: team-orders
@@ -387,7 +391,7 @@ Source: DAMA International, "DAMA-DMBOK: Data Management Body of Knowledge", 2nd
 
 **Data science** extracts knowledge from data with statistics and machine learning. A <span class="term" data-term="predictive-model">predictive model</span> learns from history to estimate what is likely to happen.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Question     which customers will cancel their subscription next month?
 History      24 months of customers, with their usage and whether they cancelled
 Training     on the first 18 months
@@ -407,7 +411,7 @@ Traps:
 
 Drift shows on a monthly precision curve (among customers flagged "at risk", the share who really cancelled, known one month later):
 
-```
+``` { .text .ex-illus title="Illustration" }
 January    42%   in production (210 out of 500)
 February   41%
 March      39%   new offer launched: usage changes
@@ -464,7 +468,7 @@ The two combine: the predictive model picks **who** to contact, the generative m
 
 A **data platform** is the set of building blocks that carry a piece of data from the application that produces it to the person or model that uses it. The previous sections cover what I do with the numbers; this one covers the plumbing that produces them.
 
-```
+``` { .text .ex-illus title="Illustration" }
 sources          integration          storage              transformation        use
 orders-service ─┐                                                              ┌─ dashboards
 payments-service├─ CDC, connectors ─> warehouse or lake ─> dbt, Spark ─────────┼─ data application
@@ -508,7 +512,7 @@ A <span class="term" data-term="data-warehouse">data warehouse</span> stores str
 
 
 **How**: data arrives in three layers, often named bronze, silver, gold (*medallion architecture*, a term popularised by Databricks) or raw, staging, business.
-```
+``` { .text .ex-illus title="Illustration" }
 raw.orders_events        raw copy of the orders-service events, never modified
 staging.stg_orders       one row per order, types fixed, duplicates removed
 marts.fct_orders_paid    paid orders, ready for the revenue dashboard
@@ -564,7 +568,7 @@ flowchart LR
 
 Avoid the hard-coded table name: dbt no longer sees the dependency, may run this model before `stg_orders` and read yesterday's version, and the lineage stops there.
 
-```sql
+``` { .sql .ex-bad title="Avoid" }
 -- Avoid: hard-coded table, dbt ignores the dependency and the execution order
 select order_id, customer_id, total_cents / 100.0 as total_eur, paid_at
 from analytics.staging.stg_orders
@@ -573,8 +577,8 @@ where status = 'paid'
 
 The version with `ref()`:
 
-```sql
--- Example: dbt model, a SELECT that declares its dependency with ref()
+``` { .sql .ex-good title="Recommended" }
+-- Good: dbt model, a SELECT that declares its dependency with ref()
 select
     order_id,
     customer_id,
@@ -583,7 +587,7 @@ select
 from {{ ref('stg_orders') }}
 where status = 'paid'
 ```
-```bash
+``` { .bash .ex-ref title="Reference" }
 dbt build --select fct_orders_paid
 ```
 `dbt build` runs the model then its tests (next section).
@@ -622,7 +626,7 @@ flowchart LR
 
 Avoid bringing the data back to the driver to process it with pandas: `toPandas()` copies every row into the memory of a single machine, and the job stops on an out-of-memory error as soon as the lake exceeds a few gigabytes.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: every order copied to the driver, the executors do nothing
 orders = spark.read.parquet("gs://my-shop-lake/orders/").toPandas()
 daily = orders[orders["status"] == "paid"].groupby(["paid_at", "country"])["total_cents"].sum()
@@ -630,10 +634,10 @@ daily = orders[orders["status"] == "paid"].groupby(["paid_at", "country"])["tota
 
 The version that lets Spark spread the computation:
 
-```python
+``` { .python .ex-good title="Recommended" }
 from pyspark.sql import SparkSession, functions as F
 
-# Example: daily revenue per country with Spark, read and written as Parquet
+# Good: daily revenue per country with Spark, read and written as Parquet
 spark = SparkSession.builder.appName("daily_revenue").getOrCreate()
 
 orders = spark.read.parquet("gs://my-shop-lake/orders/")
@@ -704,7 +708,7 @@ flowchart LR
 Each test has a severity: `error` stops what follows, `warn` lets it through and notifies (dbt's `severity` config). `dbt build` runs the tests right after each model and skips the models downstream of a failed test: the dashboard keeps the last correct number rather than showing a wrong one.
 
 **How**, with dbt tests, declared next to the model:
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: dbt tests declared next to the model (unique, not null, relationship, range)
 models:
   - name: fct_orders_paid
@@ -726,7 +730,7 @@ models:
 (The key is called `tests` before dbt 1.8, 2024, to check; `accepted_range` comes from the `dbt_utils` package.)
 
 Great Expectations (open source, Python) does the same outside dbt, on a DataFrame or a table, and publishes a readable report:
-```python
+``` { .python .ex-ref title="Reference" }
 import great_expectations as gx
 
 # Example: the same range check with Great Expectations, outside dbt
@@ -757,7 +761,7 @@ A <span class="term" data-term="data-app">data application</span> is a small web
 **Why**: the gain is time: someone who knows Python ships a usable tool in a day, without a front-end team. The cost: each interaction reruns the script, which limits performance, and the app must be hosted, authenticated and maintained like everything else.
 
 **How**:
-```python
+``` { .python .ex-ref title="Reference" }
 import pandas as pd
 import streamlit as st
 
@@ -768,7 +772,7 @@ country = st.selectbox("Country", sorted(orders["country"].unique()))
 daily = orders[orders["country"] == country].groupby("day")["total_eur"].sum()
 st.line_chart(daily)
 ```
-```bash
+``` { .bash .ex-ref title="Reference" }
 streamlit run revenue_app.py
 ```
 
@@ -798,7 +802,7 @@ flowchart LR
 ```
 
 **1. Track and version** with MLflow (open source, created by Databricks in 2018): each training run records its parameters, its metrics and the model produced; the <span class="term" data-term="model-registry">model registry</span> keeps the versions and says which one serves production.
-```python
+``` { .python .ex-ref title="Reference" }
 import mlflow
 from sklearn.ensemble import RandomForestClassifier
 
@@ -822,7 +826,7 @@ with mlflow.start_run(run_name="churn-2026-11"):
 | actual performance | is the model right? | monthly precision, known when the real answers arrive |
 
 A weekly drift report compares the distribution of each feature with the training one, often with the PSI (*Population Stability Index*):
-```
+``` { .text .ex-illus title="Illustration" }
 week 45, churn model v7, reference: training set
 feature              PSI    status
 orders_last_90d      0.27   strong drift  (> 0.2)
@@ -867,7 +871,7 @@ share of empty values: last_login_days 30% (training: 1%)  quality alert
 
 I announce "we saved money on the cloud", but the bill barely moved because the number of orders grew in the meantime. So a saving is proven like a performance gain: against a **measured baseline**, expressed per meaningful **unit**, like the cost per 1,000 orders.
 
-```
+``` { .text .ex-illus title="Illustration" }
 before   €3,200 of cloud per month for 4 million orders   €0.80 per 1,000 orders
 after    €2,900 of cloud per month for 5 million orders   €0.58 per 1,000 orders
 the total bill barely dropped, but the unit cost fell by about 27% (example figures)
@@ -884,7 +888,7 @@ flowchart LR
 
 The three phases over one month, with the "after" bill of the example above (example figures):
 
-```
+``` { .text .ex-illus title="Illustration" }
 inform      labels required on every resource:
             team=team-core  service=orders-service  env=prod
 

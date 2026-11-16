@@ -50,7 +50,7 @@ Les lois qui portent un nom (Conway, Brooks, Hyrum, Goodhart...) sont expliquée
 
 Exemple : lire une citation d'article comme une fiche d'identité.
 
-```
+``` { .text .ex-illus title="Illustration" }
 DeCandia et al., « Dynamo: Amazon's Highly Available Key-value Store », SOSP 2007
 │           │                                                          │    │
 │           │                                                          │    └ année : le système décrit date de là, pas le produit actuel
@@ -205,7 +205,7 @@ Où ils servent : [Culture d'entreprise](culture-entreprise.md) (Team Topologies
 
 Les textes de la page, dans l'ordre. Les idées les plus utilisées aujourd'hui (modules, consensus, sagas) ont souvent plus de trente ans.
 
-```
+``` { .text .ex-illus title="Illustration" }
 1968  Conway (organisation et système), Dijkstra (goto)
 1972  Parnas (masquage d'information)
 1975  Brooks (The Mythical Man-Month), Saltzer et Schroeder (sécurité)
@@ -481,7 +481,7 @@ Entre 2003 et 2012, Google, Amazon et LinkedIn ont décrit leurs systèmes inter
 
 **Exemple.** Le hachage cohérent place nœuds et clés sur un anneau : chaque clé va au premier nœud rencontré dans le sens horaire. Les horloges vectorielles comptent les écritures par nœud, pour repérer deux versions écrites en parallèle.
 
-```
+``` { .text .ex-illus title="Illustration" }
 anneau 0 à 299, nœuds A(0) B(100) C(200) : la clé "cart:ada" hachée en 150 va sur C
 ajout de D(250) : seules les clés entre 200 et 250 passent de A à D (environ 1/N des clés)
 avec hash % N, presque toutes les clés auraient changé de nœud
@@ -595,7 +595,7 @@ Détails dans [SLI, SLO, budget d'erreur](observabilite.md#sli-slo-budget-derreu
 
 **Exemple.** Les liens hypermédias (<span class="term" data-term="hateoas">HATEOAS</span>, « l'hypermédia comme moteur de l'état de l'application ») : la réponse indique au client ce qu'il peut faire ensuite.
 
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "id": 42,
   "status": "pending",
@@ -788,7 +788,7 @@ Le livre blanc AWS « Disaster Recovery of Workloads on AWS » (2021) est cité 
 
 **Exemple.** La double dépense : dépenser deux fois la même pièce numérique, qui n'est qu'une donnée copiable. La chaîne de blocs (blockchain) est un registre public où chaque bloc contient l'empreinte (hash) du précédent. La preuve de travail oblige à chercher, par essais successifs, un nombre qui donne au bloc une empreinte commençant par plusieurs zéros : cela coûte du calcul, donc réécrire l'histoire coûte cher.
 
-```
+``` { .text .ex-illus title="Illustration" }
 ada envoie la même pièce à grace et à un marchand, au même moment
 le bloc 101 retient la première transaction, la seconde est rejetée comme double dépense
 pour annuler le paiement à grace, il faudrait refaire la preuve de travail du bloc 101 et de tous les suivants, plus vite que le reste du réseau

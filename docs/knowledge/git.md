@@ -37,7 +37,7 @@ flowchart LR
   L -- "git switch, git restore" --> W
 ```
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git status
 On branch feat/login
 Changes to be committed:          (staging area : partira au prochain commit)
@@ -54,7 +54,7 @@ Untracked files:                  (jamais suivi par git)
 ### Commit
 Une photo de l'ensemble du projet à un instant donné, avec un message, un auteur et un identifiant (<span class="term" data-term="git-sha">SHA</span>).
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git log --oneline
 a1b2c3d feat(login): add remember-me checkbox
 9f8e7d6 fix(api): handle empty payload
@@ -106,7 +106,7 @@ Une étiquette fixe sur un commit, en général pour une version.
 !!! noob "As noob"
     Une branche est un marque-page qui avance à chaque commit ; un tag est une punaise plantée une fois pour toutes sur une page précise. `v1.2.0` désignera toujours le même commit, même si `main` avance de cent commits. La phrase à retenir : **un tag ne bouge pas, et il faut le pousser explicitement (`git push origin v1.2.0`), sinon il reste sur ma machine.**
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git tag v1.2.0
 $ git push origin v1.2.0
 ```
@@ -116,7 +116,7 @@ $ git push origin v1.2.0
 
 ### Dépôt (repo) et clone
 Un **<span class="term" data-term="git-repository">dépôt</span>** est le projet avec tout son <span class="term" data-term="git-history">historique</span>. **<span class="term" data-term="git-clone">Cloner</span>**, c'est en télécharger une copie complète sur ma machine.
-```
+``` { .text .ex-ref title="Référence" }
 $ git clone https://github.com/moi/mon-repo.git
 ```
 
@@ -125,7 +125,7 @@ $ git clone https://github.com/moi/mon-repo.git
 
 ### SHA
 L'identifiant unique d'un commit, une suite de 40 caractères. On en utilise souvent les 7 premiers.
-```
+``` { .text .ex-ref title="Référence" }
 a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0   complet
 a1b2c3d                                     abrégé
 ```
@@ -135,7 +135,7 @@ a1b2c3d                                     abrégé
 
 ### Diff et hunk
 Un **<span class="term" data-term="git-diff">diff</span>** montre les différences entre deux versions : `-` pour les lignes retirées, `+` pour les lignes ajoutées. Un **<span class="term" data-term="git-hunk">hunk</span>** est un bloc de modifications voisines dans ce diff.
-```
+``` { .text .ex-ref title="Référence" }
 @@ -12,3 +12,3 @@          (début d'un hunk : ligne 12)
 -timeout = 30
 +timeout = 60
@@ -166,7 +166,7 @@ Un fichier qui fixe la version exacte de chaque <span class="term" data-term="de
 
 ### SLI, SLO, SLA
 Un **<span class="term" data-term="sli">SLI</span>** est l'indicateur mesuré, un **<span class="term" data-term="slo">SLO</span>** la cible interne que l'équipe se fixe sur cet indicateur, un **<span class="term" data-term="sla">SLA</span>** la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO. Une pratique Git n'a presque jamais de client externe, donc pas de SLA, seulement un SLO d'équipe. Exemple (chiffres d'exemple), le détail est dans [Observabilité](observabilite.md#sli-slo-budget-derreur) :
-```
+``` { .text .ex-illus title="Illustration" }
 SLI   âge médian des branches à la fusion ce mois-ci   1,6 jour
 SLO   objectif de l'équipe                              moins de 2 jours
 SLA   sans objet : aucun client ne paie pour l'âge de mes branches
@@ -189,7 +189,7 @@ SLA   sans objet : aucun client ne paie pour l'âge de mes branches
 
 Je pars toujours d'un `main` à jour, dans le dossier du <span class="term" data-term="git-repository">repo</span>.
 
-```
+``` { .text .ex-good title="Recommandé" }
 $ git fetch
 $ git switch -c feat/login origin/main
 ```
@@ -197,7 +197,7 @@ $ git switch -c feat/login origin/main
 
 À éviter : je pars de mon `main` local sans `fetch`. S'il date d'une semaine, ma branche part d'une base en retard de plusieurs dizaines de commits, et les conflits arrivent tous d'un coup au moment de la MR.
 
-```
+``` { .text .ex-bad title="À éviter" }
 # À éviter : main local jamais mis à jour, base périmée
 $ git switch main
 $ git switch -c feat/login
@@ -212,13 +212,13 @@ $ git switch -c feat/login
 
 À éviter : `git add .` ajoute tout ce qui traîne dans le dossier, y compris un `.env` absent du `.gitignore` ou un fichier de debug, et le message « fix » ne dit à personne ce qui a changé. Le mot de passe du `.env` part au prochain push.
 
-```
+``` { .text .ex-bad title="À éviter" }
 # À éviter : tout ajouter sans regarder, message vide de sens
 $ git add .
 $ git commit -m "fix"
 ```
 
-```
+``` { .text .ex-good title="Recommandé" }
 # Bien : je vérifie, j'ajoute seulement mes fichiers, le message dit ce qui change
 $ git status
 $ git add src/login.py
@@ -226,7 +226,7 @@ $ git commit -m "feat(login): add remember-me checkbox"
 ```
 
 Je ne veux <span class="term" data-term="git-commit">commiter</span> qu'une partie des modifications d'un fichier :
-```
+``` { .text .ex-ref title="Référence" }
 $ git add -p src/login.py
 Stage this hunk [y,n,q,a,d,s,e,?]? y
 ```
@@ -240,7 +240,7 @@ Stage this hunk [y,n,q,a,d,s,e,?]? y
 
 À éviter : des messages qui ne disent ni la nature ni l'objet du changement. Dans six mois, `git log` ne permet plus de retrouver quel commit a touché la connexion, et l'outil de release ne sait pas s'il doit monter la version.
 
-```
+``` { .text .ex-bad title="À éviter" }
 # À éviter : messages vagues, illisibles dans git log
 fix
 wip
@@ -248,7 +248,7 @@ update stuff
 changes after review
 ```
 
-```
+``` { .text .ex-good title="Recommandé" }
 # Bien : type, scope, description de ce qui change
 type(scope): description courte
 
@@ -283,7 +283,7 @@ Certains outils de release (cocogitto, semantic-release) calculent la version à
 | `git fetch`  | télécharge, ne touche à rien de local                    | à tout moment, sans risque : je veux voir ce que les autres ont poussé avant de décider quoi en faire |
 | `git pull`   | `fetch` puis <span class="term" data-term="merge-code">fusionne</span> dans ma branche courante           | je suis sur `main`, sans travail local en cours, et je veux juste me mettre à jour |
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git fetch
 $ git log --oneline main..origin/main
 c4d5e6f fix(api): handle timeout
@@ -319,7 +319,7 @@ gitGraph
 !!! noob "As noob"
     Rebaser, c'est reprendre mes notes et les recopier à la fin d'un cahier qui a avancé sans moi : le contenu est le même, mais ce sont de nouvelles pages (d'où les nouveaux SHA `D'` et `E'`). La phrase à retenir : **rebase réécrit mes commits, donc je le réserve aux commits que personne d'autre n'utilise.**
 
-```
+``` { .text .ex-good title="Recommandé" }
 # Bien : je rebase ma branche à moi seul
 $ git fetch
 $ git rebase origin/main
@@ -327,7 +327,7 @@ $ git rebase origin/main
 
 À éviter : rebaser une branche que d'autres utilisent. Ici `grace` a déjà commité sur `feat/checkout` : après mon rebase et mon force push, ses commits locaux reposent sur des SHA qui n'existent plus sur le serveur, et son prochain `pull` mélange les deux historiques en doublons.
 
-```
+``` { .text .ex-bad title="À éviter" }
 # À éviter : réécrire une branche partagée
 $ git switch feat/checkout
 $ git rebase origin/main
@@ -346,7 +346,7 @@ gitGraph
 ```
 
 **Merge** : crée un <span class="term" data-term="merge-commit">commit de fusion</span>. Historique fidèle mais avec des bifurcations.
-```
+``` { .text .ex-ref title="Référence" }
 $ git merge origin/main
 ```
 
@@ -382,7 +382,7 @@ Après un rebase d'une branche déjà poussée, je dois <span class="term" data-
 Exemple : sur `main`, quelqu'un a passé `timeout = 30` à `45`. Sur ma branche, mon commit `a1b2c3d` l'a passé à `60`.
 
 Pendant un **rebase**, le haut (`HEAD`, « ours ») est `origin/main`, la branche sur laquelle je rejoue, et le bas est **mon** commit :
-```
+``` { .text .ex-ref title="Référence" }
 $ git rebase origin/main
 CONFLICT (content): Merge conflict in src/login.py
 error: could not apply a1b2c3d... feat(login): raise timeout to 60
@@ -394,7 +394,7 @@ timeout = 60
 >>>>>>> a1b2c3d (feat(login): raise timeout to 60)
 ```
 Pendant un **merge**, c'est l'inverse : le haut est **ma** branche, le bas est `origin/main` :
-```
+``` { .text .ex-ref title="Référence" }
 $ git merge origin/main
 CONFLICT (content): Merge conflict in src/login.py
 
@@ -413,11 +413,11 @@ timeout = 45
 Piège : pendant un rebase, `git checkout --ours src/login.py` prend la version de `main`, pas la mienne.
 
 Je garde la bonne version, j'enlève les <span class="term" data-term="conflict-marker">marqueurs</span>. Fichier résolu (ici je garde 60 après en avoir parlé avec l'auteur du 45) :
-```
+``` { .text .ex-illus title="Illustration" }
 timeout = 60
 ```
 Puis :
-```
+``` { .text .ex-ref title="Référence" }
 $ git add src/login.py
 $ git rebase --continue        (ou git commit pour un merge)
 ```
@@ -460,12 +460,12 @@ flowchart TD
 
 À éviter : `--force` écrase la branche distante sans regarder. Si un collègue a poussé un commit de correction sur ma branche pendant que je rebasais, son commit disparaît du serveur, sans message d'erreur.
 
-```
+``` { .text .ex-bad title="À éviter" }
 # À éviter : écrase ce qui a été poussé entre-temps
 $ git push --force
 ```
 
-```
+``` { .text .ex-good title="Recommandé" }
 # Bien : refuse si la branche distante a bougé depuis mon dernier fetch
 $ git push --force-with-lease
 ```
@@ -496,14 +496,14 @@ Différence clé :
 
 À éviter : défaire un commit déjà fusionné sur `main` avec `reset` puis un force push. Toutes les personnes qui ont déjà récupéré `main` ont encore le commit, et leur prochain push le réintroduit (ou leur `pull` échoue en divergence).
 
-```
+``` { .text .ex-bad title="À éviter" }
 # À éviter : réécrire main, déjà partagé
 $ git switch main
 $ git reset --hard HEAD~1
 $ git push --force
 ```
 
-```
+``` { .text .ex-good title="Recommandé" }
 # Bien : un nouveau commit qui annule l'ancien, l'historique reste intact
 $ git switch main
 $ git revert a1b2c3d
@@ -513,7 +513,7 @@ $ git push
 !!! noob "As noob"
     `reset`, c'est arracher la page du cahier : pratique si personne ne l'a lue, dangereux si d'autres l'ont déjà recopiée. `revert`, c'est écrire une nouvelle page qui dit « j'annule ce qui est écrit page 12 ». La phrase à retenir : **ce qui est déjà poussé et partagé se défait avec `revert`.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 revert
 main  A ── B ── C ── C'      (C' annule C, tout le monde garde C dans l'historique)
 
@@ -555,7 +555,7 @@ Seul `--hard` détruit du travail non commité. Le commit retiré reste récupé
 !!! noob "As noob"
     Le reflog est le journal de bord de ma copie locale : il note chaque endroit où je suis passé, même ceux qu'aucune branche ne montre plus. Il reste sur ma machine et ne garde que ce qui a été commité. La phrase à retenir : **un commit « perdu » se retrouve presque toujours dans `git reflog`.**
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git reflog
 9f8e7d6 HEAD@{0}: reset: moving to HEAD~1
 a1b2c3d HEAD@{1}: commit: feat(login): add remember-me checkbox
@@ -583,7 +583,7 @@ Variante sans risque : je crée une branche dessus au lieu de déplacer la branc
 !!! noob "As noob"
     `git stash`, c'est poser mon travail en cours dans un tiroir pour libérer le bureau, puis le ressortir plus tard avec `git stash pop`. Le tiroir est sur ma machine seulement : rien n'est poussé, et un stash oublié depuis trois semaines finit souvent par entrer en conflit au moment de le ressortir. La phrase à retenir : **le stash dépanne pour quelques minutes, un commit `wip` sur ma branche est plus sûr pour plus longtemps.**
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git stash
 $ git switch main
 ...
@@ -591,7 +591,7 @@ $ git switch feat/login
 $ git stash pop
 ```
 Avec un nom, utile si j'en empile plusieurs :
-```
+``` { .text .ex-ref title="Référence" }
 $ git stash push -m "wip login form"
 $ git stash list
 stash@{0}: On feat/login: wip login form
@@ -604,7 +604,7 @@ stash@{0}: On feat/login: wip login form
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git cherry-pick c4d5e6f
 ```
 Exemple : un fix est sur `release/1.2` et je le veux aussi sur `main`, sans le reste de la branche.
@@ -633,13 +633,13 @@ Le commit recopié sur `main` reçoit un nouveau SHA : c'est une copie, pas un d
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
-```
+``` { .text .ex-illus title="Illustration" }
 avant                               après
 fix typo                            feat(login): add remember-me checkbox
 wip
 feat(login): add remember-me
 ```
-```
+``` { .text .ex-ref title="Référence" }
 $ git reset --soft origin/main
 $ git commit -m "feat(login): add remember-me checkbox"
 $ git push --force-with-lease
@@ -664,20 +664,20 @@ $ git push --force-with-lease
 | quel commit a cassé un test qui passait avant, par exemple en `v1.0` | `git bisect` |
 
 `git blame` affiche, pour chaque ligne, le commit, l'auteur et la date de sa dernière modification :
-```
+``` { .text .ex-ref title="Référence" }
 $ git blame src/login.py
 a1b2c3d4 (ada   2026-03-02 10:14:05 +0100 12) def login(user):
 e7f8a9b0 (grace 2026-04-15 16:40:21 +0200 13)     timeout = 60
 a1b2c3d4 (ada   2026-03-02 10:14:05 +0100 14)     return open_session(user, timeout)
 ```
 `git log -S` liste les commits qui ont ajouté ou retiré ce texte exact, dans n'importe quel fichier :
-```
+``` { .text .ex-ref title="Référence" }
 $ git log -S "timeout = 60" --oneline
 e7f8a9b fix(login): raise timeout to 60
 ```
 
 Exemple de `bisect` : le test passait en `v1.0`, il échoue maintenant.
-```
+``` { .text .ex-ref title="Référence" }
 $ git bisect start
 $ git bisect bad
 $ git bisect good v1.0
@@ -715,7 +715,7 @@ Chaque tour divise l'intervalle par deux : 1 000 commits demandent une dizaine d
 Le cas normal : je travaille sur une branche à la fois, et `git switch` me fait passer de l'une à l'autre.
 
 `git worktree` sert seulement quand j'ai vraiment besoin des deux en même temps, chacune dans son propre dossier : par exemple deux sessions qui tournent en même temps sur le même repo, l'une sur ma branche, l'autre sur un hotfix.
-```
+``` { .text .ex-ref title="Référence" }
 $ git worktree add ../mon-repo-hotfix hotfix/crash
 $ git worktree remove ../mon-repo-hotfix
 ```
@@ -729,7 +729,7 @@ $ git worktree remove ../mon-repo-hotfix
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
-```
+``` { .text .ex-ref title="Référence" }
 $ cat .gitignore
 .env
 __pycache__/
@@ -737,13 +737,13 @@ node_modules/
 ```
 Si le fichier est déjà suivi, `.gitignore` ne suffit pas. À éviter : ajouter `.env` au `.gitignore` et croire l'affaire réglée. Git continue de suivre un fichier déjà commité, donc ma prochaine modification de `.env` repart au commit suivant.
 
-```
+``` { .text .ex-bad title="À éviter" }
 # À éviter : .gitignore n'agit pas sur un fichier déjà suivi
 $ echo ".env" >> .gitignore
 $ git commit -am "chore: ignore .env"
 ```
 
-```
+``` { .text .ex-good title="Recommandé" }
 # Bien : retirer le fichier du suivi en le gardant sur le disque
 $ echo ".env" >> .gitignore
 $ git rm --cached .env

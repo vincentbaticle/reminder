@@ -93,7 +93,7 @@ A distributed **event log**. A message is not a task but a **fact** ("order 42 w
 !!! noob "As noob"
     Kafka is more like a ship's logbook than a mailbox: each event is written after the previous one, nothing is erased before the retention period ends, and each reader keeps its own bookmark (the offset). Two readers can read the same logbook without getting in each other's way, and a newcomer can start again from page one. The takeaway: **reading a Kafka message does not consume it, it only moves my bookmark.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 topic "orders" partition 0 : [created 41] [paid 41] [created 42] [paid 42] ...
                                                       ^                ^
                                   report-service (offset 2)   email-service (offset 4)
@@ -131,7 +131,7 @@ flowchart LR
 **<span class="term" data-term="kafka-connect">Kafka Connect</span>** and **<span class="term" data-term="debezium">Debezium</span>**: ready-made connectors. Debezium reads the changes of a database (<span class="term" data-term="cdc">CDC</span>, *change data capture*) and publishes them to Kafka without touching the application code.
 
 Example: a Debezium connector that follows the `public.orders` table of a PostgreSQL database. It is sent to Kafka Connect with `curl -X POST -H 'Content-Type: application/json' -d @orders-cdc.json http://kafka-connect:8083/connectors`.
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "name": "orders-cdc",
   "config": {
@@ -148,7 +148,7 @@ Example: a Debezium connector that follows the `public.orders` table of a Postgr
 }
 ```
 Each `INSERT`, `UPDATE` or `DELETE` becomes a message in the `orders-db.public.orders` topic (prefix, schema, table). For a created order (simplified content, the exact envelope depends on the converter):
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "before": null,
   "after": { "id": 42, "customer_id": "cust-ada", "status": "CREATED" },
@@ -173,7 +173,7 @@ Each `INSERT`, `UPDATE` or `DELETE` becomes a message in the `orders-db.public.o
 
 Google Cloud's **managed** <span class="term" data-term="message-broker">broker</span>. A publisher publishes to a **topic**, each **subscription** gets a copy. No server, no partition to tune, automatic scaling. Order is only guaranteed with an **ordering key**, and an optional <span class="term" data-term="exactly-once">exactly-once</span> mode exists ([Google documentation](https://cloud.google.com/pubsub/docs/subscription-overview), read in October 2026). Default <span class="term" data-term="message-retention">retention</span> is 7 days, extendable (to check depending on configuration).
 
-```bash
+``` { .bash .ex-ref title="Reference" }
 gcloud pubsub topics publish order-events --message='{"order_id": 42}' --ordering-key=42
 ```
 Example: a file dropped in a bucket triggers a Pub/Sub message, which wakes up a processing service that can even scale to zero instances when there is nothing to do.
@@ -238,7 +238,7 @@ My team wants to know whether messages are processed on time. A healthy queue dr
 | Pub/Sub  | the subscription's Cloud Monitoring metrics | `num_undelivered_messages`, `oldest_unacked_message_age` |
 
 Kafka example (simplified columns): a single partition falls behind, so the group is not slow everywhere.
-```
+``` { .text .ex-ref title="Reference" }
 $ kafka-consumer-groups.sh --bootstrap-server kafka:9092 --describe --group billing
 GROUP    TOPIC   PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
 billing  orders  0          1200            1210            10
@@ -283,7 +283,7 @@ Alert on the age of the oldest message rather than on a raw count: 10,000 waitin
 
 My service keeps rereading data that is slow to get, like a product page, and every read makes the user wait. **Redis** is an **in-memory** <span class="term" data-term="key-value-store">key-value</span> store: very fast (sub-millisecond reads, a common order of magnitude), but bounded by RAM. It is used as a **cache** (a temporary copy of that slow data), and also for counters, locks, sessions or simple queues.
 
-```bash
+``` { .bash .ex-ref title="Reference" }
 SET catalog:product:42 '{"title":"Lamp"}' EX 300   # expires in 300 s
 GET catalog:product:42
 INCR rate-limit:ada:2026-10-23T10:15               # rate-limit counter
@@ -294,7 +294,7 @@ Example: `catalog-service` takes 200 ms to build a product page. It stores it in
     It is the sticky note on the screen with a number I call often: faster than opening the directory, but if the number changes, the note lies until someone replaces it. The one thing to remember: **a cache is a fast, disposable copy, the truth stays in the database.**
 
 The most common mistake: a key set without expiry. If invalidation misses a case, like a price changed by a night-time import, the product page stays wrong indefinitely.
-```bash
+``` { .bash .ex-bad title="Avoid" }
 # Avoid: no expiry, the stale product page stays in the cache with no time limit
 SET catalog:product:42 '{"title":"Lamp"}'
 ```
@@ -334,7 +334,7 @@ sequenceDiagram
 
 
 **Observing the cache.** A cache is judged by its **hit ratio**: the share of reads served by Redis without going to the source. Redis counts hits, misses and evicted keys since it started:
-```
+``` { .text .ex-ref title="Reference" }
 $ redis-cli INFO stats | grep -E 'keyspace_hits|keyspace_misses|evicted_keys'
 keyspace_hits:950000
 keyspace_misses:50000
@@ -390,7 +390,7 @@ flowchart TD
 
 Two open source **relational** OLTP databases: tables, joins, <span class="term" data-term="db-transaction">transactions</span>. PostgreSQL is richer (<span class="term" data-term="jsonb">JSONB</span>, advanced types, extensions, stricter constraints). MySQL (and its cousin MariaDB) is historically very common with PHP, simple and fast on classic reads.
 
-```sql
+``` { .sql .ex-ref title="Reference" }
 -- Example: PostgreSQL, search an indexed JSON column
 SELECT id FROM orders WHERE metadata @> '{"channel": "mobile"}';
 ```
@@ -412,10 +412,12 @@ Google's managed **data warehouse**: OLAP, **columnar** storage, billions of row
 !!! noob "As noob"
     A row database stores each order as a complete card, like a binder; a columnar database stores all the values of one field together, like a spreadsheet read column by column. To sum five years of revenue, BigQuery reads only the amount column, not the addresses or the comments. The one thing to remember: **with columns, I pay and wait for the columns I read, not for the whole table.**
 
-```sql
+``` { .sql .ex-bad title="Avoid" }
 -- Avoid: SELECT * reads and bills every column of every row, even for a simple total
 SELECT * FROM analytics.orders;
+```
 
+``` { .sql .ex-good title="Recommended" }
 -- Good: costs only the volume of the columns read, never SELECT *
 SELECT country, SUM(total_cents) / 100 AS revenue
 FROM analytics.orders
@@ -461,18 +463,18 @@ My team adds a `status` column to the `orders` table: the change must reach ever
 **When**: as soon as a database lives longer than a prototype and exists in several environments. **Why**: no more `ALTER TABLE` run by hand in prod and forgotten in staging. Each environment knows where it stands, and the migration is reviewed in the MR along with the code that needs it. Cost: a migration already applied is never edited, I write a new one.
 
 What migrations replace:
-```bash
+``` { .bash .ex-bad title="Avoid" }
 # Avoid: an ALTER TABLE run by hand in prod, which staging never receives and nobody reviews
 psql "$PROD_DATABASE_URL" -c "ALTER TABLE orders ADD COLUMN status text"
 ```
 The versioned version:
-```
+``` { .text .ex-good title="Recommended" }
 db/migration/
 ├─ V1__create_orders.sql
 ├─ V2__add_orders_status.sql
 └─ V3__index_orders_customer_id.sql
 ```
-```bash
+``` { .bash .ex-ref title="Reference" }
 flyway migrate
 ```
 
@@ -517,7 +519,7 @@ Frameworks often ship their own (Django, Rails, Doctrine in PHP, Prisma): keep t
 { .tool-rel }
 
 
-```json
+``` { .json .ex-ref title="Reference" }
 GET /products/_search
 { "query": { "match": { "title": { "query": "desk lamb", "fuzziness": "AUTO" } } } }
 ```
@@ -525,7 +527,7 @@ Example: a catalog search bar finds "desk lamp" despite the typo, in 20 ms over 
 
 **MongoDB**: a **document** database. Each record is a JSON document, with no schema enforced by the database. Handy when each item has a different shape, tricky when I need joins and transactions across several collections.
 
-```js
+``` { .js .ex-ref title="Reference" }
 // Example: insert a free-form document, then search a nested field
 db.products.insertOne({ _id: 42, title: "Lamp", options: { colors: ["black", "white"] } })
 db.products.find({ "options.colors": "black" })
@@ -594,7 +596,7 @@ I have a job made of several steps that take time, and if one fails halfway, I w
 
 **How**: I chain **nodes** in a visual editor. Each node receives the previous node's data.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Webhook (POST /new-bug)
 └─ IF priority = "P1"
    ├─ true : Slack, message in #incidents
@@ -621,7 +623,7 @@ The workflow exports to JSON, to store in Git to keep a history.
 **How**: a **DAG** (graph of steps) in Python describes the order.
 
 The classic mistake: work at the top of the DAG file. The scheduler rereads every file every 30 seconds by default (to check for your version), so the query runs in a loop, even when no task is running.
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: a module-level query, replayed every time the scheduler reads the file
 customers = warehouse.fetch_all("SELECT id FROM customers")
 
@@ -629,7 +631,7 @@ with DAG("daily_revenue", schedule="0 3 * * *", start_date=datetime(2026, 1, 1),
     load = PythonOperator(task_id="load", python_callable=load_to_warehouse, op_args=[customers])
 ```
 
-```python
+``` { .python .ex-ref title="Reference" }
 # Example: DAG run every day at 3 am, extract then load
 with DAG("daily_revenue", schedule="0 3 * * *", start_date=datetime(2026, 1, 1), catchup=False):
     extract = PythonOperator(task_id="extract", python_callable=extract_orders)
@@ -658,7 +660,7 @@ with DAG("daily_revenue", schedule="0 3 * * *", start_date=datetime(2026, 1, 1),
 **How**:
 
 The mistake that breaks resumption: non-deterministic code in the workflow. On replay, `datetime.now()` no longer returns the same time, the branch taken changes, and Temporal raises a non-determinism error; the direct HTTP call is not recorded in the history and can go out a second time.
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the system clock and a direct network call in the workflow code
 @workflow.run
 async def run(self, order_id: int) -> None:
@@ -666,7 +668,7 @@ async def run(self, order_id: int) -> None:
         httpx.post(f"https://payments.example.com/charge/{order_id}")
 ```
 
-```python
+``` { .python .ex-ref title="Reference" }
 # Example: durable workflow, payment, 3-day wait, then review email
 @workflow.defn
 class OrderWorkflow:
@@ -696,7 +698,7 @@ Example: "charge, wait 3 days, send a review request". If the worker dies during
 
 **How**:
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: Argo workflow as a DAG, render waits for extract to finish
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
@@ -769,7 +771,7 @@ spec:
 
 My application produces files, like product photos or test reports, and I want to put them neither in the database nor on the disk of a server that may disappear. A **bucket** (Google Cloud Storage, Amazon S3) stores **objects**: a file plus its metadata, under a key (`products/42/photo.jpg`). Almost unlimited, cheap, reachable over HTTP. Not a disk: I do not edit a file in place, I replace it.
 
-```bash
+``` { .bash .ex-ref title="Reference" }
 gcloud storage cp report.html gs://my-test-reports/2026-10-23/report.html
 ```
 Example: CI HTML test reports go to a bucket, the database only keeps the link.
@@ -861,7 +863,7 @@ These tools do not all do the same thing: most **create cloud resources** (Terra
 **How**:
 
 The mistake not to make: a secret written in the HCL file. It goes into Git, and also in clear text into the state file Terraform writes after every `apply`.
-```hcl
+``` { .hcl .ex-bad title="Avoid" }
 # Avoid: the password in clear text, so in the Git history and in terraform.tfstate
 resource "google_sql_user" "app" {
   name     = "app"
@@ -870,7 +872,7 @@ resource "google_sql_user" "app" {
 }
 ```
 
-```hcl
+``` { .hcl .ex-ref title="Reference" }
 # Example: bucket whose files are deleted after 90 days
 resource "google_storage_bucket" "test_reports" {
   name     = "my-test-reports"
@@ -881,7 +883,7 @@ resource "google_storage_bucket" "test_reports" {
   }
 }
 ```
-```bash
+``` { .bash .ex-ref title="Reference" }
 terraform plan
 terraform apply
 ```
@@ -921,7 +923,7 @@ flowchart LR
 
 **How**:
 
-```
+``` { .text .ex-illus title="Illustration" }
 infra/
 ├─ terragrunt.hcl
 ├─ staging/
@@ -929,7 +931,7 @@ infra/
 └─ prod/
    └─ reports-bucket/terragrunt.hcl
 ```
-```hcl
+``` { .hcl .ex-ref title="Reference" }
 # Example: prod config that reuses the bucket module and only sets its inputs
 include "root" {
   path = find_in_parent_folders()
@@ -963,14 +965,14 @@ The root file holds the state configuration once. The command to plan everything
 
 **How**:
 
-```python
+``` { .python .ex-ref title="Reference" }
 import pulumi_gcp as gcp
 
 # Example: a Python loop creates one bucket per team
 for team in ["team-core", "team-data"]:
     gcp.storage.Bucket(f"{team}-reports", location="EU")
 ```
-```bash
+``` { .bash .ex-ref title="Reference" }
 pulumi preview
 pulumi up
 ```
@@ -995,7 +997,7 @@ pulumi up
 
 **How** (API group to check per provider and version):
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: a bucket described as a Kubernetes resource
 apiVersion: storage.gcp.upbound.io/v1beta1
 kind: Bucket
@@ -1029,13 +1031,13 @@ spec:
 **How**:
 
 The mistake that breaks idempotency: a shell command instead of a module. It is replayed on every run and adds one more line to the file each time.
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: echo >> on every run, the directive is duplicated and nginx refuses to restart
 - name: add proxy config
   ansible.builtin.shell: echo "include /etc/nginx/proxy.conf;" >> /etc/nginx/nginx.conf
 ```
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: playbook that installs nginx then starts it
 - name: reverse proxy
   hosts: web
@@ -1051,7 +1053,7 @@ The mistake that breaks idempotency: a shell command instead of a module. It is 
         state: started
         enabled: true
 ```
-```bash
+``` { .bash .ex-ref title="Reference" }
 ansible-playbook -i inventory.ini proxy.yml --check
 ansible-playbook -i inventory.ini proxy.yml
 ```
@@ -1074,7 +1076,7 @@ ansible-playbook -i inventory.ini proxy.yml
 
 **How**:
 
-```hcl
+``` { .hcl .ex-ref title="Reference" }
 # Example: the source, the base image and the name of the image produced
 source "googlecompute" "runner" {
   project_id          = "my-project"
@@ -1092,7 +1094,7 @@ build {
   }
 }
 ```
-```bash
+``` { .bash .ex-ref title="Reference" }
 packer build runner.pkr.hcl
 ```
 Ansible can be the `provisioner` instead of the shell script: Packer builds, Ansible configures, Terraform creates the machines from the image.
@@ -1156,7 +1158,7 @@ flowchart LR
 
 **When**: as soon as an application or CI needs a secret. Never a plaintext secret in Git, nor in a Terraform file.
 
-```bash
+``` { .bash .ex-ref title="Reference" }
 vault kv get -field=password secret/prod/my-api/database
 ```
 
@@ -1195,7 +1197,7 @@ I have several services behind the same address, and each one should check the c
 
 **KrakenD**: declarative gateway (one JSON file), <span class="term" data-term="stateless">stateless</span>, very fast, able to aggregate several backend calls into one response.
 
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "endpoint": "/v1/orders/{id}",
   "backend": [{ "host": ["http://orders-service"], "url_pattern": "/orders/{id}" }]
@@ -1205,7 +1207,7 @@ I have several services behind the same address, and each one should check the c
 **nginx**: general-purpose web server and <span class="term" data-term="reverse-proxy">reverse proxy</span>. Serves static files, does routing and <span class="term" data-term="tls-termination">TLS termination</span>. Often used as the **<span class="term" data-term="ingress">Ingress</span>** in Kubernetes.
 
 An **Ingress** is a Kubernetes object that describes how HTTP traffic from outside the cluster is routed to internal services, based on the domain name and the path. An **Ingress controller** (nginx, Traefik, the cloud provider's own) reads these objects and does the actual routing. Example: `api.example.com/orders` goes to orders-service.
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: routes api.example.com/orders to orders-service
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -1280,7 +1282,7 @@ A reverse proxy receives requests on behalf of the services, terminates HTTPS an
 
 
 The same site with Caddy, HTTPS included:
-```
+``` { .text .ex-ref title="Reference" }
 # Example: reverse proxy to orders-service, HTTPS handled by Caddy
 api.example.com {
     reverse_proxy orders-service:8080
@@ -1335,14 +1337,14 @@ api.example.com {
 
 
 The mistake that lies: making the job pass whatever happens.
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: || true turns every pytest failure into a success, the pipeline stays green with red tests
 test:
   script:
     - pytest || true
 ```
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: GitLab CI job that runs pytest and publishes the JUnit report
 test:
   stage: test
@@ -1416,13 +1418,13 @@ My team wants to ship a new checkout flow without forcing it on everyone at once
 { .tool-rel }
 
 
-```python
+``` { .python .ex-ref title="Reference" }
 # Example: new flow if the flag is on for this user, otherwise the old one
 if unleash.is_enabled("new-checkout", context={"userId": "ada"}):
     return new_checkout(cart)
 return old_checkout(cart)
 ```
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the flag read only once at startup, switching it off in the UI changes nothing until the next restart
 NEW_CHECKOUT = unleash.is_enabled("new-checkout")
 ```
@@ -1467,7 +1469,7 @@ The concepts (logs, metrics, traces, SLOs) are in [Observability](observabilite.
 !!! noob "As noob"
     OpenTelemetry is the standard power socket: the application produces its logs, metrics and traces in a common format, and any compatible tool (Datadog, Grafana or another) can plug into it. Changing tools means changing the appliance, not rewiring the house. The takeaway: **instrument once with the standard, then pick or change the storage tool later.**
 
-```python
+``` { .python .ex-ref title="Reference" }
 from opentelemetry import trace
 
 # Example: the call to save_order is measured in a create_order span
@@ -1564,14 +1566,14 @@ The concepts (pyramid, contracts, <span class="term" data-term="flaky-test">flak
 
 The reference Python test framework: `test_*` functions, plain `assert`, **fixtures** to prepare data ([examples](qualite.md#testing-vocabulary)). Ideal for API tests.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: no assert, the test passes even when the API answers 500 with a JSON error body
 def test_get_order(api_client):
     response = api_client.get("/orders/42")
     print(response.json())
 ```
 
-```python
+``` { .python .ex-ref title="Reference" }
 # Example: a pytest test, the api_client fixture is injected
 def test_get_order_returns_200(api_client):
     response = api_client.get("/orders/42")
@@ -1593,7 +1595,7 @@ def test_get_order_returns_200(api_client):
 
 Two **API clients** to send requests by hand, organize them in collections and replay them. **Postman**: the most widespread, collections stored in its cloud. **Bruno**: open source, collections as text files in the Git repository, so reviewed in MRs with the code.
 
-```
+``` { .text .ex-ref title="Reference" }
 # orders/get-order.bru
 get {
   url: {{baseUrl}}/orders/42
@@ -1624,7 +1626,7 @@ assert {
 
 Three **end-to-end** (E2E) testing tools that drive a real browser.
 
-```ts
+``` { .ts .ex-bad title="Avoid" }
 // Avoid: a fixed pause and a generated CSS class; isVisible() does not wait, so the test depends on the page's speed
 test("ada sees her order", async ({ page }) => {
   await page.goto("/orders/42");
@@ -1633,7 +1635,7 @@ test("ada sees her order", async ({ page }) => {
 });
 ```
 
-```ts
+``` { .ts .ex-ref title="Reference" }
 // Example: Playwright test that opens the page and checks the heading
 test("ada sees her order", async ({ page }) => {
   await page.goto("/orders/42");
@@ -1669,12 +1671,12 @@ test("ada sees her order", async ({ page }) => {
 
 Three **load testing** tools: simulate hundreds of <span class="term" data-term="virtual-user">virtual users</span> (VUs) to measure latency and errors.
 
-```js
+``` { .js .ex-bad title="Avoid" }
 // Avoid: no threshold, k6 exits with code 0 even if the p95 reaches 5 s, so the CI stays green
 export const options = { vus: 50, duration: "1m" };
 ```
 
-```js
+``` { .js .ex-ref title="Reference" }
 // Example: 50 VUs for 1 min, failing if the p95 exceeds 300 ms
 import http from "k6/http";
 export const options = { vus: 50, duration: "1m", thresholds: { http_req_duration: ["p(95)<300"] } };
@@ -1714,7 +1716,7 @@ My site can break in production while every CI test was green, for example becau
 
 **Checkly**: a SaaS synthetic testing platform whose tests are standard **Playwright**. The same code can therefore serve in CI and in production monitoring. It follows the *monitoring as code* approach: tests and their frequency are described in the repository, and the CI deploys them with the Checkly CLI.
 
-```ts
+``` { .ts .ex-ref title="Reference" }
 // checkly.config.ts
 // Example: checks run every 10 min from two regions
 import { defineConfig } from "checkly";
@@ -1729,7 +1731,7 @@ export default defineConfig({
   },
 });
 ```
-```bash
+``` { .bash .ex-ref title="Reference" }
 npx checkly test     # runs the checks once, from Checkly's runners
 npx checkly deploy   # publishes them: they then run every 10 min
 ```
@@ -1795,13 +1797,13 @@ Capabilities as seen in the vendors' documentation in October 2026 (to check, th
 { .tool-rel }
 
 
-```toml
+``` { .toml .ex-bad title="Avoid" }
 # Avoid: "latest" gives a different version depending on the machine and the day of the CI run
 [tools]
 python = "latest"
 ```
 
-```toml
+``` { .toml .ex-ref title="Reference" }
 # mise.toml
 # Example: the project's tool versions and a test task
 [tools]
@@ -1869,7 +1871,7 @@ Detailed comparison by language, lockfiles, conflict resolution, private registr
 
 **Jira**: ticket and sprint tracking. **Confluence**: team wiki. **Slack**: instant messaging. **Backstage**: open source developer portal (created by Spotify) that lists every service, its owners and its documentation, and offers templates to create a new service.
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # catalog-info.yaml, at the root of the repository, read by Backstage
 # Example: the service's entry in the catalog, with its owning team
 apiVersion: backstage.io/v1alpha1
@@ -1941,7 +1943,7 @@ A public radar gives one company's opinion on **its** context: Thoughtworks says
 
 Example: the CSV file BYOR reads, one line per entry (fictitious content):
 
-```
+``` { .text .ex-ref title="Reference" }
 name,ring,quadrant,isNew,description
 Testcontainers,adopt,tools,FALSE,"Throwaway databases in integration tests, used by every team since 2025."
 Consumer-driven contracts,trial,techniques,TRUE,"Trial between orders-service and billing-service, to extend if it holds for three months."

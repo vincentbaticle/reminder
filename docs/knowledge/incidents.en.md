@@ -39,7 +39,7 @@ The French word "incidentologie" has no exact English equivalent. English speake
 
 **MTTD, MTTA, MTTR**: three average durations measured over a series of incidents.
 
-```
+``` { .text .ex-illus title="Illustration" }
 14:00  the problem actually starts
 14:12  an alert fires                     MTTD: 12 min (Mean Time To Detect)
 14:15  the on-call person takes it        MTTA: 3 min  (Mean Time To Acknowledge)
@@ -115,7 +115,7 @@ flowchart LR
 
 Example timeline, on a Tuesday:
 
-```
+``` { .text .ex-illus title="Illustration" }
 14:02  orders-service v2.14 deployed (new shipping fee calculation rule)
 14:06  payment error rate goes from 0.2 % to 9 %
 14:09  alert "5 % of payments failing for 3 min", linus (on-call) takes it
@@ -259,14 +259,14 @@ Simple rules:
 
 Avoid: a message written by the person debugging, in their own vocabulary. Support does not know what to tell customers, whether there is a workaround or when the next update comes, so they start writing in the incident channel again.
 
-```
+``` { .text .ex-bad title="Avoid" }
 payments-service in CrashLoopBackOff, we think it is v2.14 or maybe the database,
 looking into it. Please do not disturb us.
 ```
 
 Good: a message template that states the impact, the action, the workaround and the next update:
 
-```
+``` { .text .ex-good title="Recommended" }
 [SEV2] Card payments failing: in progress
 Impact     : about 9 % of card payments have been failing since 14:06.
              Other payment methods work.
@@ -331,7 +331,7 @@ An alert wakes the on-call person at 3 a.m., on a service they barely know: they
 
 Avoid: the runbook written from memory by the only person who knows the service. At 3 a.m., "restart if needed" says neither when nor how, and "empty it" loses real payments.
 
-```markdown
+``` { .markdown .ex-bad title="Avoid" }
 # Runbook payments
 
 If it is slow, check the logs and restart if needed.
@@ -341,7 +341,7 @@ Ask ada if it does not come back.
 
 Good: the same runbook, linked from the alert, with thresholds, copyable commands and what not to do:
 
-```markdown
+``` { .markdown .ex-good title="Recommended" }
 # Runbook: "payments-events" queue growing
 
 Alert : oldest message > 5 min (link to the dashboard)
@@ -397,7 +397,7 @@ When I am stuck, I explain the code line by line, out loud, to a colleague or an
 
 For the invoices, I start from the data, not the code: I fetch a few faulty invoices and look for what they have in common (currency, country, number of lines). They are all in Swiss francs. I write the test that fails with an order in CHF, then let `git bisect` look for the faulty commit among the thirty: about five steps (2 to the power of 5 = 32).
 
-```
+``` { .text .ex-ref title="Reference" }
 $ git bisect start
 $ git bisect bad HEAD
 $ git bisect good v2.13.0
@@ -409,15 +409,16 @@ a41c9e2 is the first bad commit
 
 The commit replaced the amount formatting with a function that does not know the CHF currency and returns an empty string instead of an error.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: an unknown currency gives an empty string, and the invoice goes out with an empty total
 def format_money(amount, currency):
     symbol = SYMBOLS.get(currency)
     if symbol is None:
         return ""
     return f"{amount:.2f} {symbol}"
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: an unknown currency fails loudly, and CHF is added to the table
 def format_money(amount, currency):
     try:
@@ -467,7 +468,7 @@ Two ideas guide the analysis:
 
 The Swiss cheese drawn for an example incident (payments with an expired card fail silently): four layers of defense, each with a hole, and the holes aligned.
 
-```
+``` { .text .ex-illus title="Illustration" }
                hole
 code review  ══════ ════════════   the review reads the diff, not the changed config file
 tests        ══════ ════════════   no test with an expired card
@@ -485,7 +486,7 @@ Plugging a single hole is enough to stop this bug; the postmortem looks for one 
 
 Avoid: contributing factors that name a person. linus learns that staying quiet is safer next time, and the action "be more careful" changes nothing in the system: the next 3-decimal amount will pass review, tests and deployment again without being stopped.
 
-```markdown
+``` { .markdown .ex-bad title="Avoid" }
 Contributing factors
   1. linus deployed without checking the amount format.
   2. The code review was sloppy.
@@ -497,7 +498,7 @@ Actions
 
 Good: the filled-in blameless template, for the timeline of the section [The lifecycle of an incident](#the-lifecycle-of-an-incident):
 
-```markdown
+``` { .markdown .ex-good title="Recommended" }
 # Postmortem: card payments failing, 2026-10-13 (SEV2)
 
 Summary (5 lines max)
@@ -597,7 +598,7 @@ A postmortem looks at one incident. Useful learning often comes from reading **s
 !!! noob "As noob"
     It is the doctor who does not treat each cough on its own, but notices that three patients from the same building have been coughing since the same week: the problem may be the ventilation, not three colds. The one thing to remember: **a pattern that comes back from one incident to the next points to a weakness of the system, not bad luck.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 5 incidents over 6 months, read together (example)
 
 incident                         detected by          pattern
@@ -654,7 +655,7 @@ The trouble with MTTR: incident durations do not follow a bell curve. Most are s
 !!! noob "As noob"
     It is the average income in a café when a billionaire walks in: the average shoots up while nobody else changed. A single very long incident does the same to the MTTR. The one thing to remember: **for incident durations, the median and the list say more than the average.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 8 incidents this quarter (example), in minutes: 6, 9, 12, 15, 18, 22, 30, 410
 mean: 65 min    median: 16.5 min
 without the 410 min incident: mean 16 min
@@ -761,7 +762,7 @@ flowchart LR
 
 Avoid: a "test" run in production with no hypothesis and no stop criterion. Nobody knows what it was meant to prove, the outage lasts until someone thinks of ending it, and real customers suffer it for nothing.
 
-```
+``` { .text .ex-bad title="Avoid" }
 Game day, production, Friday 17:00 (example)
 Hypothesis : none, we will see.
 Injection  : payments-service scaled to 0 replicas, no planned duration.
@@ -771,7 +772,7 @@ Observed   : 40 min of failed payments for real customers, nothing written down.
 
 Good: the same exercise in pre-production, with a written hypothesis, a duration and actions:
 
-```
+``` { .text .ex-good title="Recommended" }
 Game day, pre-production, Thursday 10:00 (example)
 Hypothesis : if payments-service goes down, orders-service queues the payments
              and the "payments pending" alert fires within 5 min.

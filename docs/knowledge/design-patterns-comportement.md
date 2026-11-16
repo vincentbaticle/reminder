@@ -106,7 +106,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : une branche par mode de livraison, que chaque nouveau mode vient modifier
@@ -125,7 +125,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     # À éviter : une branche par mode de livraison, que chaque nouveau mode vient modifier
     def checkout_total(cart_cents: int, weight_kg: float, mode: str) -> int:
         if mode == "express":
@@ -139,7 +139,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : une branche par mode de livraison, que chaque nouveau mode vient modifier
     static int checkoutTotal(int cartCents, double weightKg, String mode) {
         int shipping;
@@ -158,7 +158,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommandé" }
     <?php
 
     // Exemple : le contrat commun à tous les modes de livraison
@@ -197,7 +197,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommandé" }
     from typing import Protocol
 
 
@@ -229,7 +229,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommandé" }
     // Exemple : le contrat commun à tous les modes de livraison
     interface ShippingStrategy {
         int cost(double weightKg);
@@ -325,7 +325,7 @@ sequenceDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : le paiement connaît et appelle chaque traitement, dans un ordre figé
@@ -340,7 +340,7 @@ sequenceDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     # À éviter : le paiement connaît et appelle chaque traitement, dans un ordre figé
     def pay(order_id: int) -> None:
         charge_card(order_id)
@@ -351,7 +351,7 @@ sequenceDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : le paiement connaît et appelle chaque traitement, dans un ordre figé
     static void pay(int orderId) {
         chargeCard(orderId);
@@ -365,7 +365,7 @@ sequenceDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommandé" }
     <?php
 
     // Bien : l'émetteur garde une liste d'abonnés et les prévient sans les connaître
@@ -396,7 +396,7 @@ sequenceDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommandé" }
     from collections.abc import Callable
 
     OrderListener = Callable[[int], None]
@@ -424,7 +424,7 @@ sequenceDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommandé" }
     import java.util.ArrayList;
     import java.util.List;
     import java.util.function.IntConsumer;
@@ -507,7 +507,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : l'action est un appel direct, rien n'est gardé pour la défaire
@@ -525,7 +525,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     # À éviter : l'action est un appel direct, rien n'est gardé pour la défaire
     def add_item(cart: Cart, sku: str) -> None:
         cart.items.append(sku)
@@ -538,7 +538,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : l'action est un appel direct, rien n'est gardé pour la défaire
     static void addItem(List<String> cart, String sku) {
         cart.add(sku);
@@ -554,7 +554,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommandé" }
     <?php
 
     // Exemple : toute commande sait s'exécuter et s'annuler
@@ -595,7 +595,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommandé" }
     from dataclasses import dataclass
     from typing import Protocol
 
@@ -636,7 +636,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommandé" }
     import java.util.ArrayDeque;
     import java.util.ArrayList;
     import java.util.Deque;
@@ -720,7 +720,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : la séquence lire, en-tête, lignes est écrite dans chaque export
@@ -740,7 +740,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     # À éviter : la séquence lire, en-tête, lignes est écrite dans chaque export
     def csv_report() -> str:
         rows = [("FR", 1200), ("DE", 900)]
@@ -755,7 +755,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : la séquence lire, en-tête, lignes est écrite dans chaque export
     static String csvReport() {
         var rows = Map.of("FR", 1200, "DE", 900);
@@ -773,7 +773,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommandé" }
     <?php
 
     // Bien : la classe parente fixe l'ordre des étapes, une fois pour toutes
@@ -807,7 +807,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommandé" }
     from abc import ABC, abstractmethod
 
 
@@ -843,7 +843,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommandé" }
     import java.util.List;
     import java.util.stream.Collectors;
 
@@ -954,7 +954,7 @@ sequenceDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : authentification et limite de débit recopiées en tête de chaque contrôleur
@@ -981,7 +981,7 @@ sequenceDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     # À éviter : authentification et limite de débit recopiées en tête de chaque contrôleur
     def list_orders(request: dict[str, str]) -> str:
         if "token" not in request:
@@ -1000,7 +1000,7 @@ sequenceDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : authentification et limite de débit recopiées en tête de chaque contrôleur
     static String listOrders(Map<String, String> request) {
         if (!request.containsKey("token")) {
@@ -1025,7 +1025,7 @@ sequenceDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommandé" }
     <?php
 
     // Exemple : un maillon reçoit la requête et le maillon suivant
@@ -1069,7 +1069,7 @@ sequenceDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommandé" }
     from collections.abc import Callable
 
     # Exemple : un maillon reçoit la requête et le maillon suivant
@@ -1107,7 +1107,7 @@ sequenceDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommandé" }
     import java.util.List;
     import java.util.Map;
     import java.util.function.Function;
@@ -1189,7 +1189,7 @@ stateDiagram-v2
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-bad title="À éviter" }
     <?php
 
     // À éviter : chaque méthode écrit le statut sans vérifier l'état de départ
@@ -1207,7 +1207,7 @@ stateDiagram-v2
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-bad title="À éviter" }
     # À éviter : chaque méthode écrit le statut sans vérifier l'état de départ
     class Order:
         def __init__(self) -> None:
@@ -1225,7 +1225,7 @@ stateDiagram-v2
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-bad title="À éviter" }
     // À éviter : chaque méthode écrit le statut sans vérifier l'état de départ
     final class Order {
         String status = "created";
@@ -1242,7 +1242,7 @@ stateDiagram-v2
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommandé" }
     <?php
 
     // Exemple : les états possibles d'une commande
@@ -1286,7 +1286,7 @@ stateDiagram-v2
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommandé" }
     from enum import Enum
 
 
@@ -1326,7 +1326,7 @@ stateDiagram-v2
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommandé" }
     import java.util.Set;
 
     // Exemple : les états possibles d'une commande
@@ -1392,7 +1392,7 @@ classDiagram
 
 === "PHP"
 
-    ```php
+    ``` { .php .ex-good title="Recommandé" }
     <?php
 
     // Exemple : chaque état écrit sa propre version de cancel()
@@ -1432,7 +1432,7 @@ classDiagram
 
 === "Python"
 
-    ```python
+    ``` { .python .ex-good title="Recommandé" }
     # Bien : commande créée, l'annulation la ferme simplement
     class CreatedState:
         def cancel(self, order: "Order") -> None:
@@ -1460,7 +1460,7 @@ classDiagram
 
 === "Java"
 
-    ```java
+    ``` { .java .ex-good title="Recommandé" }
     // Exemple : chaque état écrit sa propre version de cancel()
     interface OrderState { void cancel(Order order); }
 

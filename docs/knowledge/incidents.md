@@ -39,7 +39,7 @@ Les <span class="term" data-term="alert-monitoring">alertes</span>, les <span cl
 
 **MTTD, MTTA, MTTR** : trois durées moyennes mesurées sur une série d'incidents.
 
-```
+``` { .text .ex-illus title="Illustration" }
 14:00  début réel du problème
 14:12  une alerte sonne                 MTTD : 12 min (Mean Time To Detect, détecter)
 14:15  l'astreinte prend l'alerte       MTTA : 3 min  (Mean Time To Acknowledge, accuser réception)
@@ -115,7 +115,7 @@ flowchart LR
 
 Exemple de chronologie, un mardi :
 
-```
+``` { .text .ex-illus title="Illustration" }
 14:02  déploiement d'orders-service v2.14 (nouvelle règle de calcul des frais de port)
 14:06  le taux d'erreur du paiement passe de 0,2 % à 9 %
 14:09  alerte « 5 % des paiements en erreur depuis 3 min », linus (astreinte) la prend
@@ -259,14 +259,14 @@ Règles simples :
 
 À éviter : un message écrit par la personne qui débogue, dans son vocabulaire à elle. Le support ne sait pas quoi répondre aux clients, ignore s'il existe un contournement et quand viendra la suite, donc il se remet à écrire dans le canal d'incident.
 
-```
+``` { .text .ex-bad title="À éviter" }
 payments-service en CrashLoopBackOff, on pense que c'est la v2.14 ou peut-être la base,
 on regarde. Merci de ne pas nous déranger.
 ```
 
 Bien : un modèle de message qui dit l'impact, l'action, le contournement et le prochain point :
 
-```
+``` { .text .ex-good title="Recommandé" }
 [SEV2] Paiements par carte en échec : en cours
 Impact     : environ 9 % des paiements par carte échouent depuis 14:06.
              Les autres moyens de paiement fonctionnent.
@@ -331,7 +331,7 @@ Une alerte réveille la personne d'astreinte à 3 h du matin, sur un service qu'
 
 À éviter : le runbook écrit de mémoire par la seule personne qui connaît le service. À 3 h du matin, « redémarrer si besoin » ne dit ni quand ni comment, et « la vider » fait perdre des paiements réels.
 
-```markdown
+``` { .markdown .ex-bad title="À éviter" }
 # Runbook payments
 
 Si ça rame, regarder les logs et redémarrer si besoin.
@@ -341,7 +341,7 @@ Voir avec ada si ça ne repart pas.
 
 Bien : le même runbook, relié à l'alerte, avec des seuils, des commandes copiables et ce qu'il ne faut pas faire :
 
-```markdown
+``` { .markdown .ex-good title="Recommandé" }
 # Runbook : file « payments-events » qui grossit
 
 Alerte : message le plus ancien > 5 min (lien vers le tableau de bord)
@@ -397,7 +397,7 @@ Quand je bloque, j'explique le code ligne par ligne, à voix haute, à un collè
 
 Pour les factures, je commence par les données, pas par le code : je récupère quelques factures fautives et je cherche ce qu'elles ont en commun (devise, pays, nombre de lignes). Elles sont toutes en francs suisses. J'écris le test qui échoue avec une commande en CHF, puis je laisse `git bisect` chercher le commit fautif parmi les trente : environ cinq étapes (2 puissance 5 = 32).
 
-```
+``` { .text .ex-ref title="Référence" }
 $ git bisect start
 $ git bisect bad HEAD
 $ git bisect good v2.13.0
@@ -409,15 +409,16 @@ a41c9e2 is the first bad commit
 
 Le commit a remplacé le formatage des montants par une fonction qui ne connaît pas la devise CHF et renvoie une chaîne vide au lieu d'une erreur.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : une devise inconnue donne une chaîne vide, et la facture part avec un total vide
 def format_money(amount, currency):
     symbol = SYMBOLS.get(currency)
     if symbol is None:
         return ""
     return f"{amount:.2f} {symbol}"
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : une devise inconnue échoue bruyamment, et CHF est ajoutée à la table
 def format_money(amount, currency):
     try:
@@ -467,7 +468,7 @@ Deux idées guident l'analyse :
 
 Le fromage suisse dessiné pour un incident d'exemple (les paiements par carte expirée échouent en silence) : quatre couches de défense, chacune avec un trou, et les trous alignés.
 
-```
+``` { .text .ex-illus title="Illustration" }
                  trou
 revue de code  ══════ ════════════   la revue lit le diff, pas le fichier de config modifié
 tests          ══════ ════════════   aucun test avec une carte expirée
@@ -485,7 +486,7 @@ Boucher un seul trou suffit à arrêter ce bug-là ; le postmortem cherche une a
 
 À éviter : des facteurs contributifs qui nomment une personne. linus retient qu'il vaut mieux se taire la prochaine fois, et l'action « faire attention » ne change rien au système : le prochain montant à 3 décimales repassera la revue, les tests et le déploiement sans être arrêté.
 
-```markdown
+``` { .markdown .ex-bad title="À éviter" }
 Facteurs contributifs
   1. linus a déployé sans vérifier le format du montant.
   2. La revue de code a été bâclée.
@@ -497,7 +498,7 @@ Actions
 
 Bien : le modèle rempli sans coupable, pour la chronologie de la section [Le cycle de vie d'un incident](#le-cycle-de-vie-dun-incident) :
 
-```markdown
+``` { .markdown .ex-good title="Recommandé" }
 # Postmortem : paiements par carte en échec, 2026-10-13 (SEV2)
 
 Résumé (5 lignes max)
@@ -597,7 +598,7 @@ Un postmortem regarde un incident. L'apprentissage utile vient souvent de la lec
 !!! noob "As noob"
     C'est le médecin qui ne traite pas chaque toux à part, mais remarque que trois patients du même immeuble toussent depuis la même semaine : le problème est peut-être la ventilation, pas trois rhumes. La phrase à retenir : **un motif qui revient d'un incident à l'autre désigne une faiblesse du système, pas de la malchance.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 5 incidents sur 6 mois, relus ensemble (exemple)
 
 incident                         détecté par        motif
@@ -654,7 +655,7 @@ Le problème du MTTR : les durées d'incident ne suivent pas une courbe en cloch
 !!! noob "As noob"
     C'est le salaire moyen d'un café quand un milliardaire y entre : la moyenne s'envole alors que personne d'autre n'a changé. Un seul incident très long fait la même chose au MTTR. La phrase à retenir : **sur des durées d'incident, la médiane et la liste disent plus que la moyenne.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 8 incidents du trimestre (exemple), en minutes : 6, 9, 12, 15, 18, 22, 30, 410
 moyenne : 65 min    médiane : 16,5 min
 sans l'incident de 410 min : moyenne 16 min
@@ -761,7 +762,7 @@ flowchart LR
 
 À éviter : un « test » lancé en production sans hypothèse ni critère d'arrêt. Personne ne sait ce qu'on cherchait à prouver, la panne dure jusqu'à ce que quelqu'un pense à l'arrêter, et de vrais clients la subissent pour rien.
 
-```
+``` { .text .ex-bad title="À éviter" }
 Game day, production, vendredi 17:00 (exemple)
 Hypothèse   : aucune, on verra bien.
 Injection   : payments-service passé à 0 réplica, sans durée prévue.
@@ -771,7 +772,7 @@ Observé     : 40 min de paiements en échec pour de vrais clients, rien d'écri
 
 Bien : le même exercice en préproduction, avec une hypothèse écrite, une durée et des actions :
 
-```
+``` { .text .ex-good title="Recommandé" }
 Game day, préproduction, jeudi 10:00 (exemple)
 Hypothèse   : si payments-service tombe, orders-service met les paiements en
               file et l'alerte « paiements en attente » sonne en moins de 5 min.

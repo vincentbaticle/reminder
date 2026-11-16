@@ -51,7 +51,7 @@ Les livres de gestion, de produit et de stratégie sont ici. Les articles techni
 
 Une phrase de comité de direction, décodée :
 
-```
+``` { .text .ex-illus title="Illustration" }
 « Le P&L du trimestre est sous pression : on gèle le headcount et on repousse les projets CAPEX ;
   l'OKR prioritaire reste le time to market du nouveau paiement. »
 
@@ -88,7 +88,7 @@ Le sociologue Ron Westrum classe les organisations selon la façon dont l'inform
 
 Le même incident dans les trois cultures :
 
-```
+``` { .text .ex-illus title="Illustration" }
 pathologique    grace signale que la sauvegarde de orders-service ne marche plus depuis 2 semaines.
                 On lui reproche de ne pas l'avoir vu plus tôt. La fois suivante, elle se taira.
 bureaucratique  le ticket est créé, mais il n'entre dans le périmètre d'aucune équipe. Il attend.
@@ -155,7 +155,7 @@ Une organisation apprenante transforme ses expériences en pratiques partagées,
 
 À éviter : un postmortem qui s'arrête à un nom. L'équipe en retient qu'avouer une erreur coûte cher, donc la prochaine fausse manœuvre sera cachée, et la migration peut toujours verrouiller la table orders sans limite de temps.
 
-```
+``` { .text .ex-bad title="À éviter" }
 postmortem : panne du paiement, 03/11, 42 min
 cause     ada a lancé la migration sans vérifier
 action    ada fera plus attention la prochaine fois
@@ -163,7 +163,7 @@ action    ada fera plus attention la prochaine fois
 
 Squelette d'un postmortem, puis ordre du jour typique d'une rétrospective d'une heure (exemples) :
 
-```
+``` { .text .ex-illus title="Illustration" }
 postmortem : panne du paiement, 03/11, 42 min
 chronologie   14:02 migration lancée ; 14:05 alertes 5xx ; 14:44 retour arrière
 causes        la migration verrouille la table orders, aucun timeout de verrou
@@ -289,7 +289,7 @@ team-billing a besoin d'un nouveau champ dans la bibliothèque de paiement que p
 3. Les échanges se font par écrit, dans les MR et les tickets, pour que la décision reste lisible par tous.
 4. Pour un changement important, le contributeur ouvre d'abord un ticket pour en discuter, avant d'écrire le code.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Sans InnerSource
   semaine 0   team-billing ouvre un ticket « ajouter le champ installment_count »
   semaine 6   toujours en attente derrière les priorités de team-core
@@ -345,7 +345,7 @@ Les <span class="term" data-term="okr">OKR</span> viennent d'Andy Grove chez Int
 - un **objectif** : qualitatif, motivant, ce qu'on veut changer ;
 - deux à cinq **résultats clés** : chiffrés, vérifiables à la fin de la période, des résultats et pas des tâches.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Objectif        Les équipes livrent sans attendre la CI (T3)
 Résultat clé 1  temps de pipeline au p95 : de 28 min à 10 min
 Résultat clé 2  taux de tests instables : de 4 % à moins de 1 %
@@ -465,7 +465,7 @@ Jeff Bezos, dans sa lettre aux actionnaires de 2015, distingue deux sortes de d�
 - **type 1** : une <span class="term" data-term="one-way-door">porte à sens unique</span>, difficile ou impossible à défaire ; elle mérite du temps et de la prudence ;
 - **type 2** : une porte à double sens, un <span class="term" data-term="reversible-change">changement réversible</span> ; elle doit être prise vite, par une petite équipe.
 
-```
+``` { .text .ex-illus title="Illustration" }
 type 1   choisir la base de données principale de la nouvelle plateforme
          signer un contrat de cinq ans avec un fournisseur
 type 2   choisir une bibliothèque de logs derrière une interface
@@ -485,7 +485,7 @@ Le piège décrit dans la lettre : appliquer le processus lourd du type 1 à tou
 
 Une **RFC** (Request for Comments) est un document qui propose un changement et sollicite des avis avant la décision. Le nom vient de l'Internet : la RFC 1 a été publiée en 1969 par Steve Crocker. En entreprise, on parle aussi de document de conception (design doc). Le modèle tient en quelques rubriques :
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 # RFC 014 : facturer à l'usage dans billing-service
 
 Statut : en revue jusqu'au 15/11 (exemple)
@@ -510,7 +510,7 @@ La décision finale est ensuite gardée dans un <span class="term" data-term="ad
 
 Dans l'<span class="term" data-term="advice-process">advice process</span>, n'importe qui peut prendre une décision, à condition d'avoir demandé l'avis des personnes concernées et des experts. Celui qui décide n'est pas obligé de suivre ces avis. Le principe vient de Dennis Bakke (« Joy at Work », 2005) et a été repris par Frederic Laloux (« Reinventing Organizations », 2014). Andrew Harmel-Law l'applique à l'architecture logicielle dans « Scaling the Practice of Architecture, Conversationally » (martinfowler.com, 2021).
 
-```
+``` { .text .ex-illus title="Illustration" }
 1. ada veut remplacer la file RabbitMQ de orders-service par un sujet Kafka
 2. elle demande l'avis de billing-service (consommateur), de l'équipe plateforme et de grace (experte Kafka)
 3. billing-service craint pour l'ordre des messages ; la plateforme préfère attendre la mise à jour du cluster
@@ -529,7 +529,7 @@ Dans l'<span class="term" data-term="advice-process">advice process</span>, n'im
 
 Le <span class="term" data-term="disagree-and-commit">disagree and commit</span> : on exprime son désaccord pendant la discussion, puis, une fois la décision prise, on s'engage à la réussir comme si c'était la sienne. Bezos le décrit dans sa lettre de 2016 ; l'expression est souvent rattachée à Intel et à Andy Grove (à vérifier). Ce n'est pas « se taire et obéir » : le désaccord est dit, écrit, et peut être revu si les faits changent.
 
-```
+``` { .text .ex-illus title="Illustration" }
 l'équipe choisit MongoDB pour le catalogue, grace aurait préféré PostgreSQL
 grace écrit son désaccord dans l'ADR : « risque : rapports avec jointures coûteux »
 puis elle conçoit le meilleur schéma MongoDB possible, sans freiner le projet
@@ -547,7 +547,7 @@ six mois plus tard, si les rapports posent problème, son objection écrite sert
 
 Le <span class="term" data-term="narrative-memo">mémo narratif</span> remplace les diapositives par un texte complet, lu en silence par tous au début de la réunion. L'idée remonte à un courriel de Jeff Bezos de 2004 qui bannit PowerPoint des réunions de direction (à vérifier ; la longueur de six pages est la forme rapportée plus tard). Un texte oblige à relier les idées entre elles, là où une liste à puces permet de les juxtaposer.
 
-```
+``` { .text .ex-illus title="Illustration" }
 diapositive  « Contexte : latence, coûts, dette technique »
 mémo         « La latence p99 de orders-service a doublé depuis janvier, parce que chaque commande
                appelle quatre services. La refonte supprime deux de ces appels ; elle coûte trois mois
@@ -614,7 +614,7 @@ Leurs sept principes du Lean logiciel : éliminer le gaspillage, amplifier l'app
 
 La <span class="term" data-term="value-stream-mapping">cartographie du flux de valeur</span> (Mike Rother et John Shook, « Learning to See », 1998) dessine chaque étape d'une demande avec son temps de travail et son temps d'attente.
 
-```
+``` { .text .ex-illus title="Illustration" }
 étape                    travail    attente avant l'étape suivante
 spécification            4 h        5 jours (priorisation)
 développement            2 jours    2 jours (revue de code)
@@ -677,7 +677,7 @@ La <span class="term" data-term="littles-law">loi de Little</span> (John Little,
 !!! noob "As noob"
     Une boulangerie sert une personne par minute. Avec dix personnes devant moi, j'attends environ dix minutes ; avec vingt, vingt minutes, alors que la boulangère ne travaille pas plus lentement. La loi ne vaut qu'en moyenne et pour une file stable, où il n'entre pas durablement plus de monde qu'il n'en sort. La phrase à retenir : **à débit égal, plus il y a de travail en attente, plus chaque demande attend.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 team-core termine 5 tickets par semaine
 avec 20 tickets en cours   délai moyen = 20 / 5 = 4 semaines
 avec 10 tickets en cours   délai moyen = 10 / 5 = 2 semaines
@@ -696,7 +696,7 @@ Si mon équipe veut livrer plus vite sans travailler plus, elle commence moins d
 
 La méthode <span class="term" data-term="kanban">Kanban</span> pour le travail intellectuel (David J. Anderson, « Kanban: Successful Evolutionary Change for Your Technology Business », 2010) part de l'existant : visualiser le travail, limiter le travail en cours, gérer le flux, rendre les règles explicites, améliorer par petites touches.
 
-```
+``` { .text .ex-illus title="Illustration" }
 À FAIRE     EN COURS (max 3)    EN REVUE (max 2)    FAIT
 TCK-41      TCK-38 ada          TCK-35              TCK-30
 TCK-42      TCK-39 grace        TCK-36              TCK-31
@@ -757,7 +757,7 @@ Le cadre <span class="term" data-term="jobs-to-be-done">Jobs to be done</span> (
 
 À éviter : écrire le besoin sous la forme d'une solution déjà choisie. Je m'enferme dans un tableau de bord avant de savoir si le gérant a besoin d'un tableau, d'une simple notification « tous les virements sont partis » ou d'une alerte seulement en cas d'échec.
 
-```
+``` { .text .ex-bad title="À éviter" }
 En tant que  gérant,
 je veux      un tableau de bord avec la liste des virements et leur statut,
 afin de      voir les virements.
@@ -765,7 +765,7 @@ afin de      voir les virements.
 
 Bien : la situation, le progrès voulu et la raison, sans présumer de la solution.
 
-```
+``` { .text .ex-good title="Recommandé" }
 Quand   je prépare la paie de mes 12 salariés en fin de mois,
 je veux être sûr que chaque virement est parti,
 pour    ne pas passer le lundi à répondre à des salariés inquiets.
@@ -815,7 +815,7 @@ Ryan Singer décrit la méthode de Basecamp dans « Shape Up » (2019, livre gra
 
 Un cycle, sur un exemple :
 
-```
+``` { .text .ex-illus title="Illustration" }
 cycle précédent    shaping : grace façonne « export comptable » (problème, croquis, pièges), appétit 6 semaines
 cooldown           table des paris : 3 projets façonnés, 2 retenus ; le 3e n'est pas mis en attente
 semaines 1 à 6     l'équipe construit ; en semaine 4, elle coupe l'export PDF pour tenir l'appétit
@@ -859,7 +859,7 @@ Je donne une **fourchette par tranche**, pas un chiffre unique : « la tranche 1
 
 Pour que tout le monde comprenne la même chose, je fais un **Example Mapping** (Matt Wynne, 2015) avec le produit et le test : en 25 minutes, une carte par règle, des cartes d'exemples concrets sous chaque règle, et une carte par question ouverte. Beaucoup de questions rouges veut dire que la tranche n'est pas prête. Les exemples retenus deviennent les <span class="term" data-term="acceptance-criteria">critères d'acceptation</span>, écrits en <span class="term" data-term="gherkin">Gherkin</span>.
 
-```
+``` { .text .ex-illus title="Illustration" }
 Règle : le panier est conservé côté serveur pour un client connecté
   Exemple : ada ajoute 2 claviers sur son ordinateur, les retrouve sur un autre navigateur
   Exemple : un produit retiré du catalogue reste visible comme indisponible, hors du total
@@ -868,7 +868,7 @@ Règle : à la connexion, le panier anonyme rejoint le panier du compte
   Question : combien de temps garde-t-on un panier abandonné ?
 ```
 
-```gherkin
+``` { .gherkin .ex-ref title="Référence" }
 # language: fr
 # Exemple : critères d'acceptation de la tranche 1, issus de l'Example Mapping
 Fonctionnalité : panier conservé côté serveur
@@ -948,7 +948,7 @@ Lecture : construire ce qui est en genèse ou sur-mesure et différencie (les re
 
 Richard Rumelt (« Good Strategy Bad Strategy », 2011) donne le noyau d'une bonne stratégie : un **diagnostic** (ce qui se passe vraiment), une **politique directrice** (l'approche choisie) et des **actions cohérentes** (qui se renforcent). Il reconnaît une mauvaise stratégie à quatre signes : des mots creux, l'absence de diagnostic du vrai problème, des objectifs pris pour une stratégie, et des objectifs irréalistes.
 
-```
+``` { .text .ex-compare title="Comparaison" }
 mauvaise   « Devenir le leader de la plateforme développeur, innovante et centrée client. »
 
 bonne      diagnostic   les équipes perdent 30 % de leur temps sur la CI et les environnements
@@ -999,7 +999,7 @@ Le <span class="term" data-term="capex">CAPEX</span> est un investissement qui c
 !!! noob "As noob"
     Acheter une voiture, c'est du CAPEX : une grosse somme au départ, que la comptabilité étale sur les années où la voiture sert. La louer au mois, c'est de l'OPEX : une dépense régulière, comptée au fil de l'eau. La phrase à retenir : **deux options au coût total proche n'apparaissent pas de la même façon dans les comptes, et c'est souvent ce qui pèse dans la décision.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 acheter 3 serveurs à 30 000 €, amortis sur 3 ans    CAPEX : 10 000 € par an dans le compte de résultat
 louer l'équivalent dans le cloud, 1 200 € par mois  OPEX  : 14 400 € par an
 (chiffres d'exemple)
@@ -1036,7 +1036,7 @@ Chiffres d'exemple. Le poste le plus oublié est presque toujours le temps humai
 
 Le <span class="term" data-term="roi">ROI</span> se calcule ainsi : (gain - coût) / coût. Le **délai de récupération** (payback) dit en combien de temps l'investissement est remboursé.
 
-```
+``` { .text .ex-illus title="Illustration" }
 coût : automatiser la recette, 2 personnes pendant 2 mois, soit 40 000 €
 gain : 10 jours de recette manuelle par mois en moins, soit 5 000 € par mois
 
@@ -1100,7 +1100,7 @@ Le <span class="term" data-term="pyramid-principle">principe de la pyramide</spa
 
 À éviter : raconter l'histoire dans l'ordre chronologique. La demande arrive à la fin, quand la directrice a déjà décroché ou que la réunion se termine, et la décision est reportée.
 
-```
+``` { .text .ex-bad title="À éviter" }
 En 2019, on a créé orders-service pour remplacer l'ancien module de commande.
 En mars, une première panne ; en juin, une deuxième ; en septembre, une troisième.
 On a analysé les causes, essayé plusieurs correctifs, comparé trois options...
@@ -1109,7 +1109,7 @@ Donc je demande deux personnes de team-core pendant deux trimestres.
 
 Bien : la même demande avec le schéma SCQA, la réponse visible dès la quatrième ligne.
 
-```
+``` { .text .ex-good title="Recommandé" }
 Situation     orders-service traite toutes les commandes depuis 2019.
 Complication  il a causé 3 pannes ce semestre, 14 h sans commande au total.
 Question      faut-il le refondre maintenant ?
@@ -1138,7 +1138,7 @@ flowchart TD
 
 Le one-pager tient sur une page et se lit en deux minutes :
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 # Demande : refondre orders-service par étapes
 
 Décision attendue : 2 personnes de team-core pendant 2 trimestres, d'ici le 30/11
@@ -1213,7 +1213,7 @@ Toujours présenter l'option « ne rien faire » avec son coût, rendre le <span
 
 Beaucoup d'entreprises proposent deux filières parallèles au-delà du niveau senior : la <span class="term" data-term="ic-track">filière d'expertise</span> (contributeur individuel : staff, principal, distinguished) et la filière de management (manager, directeur, vice-président). Les deux ont des niveaux de salaire comparables ; aucune n'est une promotion de l'autre.
 
-```
+``` { .text .ex-illus title="Illustration" }
                  senior engineer
                 /               \
    staff engineer                engineering manager

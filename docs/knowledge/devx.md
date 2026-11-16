@@ -73,7 +73,7 @@ Ce qui est déjà ailleurs n'est pas répété ici : les métriques DORA, SPACE 
 
 Les deux boucles n'ont ni la même fréquence ni la même durée acceptable, et on ne les accélère pas avec les mêmes outils. Une journée d'exemple pour `ada` sur `orders-service` :
 
-```
+``` { .text .ex-illus title="Illustration" }
 boucle interne (sur le poste, des dizaines de fois par heure)
   10:00:00  ada modifie calculate_total()
   10:00:01  le serveur recharge le code tout seul
@@ -146,7 +146,7 @@ Trois règles :
 
 Le parcours d'un nouvel arrivant devient :
 
-```bash
+``` { .bash .ex-good title="Recommandé" }
 git clone git@git.example.com:team-core/orders-service.git
 cd orders-service
 mise install
@@ -158,7 +158,7 @@ Le fichier `mise.toml` correspondant est montré dans le [Panorama des outils](o
 
 À éviter, le script de mise en route qui suppose que tout est déjà installé et démarré : avec Docker arrêté, le nouvel arrivant lit `Cannot connect to the Docker daemon` au milieu de quarante lignes de sortie, puis `uv: command not found`, sans savoir par quoi commencer.
 
-```bash
+``` { .bash .ex-bad title="À éviter" }
 # À éviter : aucune vérification, la première commande qui échoue donne une erreur brute
 docker compose up -d db
 uv sync
@@ -167,7 +167,7 @@ uv run pytest
 
 La version avec `doctor`, qui dit quoi corriger :
 
-```python
+``` { .python .ex-good title="Recommandé" }
 """Vérifie que le poste peut lancer orders-service et explique comment corriger."""
 
 import shutil
@@ -240,7 +240,7 @@ Docker Compose décrit dans un fichier `compose.yaml` les conteneurs <span class
 
 À éviter, le service lancé depuis une image qui contient une copie du code faite au build : chaque modification demande `docker compose up --build`, soit environ deux minutes par essai (exemple), et un oubli du `--build` fait tester l'ancien code.
 
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : code copié dans l'image, sans volume ni rechargement
 services:
   my-api:
@@ -251,7 +251,7 @@ services:
 
 La version avec volume et rechargement :
 
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Exemple : my-api et sa base Postgres, démarrés ensemble en local
 services:
   # Bien : code monté en volume et --reload, une sauvegarde est vue tout de suite
@@ -317,7 +317,7 @@ Je modifie une ligne et j'attends une minute pour savoir si ça marche : au bout
 !!! noob "As noob"
     Le cache de build, c'est le café déjà fait qu'on garde au chaud : tant que personne n'a changé le paquet ni l'eau, je me ressers sans relancer la machine. Le build incrémental, c'est ne refaire que la tasse dont j'ai changé le café. Limite : si le cache se trompe sur ce qui a changé, il sert un vieux résultat, d'où l'importance de la clé qui décrit ses entrées. La phrase à retenir : **on ne refait que ce dont les entrées ont changé.**
 
-```bash
+``` { .bash .ex-ref title="Référence" }
 uvicorn my_api.main:app --reload
 pytest -x --lf
 pytest tests/test_orders.py::test_total_with_discount
@@ -378,7 +378,7 @@ Un <span class="term" data-term="devcontainer">Dev Container</span> est un envir
 
 Un <span class="term" data-term="remote-dev-environment">environnement de développement distant</span> fait tourner ce poste sur un serveur ou dans le cloud ; on s'y connecte depuis un éditeur local ou un navigateur. Exemples de ce type d'outil : GitHub Codespaces, Coder, Gitpod (à vérifier, l'offre évolue).
 
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "name": "orders-service",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
@@ -436,7 +436,7 @@ Mon product owner veut cliquer dans le nouvel écran de commande avant la fusion
 
 À éviter : un déploiement sans `auto_stop_in` ni `on_stop`. Chaque MR laisse un namespace derrière elle, personne ne le supprime, et trois mois plus tard le cluster héberge 200 environnements que plus personne ne regarde.
 
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : rien ne détruit l'environnement, il reste après la fusion
 preview:
   environment:
@@ -445,7 +445,7 @@ preview:
     - helm upgrade --install "front-mr-$CI_MERGE_REQUEST_IID" ./chart
 ```
 
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : adresse publiée dans la MR, destruction à la fermeture et après 5 jours sans activité
 preview:
   stage: deploy
@@ -552,7 +552,7 @@ Les leviers, dans l'ordre où ils rapportent souvent le plus :
 
 À éviter, la CI recopiée de projet en projet : chaque job attend la fin du stage précédent et retélécharge toutes les dépendances, et les tests se lancent même quand seul le README change, donc 4 min de lint puis 15 min de tests en série (chiffres d'exemple).
 
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : stages en série, aucun cache, tests lancés pour chaque modification
 stages: [lint, test]
 
@@ -573,7 +573,7 @@ test:
 
 La même CI, réorganisée :
 
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : base commune, cache uv dont la clé est le lockfile
 .python:
   image: python:3.12-slim
@@ -649,7 +649,7 @@ Un <span class="term" data-term="versioned-component">composant de CI</span> est
 
 À éviter, la version flottante : chaque projet prend la dernière version publiée sans passer par une MR, donc une erreur dans le composant fait virer au rouge tous les pipelines le même matin.
 
-```yaml
+``` { .yaml .ex-bad title="À éviter" }
 # À éviter : version flottante, une modification du composant casse tous les projets d'un coup
 include:
   - component: git.example.com/team-platform/ci/python@~latest
@@ -657,7 +657,7 @@ include:
 
 Le `.gitlab-ci.yml` d'un projet, avec une version figée :
 
-```yaml
+``` { .yaml .ex-good title="Recommandé" }
 # Bien : une ligne d'include et une version, plus de jobs copiés
 include:
   - component: git.example.com/team-platform/ci/python@1.4.0
@@ -667,7 +667,7 @@ include:
 
 Le dépôt du composant, `team-platform/ci` :
 
-```
+``` { .text .ex-illus title="Illustration" }
 team-platform/ci/
 ├── templates/
 │   └── python.yml      le composant "python"
@@ -676,7 +676,7 @@ team-platform/ci/
 └── README.md
 ```
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # templates/python.yml
 # Exemple : paramètres acceptés par le composant, avec leur défaut
 spec:
@@ -704,7 +704,7 @@ La partie avant `---` déclare les paramètres acceptés ; `$[[ inputs.python_ve
 
 Comment une correction arrive dans les projets :
 
-```
+``` { .text .ex-illus title="Illustration" }
 jour 0   l'équipe plateforme ajoute le cache uv au composant, tague 1.5.0
 jour 1   le robot de mise à jour (Renovate) ouvre dans chaque projet une MR "python 1.4.0 -> 1.5.0"
 jour 1   la CI de chaque MR tourne avec la nouvelle version ; version mineure et CI verte : fusion automatique
@@ -730,14 +730,15 @@ Vingt équipes appellent ma CLI interne `devctl` depuis leurs scripts de CI, et 
 
 À éviter : renommer `--env` en `--target` dans la version 2.4.0. Le robot fusionne cette mineure automatiquement, et le lendemain matin tous les scripts qui lancent `devctl deploy --env staging` échouent sur une option inconnue.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : option renommée dans une version mineure, les scripts existants cassent
 @cli.command()
 @click.option("--target", required=True)
 def deploy(target):
     run_deploy(target)
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : la nouvelle option arrive en 2.4.0, l'ancienne marche encore et avertit jusqu'à la 3.0.0
 @cli.command()
 @click.option("--target")
@@ -894,7 +895,7 @@ Le <span class="term" data-term="scaffolding">scaffolding</span> génère la str
 
 **Backstage Software Templates** : dans le portail Backstage, un formulaire lance la génération, crée le dépôt et l'enregistre dans le catalogue. Un template est un fichier YAML qui décrit les paramètres demandés et les étapes :
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # Exemple : template Backstage, paramètres demandés dans le formulaire
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
@@ -1060,7 +1061,7 @@ Mon équipe a un wiki que personne ne met à jour : le code change, la page rest
 
 <figure class="diagram"><svg viewBox="0 0 220 160" role="img" aria-label="Les quatre types de Diátaxis"><rect class="layer layer-2" x="50" y="10" width="80" height="60"/><rect class="layer layer-1" x="130" y="10" width="80" height="60"/><rect class="layer layer-1" x="50" y="70" width="80" height="60"/><rect class="layer layer-2" x="130" y="70" width="80" height="60"/><text x="90" y="43" text-anchor="middle" class="label-strong">tutoriel</text><text x="170" y="43" text-anchor="middle" class="label-strong">guide pratique</text><text x="90" y="103" text-anchor="middle" class="label-strong">explication</text><text x="170" y="103" text-anchor="middle" class="label-strong">référence</text><text x="45" y="43" text-anchor="end">agir</text><text x="45" y="103" text-anchor="end">comprendre</text><text x="90" y="145" text-anchor="middle">apprendre</text><text x="170" y="145" text-anchor="middle">travailler</text></svg><figcaption>Les quatre types de Diátaxis (Daniele Procida)</figcaption></figure>
 
-```text
+``` { .text .ex-illus title="Illustration" }
 orders-service/
 ├── mkdocs.yml
 └── docs/
@@ -1155,7 +1156,7 @@ Passer 300 dépôts à une nouvelle version de Python, retirer une bibliothèque
 
 Une configuration Renovate d'exemple : fusion automatique des correctifs et versions mineures quand la CI est verte, revue humaine pour les versions majeures.
 
-```json
+``` { .json .ex-ref title="Référence" }
 {
   "extends": ["config:recommended"],
   "packageRules": [
@@ -1178,7 +1179,7 @@ La <span class="term" data-term="deprecation">mise en obsolescence</span> (depre
 !!! noob "As noob"
     Je déplace l'interrupteur de la cuisine de dix centimètres : le bail n'en dit rien, mais quelqu'un allumait à tâtons dans le noir et va chercher longtemps. Un logiciel utilisé par beaucoup de monde a toujours quelqu'un qui dépend d'un détail jamais promis (un ordre de tri, un message d'erreur, un délai). La phrase à retenir : **avant de retirer quelque chose, on cherche qui s'en sert vraiment, pas seulement ce que dit la documentation.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 mois 0     annonce, guide de migration, avertissement à chaque import de legacy-config
 mois 1     codemod et MR automatiques dans les 48 services qui n'utilisent que 2 fonctions
 mois 2     règle de lint : plus aucun nouvel usage accepté
@@ -1205,7 +1206,7 @@ Calendrier d'exemple. La fin de la campagne est toujours la partie la plus longu
 
 Les services doivent passer de la bibliothèque `legacy_config` à `team_config`, qui expose la même fonction `load`.
 
-```python
+``` { .python .ex-good title="Recommandé" }
 # avant
 from legacy_config import load
 
@@ -1218,7 +1219,7 @@ Une règle <span class="term" data-term="ast-grep">ast-grep</span> fait le rempl
 !!! noob "As noob"
     `sed` cherche des lettres, comme le « rechercher et remplacer » d'un traitement de texte ; ast-grep lit des phrases, comme un correcteur qui sait distinguer un verbe d'un nom. Il remplace donc l'import de `legacy_config`, pas le mot `legacy_config` qui traîne dans un commentaire. La phrase à retenir : **plus la forme du code à transformer varie, plus il faut un outil qui comprend sa structure.**
 
-```yaml
+``` { .yaml .ex-ref title="Référence" }
 # rules/legacy-config.yml
 # Exemple : règle ast-grep qui réécrit l'import, quels que soient les noms importés
 id: legacy-config-import
@@ -1232,14 +1233,14 @@ Pour un cas aussi simple, `sed` suffit souvent : `git ls-files '*.py' | xargs se
 
 À éviter, le remplacement sans ancrage sur tous les fichiers : il change aussi les chaînes et les noms qui contiennent le même mot, comme le fichier `legacy_config_overrides.yaml` lu au démarrage, qui devient `team_config_overrides.yaml` dans le code, donc introuvable, et le service ne démarre plus.
 
-```bash
+``` { .bash .ex-bad title="À éviter" }
 # À éviter : remplace le mot partout, pas seulement dans les imports
 git ls-files | xargs sed -i 's/legacy_config/team_config/g'
 ```
 
 La boucle qui applique la règle et ouvre une MR par dépôt, à partir d'une liste `repos.txt` (`team-core/orders-service`, `team-core/payments-service`...) :
 
-```bash
+``` { .bash .ex-ref title="Référence" }
 # Exemple : pour chaque dépôt de repos.txt, applique la règle et ouvre une MR
 RULE="$PWD/rules/legacy-config.yml"
 while read -r repo; do

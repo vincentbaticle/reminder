@@ -31,7 +31,7 @@ The services `orders-service`, `payment-service` and `email-service` are fictiti
 
 **Synchronous**: the client waits for the answer before moving on, like a phone call. **Asynchronous**: the client drops off a message and moves on, like a text message: the answer will come later, or never.
 
-```
+``` { .text .ex-illus title="Illustration" }
 synchronous  : orders-service  ── "pay €30" ──>  payment-service
                                <── "OK, paid" ───
                (orders-service waits in the meantime)
@@ -44,7 +44,7 @@ asynchronous : orders-service  ── "order 42 created" ──>  [broker]
 **Contract**: the description of what an <span class="term" data-term="api">API</span> accepts and returns. **Schema**: the expected shape of a piece of data (<span class="term" data-term="api-field">fields</span>, types, required fields).
 
 **JSON**: the most common text format for exchanged data.
-```json
+``` { .json .ex-ref title="Reference" }
 {"id": 42, "status": "paid", "total_cents": 3000}
 ```
 
@@ -66,7 +66,7 @@ asynchronous : orders-service  ── "order 42 created" ──>  [broker]
 
 In REST, I work with **resources** (an order, a customer), each with its own address.
 
-```
+``` { .text .ex-illus title="Illustration" }
 /orders              the collection of orders
 /orders/42           order 42
 /orders/42/items     the items of order 42
@@ -93,7 +93,7 @@ In REST, I work with **resources** (an order, a customer), each with its own add
 | `DELETE` | delete                             | `DELETE /orders/42`         | yes           |
 
 **Idempotent**: sending the same <span class="term" data-term="http-request">request</span> once or ten times gives the same result. `DELETE /orders/42` twice: the order is deleted, only once. `POST /orders` twice: two orders. That is why a `POST` replayed by mistake (double click, network resending) is dangerous, and why we add an `Idempotency-Key` <span class="term" data-term="http-header">header</span> to it:
-```
+``` { .text .ex-ref title="Reference" }
 POST /payments
 Idempotency-Key: 7f3c9a2e-1b4d-4e8f-9a6c-2d5e8f1a3b7c
 ```
@@ -172,7 +172,7 @@ Why `307` and `308` exist: for a long time, browsers turned a `POST` redirected 
 
 `304` is for caching. With the response, the server sends a version label, the `ETag`. On the next call, the client sends that label back in `If-None-Match`; if nothing changed, the server answers `304` with no body, and the client reuses its copy:
 
-```
+``` { .text .ex-ref title="Reference" }
 GET /orders/42                  200 OK, ETag: "v7", the full order
 GET /orders/42
 If-None-Match: "v7"             304 Not Modified, no body
@@ -205,7 +205,7 @@ If-None-Match: "v7"             304 Not Modified, no body
 
 Classic trap: my API returns `200` with `{"error": "not found"}` in the <span class="term" data-term="http-body">body</span>. Clients, monitoring tools and tests rely on the code, not on the text: the frontend thinks all is well, monitoring counts no error and the tests go green. The reverse trap exists too: an invalid quantity crashes my code, which answers `500`. The client believes in an outage, retries in a loop a request that will always fail, and the alert wakes up the on-call engineer for a client mistake.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the missing order goes out as 200, with the error hidden in the body
 @app.get("/orders/{order_id}")
 def get_order(order_id: int):
@@ -222,7 +222,7 @@ def create_order(payload: dict):
     return orders_repo.create(payload)
 ```
 
-```python
+``` { .python .ex-good title="Recommended" }
 # Good: the missing order answers 404
 @app.get("/orders/{order_id}")
 def get_order(order_id: int):
@@ -251,7 +251,7 @@ def create_order(order: OrderIn, response: Response):
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 A standard shape exists: **Problem Details** (RFC 9457, 2023).
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "type": "https://api.example.com/errors/out-of-stock",
   "title": "Out of stock",
@@ -283,7 +283,7 @@ My order list can hold millions of orders: returning everything at once would gi
 !!! noob "As noob"
     An offset says "skip the first 40 lines of the list": if someone adds a line at the top between two pages, everything shifts and I see an item twice or miss one. A cursor is a bookmark placed on the last item read: the next page starts right after it, whatever happens at the start of the list. The one thing to remember: **an offset counts positions, a cursor remembers an item.**
 
-```json
+``` { .json .ex-illus title="Illustration" }
 {
   "data": [ ... 20 orders ... ],
   "next_cursor": "eyJpZCI6ODB9"
@@ -291,12 +291,14 @@ My order list can hold millions of orders: returning everything at once would gi
 ```
 Testing trap: a test that reads `items[0]` depends on the order. If the database one day returns the rows in another order, the test fails although nothing is broken. Always sort explicitly (`?sort=created_at`) or look the item up by its identifier.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: assumes the created order comes back first
 def test_new_order_is_listed(client, created_order):
     body = client.get("/orders").json()
     assert body["data"][0]["id"] == created_order["id"]
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: looks the order up by its identifier, whatever the order
 def test_new_order_is_listed(client, created_order):
     body = client.get("/orders").json()
@@ -323,7 +325,7 @@ sequenceDiagram
 ### Filtering and sorting
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```
+``` { .text .ex-illus title="Illustration" }
 GET /orders?status=paid&created_after=2026-10-01&sort=-created_at
 ```
 `-created_at`: newest to oldest.
@@ -351,7 +353,7 @@ Applications already call my API. If I change the shape of a response, for examp
 | adding a value to an <span class="term" data-term="enum">enum</span>                  | **maybe**: a client that does not know it may crash |
 
 Two common ways:
-```
+``` { .text .ex-ref title="Reference" }
 GET /v2/orders/42                      (version in the URL, the most readable)
 GET /orders/42   Accept: application/vnd.example.v2+json   (version in a header)
 ```
@@ -385,10 +387,12 @@ Three rules of the specification to know: a released version never changes again
 
 For a public API, only the major usually shows in the URL (`/v2/orders`): minors and patches are deployed without clients changing anything. And Hyrum's law recalls the limit: with enough users, even a patch ends up breaking someone who depended on the bug (see [Hyrum's law](lois-et-principes.md#hyrums-law)).
 
-```toml
+``` { .toml .ex-bad title="Avoid" }
 # Avoid: no upper bound, the future 3.0.0 and its breaking change arrive with the next deployment
 dependencies = ["orders-client>=2.4"]
+```
 
+``` { .toml .ex-good title="Recommended" }
 # Good: I accept minors and patches, I move to 3 on purpose, with an MR
 dependencies = ["orders-client>=2.4,<3"]
 ```
@@ -405,15 +409,16 @@ Versioning protects clients from breaking changes. The other half of the work is
 
 The <span class="term" data-term="tolerant-reader">Tolerant Reader</span> (Martin Fowler, 2011) is the client's rule: I read only the fields I need, I ignore the ones I do not know, and I plan a default case for a new enum value. It is the "receiving" half of Jon Postel's robustness principle (RFC 761, 1980): "be conservative in what you send, liberal in what you accept".
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: validation rejects any unknown field, adding gift_message crashes billing-service
 class OrderView(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: int
     status: Literal["pending", "paid", "shipped"]
     total_cents: int
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: only useful fields are read, unknown fields ignored, an unknown status stays readable
 class OrderView(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -447,7 +452,7 @@ The teams calling my API need to know which routes exist, what they accept and w
 !!! noob "As noob"
     An OpenAPI file is a restaurant menu: the list of dishes, what each one contains and its price, readable without stepping into the kitchen. The customer orders from the menu, and the inspector checks that the plate served matches what is written. The line to remember: **OpenAPI describes what the API promises, without showing how it does it.**
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: OpenAPI contract for the GET /orders/{id} route and the Order schema
 openapi: 3.1.0
 info:
@@ -504,7 +509,7 @@ An **<span class="term" data-term="api-linting">API linter</span>** reads the Op
 2. run the linter in CI on every MR that touches the contract, failing on errors only;
 3. add breaking change detection between the published version and the new one (oasdiff, for example): the linter judges style, not compatibility.
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: the standard rule set plus one house rule (kebab-case paths)
 extends: ["spectral:oas"]
 rules:
@@ -519,7 +524,7 @@ rules:
         match: "^(/([a-z0-9-]+|\\{[a-zA-Z]+\\}))+$"
 ```
 
-```
+``` { .text .ex-ref title="Reference" }
 $ npx @stoplight/spectral-cli lint openapi.yaml --fail-severity=error
 $ oasdiff breaking openapi-main.yaml openapi.yaml --fail-on ERR
 ```
@@ -545,7 +550,7 @@ Options and command names to check in each tool's documentation.
 
 <span class="term" data-term="api-first">API first</span>: I write the contract **before** the code, have it reviewed by the people who will use it, then everyone works in parallel from that same file. The opposite, "code first", writes the code first and generates the contract from it.
 
-```
+``` { .text .ex-illus title="Illustration" }
 code first   days 1 to 10  the back end codes GET /orders/{id}
              day 11        OpenAPI generated, the front end discovers the data shape
              day 12        "the currency field is missing": back to the back end
@@ -624,7 +629,7 @@ For tests: a test that calls `orders-service` directly sees neither the gateway'
 | the service called behind it goes down                | contract-based <span class="term" data-term="mock">mock</span> (Microcks, Prism) that returns 500 |
 | a replayed `POST` does not create a duplicate         | send the same `Idempotency-Key` twice                |
 
-```
+``` { .text .ex-ref title="Reference" }
 $ curl -i -X POST localhost:8000/orders \
     -H 'Authorization: Bearer eyJ...' \
     -H 'Content-Type: application/json' \
@@ -665,7 +670,7 @@ Location: /orders/43
 
 <div class="grid" markdown>
 
-```graphql title="What I send: the keys"
+``` { .graphql .ex-ref title="Reference · What I send: the keys" }
 # Example: I only write the keys I want back
 query {
   order(id: "42") {
@@ -677,7 +682,7 @@ query {
 }
 ```
 
-```json title="What I get: the same keys, filled in"
+``` { .json .ex-ref title="Reference · What I get: the same keys, filled in" }
 {
   "data": {
     "order": {
@@ -695,7 +700,7 @@ query {
 ### GraphQL terminology
 
 **Schema**: the server's contract, written in SDL (Schema Definition Language). It lists the types, their fields, and the entry points.
-```graphql
+``` { .graphql .ex-ref title="Reference" }
 # Example: the data types the server exposes
 type Order {
   id: ID!
@@ -736,7 +741,7 @@ The `Customer.orders` edge leads back to `Order`: the graph has loops. That is h
 **Query**: a read. **Mutation**: a write (create, update, cancel). **Subscription**: a stream of updates pushed by the server, often over <span class="term" data-term="websocket">WebSocket</span>.
 
 **Variables**: the query parameters, sent separately, like the parameters of a prepared SQL statement.
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "query": "query OrderPage($id: ID!) { order(id: $id) { status } }",
   "variables": {"id": "42"}
@@ -744,7 +749,7 @@ The `Customer.orders` edge leads back to `Order`: the graph has loops. That is h
 ```
 
 **Resolver**: the server function that computes a field. The server calls the resolver of `order`, then the one of `customer` on the order it got, and so on.
-```python
+``` { .python .ex-illus title="Illustration" }
 # Example: resolver of the order field, called first
 def resolve_order(_, info, id):
     return orders_repo.get(id)
@@ -780,7 +785,7 @@ flowchart TD
 The "order page" screen shows the status, the total, the customer's name, and the name and quantity of each item.
 
 **In REST**, three calls, two of which depend on the first one:
-```
+``` { .text .ex-illus title="Illustration" }
 GET /orders/42
 200 {"id": 42, "status": "paid", "total_cents": 3000, "customer_id": 7,
      "created_at": "2026-11-02T10:00:00Z", "shipping_address": {...}, "billing_address": {...}}
@@ -806,7 +811,7 @@ sequenceDiagram
 ```
 
 **In GraphQL**, a single call:
-```graphql
+``` { .graphql .ex-good title="Recommended" }
 # What changes: one call instead of three, and only the fields displayed
 query OrderPage($id: ID!) {
   order(id: $id) {
@@ -817,7 +822,7 @@ query OrderPage($id: ID!) {
   }
 }
 ```
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "data": {
     "order": {
@@ -848,13 +853,13 @@ A mobile screen that only shows the status asks for `order(id: $id) { status }` 
 The equivalent REST solution is often a <span class="term" data-term="bff">BFF</span>: a route `GET /screens/order-page/42` written for that screen, which makes the three calls on the server side.
 
 **Writing**: the mutation replaces `POST /orders/42/cancel`.
-```graphql
+``` { .graphql .ex-ref title="Reference" }
 # Example: the mutation that replaces POST /orders/42/cancel
 mutation {
   cancelOrder(id: "42", reason: "customer") { id status }
 }
 ```
-```json
+``` { .json .ex-ref title="Reference" }
 {"data": {"cancelOrder": {"id": "42", "status": "cancelled"}}}
 ```
 A mutation is not <span class="term" data-term="idempotency">idempotent</span> by default: the `Idempotency-Key` header seen above is still useful.
@@ -872,7 +877,7 @@ A mutation is not <span class="term" data-term="idempotency">idempotent</span> b
 | contract           | <span class="term" data-term="openapi">OpenAPI</span> | the SDL schema, which the client can read (introspection) |
 
 **Errors.** If order 43 does not exist, REST answers `404`. A GraphQL server often answers `200`:
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "data": {"order": null},
   "errors": [{
@@ -896,7 +901,7 @@ The response can also be **partial**: the order comes back, but `customer` is `n
 ### Server-side pitfalls
 
 **The <span class="term" data-term="n-plus-one">N+1 problem</span>.** The query `orders(last: 50) { customer { name } }` calls the `customer` resolver 50 times:
-```
+``` { .text .ex-bad title="Avoid" }
 -- Avoid: one query per customer, so 51 queries for 50 orders
 SELECT * FROM orders ORDER BY id DESC LIMIT 50;
 SELECT * FROM customers WHERE id = 7;
@@ -920,14 +925,14 @@ sequenceDiagram
 !!! noob "As noob"
     I ask for 50 orders with the customer's name: without care, the server does "go fetch customer n" 50 times. The DataLoader is an assistant who writes down the 50 requests, then makes **a single trip** with the full list.
 
-```
+``` { .text .ex-good title="Recommended" }
 -- What changes: with the DataLoader, a single SELECT ... IN for the 50 customers
 SELECT * FROM orders ORDER BY id DESC LIMIT 50;
 SELECT * FROM customers WHERE id IN (7, 9, 12, ...);
 ```
 
 **Overly expensive queries.** The client chooses the query, so it can write a huge one:
-```graphql
+``` { .graphql .ex-bad title="Avoid" }
 # Avoid: query too deep and costly, the server should refuse it
 { customers { orders { customer { orders { customer { orders { id } } } } } } }
 ```
@@ -950,19 +955,23 @@ Fixes: limit the depth (for example 6 levels), compute a cost per field and reje
 | too deep queries are rejected                        | send a 10-level query, expect an error                        |
 | permissions                                          | ask for the same sensitive field through two different paths  |
 
-```python
+``` { .python .ex-illus title="Illustration" }
 # Example: the GraphQL query sent by the test
 ORDER_PAGE = """
 query OrderPage($id: ID!) {
   order(id: $id) { status customer { name } }
 }
 """
+```
 
+``` { .python .ex-bad title="Avoid" }
 # Avoid: checks only the 200, an error stored in errors goes green
 def test_order_page_status_only(client):
     resp = client.post("/graphql", json={"query": ORDER_PAGE, "variables": {"id": "42"}})
     assert resp.status_code == 200
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: checks the 200, the absence of errors and the data
 def test_order_page(client):
     resp = client.post("/graphql", json={"query": ORDER_PAGE, "variables": {"id": "42"}})
@@ -972,7 +981,7 @@ def test_order_page(client):
     assert body["data"]["order"] == {"status": "paid", "customer": {"name": "Ada"}}
 ```
 
-```
+``` { .text .ex-ref title="Reference" }
 $ curl -s localhost:8000/graphql \
     -H 'Content-Type: application/json' \
     -d '{"query": "{ order(id: \"42\") { status } }"}'
@@ -1014,7 +1023,7 @@ Sources: [GraphQL specification](https://spec.graphql.org/) (first public versio
 - **Event**: a message that says **what happened**, in the past tense. The sender does not know who is listening. `OrderCreated`, `PaymentFailed`.
 - **Command**: a message that asks **to do** something, addressed to a specific recipient. `SendConfirmationEmail`.
 
-```json
+``` { .json .ex-illus title="Illustration" }
 {
   "type": "OrderCreated",
   "id": "evt_01J9Z3",
@@ -1079,11 +1088,13 @@ Most brokers are **at-least-once**. So every consumer must be **<span class="ter
 !!! noob "As noob"
     The broker behaves like a careful postman: if he is not sure my letter arrived, he drops off a copy. I lose nothing, but I may get the same letter twice, so it is up to me to recognize the one I have already read. The one thing to remember: **"at least once" means "sometimes twice": the consumer must tolerate duplicates.**
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: processes every message as if it arrived only once
 def handle_order_created(event):
     send_confirmation_email(event["data"]["order_id"])
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: idempotent consumer, an event already processed is ignored
 def handle_order_created(event):
     if processed_events.exists(event["id"]):
@@ -1104,7 +1115,7 @@ The consumer tells the broker "it's processed" only **after** it has finished. I
 !!! noob "As noob"
     It is a recorded delivery letter, signed only once its content has been handled, not when the envelope is opened. Until the signature comes back, the sender assumes the letter did not arrive and will send it again. The one thing to remember: **confirm after finishing, never before.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 1. receives OrderCreated 42
 2. sends the email
 3. ack            (if the worker crashes before this step, the message will be redelivered)
@@ -1147,7 +1158,7 @@ Four Kafka words (other brokers have equivalents):
 !!! noob "As noob"
     Picture a newspaper split into several sections (the partitions), each numbered page by page (the offsets). Each service that reads it is a group of readers who share out the sections and keep their own bookmark: one service may have finished while another is still at the start, or goes back to reread. The one thing to remember: **the log stays put, each group moves forward with its own bookmark.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 topic orders.events, 3 partitions, key = order_id
 
 producer: send(key=42, OrderCreated)    hash(42) % 3 = 1
@@ -1167,15 +1178,17 @@ Order is guaranteed **within a partition only**. Across partitions there is no o
 
 Second countermeasure, when order cannot be guaranteed (several producers, replay, another broker): a **version number** in the event, and the consumer ignores anything that is not newer than what it has already applied.
 
-```json
+``` { .json .ex-illus title="Illustration" }
 {"type": "OrderCancelled", "order_id": 42, "version": 3}
 ```
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: applies every event in arrival order, an old "paid" overwrites "cancelled"
 def handle(event):
     apply(event)
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: ignores an event that is not newer than the version applied
 def handle(event):
     last = versions.get(event["order_id"], 0)
@@ -1197,7 +1210,7 @@ def handle(event):
 ### The write-then-publish trap
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-```
+``` { .text .ex-illus title="Illustration" }
 1. orders-service saves the order in the database     OK
 2. orders-service publishes OrderCreated              FAILURE (broker unreachable)
 result: the order exists, but no other service is notified
@@ -1206,7 +1219,7 @@ Swapping the two steps fixes nothing: if publishing succeeds and the database wr
 
 The code that causes this trap looks innocent. If `publish` raises an exception because the broker is unreachable, or if the service restarts between the two lines, the order is saved but the event exists nowhere:
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: database write then publish, with no transaction covering both
 def create_order(order):
     with db.transaction():
@@ -1219,7 +1232,7 @@ The solution is called the **<span class="term" data-term="outbox-pattern">outbo
 !!! noob "As noob"
     Instead of posting the letter myself right after filling in the file, at the risk of forgetting, I slip the letter into the file, and a courier regularly comes by to post whatever he finds. The file and the letter are stored together or not at all, and the courier may post the same letter twice if he is interrupted. The one thing to remember: **save the event with the data, publish it afterwards.**
 
-```sql
+``` { .sql .ex-good title="Recommended" }
 -- Good: the outbox table, where the event waits to be published
 CREATE TABLE outbox (
     id           UUID PRIMARY KEY,
@@ -1255,7 +1268,7 @@ flowchart LR
   B --> CO["consumer"]
   CO -->|"processed_messages<br/>and business effect, same transaction"| D[("consumer database")]
 ```
-```python
+``` { .python .ex-illus title="Illustration" }
 # Example: polling relay, publishes then marks the row as published
 while True:
     rows = db.query("SELECT * FROM outbox WHERE published_at IS NULL ORDER BY id LIMIT 100")
@@ -1267,7 +1280,7 @@ while True:
 
 Consequence: if the relay crashes between `publish` and `UPDATE`, it will publish the same row again on restart. Delivery is therefore **at-least-once**, and the consumer must be idempotent. The safest way is to do it in the database, with a unique constraint on the message id, in the same transaction as the business effect:
 
-```sql
+``` { .sql .ex-good title="Recommended" }
 -- Good: uniqueness on message_id blocks a second processing
 CREATE TABLE processed_messages (
     message_id   UUID PRIMARY KEY,   -- uniqueness blocks the duplicate
@@ -1275,7 +1288,7 @@ CREATE TABLE processed_messages (
 );
 ```
 
-```python
+``` { .python .ex-good title="Recommended" }
 # Good: deduplication and business effect in the same transaction
 def handle_order_created(msg):
     with db.transaction():
@@ -1298,7 +1311,7 @@ If `create_invoice` fails, the transaction is rolled back, the `processed_messag
 
 My service publishes events, and three other services read them: each one must know which channel to listen to and which fields it will receive. AsyncAPI is the OpenAPI equivalent for messages: it describes the <span class="term" data-term="message-channel">channels</span>, the messages and their schema.
 
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: AsyncAPI contract for the OrderCreated event published on orders.created
 asyncapi: 3.0.0
 info:
@@ -1333,7 +1346,7 @@ It acts as the contract between producer and consumers: if the producer changes 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 I want to know when a payment succeeded at my payment provider, without asking it every minute "so, is it paid?". With a webhook, the provider calls **my** URL when the event happens. It sits between the two styles: an event, carried over <span class="term" data-term="http">HTTP</span>.
-```
+``` { .text .ex-illus title="Illustration" }
 POST https://my-api.example.com/webhooks/payments
 X-Signature: sha256=8f3a...
 {"type": "payment.succeeded", "payment_id": "pay_123"}
@@ -1345,12 +1358,14 @@ Three rules. Always check the <span class="term" data-term="webhook-signature">s
 
 Signature checks go wrong in two common ways. Recomputing the signature on re-encoded JSON: the bytes are no longer the same (spaces, key order), so genuine webhooks get rejected. Comparing with `==`: the comparison stops at the first different character, and measuring the response time helps guess the right signature.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: signature computed on re-encoded JSON, and compared with ==
 def is_valid(request, secret):
     expected = hmac.new(secret, json.dumps(request.json()).encode(), "sha256").hexdigest()
     return request.headers["X-Signature"] == f"sha256={expected}"
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: signature computed on the raw body, compared in constant time
 def is_valid(request, secret):
     expected = hmac.new(secret, request.body, "sha256").hexdigest()
@@ -1372,11 +1387,13 @@ def is_valid(request, secret):
 | nothing is lost if the broker goes down                 | cut the broker between the database write and the publication (outbox) |
 
 Waiting for an effect without `sleep`:
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: fixed wait, too short on a busy CI, too long the rest of the time
 time.sleep(5)
 assert mailbox.count(to="ada@example.com") == 1
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: waits for a condition with a maximum delay, instead of a fixed sleep
 def wait_until(condition, timeout_s=10, step_s=0.2):
     deadline = time.monotonic() + timeout_s

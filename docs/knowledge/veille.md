@@ -52,7 +52,7 @@ Faire de la veille, c'est suivre ce qui change dans mon métier (outils, pratiqu
 !!! noob "As noob"
     Trier ses lectures, c'est comme trier son courrier : la plupart des enveloppes partent au recyclage, quelques-unes demandent une action, une ou deux méritent d'être classées. Si je garde tout « au cas où », je ne retrouve plus rien. La phrase à retenir : **lire n'est que la moitié du travail, l'autre moitié consiste à décider quoi en faire.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 radar-perso.md (exemple)
 | Date       | Sujet                  | Anneau | Source                         | Pourquoi                        |
 |------------|------------------------|--------|--------------------------------|---------------------------------|

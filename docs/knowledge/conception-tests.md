@@ -36,7 +36,7 @@ Dans les exemples, les comptes `ada`, `grace` et `dennis` sont des utilisateurs 
 - **Scénario** : un parcours d'utilisateur de bout en bout, écrit en phrases, qui enchaîne plusieurs actions et finit par un résultat attendu.
 - **Technique de conception de tests** : une méthode qui donne une raison à chaque cas de test (partitions, valeurs limites, table de décision...), au lieu de choisir des valeurs au hasard.
 
-```
+``` { .text .ex-illus title="Illustration" }
 règle        : l'âge doit être entre 18 et 65 ans inclus
 cas de test  : âge 17, attendu « refusé »         (valeur limite, choisie par une technique)
 scénario     : ada s'inscrit avec 17 ans, voit le message d'erreur, corrige, puis s'inscrit
@@ -129,7 +129,7 @@ Exemples de critères, écrits sous la matrice des risques :
 
 Un avis rédigé, pour une version 5.0 prévue à 18 h (exemple fictif) :
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 Avis QA, version 5.0, 15 h 30
 
 | Critère de sortie                     | État                                         | OK  |
@@ -205,7 +205,7 @@ Workflow : la QA propose le graphe, le <span class="term" data-term="product-own
 Le nom dit ce qui se passe, le `Goal` dit pourquoi c'est important : le risque couvert.
 
 L'erreur : un scénario écrit comme un script de clics. Le PO ne peut rien y contester, et un restylage casse le scénario alors que le comportement n'a pas changé.
-```gherkin
+``` { .gherkin .ex-bad title="À éviter" }
 # À éviter : des sélecteurs, une URL et une pause dans les steps, et un nom qui ne dit rien
 Scenario: Test 1
   Given I open "https://shop.example.com/login"
@@ -217,7 +217,7 @@ Scenario: Test 1
 
 La bonne version :
 
-```gherkin
+``` { .gherkin .ex-good title="Recommandé" }
 # Bien : le nom dit ce qui se passe, le Goal dit le risque couvert
 @tool-playwright
 Feature: Place an order
@@ -237,7 +237,7 @@ Bonnes pratiques :
 - <span class="term" data-term="playwright">Playwright</span> : contexte neuf par scénario, éléments trouvés par rôle et label, `expect(...)`, jamais de `sleep`.
 
 Un seuil de perf peut aussi être un scénario :
-```gherkin
+``` { .gherkin .ex-ref title="Référence" }
 # Exemple : un seuil de performance écrit comme un scénario
 Scenario: The storefront holds a small rush
   Goal: ten customers at once still get a fast answer.
@@ -285,7 +285,7 @@ Le même fichier `.feature` s'exécute avec un outil propre à chaque langage : 
 
 Un PO clique le parcours, l'outil l'enregistre. Piège : la personne enregistre avec **son** compte sans le dire, et le test échoue pour tous les autres. D'où un gabarit qui oblige à expliciter :
 
-```gherkin
+``` { .gherkin .ex-good title="Recommandé" }
 # Bien : le gabarit oblige à dire quel compte et quelles données sont utilisés
 Given "ada", a customer of the company who can order
 And the stock of "BK-0004" holds at least 1 item
@@ -293,7 +293,7 @@ When ...
 Then the page shows every step done and the order paid
 ```
 Ce que donne le même parcours enregistré sans gabarit :
-```gherkin
+``` { .gherkin .ex-bad title="À éviter" }
 # À éviter : l'enregistrement brut, le compte implicite de la personne et aucun Then
 Given I am logged in
 When I click "Commander"
@@ -335,13 +335,14 @@ Une <span class="term" data-term="boundary-value">valeur limite</span> est la va
 
 La variante à trois valeurs attrape en plus une borne écrite `age == 18` au lieu de `age >= 18` : 19 serait refusé, et seul le cas 19 le montre.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : des valeurs au hasard, loin des bornes, qui passent même si la règle écrit < 65
 @pytest.mark.parametrize(("age", "expected"), [(25, True), (40, True), (10, False)])
 def test_validate_age_random_values(age, expected):
     assert validate_age(age) is expected
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : une valeur par partition, puis les limites à trois valeurs, chaque cas nommé
 @pytest.mark.parametrize(
     ("age", "expected"),
@@ -449,7 +450,7 @@ Pourquoi ça suffit souvent : D. Richard Kuhn, Dolores Wallace et Albert Gallo (
 
 L'outil PICT (Microsoft, open source) génère les cas à partir d'un fichier de paramètres et de contraintes, ici `payment.pict` :
 
-```text
+``` { .text .ex-ref title="Référence" }
 # Exemple : quatre paramètres et une contrainte métier, un particulier ne paie pas par virement
 Navigateur: Chrome, Firefox, Safari, Edge
 Langue:     fr, en, de
@@ -487,13 +488,14 @@ Je teste une fonction qui partage une addition entre plusieurs personnes, en cen
 !!! noob "As noob"
     Au lieu d'essayer trois clés choisies par moi, je confie un trousseau de mille clés au hasard à quelqu'un qui cherche celle qui ouvre la porte alors qu'elle ne devrait pas. S'il en trouve une, il me rapporte la plus simple. La phrase à retenir : **j'écris la règle, l'outil cherche le contre-exemple.**
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : deux exemples choisis à la main, le cas 1 centime pour 2 personnes n'est jamais essayé
 def test_split_bill():
     assert split_bill(10_000, 4) == [2_500, 2_500, 2_500, 2_500]
     assert split_bill(1_000, 2) == [500, 500]
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : trois propriétés vérifiées sur des centaines d'entrées générées
 @given(st.integers(min_value=0, max_value=10**9), st.integers(min_value=1, max_value=100))
 def test_split_invariants(total_cents, people):
@@ -556,7 +558,7 @@ Le cycle :
 
 Une charte et ses notes, en Markdown (exemple fictif) :
 
-```markdown
+``` { .markdown .ex-illus title="Illustration" }
 ## Charte
 Explorer l'import CSV de contacts
 avec des fichiers mal formés, volumineux et multilingues
@@ -649,7 +651,7 @@ Deux patterns évitent de recopier vingt champs obligatoires dans chaque test :
 - **<span class="term" data-term="test-data-builder">Test Data Builder</span>** (Nat Pryce, 2007) : un constructeur avec des valeurs par défaut valides ; le test ne change que ce qui compte pour lui (`OrderBuilder().with_total(12_000)`).
 - **Object Mother** (Martin Fowler, 2006) : des objets prêts à l'emploi et nommés (`customers.premium()`). Simple au début, elle grossit d'une méthode par variante (`premium_with_expired_card_in_belgium()`) : le Builder passe mieux à l'échelle.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : un compte partagé, tous les champs recopiés, et rien ne dit lequel compte
 def test_refund_is_capped():
     order = api.post(
@@ -658,8 +660,9 @@ def test_refund_is_capped():
         headers={"X-User-Id": "qa-user-1"},
     ).json()
     assert api.post(f"/orders/{order['id']}/refunds", json={"amount_cents": 15_000}).status_code == 422
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : un builder aux valeurs par défaut valides, chaque test ne change que ce qui compte
 @dataclass
 class OrderBuilder:
@@ -723,14 +726,16 @@ Dans le code de production, je factorise : une connaissance à un seul endroit (
 | la création des données, dans une <span class="term" data-term="test-fixture">fixture</span> ou un builder | le cas métier, dans le nom du test |
 | la connexion et la navigation | l'assertion, dans le test et pas cachée dans un Page Object |
 
-```typescript
+``` { .typescript .ex-bad title="À éviter" }
 // À éviter : un scénario générique à options, l'échec ne dit pas quel cas métier casse
 test("order scenarios", async ({ page }) => {
   for (const type of ["paid", "refunded", "promo"]) {
     await runOrderScenario(page, type, { verify: true, withPromo: type === "promo" });
   }
 });
+```
 
+``` { .typescript .ex-good title="Recommandé" }
 // Bien : un test par cas métier, avec ses données et son attendu visibles
 test("une commande payée apparaît avec le statut Payée", async ({ ordersPage, createOrder }) => {
   await createOrder({ reference: "CMD-1001", status: "paid" });
@@ -771,12 +776,13 @@ Les erreurs qu'il cite : écrire tous les tests d'un coup avant le code, mélang
 
 Les **trois lois du TDD** (Robert C. Martin, vers 2005, à vérifier) disent la même discipline plus sèchement : pas de code de production sans un test qui échoue ; pas plus de test qu'il n'en faut pour échouer (ne pas compiler compte comme un échec) ; pas plus de code de production qu'il n'en faut pour faire passer le test.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : l'attendu copié depuis ce que le code renvoie aujourd'hui (sa limite est à 8), le test fige le bug
 def test_strength():
     assert password_strength("abcdefghijk", email="ada@example.test") == "ok"
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : 1er tour, rouge. l'attendu vient de la règle (12 caractères minimum), écrit à la main
 def test_11_characters_is_too_short():
     assert password_strength("abcdefghijk", email="ada@example.test") == "too_short"
@@ -815,15 +821,16 @@ Sa méthode : identifier l'endroit à changer, trouver un point d'où observer l
 !!! noob "As noob"
     C'est la photo de la pièce avant de déplacer les meubles : elle ne dit pas si la déco était belle, elle permet de voir tout ce qui a bougé. La phrase à retenir : **un test de caractérisation protège le comportement actuel, pas le comportement voulu.**
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : la règle ajoutée au milieu des 400 lignes, impossible à tester sans la base ni le transporteur
 def checkout(cart):
     fee = carrier_api.quote(cart).fee_cents
     if cart.subtotal_cents >= 5_000:
         fee = 0
     return save_order(cart, fee, created_at=datetime.now())
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : la nouvelle règle dans une fonction pure, écrite en TDD (sprout method)
 def shipping_fee(subtotal_cents, base_fee_cents):
     return 0 if subtotal_cents >= 5_000 else base_fee_cents
@@ -932,14 +939,14 @@ Les champs attendus viennent du rapport d'incident de test d'IEEE 829 (éditions
 
 À éviter, un rapport qui ne donne ni données, ni environnement, ni attendu :
 
-```markdown
+``` { .markdown .ex-bad title="À éviter" }
 Titre : Panier cassé
 Le code promo ne marche pas, voir capture. Urgent !!
 ```
 
 Bien, la même trouvaille rapportée complètement (exemple fictif) :
 
-```markdown
+``` { .markdown .ex-good title="Recommandé" }
 Titre : Le total du panier ignore le code promo après un changement de quantité
 
 Environnement : intégration, front 2.8.1, API cart 1.14.0, Chrome 130, macOS
@@ -1025,11 +1032,13 @@ Un outil automatique ne trouve qu'une partie des problèmes : il voit qu'un cham
 1. **automatique** : axe-core dans les tests Playwright, limité aux règles WCAG A et AA, qui fait échouer le test en cas de violation ;
 2. **manuelle**, sur les parcours critiques : tout faire au clavier (Tab, Entrée, Échap), vérifier que le focus est visible et suit un ordre logique, provoquer une erreur et l'écouter avec un <span class="term" data-term="screen-reader">lecteur d'écran</span> (NVDA, VoiceOver), zoomer à 200 %.
 
-```typescript
+``` { .typescript .ex-bad title="À éviter" }
 // À éviter : toutes les règles sur toute la page, et un nombre affiché que personne ne lit
 const results = await new AxeBuilder({ page }).analyze();
 console.log(results.violations.length);
+```
 
+``` { .typescript .ex-good title="Recommandé" }
 // Bien : les règles WCAG A et AA, limitées au formulaire, et le test échoue s'il y a une violation
 test("le formulaire de paiement respecte WCAG A et AA", async ({ page }) => {
   await page.goto("/checkout/payment");

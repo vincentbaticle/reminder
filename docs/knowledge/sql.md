@@ -85,10 +85,12 @@ erDiagram
 <a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a>
 
 ### SELECT, WHERE, ORDER BY, LIMIT
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : SELECT * et LIMIT sans ORDER BY, les 10 lignes renvoyées changent d'un appel à l'autre
 SELECT * FROM orders WHERE status = 'paid' LIMIT 10;
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : colonnes nommées et ORDER BY explicite, le résultat reste stable
 SELECT id, status, total_cents
 FROM orders
@@ -104,7 +106,7 @@ Règles :
 - toujours `ORDER BY` si l'ordre compte : sans lui, la <span class="term" data-term="database">base</span> renvoie les <span class="term" data-term="db-row">lignes</span> dans l'ordre qui l'arrange, et cet ordre peut changer.
 
 ### Filtres utiles
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : quatre filtres courants, liste, plage, motif de texte, valeur absente
 WHERE status IN ('paid', 'shipped')
 WHERE total_cents BETWEEN 1000 AND 5000
@@ -118,15 +120,17 @@ WHERE delivered_at IS NULL
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 Avant de lire ou de modifier, compter. Ça évite d'afficher un million de lignes, ou d'en modifier un million.
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : tout lire sans savoir combien de lignes arrivent
 SELECT * FROM orders WHERE status = 'pending';
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : compter avant de lire ou de modifier
 SELECT COUNT(*) FROM orders WHERE status = 'pending';
 ```
 Sans compter, le client SQL tente de charger 2,4 millions de lignes : il se fige plusieurs minutes, et la base lit toute la table pour rien.
-```
+``` { .text .ex-illus title="Illustration" }
 12          je peux regarder les lignes
 2 400 000   je filtre davantage avant
 ```
@@ -166,7 +170,7 @@ Une <span class="term" data-term="sql-join">jointure</span> associe chaque ligne
 
 Le même jeu de données, ligne par ligne. ada a deux commandes, grace et linus aucune, et la commande 12 pointe vers un client 4 qui n'existe plus :
 
-```
+``` { .text .ex-illus title="Illustration" }
 customers            orders
 id  email            id  customer_id
 1   ada              10  1
@@ -190,7 +194,7 @@ Les cercles sont une image commode mais imparfaite : une jointure n'est pas une 
 { .doc-ref }
 
 ### INNER JOIN : ce qui existe des deux côtés
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : INNER JOIN, les commandes payées avec l'e-mail du client
 SELECT c.email, o.id, o.total_cents
 FROM orders o
@@ -202,7 +206,7 @@ Les commandes payées avec l'email du client. Une commande sans client correspon
 **Risques.** Un `INNER JOIN` fait disparaître sans bruit les lignes sans correspondance : un rapport « chiffre d'affaires par client » qui joint `customers` perd les commandes dont le client a été supprimé, et le total ne colle plus à la comptabilité. Quand je compte ou je somme, je compare le nombre de lignes avec et sans la jointure.
 
 ### LEFT JOIN : tout à gauche, même sans correspondance
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : LEFT JOIN, tous les clients, même ceux sans commande
 SELECT c.email, o.id
 FROM customers c
@@ -212,13 +216,15 @@ Tous les clients, avec leurs commandes. Un client sans commande apparaît une fo
 
 Piège fréquent : un filtre sur la table de droite placé dans le `WHERE` annule le `LEFT JOIN`. Pour un client sans commande payée, `o.status` vaut `NULL`, le `WHERE` élimine sa ligne, et la requête se comporte comme un `INNER JOIN` : le rapport « tous les clients et leurs commandes payées » perd sans bruit les clients qui n'ont rien payé.
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : le WHERE sur o élimine les clients sans commande payée
 SELECT c.email, o.id
 FROM customers c
 LEFT JOIN orders o ON o.customer_id = c.id
 WHERE o.status = 'paid';
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : le filtre dans le ON, chaque client reste, avec o.id à NULL s'il n'a rien payé
 SELECT c.email, o.id
 FROM customers c
@@ -226,7 +232,7 @@ LEFT JOIN orders o ON o.customer_id = c.id AND o.status = 'paid';
 ```
 
 ### Trouver ce qui manque : LEFT JOIN ... IS NULL
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : les clients qui n'ont jamais commandé
 SELECT c.id, c.email
 FROM customers c
@@ -235,7 +241,7 @@ WHERE o.id IS NULL;
 ```
 Les clients qui n'ont **jamais** commandé. Très utile pour trouver des <span class="term" data-term="test-data">données de test</span> (« un client sans commande ») ou des incohérences (« des commandes sans articles »).
 
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : les commandes sans articles, une incohérence
 SELECT o.id
 FROM orders o
@@ -247,7 +253,7 @@ WHERE i.id IS NULL;
 
 ### RIGHT JOIN, FULL OUTER JOIN, CROSS JOIN
 
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : les orphelins des deux côtés, clients sans commande et commandes sans client
 SELECT c.email, o.id
 FROM customers c
@@ -266,7 +272,7 @@ MySQL n'a pas de `FULL OUTER JOIN` : on l'obtient avec un `UNION` d'un `LEFT JOI
 
 ### Le piège de la multiplication
 Un `JOIN` sur une relation « <span class="term" data-term="one-to-many">un à plusieurs</span> » répète les lignes.
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : total faux, chaque commande compte une fois par article
 SELECT SUM(o.total_cents)
 FROM orders o
@@ -289,13 +295,13 @@ Une commande de 3 articles compte 3 fois dans la somme : le total est faux. Fair
 <a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a>
 
 ### GROUP BY
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : nombre et total des commandes par statut
 SELECT status, COUNT(*) AS nb, SUM(total_cents) AS total
 FROM orders
 GROUP BY status;
 ```
-```
+``` { .text .ex-ref title="Référence" }
 status     nb     total
 paid       820    2 460 000
 pending     12       36 000
@@ -317,7 +323,7 @@ flowchart LR
   F["FROM, JOIN"] --> W["WHERE<br/>filtre les lignes"] --> G["GROUP BY"] --> H["HAVING<br/>filtre les groupes"] --> S["SELECT"] --> O["ORDER BY"] --> L["LIMIT"]
 ```
 
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : HAVING filtre les groupes, les clients de plus de 5 commandes
 SELECT customer_id, COUNT(*) AS nb
 FROM orders
@@ -329,7 +335,7 @@ Les clients qui ont passé plus de 5 commandes.
 **Risques.** Mettre dans `HAVING` un filtre qui porte sur les lignes, comme `GROUP BY status HAVING status = 'paid'`, oblige la base à regrouper toute la table avant de jeter les groupes : le résultat est juste, mais la requête est bien plus lente. Ce qui filtre des lignes va dans `WHERE`, ce qui filtre des agrégats va dans `HAVING`.
 
 ### Trouver des doublons
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : les e-mails présents plus d'une fois
 SELECT email, COUNT(*)
 FROM customers
@@ -340,7 +346,7 @@ HAVING COUNT(*) > 1;
 **Risques.** Le regroupement compare les valeurs exactes : `Ada@example.com` et `ada@example.com`, avec une majuscule ou une espace en trop, ne sortent pas comme doublons. Je normalise dans la requête (`GROUP BY LOWER(TRIM(email))`), puis je pose une contrainte d'unicité sur la valeur normalisée pour que les doublons ne reviennent pas.
 
 ### COUNT(*) ou COUNT(colonne)
-```
+``` { .text .ex-ref title="Référence" }
 COUNT(*)              compte toutes les lignes
 COUNT(delivered_at)   compte seulement les lignes où delivered_at n'est pas NULL
 COUNT(DISTINCT customer_id)   compte les clients différents
@@ -355,7 +361,7 @@ COUNT(DISTINCT customer_id)   compte les clients différents
 
 ### Sous-requête et CTE (WITH)
 Une **<span class="term" data-term="cte">CTE</span>** donne un nom à une <span class="term" data-term="db-query">requête</span> intermédiaire, pour lire la requête de haut en bas.
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : la CTE nomme l'étape « gros clients », puis la requête lit leurs e-mails
 WITH big_customers AS (
     SELECT customer_id
@@ -373,7 +379,7 @@ Les clients qui ont dépensé plus de 1 000 €.
     Une CTE, c'est une étape de recette à laquelle je donne un nom : « préparer la pâte », puis « garnir la pâte préparée ». Sans elle, j'écris tout d'une traite, avec des parenthèses dans des parenthèses, et plus personne ne sait où commence chaque étape. La phrase à retenir : **la CTE ne rend en général pas la requête plus rapide, elle la rend lisible de haut en bas.**
 
 Une **<span class="term" data-term="subquery">sous-requête</span>** est une requête placée dans une autre, ici dans le `WHERE` : les e-mails des clients qui ont au moins une commande remboursée.
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : sous-requête dans le WHERE, clients avec une commande remboursée
 SELECT email
 FROM customers
@@ -382,12 +388,14 @@ WHERE id IN (SELECT customer_id FROM orders WHERE status = 'refunded');
 
 Piège : `NOT IN` avec une sous-requête qui contient un seul `NULL` ne renvoie **aucune** ligne. `id NOT IN (7, NULL)` revient à `id <> 7 AND id <> NULL`, et `id <> NULL` n'est jamais vrai. Il suffit d'une commande invitée enregistrée avec `customer_id` à `NULL` pour que « les clients sans commande » réponde zéro client.
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : un seul customer_id NULL dans orders, et la requête ne renvoie rien
 SELECT email
 FROM customers
 WHERE id NOT IN (SELECT customer_id FROM orders);
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : NOT EXISTS n'est pas gêné par les NULL
 SELECT email
 FROM customers c
@@ -407,7 +415,7 @@ Calculer sur un groupe de <span class="term" data-term="db-row">lignes</span> **
 !!! noob "As noob"
     `GROUP BY` fond les lignes d'un groupe en une seule, comme on résume une classe par sa moyenne. Une fonction de fenêtre laisse chaque élève sur sa ligne et écrit à côté une information calculée sur sa classe (son rang, la moyenne de la classe). La phrase à retenir : **même calcul par groupe, mais aucune ligne ne disparaît.**
 
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : le rang de chaque commande pour son client, sans fusionner les lignes
 SELECT customer_id, id, created_at,
        ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) AS rang
@@ -418,7 +426,7 @@ Chaque commande garde sa ligne, avec son rang pour son client : `rang = 1`, c'es
 **Risques.** Une fonction de fenêtre trie chaque partition : sur des millions de lignes, le tri peut déborder sur le disque et la requête s'allonge. Et je ne peux pas filtrer sur son résultat dans le `WHERE` de la même requête : je l'enveloppe dans une sous-requête ou une CTE, sinon la base refuse la requête.
 
 ### CASE
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : CASE classe chaque commande en gros, moyen ou petit
 SELECT id,
        CASE WHEN total_cents >= 10000 THEN 'gros'
@@ -437,7 +445,7 @@ FROM orders;
 <a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a>
 
 ### INSERT, UPDATE, DELETE
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : ajouter un client
 INSERT INTO customers (email, country) VALUES ('ada@example.com', 'FR');
 
@@ -451,7 +459,7 @@ Le danger : un `UPDATE` ou un `DELETE` **sans `WHERE`** touche toute la <span cl
 
 L'erreur arrive surtout dans un client SQL où je sélectionne une partie du texte avant de l'exécuter : si la sélection s'arrête avant la ligne du `WHERE`, la base reçoit une requête valide qui touche tout.
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : la ligne du WHERE n'était pas sélectionnée, toutes les commandes passent en cancelled
 UPDATE orders SET status = 'cancelled'
 ```
@@ -462,13 +470,13 @@ UPDATE orders SET status = 'cancelled'
 ### Essayer avant de valider : la transaction
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : lancer l'UPDATE directement, validé aussitôt (autocommit)
 UPDATE orders SET status = 'cancelled' WHERE customer_id = 17;
 ```
 En autocommit, une faute de frappe dans le `WHERE` (17 au lieu de 7) annule tout de suite les commandes d'un autre client, et seule une restauration de sauvegarde les ramène.
 
-```sql
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : essayer le changement dans une transaction avant de le valider
 BEGIN;
 UPDATE orders SET status = 'cancelled' WHERE customer_id = 7;
@@ -525,7 +533,7 @@ Mon application tourne sur plusieurs instances, donc deux requêtes peuvent modi
 
 Une <span class="term" data-term="race-condition">race condition</span> est un bug qui dépend de l'ordre dans lequel deux traitements simultanés s'exécutent. Le motif dangereux tient en trois étapes : lire, décider, écrire. Entre la lecture et l'écriture, une autre requête peut passer, et l'une des deux écritures efface l'autre : c'est une <span class="term" data-term="lost-update">mise à jour perdue</span>.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : lire, décider, écrire en trois étapes, deux requêtes lisent "1 place" et réservent toutes les deux
 seats = db.query_one("SELECT seats_left FROM events WHERE id = %s", event_id)
 if seats > 0:
@@ -549,7 +557,7 @@ Deux réservations pour une place, et le compteur dit 0 : rien ne signale l'erre
 
 La première parade, la plus simple : une <span class="term" data-term="atomic-operation">opération atomique</span>, où la vérification est dans le `WHERE` de l'`UPDATE`.
 
-```python
+``` { .python .ex-good title="Recommandé" }
 # Bien : la vérification et l'écriture dans une seule instruction, la base sérialise les deux UPDATE sur la ligne
 with db.transaction():
     updated = db.execute(
@@ -575,14 +583,15 @@ Le second `UPDATE` attend le verrou de la ligne posé par le premier, puis réé
 
 Quand la règle porte sur plusieurs lignes ou demande du code entre la lecture et l'écriture, un seul `UPDATE` ne suffit plus. Un virement lit deux soldes, vérifie le premier, débite l'un, crédite l'autre. Le <span class="term" data-term="pessimistic-locking">verrou pessimiste</span> verrouille les lignes dès leur lecture avec `SELECT ... FOR UPDATE` : toute autre transaction qui veut les modifier ou les verrouiller attend la fin de la mienne.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : verrouiller dans l'ordre du virement, A vers B et B vers A en même temps s'attendent mutuellement
 def transfer_bad(db, src, dst, amount):
     with db.transaction():
         db.execute("SELECT balance FROM accounts WHERE id = %s FOR UPDATE", src)
         db.execute("SELECT balance FROM accounts WHERE id = %s FOR UPDATE", dst)
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : verrouiller les deux comptes en une requête, toujours par identifiant croissant
 def transfer(db, src, dst, amount):
     with db.transaction():
@@ -601,10 +610,12 @@ Dans la première version, le virement A vers B verrouille A puis attend B, pend
 
 Variante pour une table de tâches lue par plusieurs workers : `SKIP LOCKED` saute les lignes déjà verrouillées au lieu de les attendre (PostgreSQL 9.5, 2016 ; MySQL 8.0, 2018).
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : tous les workers veulent la même première tâche et attendent les uns derrière les autres
 SELECT id, payload FROM jobs WHERE status = 'pending' ORDER BY created_at LIMIT 1 FOR UPDATE;
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : chaque worker prend la première tâche libre, sans attendre celles déjà prises
 SELECT id, payload FROM jobs WHERE status = 'pending' ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED;
 ```
@@ -622,10 +633,12 @@ SELECT id, payload FROM jobs WHERE status = 'pending' ORDER BY created_at LIMIT 
 
 ada ouvre la fiche de la commande 42 pour corriger l'adresse, et met cinq minutes. Pendant ce temps, grace change le mode de livraison de la même commande. Impossible de tenir un verrou en base pendant cinq minutes. Le <span class="term" data-term="optimistic-locking">verrou optimiste</span> ne bloque rien : chaque ligne porte un numéro de `version`, et l'écriture ne passe que si la version n'a pas changé depuis la lecture (H. T. Kung et John T. Robinson, 1981 ; « Optimistic Offline Lock » chez Martin Fowler, 2002).
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : écrire sans vérifier, la sauvegarde d'ada écrase en silence la modification de grace
 db.execute("UPDATE orders SET shipping_address = %s WHERE id = %s", address, order_id)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : écrire seulement si la version lue n'a pas changé, sinon signaler le conflit
 updated = db.execute(
     "UPDATE orders SET shipping_address = %s, version = version + 1 "
@@ -683,12 +696,13 @@ Les moteurs vont souvent plus loin que la norme, et la norme ne parle ni de mise
 
 En `SERIALIZABLE`, une transaction peut échouer avec l'erreur SQLSTATE `40001` (échec de sérialisation) : c'est normal, et le code doit relancer la transaction entière.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : SERIALIZABLE sans nouvelle tentative, chaque conflit devient une erreur 500 pour l'utilisateur
 with db.transaction(isolation="serializable"):
     work(db)
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : relancer toute la transaction quand la base signale un échec de sérialisation (SQLSTATE 40001)
 MAX_ATTEMPTS = 3
 
@@ -703,7 +717,7 @@ def run_serializable(db, work):
                 raise
 ```
 
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : lire le niveau par défaut, puis ouvrir une transaction plus stricte (PostgreSQL)
 SHOW default_transaction_isolation;
 BEGIN ISOLATION LEVEL SERIALIZABLE;
@@ -754,13 +768,15 @@ flowchart LR
 | `pg_stat_statements` (PostgreSQL), `performance_schema` (MySQL) | toutes les requêtes regroupées par forme, avec nombre d'appels et temps cumulé | extension à activer dans `shared_preload_libraries` |
 | `auto_explain` (PostgreSQL) | le plan d'exécution des requêtes lentes, écrit dans les logs | `auto_explain.log_min_duration = 1000` |
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : classer par durée moyenne
 SELECT calls, round(mean_exec_time, 1) AS mean_ms, left(query, 60) AS query
 FROM pg_stat_statements
 ORDER BY mean_exec_time DESC
 LIMIT 3;
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : classer les requêtes par temps total cumulé, pas par durée moyenne
 SELECT calls,
        round(total_exec_time) AS total_ms,
@@ -770,7 +786,7 @@ FROM pg_stat_statements
 ORDER BY total_exec_time DESC
 LIMIT 3;
 ```
-```
+``` { .text .ex-ref title="Référence" }
  calls   | total_ms | mean_ms | query
 ---------+----------+---------+------------------------------------------------------------
  2100000 |  6300000 |     3.0 | SELECT * FROM orders WHERE customer_id = $1
@@ -791,15 +807,15 @@ Chiffres d'exemple. La requête en tête ne prend que 3 ms, mais elle tourne 2 m
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 `EXPLAIN` montre comment la base compte exécuter la <span class="term" data-term="db-query">requête</span>, sans l'exécuter.
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : voir le plan prévu, sans exécuter la requête
 EXPLAIN SELECT * FROM orders WHERE customer_id = 7;
 ```
-```
+``` { .text .ex-ref title="Référence" }
 type: ALL    rows: 2 400 000     la base lit toute la table : pas d'index utilisé
 ```
 Après `CREATE INDEX idx_orders_customer ON orders (customer_id);` :
-```
+``` { .text .ex-ref title="Référence" }
 type: ref    rows: 14            la base va directement aux 14 lignes du client
 ```
 `EXPLAIN ANALYZE` (PostgreSQL, MySQL 8) l'exécute vraiment et donne les temps réels.
@@ -848,10 +864,12 @@ flowchart TD
 
 Le cas de la fonction est le plus sournois : la requête marche, juste lentement, et rien ne prévient. Sur PostgreSQL, un index sur l'expression elle-même règle le problème :
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : LOWER() sur la colonne, l'index sur email ne sert pas, toute la table est lue
 SELECT id FROM customers WHERE LOWER(email) = 'ada@example.com';
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : un index sur l'expression LOWER(email), que la même requête utilise
 CREATE INDEX idx_customers_email_lower ON customers (LOWER(email));
 SELECT id FROM customers WHERE LOWER(email) = 'ada@example.com';
@@ -877,7 +895,7 @@ flowchart LR
 ```
 
 Avant et après, en PostgreSQL :
-```
+``` { .text .ex-ref title="Référence" }
 EXPLAIN ANALYZE SELECT id, total_cents FROM orders WHERE customer_id = 7 ORDER BY created_at DESC LIMIT 10;
 
 Limit  (actual time=812.4..812.4 rows=10)
@@ -888,7 +906,7 @@ Limit  (actual time=812.4..812.4 rows=10)
 Execution Time: 812.6 ms
 ```
 `CREATE INDEX CONCURRENTLY idx_orders_customer_created ON orders (customer_id, created_at DESC);`
-```
+``` { .text .ex-ref title="Référence" }
 Limit  (actual time=0.04..0.06 rows=10)
   ->  Index Scan using idx_orders_customer_created on orders  (actual time=0.04..0.05 rows=10)
         Index Cond: (customer_id = 7)
@@ -916,7 +934,7 @@ L'index sur deux colonnes sert à la fois au filtre et au tri : plus de lecture 
 ### Le problème N+1
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : une requête par commande, 101 allers-retours (N+1)
 orders = db.query("SELECT * FROM orders LIMIT 100")
 for order in orders:
@@ -944,7 +962,7 @@ sequenceDiagram
   Note over A,D: avec un JOIN, un seul aller-retour
 ```
 
-```python
+``` { .python .ex-good title="Recommandé" }
 # Ce qui change : un seul JOIN, un seul aller-retour pour les 100 commandes et leurs clients
 rows = db.query(
     "SELECT o.id, o.total_cents, c.email "
@@ -979,7 +997,7 @@ Martin Fowler a nommé les deux familles dans « Patterns of Enterprise Applicat
 - **<span class="term" data-term="active-record">Active Record</span>** : un objet correspond à une ligne et sait s'enregistrer lui-même (`order.save()`). Exemples : Eloquent (Laravel), Active Record (Rails), l'ORM de Django.
 - **<span class="term" data-term="data-mapper">Data Mapper</span>** : l'objet métier ne sait rien de la base ; un composant à part (la session, l'entity manager) le lit et l'écrit. Exemples : SQLAlchemy, Doctrine, Hibernate.
 
-```python
+``` { .python .ex-ref title="Référence" }
 # Exemple : Active Record (Django), l'objet porte lui-même sa sauvegarde
 order = Order.objects.get(id=42)
 order.status = "paid"
@@ -1012,12 +1030,14 @@ Un <span class="term" data-term="query-builder">query builder</span> construit d
 
 Mon rapport mensuel du chiffre d'affaires par statut et par semaine, écrit avec l'ORM, charge 2 millions de commandes en objets et met 6 minutes (chiffres d'exemple) :
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : charger 2 millions de lignes en objets pour les additionner en Python
 totals = defaultdict(int)
 for order in session.scalars(select(Order)):
     totals[(order.status, order.created_at.isocalendar().week)] += order.total_cents
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : la base agrège, le query builder garde les paramètres, quelques centaines de lignes reviennent
 week = func.date_trunc("week", Order.created_at)
 rows = session.execute(
@@ -1047,12 +1067,14 @@ L'agrégation est le travail de la base : elle lit les lignes là où elles sont
 
 Par défaut, beaucoup d'ORM font du <span class="term" data-term="lazy-loading">chargement paresseux</span> (*Lazy Load*, Fowler, 2002) : `order.customer` ne lance la requête qu'au premier accès. Pratique pour une fiche seule, désastreux dans une boucle : c'est la cause classique du [problème N+1](#le-probleme-n1). Le <span class="term" data-term="eager-loading">chargement anticipé</span> demande à l'ORM de charger les données liées d'avance, en une ou deux requêtes.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : chargement paresseux dans une boucle, une requête par commande pour lire son client
 orders = session.scalars(select(Order).limit(50)).all()
 for order in orders:
     print(order.customer.email)
+```
 
+``` { .python .ex-good title="Recommandé" }
 # Bien : chargement anticipé, le client par jointure, les articles par une seconde requête IN
 orders = session.scalars(
     select(Order)
@@ -1117,12 +1139,12 @@ Le partitionnement horizontal peut rester sur une seule machine (partitionnement
 
 Avant de payer une machine, vérifier ce qu'elle fait. La section [Performances](#performances) plus haut couvre l'essentiel : `EXPLAIN`, un index manquant, le problème N+1. Sur PostgreSQL, l'extension `pg_stat_statements` liste les requêtes qui consomment le plus de temps au total ; souvent, trois requêtes font la moitié de la charge.
 
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : les 3 requêtes qui consomment le plus de temps au total
 SELECT calls, round(total_exec_time) AS total_ms, round(mean_exec_time) AS mean_ms, query
 FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 3;
 ```
-```
+``` { .text .ex-ref title="Référence" }
  calls  | total_ms | mean_ms | query
 --------+----------+---------+------------------------------------------------
  912000 |  1824000 |       2 | SELECT * FROM orders WHERE customer_id = $1
@@ -1133,7 +1155,7 @@ La première est rapide mais appelée très souvent (un N+1 probable), la deuxi�
 
 Ensuite, les connexions. Chaque connexion PostgreSQL est un processus qui coûte de la mémoire. Vingt instances de my-api avec 50 connexions chacune, cela fait 1 000 connexions (exemple). Un <span class="term" data-term="connection-pooler">pooler de connexions</span> (PgBouncer, ou celui de l'hébergeur) les partage :
 
-```
+``` { .text .ex-illus title="Illustration" }
 my-api (20 instances x 50 connexions) ──> PgBouncer ──> PostgreSQL (100 connexions réelles)
 ```
 
@@ -1191,7 +1213,7 @@ flowchart LR
 | `transaction` | à la fin de chaque transaction | forte | `SET` de session, verrous consultatifs, `LISTEN`, tables temporaires ; requêtes préparées avant PgBouncer 1.21 (2023, à vérifier) |
 | `statement` | après chaque requête | maximale | toute transaction de plusieurs requêtes |
 
-```ini
+``` { .ini .ex-ref title="Référence" }
 # Exemple : la base vers laquelle PgBouncer relaie les connexions
 [databases]
 orders = host=orders-db.internal port=5432 dbname=orders
@@ -1206,7 +1228,7 @@ default_pool_size = 50
 Les instances de my-api se connectent au port 6432 au lieu de 5432 ; 2 000 connexions côté application deviennent 50 connexions réelles par couple base et utilisateur (valeurs d'exemple).
 
 Avec ProxySQL, le routage se configure par des règles dans son interface d'administration, qui parle le protocole MySQL. Ici, les `SELECT ... FOR UPDATE` vont au primaire (groupe 10), les autres `SELECT` aux réplicas (groupe 20), tout le reste au groupe par défaut de l'utilisateur, le primaire :
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : FOR UPDATE vers le primaire (groupe 10), autres SELECT vers les réplicas (20)
 INSERT INTO mysql_query_rules (rule_id, active, match_digest, destination_hostgroup, apply)
 VALUES (1, 1, '^SELECT.*FOR UPDATE', 10, 1),
@@ -1258,7 +1280,7 @@ Le <span class="term" data-term="table-partitioning">partitionnement de table</s
 !!! noob "As noob"
     Partitionner, c'est ranger les factures dans un classeur à onglets par mois au lieu d'un seul tas : pour novembre, je n'ouvre que l'onglet novembre. Tout reste dans le même meuble (la même machine), et l'application voit toujours un seul classeur. La phrase à retenir : **le partitionnement n'aide que si les requêtes filtrent sur la colonne de découpage.**
 
-```sql
+``` { .sql .ex-ref title="Référence" }
 -- Exemple : table mère partitionnée par date, created_at fait partie de la clé primaire
 CREATE TABLE orders (
     id           bigint      NOT NULL,
@@ -1276,14 +1298,16 @@ CREATE TABLE orders_2026_11 PARTITION OF orders
     FOR VALUES FROM ('2026-11-01') TO ('2026-12-01');
 ```
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : la fonction sur created_at empêche l'élagage, toutes les partitions sont lues
 EXPLAIN SELECT * FROM orders WHERE date_trunc('month', created_at) = '2026-11-01';
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : le filtre porte sur la colonne de partition, seule novembre est lue
 EXPLAIN SELECT * FROM orders WHERE created_at >= '2026-11-01';
 ```
-```
+``` { .text .ex-ref title="Référence" }
 Seq Scan on orders_2026_11      une seule partition lue, octobre est ignoré
 ```
 
@@ -1296,10 +1320,12 @@ Ce tri automatique s'appelle l'<span class="term" data-term="partition-pruning">
 
 Les <span class="term" data-term="cold-data">données froides</span> (commandes de plus de deux ans, journaux passés) alourdissent les index et les sauvegardes sans être lues. Avec une table partitionnée par mois, archiver devient simple :
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : détacher sans CONCURRENTLY
 ALTER TABLE orders DETACH PARTITION orders_2024_01;
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : détacher une partition pour l'archiver, sans bloquer les requêtes en cours
 ALTER TABLE orders DETACH PARTITION orders_2024_01 CONCURRENTLY;
 ```
@@ -1328,12 +1354,13 @@ Le sharding répartit les lignes d'une même table sur plusieurs bases. C'est la
 
 **Le repartitionnement.** Passer de 4 à 8 bases impose de déplacer des données : le <span class="term" data-term="resharding">repartitionnement</span>. L'astuce classique : beaucoup de <span class="term" data-term="logical-shard">shards logiques</span> (256, par exemple) répartis sur peu de bases, et une <span class="term" data-term="shard-router">couche de routage</span> qui tient la table de correspondance. On déplace alors des shards entiers, sans recalculer la place de chaque ligne.
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : la base calculée directement depuis le nombre de bases
 def shard_db(customer_id: int) -> str:
     return f"orders-db-{customer_id % 4}"
+```
 
-
+``` { .python .ex-good title="Recommandé" }
 # Bien : beaucoup de shards logiques sur peu de bases, déplaçables en bloc
 LOGICAL_SHARDS = 256
 
@@ -1451,7 +1478,7 @@ flowchart LR
 | 5. Contract | `ALTER TABLE customers DROP COLUMN country;` | n'écrit plus que `country_code` |
 
 L'étape 2 côté application, dans la même requête :
-```python
+``` { .python .ex-good title="Recommandé" }
 # Ce qui change : écrit aussi country_code, en plus de country, dans la même requête
 def update_country(conn, customer_id: int, code: str) -> None:
     conn.execute(
@@ -1468,10 +1495,12 @@ Entre l'étape 4 et l'étape 5, on attend que plus aucune version déployée ne 
 
 Le <span class="term" data-term="backfill">backfill</span> recopie les lignes existantes. Un seul `UPDATE` sur 40 millions de lignes (exemple) tiendrait des verrous longtemps et ferait exploser le retard des réplicas. On découpe :
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : un seul UPDATE sur 40 millions de lignes, verrous tenus longtemps et réplicas en retard
 UPDATE customers SET country_code = country WHERE country_code IS NULL;
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : recopie par lots de 5 000 lignes, répétée jusqu'à zéro ligne modifiée
 UPDATE customers
 SET country_code = country
@@ -1498,10 +1527,12 @@ Un `ALTER TABLE` demande un <span class="term" data-term="db-lock">verrou</span>
 !!! noob "As noob"
     Je pense à une file au guichet : la migration veut le guichet pour elle seule, attend derrière un client très long, et tous ceux qui arrivent derrière elle attendent aussi, même ceux qui n'en avaient que pour une seconde. `lock_timeout` lui dit : « si tu n'as pas le guichet en 2 secondes, sors de la file et reviens plus tard ». La phrase à retenir : **une migration qui attend un verrou bloque tout le monde derrière elle.**
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : sans délai d'attente, l'ALTER patiente derrière la longue requête et bloque toute la file
 ALTER TABLE customers ADD COLUMN country_code text;
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : abandonner si le verrou n'est pas obtenu en 2 secondes
 SET lock_timeout = '2s';
 -- Exemple : l'étape 1 (expand), ajout de la nouvelle colonne
@@ -1537,10 +1568,12 @@ sequenceDiagram
 
 Un `CREATE INDEX` classique bloque les écritures sur la table pendant toute sa construction. La version sans blocage :
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : CREATE INDEX classique, les écritures sur customers attendent toute la construction
 CREATE INDEX idx_customers_country_code ON customers (country_code);
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : construit l'index sans bloquer les écritures
 CREATE INDEX CONCURRENTLY idx_customers_country_code ON customers (country_code);
 ```
@@ -1552,7 +1585,7 @@ Elle est plus lente, ne peut pas tourner dans une transaction, et laisse un inde
 
 Pour une contrainte, même idée en deux temps, avec une <span class="term" data-term="not-valid-constraint">contrainte NOT VALID</span> :
 
-```sql
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : instantané, la contrainte vaut pour les nouvelles écritures seulement
 ALTER TABLE customers
     ADD CONSTRAINT customers_country_code_not_null CHECK (country_code IS NOT NULL) NOT VALID;
@@ -1595,14 +1628,14 @@ D'autres frameworks ont le leur (Rails, Django, Laravel, Prisma) : même princip
 *Alembic : concurrent de Flyway, Liquibase ; complémentaire de SQLAlchemy*
 { .tool-rel }
 
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : l'ALTER sans lock_timeout
 def upgrade() -> None:
     op.add_column("customers", sa.Column("country_code", sa.Text(), nullable=True))
 ```
 Sans `lock_timeout`, l'`ALTER` attend derrière une longue transaction qui lit `customers`, et toutes les requêtes sur `customers` s'empilent derrière lui : la connexion des utilisateurs reste bloquée jusqu'à la fin de cette transaction.
 
-```python
+``` { .python .ex-good title="Recommandé" }
 """Add customers.country_code.
 
 Revision ID: 3f2a9c1d7b10
@@ -1627,7 +1660,7 @@ def downgrade() -> None:
     op.drop_column("customers", "country_code")
 ```
 La même chose pour Flyway tient dans un fichier `V7__add_customers_country_code.sql` qui contient les deux lignes SQL de l'étape 1 :
-```
+``` { .text .ex-ref title="Référence" }
 $ flyway migrate
 Successfully validated 7 migrations
 Current version of schema "public": 6
@@ -1674,9 +1707,12 @@ Références : Danilo Sato, [« ParallelChange »](https://martinfowler.com/blik
 <a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a>
 
 ### NULL ne se compare pas avec =
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : = NULL ne vaut jamais vrai
 WHERE delivered_at = NULL        ne renvoie jamais rien
+```
+
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : IS NULL teste l'absence de valeur
 WHERE delivered_at IS NULL       correct
 ```
@@ -1689,12 +1725,12 @@ Et `WHERE status != 'paid'` **exclut** les <span class="term" data-term="db-row"
 { .doc-ref }
 
 ### Les dates et les fuseaux horaires
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : ne renvoie que les commandes de minuit pile
 WHERE created_at BETWEEN '2026-10-20' AND '2026-10-20'
 ```
 Ne renvoie que les commandes de minuit pile : `'2026-10-20'` veut dire `2026-10-20 00:00:00`. Écrire plutôt :
-```sql
+``` { .sql .ex-good title="Recommandé" }
 -- Ce qui change : fin exclue au lendemain, toute la journée est prise
 WHERE created_at >= '2026-10-20' AND created_at < '2026-10-21'
 ```
@@ -1709,10 +1745,12 @@ Et savoir si les dates sont stockées en <span class="term" data-term="utc">UTC<
 ### L'argent
 Jamais en `FLOAT` : `0.1 + 0.2` ne fait pas exactement `0.3`. En centimes entiers (`total_cents INT`) ou en `DECIMAL(12, 2)`.
 
-```sql
+``` { .sql .ex-bad title="À éviter" }
 -- À éviter : FLOAT garde une approximation, les sommes dérivent de quelques centimes et le rapprochement comptable ne tombe jamais juste
 CREATE TABLE payments (id bigint PRIMARY KEY, amount FLOAT NOT NULL);
+```
 
+``` { .sql .ex-good title="Recommandé" }
 -- Bien : des centimes entiers, exacts, convertis en euros seulement à l'affichage
 CREATE TABLE payments (id bigint PRIMARY KEY, amount_cents bigint NOT NULL);
 ```
@@ -1741,13 +1779,13 @@ Selon la base et sa configuration (« <span class="term" data-term="collation">c
 <a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
 Mon code construit une <span class="term" data-term="db-query">requête</span> en collant dedans un texte tapé par l'utilisateur, comme l'e-mail d'un formulaire de recherche. Cet utilisateur peut alors taper du SQL à la place de l'e-mail, et réécrire ma requête.
-```python
+``` { .python .ex-bad title="À éviter" }
 # À éviter : la saisie est collée dans le texte de la requête
 email = request.args["email"]
 db.query(f"SELECT * FROM customers WHERE email = '{email}'")
 ```
 Si l'utilisateur envoie `' OR '1'='1`, la requête devient :
-```sql
+``` { .sql .ex-illus title="Illustration" }
 -- Exemple : la requête obtenue, elle renvoie tous les clients
 SELECT * FROM customers WHERE email = '' OR '1'='1'
 ```
@@ -1758,7 +1796,7 @@ La parade : les <span class="term" data-term="parameterized-query">requêtes par
 !!! noob "As noob"
     C'est la différence entre dicter une lettre à quelqu'un qui recopie tout ce que je dis, y compris « et ajoute un virement de 1 000 € », et lui tendre un formulaire dont la case « nom » ne peut contenir qu'un nom. Avec une requête paramétrée, la valeur reste dans sa case, quoi qu'elle contienne. La phrase à retenir : **ne jamais coller une saisie utilisateur dans le texte d'une requête.**
 
-```python
+``` { .python .ex-good title="Recommandé" }
 # Ce qui change : requête paramétrée, valeur envoyée séparément, elle reste une donnée
 db.query("SELECT * FROM customers WHERE email = %s", (email,))
 ```

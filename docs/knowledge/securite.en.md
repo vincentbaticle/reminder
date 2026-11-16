@@ -31,7 +31,7 @@ Domain, application and account names are examples.
 
 **Authorization**: checking **what** I am allowed to do. "Can ada see order 42?"
 
-```
+``` { .text .ex-ref title="Reference" }
 401 Unauthorized   I don't know who you are                 (authentication failed)
 403 Forbidden      I know who you are, but the answer is no (authorization denied)
 ```
@@ -122,12 +122,12 @@ Many tokens are **JWTs** (JSON Web Tokens): three base64 parts, separated by dot
 !!! noob "As noob"
     A JWT is a postcard closed with a wax seal: anyone can read what is written, but nobody can change the text without breaking the seal. The API checks the seal, not the secrecy of the content. The one thing to remember: **a JWT cannot be forged, but it is not private.**
 
-```
+``` { .text .ex-ref title="Reference" }
 eyJhbGciOiJSUzI1NiIsImtpZCI6ImsxIn0.eyJpc3MiOi4uLn0.Zm9vYmFy...
 └──── header ──────────────────────┘ └─ payload ──┘ └ signature ┘
 ```
 Once decoded, the payload:
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "iss": "https://my-tenant.eu.auth0.com/",
   "sub": "auth0|64f1c2",
@@ -151,10 +151,12 @@ Two things to remember:
 
 The classic mistake: reading the token content with a function that does not check the signature, often copied from a debugging script. An attacker then crafts a token by hand with `"scope": "admin"`, and the API believes it. Pinning the list of accepted algorithms also blocks a token that announces `"alg": "none"`.
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: decodes without checking the signature, anyone can forge a token
 claims = jwt.decode(token, options={"verify_signature": False})
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: signature, algorithm, issuer, audience and expiry checked (PyJWT)
 signing_key = jwks_client.get_signing_key_from_jwt(token)
 claims = jwt.decode(
@@ -175,7 +177,7 @@ claims = jwt.decode(
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 Today, most APIs receive the token like this:
-```
+``` { .text .ex-ref title="Reference" }
 GET /orders/42
 Authorization: Bearer eyJhbGciOi...
 ```
@@ -191,12 +193,14 @@ My statistics tool must read the orders, but has no reason to be able to change 
 
 On the API side, each route checks the scope it requires, not only that the token is valid:
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: only the token is checked, the statistics tool's read:orders token can cancel an order
 @app.post("/orders/{order_id}/cancel")
 def cancel_order(order_id: int, claims: dict = Depends(valid_token)):
     return orders.cancel(order_id)
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: the route requires write:orders, otherwise 403
 @app.post("/orders/{order_id}/cancel")
 def cancel_order(order_id: int, claims: dict = Depends(require_scope("write:orders"))):
@@ -252,7 +256,7 @@ sequenceDiagram
     At a cloakroom, I get a ticket to collect my coat (the code). With PKCE, I also leave the fingerprint of a secret word I keep to myself, and on the way back I need the ticket **and** the secret word. Someone who picks up my ticket leaves without the coat. The one thing to remember: **an intercepted code is useless without the secret that stayed in the application.**
 
 The step 2 request:
-```
+``` { .text .ex-ref title="Reference" }
 https://my-tenant.eu.auth0.com/authorize
   ?response_type=code
   &client_id=abc123
@@ -278,7 +282,7 @@ Here nobody logs in: a service needs a token for itself, and it authenticates wi
 !!! noob "As noob"
     It is the badge of a regular delivery driver: nobody checks in at the front desk for him, he shows his own badge and only enters where his deliveries allow. If the badge is copied, anyone gets in in his place: the `client_secret` is guarded like a password. The line to remember: **Client Credentials is a service proving its own identity, with no person behind it.**
 
-```
+``` { .text .ex-ref title="Reference" }
 $ curl -s https://my-tenant.eu.auth0.com/oauth/token \
     -H 'Content-Type: application/json' \
     -d '{
@@ -328,7 +332,7 @@ sequenceDiagram
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 My TV, my console or a command-line tool on a server must log in, but it has no browser, or typing a password with a remote control is painful. So the device shows a code, and I type it on my phone, where I log in as usual.
-```
+``` { .text .ex-illus title="Illustration" }
 Go to https://example.com/activate and enter the code: WDJB-MJHT
 ```
 
@@ -396,7 +400,7 @@ Status: it is still an IETF **draft** (version 17, October 2026), not a publishe
 Not quite. What disappears is the **Password flow**: the application never receives the user's password anymore. But the user can still log in with a password, **on the identity provider's page**. Going fully passwordless is something else: **passkeys** (WebAuthn), a login with a fingerprint or a physical key, which the identity provider can offer in addition. DPoP, for its part, is not about the user's login but about protecting the token once obtained.
 
 A **<span class="term" data-term="passkey">passkey</span>** is a key pair created by the device (phone, computer, physical key) for **a single site**: the private key stays on the device, the site keeps only the public key. **WebAuthn** (a W3C standard, first version in 2019) is the browser API that runs this exchange:
-```
+``` { .text .ex-illus title="Illustration" }
 registration: the device creates a key pair for example.com and sends the public key to the site
 login       :
 1. the site sends a challenge: a random single-use value
@@ -451,7 +455,7 @@ sequenceDiagram
 ```
 
 The request changes like this:
-```
+``` { .text .ex-ref title="Reference" }
 before (bearer)                             with DPoP
 GET /orders/42                              GET /orders/42
 Authorization: Bearer eyJhbGciOi...         Authorization: DPoP eyJhbGciOi...
@@ -459,7 +463,7 @@ Authorization: Bearer eyJhbGciOi...         Authorization: DPoP eyJhbGciOi...
 ```
 
 The proof is a small signed JWT, different for every request:
-```json
+``` { .json .ex-ref title="Reference" }
 {
   "htm": "GET",
   "htu": "https://orders-api.example.com/orders/42",
@@ -517,7 +521,7 @@ An authorization server publishes, at a standard address, the list of its <span 
 | `/.well-known/oauth-authorization-server`       | OAuth metadata (RFC 8414, 2018)               |
 | `/.well-known/oauth-protected-resource`         | metadata of a protected API (RFC 9728, 2025): "to call me, go get a token from this server" |
 
-```
+``` { .text .ex-ref title="Reference" }
 $ curl -s https://my-tenant.eu.auth0.com/.well-known/openid-configuration | jq
 {
   "issuer": "https://my-tenant.eu.auth0.com/",
@@ -574,7 +578,7 @@ Normally, an administrator creates each client application by hand in the identi
 !!! noob "As noob"
     It is a gym where everyone signs up alone at a kiosk instead of going through the front desk: handy, but with no check, anyone can create a hundred badges. The line to remember: **dynamic registration makes it easy for new clients to arrive, at the cost of a desk open to all that must be kept under control.**
 
-```
+``` { .text .ex-ref title="Reference" }
 POST /oidc/register
 {
   "client_name": "My reporting tool",
@@ -593,7 +597,7 @@ Useful when thousands of clients unknown in advance must connect, for example AI
 The registration address is **published in the metadata**, so everyone knows it. If it is open without control, **anyone can create an application** at the identity provider.
 
 Concrete attack scenario:
-```
+``` { .text .ex-illus title="Illustration" }
 1. the attacker reads registration_endpoint in /.well-known/openid-configuration
 2. they register an app named "Official HR tool", with THEIR own redirect address
 3. they send ada a login link to the company's REAL login page
@@ -617,7 +621,7 @@ Other risks: thousands of junk clients created in bulk, and fields like `logo_ur
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 Instead of registering, the client publishes its own description on **its** domain, and its `client_id` **is** the address of that description:
-```
+``` { .text .ex-ref title="Reference" }
 client_id = https://reporting.example.com/oauth-client.json
 ```
 The authorization server downloads the description and checks that the requested redirect address is listed in it. There is no longer an open registration address, and a `client_id` proves at least control of the domain. This is the method the MCP specification now recommends (July 2026 revision), with DCR still possible for compatibility.
@@ -686,7 +690,7 @@ In Auth0, the token request specifies the target API with `audience`. The token 
 !!! noob "As noob"
     A concert ticket carries the name of the venue: even genuine, it does not get me into the venue next door. The `aud` audience is that venue name: a token made for the billing API is refused by the orders API. The line to remember: **a valid token is not enough, it must be made for my API.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 token requested with audience = https://orders-api.example.com
 call to orders-api    : accepted
 call to billing-api   : rejected (aud does not match)
@@ -744,12 +748,14 @@ BOLA is first on the list: it is also the easiest to test, and often forgotten.
 
 The faulty code looks correct, because it does check the token:
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the token is checked, but not the owner, ada reads grace's order 43
 @app.get("/orders/{order_id}")
 def get_order(order_id: int, user: User = Depends(current_user)):
     return orders_repo.get(order_id)
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: the order is looked up among the user's own orders, otherwise 404
 @app.get("/orders/{order_id}")
 def get_order(order_id: int, user: User = Depends(current_user)):
@@ -769,10 +775,12 @@ I build a query (SQL, system command) by pasting in text typed by the user, like
 
 The same trap exists with a system command. Here, the user provides the name of a file to compress; if they send `report.csv; rm -rf /data`, the shell runs both commands:
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the input goes through the shell, the ; chains a second command
 subprocess.run(f"gzip {filename}", shell=True)
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: a list of arguments without a shell, the input stays a single file name
 subprocess.run(["gzip", "--", filename], check=True)
 ```
@@ -794,10 +802,12 @@ The most common XSS comes from a display that inserts text as HTML. A visitor po
 !!! noob "As noob"
     It is a notice board where everyone pins their small ad. If the board carries out the instructions written on the ads instead of displaying them, an ad saying "give your keys to the bearer of this note" becomes an order for every passer-by. The line to remember: **what a user types is displayed as text, never as code.**
 
-```javascript
+``` { .javascript .ex-bad title="Avoid" }
 // Avoid: the comment is interpreted as HTML, its onerror attribute runs
 commentEl.innerHTML = comment.body;
+```
 
+``` { .javascript .ex-good title="Recommended" }
 // Good: the comment is displayed as text, the tags stay visible and inert
 commentEl.textContent = comment.body;
 ```
@@ -807,7 +817,7 @@ commentEl.textContent = comment.body;
 
 ### The origin
 An **origin** is the scheme + host + port trio of an address. The browser isolates origins from each other: it is the basis of CSRF, CORS and <span class="term" data-term="samesite">SameSite</span>.
-```
+``` { .text .ex-ref title="Reference" }
 https://app.example.com:443/orders     reference origin
 https://app.example.com/profile        same origin (the path does not count, 443 is the default port)
 http://app.example.com                 other origin (different scheme)
@@ -822,7 +832,7 @@ https://app.example.com:8443           other origin (different port)
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 CSRF (Cross-Site Request Forgery) in three steps:
-```
+``` { .text .ex-illus title="Illustration" }
 1. ada is logged in to orders-api.example.com, her browser keeps the cookie session=abc
 2. ada opens evil.example, which contains a hidden form:
    <form action="https://orders-api.example.com/orders/42/cancel" method="POST"></form>
@@ -834,7 +844,7 @@ CSRF (Cross-Site Request Forgery) in three steps:
     My browser is like an assistant who always wears my badge: a malicious site hands them a form, they drop it off at the bank, and the bank sees my badge and accepts it. The browser makes no difference between a click from me and a request slipped in by another site. The one thing to remember: **CSRF does not steal my cookie, it makes my browser act on my behalf.**
 
 The main countermeasure is the cookie's `SameSite` attribute, which tells the browser not to attach the cookie to requests coming from another site:
-```
+``` { .text .ex-ref title="Reference" }
 Set-Cookie: session=abc; HttpOnly; Secure; SameSite=Lax; Path=/
 ```
 
@@ -857,7 +867,7 @@ An API called only with `Authorization: Bearer ...` is not exposed to CSRF: the 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 By default, JavaScript on `https://app.example.com` cannot read the response of a call to `https://orders-api.example.com` (another origin). **CORS** (Cross-Origin Resource Sharing) lets the API say which origins it accepts. For a "non-simple" request (`PUT` or `DELETE` method, `Authorization` header, JSON body), the browser first sends an `OPTIONS` **preflight** request:
-```
+``` { .text .ex-ref title="Reference" }
 OPTIONS /orders/42 HTTP/1.1
 Origin: https://app.example.com
 Access-Control-Request-Method: DELETE
@@ -876,10 +886,12 @@ If the origin is not in the response, the browser does not send the `DELETE`. CO
 
 On the server side, the common mistake is to open CORS to everyone to silence an error during development, while keeping cookies. Some frameworks then echo the caller's origin as is, and any site can read the API's responses with the user's session:
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: every origin, with cookies
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True)
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: the list of known frontends, and only the methods needed
 app.add_middleware(
     CORSMiddleware,
@@ -896,7 +908,7 @@ app.add_middleware(
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 The **Content-Security-Policy** (<span class="term" data-term="csp">CSP</span>) header tells the browser where the page may load code from. A script injected through XSS from another domain, or written inline in the page, is then blocked:
-```
+``` { .text .ex-ref title="Reference" }
 Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.example.com; object-src 'none'; frame-ancestors 'none'
 ```
 Here: everything comes from the <span class="term" data-term="same-origin">same origin</span> by default, scripts also from `cdn.example.com`, no plugins, and the page cannot be shown in another site's iframe. Tip: start with `Content-Security-Policy-Report-Only` to see what would break without blocking anything.
@@ -927,11 +939,13 @@ Here: everything comes from the <span class="term" data-term="same-origin">same 
 
 **<span class="term" data-term="rbac">RBAC</span>** (*Role-Based Access Control*) attaches permissions to roles, and roles to people: the `support` role can `orders:read` and `orders:refund`, ada has the `support` role. The model was formalized by David Ferraiolo and Richard Kuhn at NIST (1992), then standardized (ANSI INCITS 359, 2004).
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: role names tested all over the code, adding a role means rereading every route
 if user.role == "admin" or user.role == "manager":
     refund(order)
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: the code tests a permission, the role to permissions table lives in one place
 ROLE_PERMISSIONS = {
     "support": {"orders:read", "orders:refund"},
@@ -953,14 +967,14 @@ def can(user, permission):
 
 **<span class="term" data-term="abac">ABAC</span>** (*Attribute-Based Access Control*, described by NIST in SP 800-162, 2014) decides from attributes: those of the person (role, country, team), of the resource (owner, country, amount, status), of the action, and of the context (time, network). The rule reads like a sentence: "a support agent can refund an order from their own country up to 100 €".
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: check only the role
 def can_refund(user, order):
     return "support" in user.roles
 ```
 With the role alone, a support agent in Spain can refund a French order of 2,000 euros, and nothing in the code stops them.
 
-```python
+``` { .python .ex-good title="Recommended" }
 # Good: a rule that combines the role, the agent's country and the order amount
 MAX_SUPPORT_REFUND_CENTS = 10_000
 
@@ -1010,13 +1024,14 @@ flowchart LR
   S --> D["Database<br/>query filtered<br/>by owner"]
 ```
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the front end hides the button and the gateway checks the token, but the route refunds any order
 @app.post("/orders/{order_id}/refund")
 def refund_order(order_id: int, user: User = Depends(current_user)):
     return refunds.create(orders_repo.get(order_id))
+```
 
-
+``` { .python .ex-good title="Recommended" }
 # Good: the service checks the permission and looks for the order among those the agent can see
 @app.post("/orders/{order_id}/refund")
 def refund_order(order_id: int, user: User = Depends(current_user)):
@@ -1058,13 +1073,13 @@ In the first version, a direct `curl` call, with a valid token of a plain custom
 
 
 ### What I must never do
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: secret hardcoded in the code, it ends up in Git forever
 API_KEY = "sk_live_51H8..."
 ```
 A secret in the code ends up in Git, so in every clone, every fork, and the <span class="term" data-term="git-history">history</span> forever.
 
-```python
+``` { .python .ex-good title="Recommended" }
 # Good: the secret is read at startup, injected by the secret manager or the CI
 API_KEY = os.environ["PAYMENT_API_KEY"]
 ```
@@ -1112,7 +1127,7 @@ Never in plain text, never with a simple fast <span class="term" data-term="hash
     Hashing a password is putting it through a shredder: I cannot rebuild the page, only shred a candidate again and compare. A slow algorithm makes every guess expensive for an attacker, and the salt is a different ingredient added for each person, so that two identical passwords do not give the same result. The one thing to remember: **slow and salted, so that guessing is expensive, one account at a time.**
 
 In Python, with the `argon2-cffi` library:
-```python
+``` { .python .ex-bad title="Avoid" }
 import hashlib
 
 from argon2 import PasswordHasher
@@ -1124,9 +1139,9 @@ ph = PasswordHasher()
 # Avoid: unsalted SHA-256, billions of guesses per second, and two equal passwords give the same hash
 def hash_password_fast(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
+```
 
-
-
+``` { .python .ex-good title="Recommended" }
 # Good: argon2id, slow and salted, the salt is stored in the result
 def hash_password(password: str) -> str:
     return ph.hash(password)
@@ -1141,7 +1156,7 @@ def check_password(stored: str, attempt: str) -> bool:
     return True
 ```
 The string stored in the database holds everything needed to verify later:
-```
+``` { .text .ex-ref title="Reference" }
 $argon2id$v=19$m=65536,t=3,p=4$c2VsYWxlYXRvaXJl$Zp3m0qN1YcG0...
  algo     version  parameters     salt (base64)   hash (base64)
 ```
@@ -1328,7 +1343,7 @@ sequenceDiagram
 { .doc-ref }
 
 ### Before and after
-```
+``` { .text .ex-illus title="Illustration" }
 before (perimeter)                           after (zero trust)
 flat network, plain HTTP                     mTLS everywhere, encrypted and authenticated
 one API key shared by all services           one SPIFFE identity per service
@@ -1360,7 +1375,7 @@ The [Client Credentials](#client-credentials-a-service-talks-to-a-service) flow 
 
 Example with Istio: only orders-service's <span class="term" data-term="service-account">service account</span> may call `POST /charges` on payments-service.
 
-```yaml
+``` { .yaml .ex-bad title="Avoid" }
 # Avoid: every service in the prod namespace can call payments-service, including a compromised one
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
@@ -1378,7 +1393,7 @@ spec:
             namespaces: ["prod"]
 ```
 With this rule, any service in `prod`, even a forgotten or hacked one, can trigger a payment. The good version names the only legitimate caller:
-```yaml
+``` { .yaml .ex-good title="Recommended" }
 # Good: deny by default, only orders-service may call POST /charges
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
@@ -1439,7 +1454,7 @@ Its article 25 requires <span class="term" data-term="privacy-by-design">data pr
 | <span class="term" data-term="standard-contractual-clauses">standard contractual clauses</span> (SCC) | a model contract published by the European Commission (June 2021 version), signed with a non-EU provider to frame a transfer to a country without an adequacy decision |
 
 A register entry, as an example:
-```
+``` { .text .ex-illus title="Illustration" }
 processing : order management       | purpose : deliver and invoice      | legal basis : contract (art. 6.1.b)
 data       : name, address, e-mail  | recipients : orders-service, billing-service, carrier
 retention  : 10 years after the order (accounting, to check per country) | transfers outside the EU : none
@@ -1470,7 +1485,7 @@ retention  : 10 years after the order (accounting, to check per country) | trans
 ### Retention period
 Each personal field has a purpose and a <span class="term" data-term="retention-period">retention period</span>, written in the record of processing activities. Forgotten copies are the trap: application logs, Kafka topics with unlimited <span class="term" data-term="message-retention">retention</span>, exports to a data warehouse, test environments fed with production data.
 
-```
+``` { .text .ex-illus title="Illustration" }
 data                         period (example)            mechanism
 active customer account      as long as the account exists   deletion at closure
 order                        10 years (accounting obligation, check per country)  archive then purge
@@ -1488,7 +1503,7 @@ The <span class="term" data-term="right-to-erasure">right to erasure</span> (art
 !!! noob "As noob"
     My personal data sits in a safe, and that safe is copied into archives that cannot be changed. Rather than going through every archive, I destroy the only key to the safe: the copies remain, but nobody can open them anymore. Limit: it all depends on really destroying the key, including in its backups. The one thing to remember: **here, erasing means throwing away the key.**
 
-```
+``` { .text .ex-illus title="Illustration" }
 order.created event in Kafka
 { "order_id": "42", "customer_id": "cust-ada", "personal_data": "gAAAAABl...(encrypted with cust-ada's key)" }
 
@@ -1553,7 +1568,7 @@ flowchart LR
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 The scan compares installed versions with a database of published vulnerabilities (CVE or GHSA identifiers). In Python with `pip-audit` (in JavaScript, `npm audit` does the same):
-```
+``` { .text .ex-ref title="Reference" }
 $ pip-audit -r requirements.txt
 Found 1 known vulnerability in 1 package
 Name     Version ID                  Fix Versions
@@ -1586,7 +1601,7 @@ My checklist, in order:
 
 The **OpenSSF Scorecard** (Open Source Security Foundation, launched in 2020) automates point 4: it scores from 0 to 10 checks on the repository (maintained project, code review, branch protection, pinned dependencies, known flaws, signed releases, dangerous CI workflows). Scores are visible on deps.dev, or on the command line (a GitHub token is required):
 
-```
+``` { .text .ex-ref title="Reference" }
 $ scorecard --repo=github.com/example-org/pdf-lib
 Aggregate score: 6.8 / 10
 CHECK                 SCORE  REASON
@@ -1600,11 +1615,13 @@ Illustrative output, fictitious repository: check names and format to check on t
 
 Once chosen, if the library sits at the core of the business, I isolate it behind a small interface of my own (*Adapter*, or "Don't mock what you don't own", Steve Freeman and Nat Pryce, 2009):
 
-```python
+``` { .python .ex-bad title="Avoid" }
 # Avoid: the library called all over the code, switching means touching every file
 pdf = pdflib.Document(page_size="A4")
 pdf.add_text(invoice.customer_name)
+```
 
+``` { .python .ex-good title="Recommended" }
 # Good: an interface of my own, used by the rest of the code
 class InvoiceRenderer(Protocol):
     def render(self, invoice: Invoice) -> bytes: ...
@@ -1675,7 +1692,7 @@ A <span class="term" data-term="siem">SIEM</span> (*Security Information and Eve
 2. send them to the same collector as the other logs, with a field that sets them apart;
 3. write with the security team the two or three business-specific rules (a refund above a threshold, an export of the whole customer base).
 
-```
+``` { .text .ex-illus title="Illustration" }
 10:02:11  my-api  login_failed   user=ada  ip=203.0.113.7
 10:02:14  my-api  login_failed   user=ada  ip=203.0.113.7
    ... 38 failures in 2 minutes
@@ -1706,7 +1723,7 @@ An <span class="term" data-term="ndr">NDR</span> (*Network Detection and Respons
 - **Behavior**: Darktrace (commercial) learns what is normal for each machine and flags deviations; Corelight (commercial) builds on Zeek, an open source engine that turns traffic into readable logs.
 
 A line of `conn.log` produced by Zeek, simplified:
-```
+``` { .text .ex-ref title="Reference" }
 ts          id.orig_h   id.resp_h      id.resp_p  proto  duration  orig_bytes  resp_bytes
 1730714400  10.0.4.12   198.51.100.20  443        tcp    3600.2    2147483648  5120
 ```
@@ -1730,7 +1747,7 @@ An <span class="term" data-term="ips">IPS</span> (*Intrusion Prevention System*)
 { .tool-rel }
 
 
-```
+``` { .text .ex-ref title="Reference" }
 $ cscli decisions list
  ID  Source    Scope:Value       Reason                          Action  Duration
  12  crowdsec  Ip:203.0.113.7    crowdsecurity/http-bf-wordpress  ban     3h52m
@@ -1764,7 +1781,7 @@ The first decision comes from the local agent, the second from the community lis
 | Steampipe | queries cloud APIs in SQL, as if each resource type were a table | inventory, one-off questions, reports |
 
 Cloud Custodian (a CNCF project, status to check) applies <span class="term" data-term="policy-as-code">policy as code</span>. Example for AWS: remove public access from buckets, and stop machines without a `team` tag in 3 days.
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 policies:
   # Example: removes public access from S3 buckets
   - name: s3-no-public-grants
@@ -1784,7 +1801,7 @@ policies:
         op: stop
         days: 3
 ```
-```bash
+``` { .bash .ex-ref title="Reference" }
 custodian run --dryrun -s out/ policies.yml
 ```
 `--dryrun` lists the targeted resources without acting: always start there, then move to notification mode, and only then to automatic remediation (filter syntax to check in the documentation).
@@ -1795,13 +1812,13 @@ Steampipe does <span class="term" data-term="cloud-asset-inventory">cloud asset 
 *Kubernetes: competes with Cloud Run; complements Docker, Helm, Argo CD*
 { .tool-rel }
 
-```sql
+``` { .sql .ex-ref title="Reference" }
 -- Example: lists the public S3 buckets
 SELECT name, region, versioning_enabled
 FROM aws_s3_bucket
 WHERE bucket_policy_is_public;
 ```
-```
+``` { .text .ex-ref title="Reference" }
  name               | region    | versioning_enabled
 --------------------+-----------+-------------------
  my-test-reports    | eu-west-3 | false
@@ -1834,7 +1851,7 @@ The basic rules are in [Secrets](#secrets), and the introduction to Vault in the
 **Why**: a secret copied into a `.env` file, a ticket or a message can no longer be revoked cleanly; nobody knows who has it. A manager tells who read what and when, and lets me change the secret in one place. The cost: one more critical dependency (if it goes down, starting applications no longer get their secrets) and a way to authenticate to it without creating a new secret to hide.
 
 **How**: the application authenticates with its <span class="term" data-term="workload-identity">workload identity</span> (see [Zero trust](#zero-trust-and-service-to-service-identity)), then asks for a dynamic secret: a database account created for it, which expires on its own.
-```
+``` { .text .ex-ref title="Reference" }
 $ vault read database/creds/my-api-readonly
 Key                Value
 ---                -----
@@ -1844,7 +1861,7 @@ username           v-my-api-readonly-8f3k2
 password           A1b2-C3d4-...
 ```
 If stolen, this account is only good for one hour, and revoking the lease deletes it from the database. On the human side, the 1Password CLI reads a secret through a reference, without copying it into a file:
-```bash
+``` { .bash .ex-ref title="Reference" }
 op read "op://team-core/my-api-staging-db/password"
 ```
 (Outputs and syntaxes to check depending on the versions.)
@@ -1902,7 +1919,7 @@ stateDiagram-v2
 ```
 
 An in-house Semgrep rule that spots a SQL query built by concatenation (see [SQL injection](sql.md#security-sql-injection)):
-```yaml
+``` { .yaml .ex-ref title="Reference" }
 # Example: Semgrep rule flagging an SQL query built by concatenation
 rules:
   - id: sql-string-concat

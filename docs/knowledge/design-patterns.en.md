@@ -58,7 +58,7 @@ This page covers the creational, structural and application architecture pattern
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective): the internal target I set on that number, for example "a new channel touches a single existing file, the factory".
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, always looser than the SLO. A pattern choice stays internal to the code: it almost never has an SLA, except when it protects a service promised to the customer, like a cache in front of a public API.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, usually looser than the SLO. A pattern choice stays internal to the code: it almost never has an SLA, except when it protects a service promised to the customer, like a cache in front of a public API.
 
 ## Creational patterns
 

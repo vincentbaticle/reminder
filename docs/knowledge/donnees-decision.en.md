@@ -29,7 +29,7 @@
 
 **Dashboard**: a page that shows metrics, updated automatically.
 
-An <span class="term" data-term="sli">SLI</span> (Service Level Indicator) is the indicator I actually measure, for example the share of days when the revenue dashboard is up to date before 9:00. An <span class="term" data-term="slo">SLO</span> (Service Level Objective) is the internal target the team sets on that indicator, for example 99% of days. An <span class="term" data-term="sla">SLA</span> (Service Level Agreement) is the promise written in a contract with a customer, with a penalty if it is broken, for example 97% of days, otherwise a credit on the invoice; it is always looser than the SLO, so the team is alerted before it has to pay.
+An <span class="term" data-term="sli">SLI</span> (Service Level Indicator) is the indicator I actually measure, for example the share of days when the revenue dashboard is up to date before 9:00. An <span class="term" data-term="slo">SLO</span> (Service Level Objective) is the internal target the team sets on that indicator, for example 99% of days. An <span class="term" data-term="sla">SLA</span> (Service Level Agreement) is the promise written in a contract with a customer, with a penalty if it is broken, for example 97% of days, otherwise a credit on the invoice; it is usually looser than the SLO, so the team is alerted before it has to pay.
 
 **Batch processing**: data is collected then processed in one block, for example every night. **Streaming**: each event is processed as soon as it arrives, within seconds.
 
@@ -931,7 +931,7 @@ I know the solutions on this page work when the numbers I decide on are correct,
 [Take with caution: example orders of magnitude, to set with the business]
 
 !!! noob "As noob"
-    The SLO is the time I set myself to arrive at a meeting: 8:50 for a 9:00 meeting. The SLA is the time promised to the other person, 9:00, with a coffee on me if I am late. I aim earlier than what I promise, to keep a margin. The takeaway: **the SLO is my internal target, the SLA my promise to the customer with a penalty, and the SLO is always stricter.**
+    The SLO is the time I set myself to arrive at a meeting: 8:50 for a 9:00 meeting. The SLA is the time promised to the other person, 9:00, with a coffee on me if I am late. I aim earlier than what I promise, to keep a margin. The takeaway: **the SLO is my internal target, the SLA my promise to the customer with a penalty, and I keep the SLO stricter.**
 
 ## Pitfalls to avoid
 

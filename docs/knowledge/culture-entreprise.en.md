@@ -47,7 +47,7 @@ Management, product and strategy books are here. The founding technical papers a
 | **Retrospective** | a regular team meeting, often at the end of a sprint, to look at how the team worked and pick one improvement | "we waited two days for reviews: let's try a daily review slot at 2 pm" |
 | **<span class="term" data-term="sli">SLI</span>** | Service Level Indicator: the indicator measured to know whether something works | the median lead time of a ticket from start to release |
 | **<span class="term" data-term="slo">SLO</span>** | Service Level Objective: the internal target set on an SLI | "median lead time under 5 working days" (example) |
-| **<span class="term" data-term="sla">SLA</span>** | Service Level Agreement: the contractual promise made to a customer, with a penalty if it is not kept, always looser than the SLO | "99.5% availability per month, otherwise a 10% discount", for an internal SLO of 99.9% (example) |
+| **<span class="term" data-term="sla">SLA</span>** | Service Level Agreement: the contractual promise made to a customer, with a penalty if it is not kept, usually looser than the SLO | "99.5% availability per month, otherwise a 10% discount", for an internal SLO of 99.9% (example) |
 
 A leadership meeting sentence, decoded:
 

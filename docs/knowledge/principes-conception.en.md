@@ -57,7 +57,7 @@ This page covers SOLID, its opposite STUPID, then the related principles (KISS, 
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective): the internal target I set on that number, for example "a single module touched for a business rule change, in 9 MRs out of 10".
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, always looser than the SLO. A design principle is an internal practice: it has no SLA, except indirectly when it serves a customer commitment, like the availability of an API.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, usually looser than the SLO. A design principle is an internal practice: it has no SLA, except indirectly when it serves a customer commitment, like the availability of an API.
 
 ## SOLID
 

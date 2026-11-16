@@ -70,7 +70,7 @@ traitement B : tient la ligne 2, attend la ligne 1
 { .doc-ref }
 
 ### SLI, SLO, SLA
-Un **<span class="term" data-term="sli">SLI</span>** est l'indicateur mesuré, un **<span class="term" data-term="slo">SLO</span>** la cible interne que l'équipe se fixe sur cet indicateur, un **<span class="term" data-term="sla">SLA</span>** la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue. Le SLA est toujours plus lâche que le SLO, pour que l'équipe réagisse avant de devoir payer. Exemple chiffré (chiffres d'exemple), le détail est dans [Observabilité](observabilite.md#sli-slo-budget-derreur) :
+Un **<span class="term" data-term="sli">SLI</span>** est l'indicateur mesuré, un **<span class="term" data-term="slo">SLO</span>** la cible interne que l'équipe se fixe sur cet indicateur, un **<span class="term" data-term="sla">SLA</span>** la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue. Le SLA est en général plus lâche que le SLO, pour que l'équipe réagisse avant de devoir payer. Exemple chiffré (chiffres d'exemple), le détail est dans [Observabilité](observabilite.md#sli-slo-budget-derreur) :
 ```
 SLI   part des requêtes de my-api sans 5xx ce mois-ci   99,93 %
 SLO   objectif interne de l'équipe                       99,9 % sur 30 jours

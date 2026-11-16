@@ -55,7 +55,7 @@ This page gathers what all package managers have in common (manifest, lockfile, 
 
 **<span class="term" data-term="slo">SLO</span>**: the team's internal target on that SLI. Example: install takes less than 60 seconds in 95% of pipelines.
 
-**<span class="term" data-term="sla">SLA</span>**: the promise made to a customer by contract, with a penalty, always looser than the SLO. Internal tooling often has none.
+**<span class="term" data-term="sla">SLA</span>**: the promise made to a customer by contract, with a penalty, usually looser than the SLO. Internal tooling often has none.
 
 :material-book-open-variant: Reference docs: [Semantic Versioning 2.0.0](https://semver.org/) (version 2.0.0, 2013)
 { .doc-ref }

@@ -34,7 +34,7 @@ Les services (`my-api`, `orders-service`, `billing-service`), les équipes (`tea
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective, objectif de niveau de service) : la cible interne que je me fixe sur ce chiffre, par exemple « 8 projets sur 10 livrés dans la fourchette ».
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO. Une loi éponyme ne se contracte pas : un SLA n'apparaît que lorsque la loi touche un service promis au client, comme le temps de réponse d'une API (Amdahl, Little).
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO. Une loi éponyme ne se contracte pas : un SLA n'apparaît que lorsque la loi touche un service promis au client, comme le temps de réponse d'une API (Amdahl, Little).
 
 Trois familles à distinguer avant de citer une loi :
 

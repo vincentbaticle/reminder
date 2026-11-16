@@ -571,7 +571,7 @@ pipeline #1234
 
 **SLO (Service Level Objective)**: an internal numeric target on an <span class="term" data-term="sli">SLI</span>, over a time window, for example "97% pass rate over 30 days".
 
-**SLA (Service Level Agreement)**: the promise written into a customer's contract, with a penalty if it is not met (a credit, a refund). It is always looser than the <span class="term" data-term="slo">SLO</span>, so the team is alerted well before having to pay. Example: internal SLO of 99.9% availability, <span class="term" data-term="sla">SLA</span> of 99.5% in the contract.
+**SLA (Service Level Agreement)**: the promise written into a customer's contract, with a penalty if it is not met (a credit, a refund). It is usually looser than the <span class="term" data-term="slo">SLO</span>, so the team is alerted well before having to pay. Example: internal SLO of 99.9% availability, <span class="term" data-term="sla">SLA</span> of 99.5% in the contract.
 
 **Mutation testing**: a tool deliberately changes the code (it replaces `<=` with `<`, `+` with `-`...) then reruns the tests. If no test fails, no test checks that line, even if it is covered.
 
@@ -730,7 +730,7 @@ The ISTQB Foundation syllabus (version 4.0, 2023) sums up the job in seven princ
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-The **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** standard (first edition in 2011, revised in 2023, to check) splits the quality of a software product into characteristics. It works as a checklist: a test strategy that only talks about functionality forgets eight out of nine. Names from the 2023 edition:
+The **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** standard (first edition in 2011, revised in 2023, to check) splits the quality of a software product into characteristics. It works as a checklist: a quality strategy limited to functionality risks neglecting eight other important characteristics. Not all of them are checked by a test: some go through analysis, review, audit or measurement in production, as the last column shows. Names from the 2023 edition:
 
 | Characteristic                                      | Question                                          | Example check                                   |
 |-----------------------------------------------------|---------------------------------------------------|-------------------------------------------------|
@@ -744,7 +744,7 @@ The **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** standard (
 | flexibility (formerly "portability")                | does it adapt to another environment, to growth?  | same Docker image locally, in CI and in production |
 | safety (added in 2023)                              | does it avoid putting people in danger?           | safe stop of a controller on an outlier value   |
 
-**When and how.** When a project or a test strategy starts: go through the nine lines with the PO, keep three or four priorities, and for each one write a measurable requirement ("p95 < 500 ms at 50 users") and the test that checks it. The other lines are explicitly set aside, with the reason.
+**When and how.** When a project or a test strategy starts: go through the nine lines with the PO, keep three or four priorities, and for each one write a measurable requirement ("p95 < 500 ms at 50 users") and how to check it (test, analysis, review or measurement in production). The other lines are explicitly set aside, with the reason.
 
 **Risks.** Turning the standard into paperwork: nine requirements written for an internal tool with five users cost days without changing the tests. I keep three or four lines. Conversely, never going through it leaves gaps found in production, like a slow or inaccessible page while "all tests pass".
 
@@ -2100,7 +2100,7 @@ A helper is born at the 2nd copy, never at the 3rd. And no abstraction for a cal
 I know a solution from this page works when a number has moved, not when it is in place. I record a baseline before (for example 6 major escaped defects per month and 4% flaky tests, example figures), I measure the same thing the same way afterwards, over a window long enough to smooth out noise (one or two months), and I keep a guard metric that must not degrade: a pipeline twice as fast does not count if escaped defects go back up. Choosing the indicators follows [Measuring quality](#measuring-quality) (GQM, DDP); here, for each solution I set an <span class="term" data-term="sli">SLI</span>, an internal <span class="term" data-term="slo">SLO</span>, and an <span class="term" data-term="sla">SLA</span> only when a customer has a contract.
 
 !!! noob "As noob"
-    The SLO is the time I set myself to arrive at an appointment: 1:50 pm for a 2 pm meeting. The SLA is the time I promised the other person, 2 pm, with a coffee on me if I am late. I aim earlier than what I promise, to keep some margin. The takeaway: **the SLO is my internal target, the SLA my paid promise to the customer, always looser than the SLO.**
+    The SLO is the time I set myself to arrive at an appointment: 1:50 pm for a 2 pm meeting. The SLA is the time I promised the other person, 2 pm, with a coffee on me if I am late. I aim earlier than what I promise, to keep some margin. The takeaway: **the SLO is my internal target, the SLA my paid promise to the customer, usually looser than the SLO.**
 
 | Solution or situation | Success indicator (SLI) | Likely SLO | Likely SLA |
 |---|---|---|---|

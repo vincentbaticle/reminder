@@ -34,7 +34,7 @@ The services (`my-api`, `orders-service`, `billing-service`), the teams (`team-c
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective): the internal target I set on that number, for example "8 projects out of 10 delivered within the range".
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, always looser than the SLO. An eponymous law is not contracted: an SLA only appears when the law touches a service promised to the customer, like an API's response time (Amdahl, Little).
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, usually looser than the SLO. An eponymous law is not contracted: an SLA only appears when the law touches a service promised to the customer, like an API's response time (Amdahl, Little).
 
 Three families to tell apart before quoting a law:
 

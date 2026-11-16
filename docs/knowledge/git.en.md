@@ -165,7 +165,7 @@ A file that pins the exact version of each <span class="term" data-term="depende
     The dependency file (`pyproject.toml`, `package.json`) is the shopping list: "milk, version 8 or later". The lockfile is the receipt: the exact brand, batch and price bought that day. With the receipt, the whole team and the CI buy exactly the same thing again. The one thing to remember: **I commit the lockfile, and I regenerate it with the tool instead of editing it by hand.**
 
 ### SLI, SLO, SLA
-An **<span class="term" data-term="sli">SLI</span>** is the measured indicator, an **<span class="term" data-term="slo">SLO</span>** the internal target the team sets on that indicator, an **<span class="term" data-term="sla">SLA</span>** the contractual promise made to a customer, with a penalty if it is not kept, always looser than the SLO. A Git practice almost never has an external customer, so no SLA, only a team SLO. Example (example figures), details in [Observability](observabilite.md#sli-slo-error-budget):
+An **<span class="term" data-term="sli">SLI</span>** is the measured indicator, an **<span class="term" data-term="slo">SLO</span>** the internal target the team sets on that indicator, an **<span class="term" data-term="sla">SLA</span>** the contractual promise made to a customer, with a penalty if it is not kept, usually looser than the SLO. A Git practice almost never has an external customer, so no SLA, only a team SLO. Example (example figures), details in [Observability](observabilite.md#sli-slo-error-budget):
 ```
 SLI   median branch age at merge this month   1.6 days
 SLO   the team's target                       under 2 days

@@ -52,7 +52,7 @@ asynchronous : orders-service  ── "order 42 created" ──>  [broker]
 
 **<span class="term" data-term="slo">SLO</span>**: the internal target the team sets on that SLI. Example: 99% of those requests under 300 ms over a rolling 30 days.
 
-**<span class="term" data-term="sla">SLA</span>**: the contractual promise to an API customer, with a penalty if it is missed, always looser than the SLO to keep a margin. Example: 99.5% availability per month for the pro plan, otherwise a credit.
+**<span class="term" data-term="sla">SLA</span>**: the contractual promise to an API customer, with a penalty if it is missed, usually looser than the SLO to keep a margin. Example: 99.5% availability per month for the pro plan, otherwise a credit.
 
 :material-book-open-variant: Reference docs: [MDN, HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP) (accessed November 2026)
 { .doc-ref }

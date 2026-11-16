@@ -64,7 +64,7 @@ src/app.py
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective): the internal target I set on that number, for example "99.5% of calls succeed over the month".
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, always looser than the SLO. Internal use of agents has none; an MCP server or a review bot sold to customers can have one.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, usually looser than the SLO. Internal use of agents has none; an MCP server or a review bot sold to customers can have one.
 
 :material-book-open-variant: Reference docs: [Anthropic, Glossary](https://docs.claude.com/en/docs/about-claude/glossary) (accessed November 2026)
 { .doc-ref }

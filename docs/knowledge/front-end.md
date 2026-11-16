@@ -44,7 +44,7 @@ CLS   déplacements inattendus du contenu pendant le chargement  bon : 0,1 ou mo
 
 **<span class="term" data-term="slo">SLO</span>** (service level objective) : l'objectif interne que l'équipe se fixe sur un SLI. Exemple : LCP sous 2,5 s sur 28 jours glissants.
 
-**<span class="term" data-term="sla">SLA</span>** (service level agreement) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO. Un front grand public n'en a en général pas.
+**<span class="term" data-term="sla">SLA</span>** (service level agreement) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO. Un front grand public n'en a en général pas.
 
 | Je veux... | Je regarde... |
 |---|---|

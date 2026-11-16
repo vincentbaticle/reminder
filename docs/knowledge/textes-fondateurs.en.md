@@ -46,7 +46,7 @@ The laws that carry a name (Conway, Brooks, Hyrum, Goodhart...) are explained on
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective): the internal target I set on that number, for example 99.9% successful requests over 30 days.
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, for example 99.5% per month with a credit below it; always looser than the SLO. Reading a text has no SLA: only the practices that come from it and touch a customer service have one.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, for example 99.5% per month with a credit below it; usually looser than the SLO. Reading a text has no SLA: only the practices that come from it and touch a customer service have one.
 
 Example: reading a paper citation like an identity card.
 
@@ -706,9 +706,9 @@ The AWS white paper "Disaster Recovery of Workloads on AWS" (2021) is cited in [
 
 ### Forsgren, Humble and Kim, "Accelerate" (2018)
 
-**What it says.** The book explains the method and results of the 2014 to 2017 reports: four metrics (deployment frequency, lead time for changes, change failure rate, time to restore) and twenty-four capabilities that improve them, from trunk-based development to team culture.
+**What it says.** The book explains the method and results of the 2014 to 2017 reports: four metrics (deployment frequency, lead time for changes, change failure rate, time to restore) and twenty-four capabilities that improve them, from trunk-based development to team culture. DORA added a fifth metric in 2024, deployment rework rate.
 **Why it still matters.** It showed that speed and stability go together, which ended many "let's slow down to be safer" debates.
-**Cite it in an interview.** "Accelerate (2018) shows that teams that ship often also fail less; I measure the four metrics together, never one alone."
+**Cite it in an interview.** "Accelerate (2018) shows that teams that ship often also fail less; I measure the DORA metrics together, never one alone."
 **In this reminder.** [Measuring delivery: DORA](livraison.md#measuring-delivery-dora).
 
 **Risks.** Taken as targets, DORA metrics get gamed, for example with empty deployments to inflate frequency: that is Goodhart's law. The study shows a correlation on survey data, not a guaranteed recipe for my team. I track the metrics in pairs, at team level, and I compare my team with itself over time rather than with others.
@@ -720,7 +720,7 @@ The AWS white paper "Disaster Recovery of Workloads on AWS" (2021) is cited in [
     | Level | What I see in the team |
     |---|---|
     | N1 | releases are rare and manual, with a procedure known to one or two people |
-    | N2 | a single deployment pipeline builds, tests and deploys every commit, and the four DORA metrics are computed |
+    | N2 | a single deployment pipeline builds, tests and deploys every commit, and the five DORA metrics are computed |
     | N3 | the pipeline deploys and rolls back by itself on alert, and no release needs a manual step |
     | N4 | the team tracks DORA metrics in pairs (frequency and failure rate, lead time and time to restore) and picks its improvement work from them |
 

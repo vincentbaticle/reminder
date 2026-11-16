@@ -70,7 +70,7 @@ process B : holds row 2, waits for row 1
 { .doc-ref }
 
 ### SLI, SLO, SLA
-An **<span class="term" data-term="sli">SLI</span>** is the measured indicator, an **<span class="term" data-term="slo">SLO</span>** the internal target the team sets on that indicator, an **<span class="term" data-term="sla">SLA</span>** the contractual promise made to a customer, with a penalty if it is not kept. The SLA is always looser than the SLO, so the team reacts before it has to pay. A worked example (example figures), details in [Observability](observabilite.md#sli-slo-error-budget):
+An **<span class="term" data-term="sli">SLI</span>** is the measured indicator, an **<span class="term" data-term="slo">SLO</span>** the internal target the team sets on that indicator, an **<span class="term" data-term="sla">SLA</span>** the contractual promise made to a customer, with a penalty if it is not kept. The SLA is usually looser than the SLO, so the team reacts before it has to pay. A worked example (example figures), details in [Observability](observabilite.md#sli-slo-error-budget):
 ```
 SLI   share of my-api requests with no 5xx this month   99.93%
 SLO   the team's internal target                        99.9% over 30 days

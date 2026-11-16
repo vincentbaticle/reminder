@@ -55,7 +55,7 @@ Cette page réunit ce qui est commun à tous les gestionnaires de paquets (manif
 
 **<span class="term" data-term="slo">SLO</span>** : l'objectif interne de l'équipe sur ce SLI. Exemple : l'installation prend moins de 60 secondes dans 95 % des pipelines.
 
-**<span class="term" data-term="sla">SLA</span>** : la promesse faite par contrat à un client, avec pénalité, toujours plus lâche que le SLO. Pour un outillage interne, il n'y en a souvent pas.
+**<span class="term" data-term="sla">SLA</span>** : la promesse faite par contrat à un client, avec pénalité, en général plus lâche que le SLO. Pour un outillage interne, il n'y en a souvent pas.
 
 :material-book-open-variant: Doc de référence : [Semantic Versioning 2.0.0](https://semver.org/) (version 2.0.0, 2013)
 { .doc-ref }

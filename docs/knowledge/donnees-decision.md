@@ -29,7 +29,7 @@
 
 **Tableau de bord** : une page qui affiche des métriques, mise à jour automatiquement.
 
-Un <span class="term" data-term="sli">SLI</span> (Service Level Indicator) est l'indicateur que je mesure vraiment, par exemple la part des jours où le tableau de bord du chiffre d'affaires est à jour avant 9 h. Un <span class="term" data-term="slo">SLO</span> (Service Level Objective) est la cible interne que l'équipe se fixe sur cet indicateur, par exemple 99 % des jours. Un <span class="term" data-term="sla">SLA</span> (Service Level Agreement) est la promesse écrite dans un contrat avec un client, avec une pénalité si elle n'est pas tenue, par exemple 97 % des jours, sinon un avoir sur la facture ; il est toujours plus lâche que le SLO, pour que l'équipe soit alertée avant de devoir payer.
+Un <span class="term" data-term="sli">SLI</span> (Service Level Indicator) est l'indicateur que je mesure vraiment, par exemple la part des jours où le tableau de bord du chiffre d'affaires est à jour avant 9 h. Un <span class="term" data-term="slo">SLO</span> (Service Level Objective) est la cible interne que l'équipe se fixe sur cet indicateur, par exemple 99 % des jours. Un <span class="term" data-term="sla">SLA</span> (Service Level Agreement) est la promesse écrite dans un contrat avec un client, avec une pénalité si elle n'est pas tenue, par exemple 97 % des jours, sinon un avoir sur la facture ; il est en général plus lâche que le SLO, pour que l'équipe soit alertée avant de devoir payer.
 
 **Traitement par lots (batch)** : les données sont collectées puis traitées d'un bloc, par exemple chaque nuit. **Flux (streaming)** : chaque événement est traité dès qu'il arrive, en quelques secondes.
 
@@ -931,7 +931,7 @@ Je sais que les solutions de cette page marchent quand les chiffres sur lesquels
 [À prendre avec précaution : ordres de grandeur d'exemple, à fixer avec le métier]
 
 !!! noob "As noob"
-    Le SLO, c'est l'heure à laquelle je me fixe d'arriver à un rendez-vous : 8 h 50 pour un rendez-vous à 9 h. Le SLA, c'est l'heure promise à l'autre, 9 h, avec un café offert si j'arrive en retard. Je vise plus tôt que ce que je promets, pour garder de la marge. La phrase à retenir : **le SLO est ma cible interne, le SLA ma promesse au client avec une pénalité, et le SLO est toujours plus exigeant.**
+    Le SLO, c'est l'heure à laquelle je me fixe d'arriver à un rendez-vous : 8 h 50 pour un rendez-vous à 9 h. Le SLA, c'est l'heure promise à l'autre, 9 h, avec un café offert si j'arrive en retard. Je vise plus tôt que ce que je promets, pour garder de la marge. La phrase à retenir : **le SLO est ma cible interne, le SLA ma promesse au client avec une pénalité, et je garde le SLO plus exigeant.**
 
 ## Pièges à éviter
 

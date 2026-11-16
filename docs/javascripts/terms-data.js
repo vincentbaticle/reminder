@@ -695,8 +695,8 @@ window.REMINDER_TERMS = {
   },
   "dora-metrics": {
    "term": "Métriques DORA",
-   "definition": "Quatre indicateurs issus de la recherche DORA qui mesurent la vitesse et la stabilité de la livraison logicielle.",
-   "example": "L’équipe A déploie 3 fois par jour, en 2 heures, avec 5 % d’échecs, et se rétablit en 20 minutes.",
+   "definition": "Cinq indicateurs issus de la recherche DORA qui mesurent le débit et l’instabilité de la livraison logicielle : fréquence de déploiement, lead time, temps de restauration, taux d'échec et taux de retravail.",
+   "example": "L’équipe A déploie 3 fois par jour, en 2 heures, avec 5 % d’échecs, se rétablit en 20 minutes, et 4 % de ses déploiements sont des correctifs imprévus.",
    "example_is_code": false
   },
   "delivery-flow": {
@@ -7447,8 +7447,8 @@ window.REMINDER_TERMS = {
   },
   "dora-metrics": {
    "term": "DORA metrics",
-   "definition": "Four indicators from the DORA research that measure the speed and stability of software delivery.",
-   "example": "Team A deploys 3 times a day, in 2 hours, with 5% failures, and recovers in 20 minutes.",
+   "definition": "Five indicators from the DORA research that measure the throughput and instability of software delivery: deployment frequency, lead time, recovery time, change failure rate and rework rate.",
+   "example": "Team A deploys 3 times a day, in 2 hours, with 5% failures, recovers in 20 minutes, and 4% of its deployments are unplanned fixes.",
    "example_is_code": false
   },
   "delivery-flow": {

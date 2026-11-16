@@ -64,7 +64,7 @@ src/app.py
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective, objectif de niveau de service) : la cible interne que je me fixe sur ce chiffre, par exemple « 99,5 % des appels réussis sur le mois ».
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO. Un usage interne d'agents n'en a pas ; un serveur MCP ou un bot de relecture vendu à des clients peut en avoir un.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO. Un usage interne d'agents n'en a pas ; un serveur MCP ou un bot de relecture vendu à des clients peut en avoir un.
 
 :material-book-open-variant: Doc de référence : [Anthropic, Glossary](https://docs.claude.com/en/docs/about-claude/glossary) (consultée en novembre 2026)
 { .doc-ref }

@@ -47,7 +47,7 @@ Les livres de gestion, de produit et de stratégie sont ici. Les articles techni
 | **Rétrospective** | une réunion régulière de l'équipe, souvent en fin de sprint, pour regarder comment elle a travaillé et choisir une amélioration | « on a attendu les revues deux jours : on essaie un créneau de revue chaque jour à 14h » |
 | **<span class="term" data-term="sli">SLI</span>** | Service Level Indicator : l'indicateur mesuré pour savoir si quelque chose marche | le délai médian d'un ticket entre son début et sa mise en production |
 | **<span class="term" data-term="slo">SLO</span>** | Service Level Objective : la cible interne fixée sur un SLI | « délai médian sous 5 jours ouvrés » (exemple) |
-| **<span class="term" data-term="sla">SLA</span>** | Service Level Agreement : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO | « disponibilité de 99,5 % par mois, sinon 10 % de remise », pour un SLO interne de 99,9 % (exemple) |
+| **<span class="term" data-term="sla">SLA</span>** | Service Level Agreement : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO | « disponibilité de 99,5 % par mois, sinon 10 % de remise », pour un SLO interne de 99,9 % (exemple) |
 
 Une phrase de comité de direction, décodée :
 

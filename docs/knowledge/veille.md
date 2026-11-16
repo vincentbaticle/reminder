@@ -29,7 +29,7 @@ Faire de la veille, c'est suivre ce qui change dans mon métier (outils, pratiqu
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective, objectif de niveau de service) : la cible interne que je me fixe sur ce chiffre, par exemple « au moins un essai par mois, onze mois sur douze ».
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO. Une veille personnelle ou d'équipe n'a pas de client externe, donc pas de SLA.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO. Une veille personnelle ou d'équipe n'a pas de client externe, donc pas de SLA.
 
 ## Pourquoi, quand et comment
 

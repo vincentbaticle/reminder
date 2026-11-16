@@ -58,7 +58,7 @@ Le <span class="term" data-term="mttd">MTTD</span> se compte depuis le début r�
 
 **<span class="term" data-term="slo">SLO</span>** : l'objectif interne fixé sur ce SLI. Exemple : 99,5 % des paiements en moins de 2 s sur 30 jours glissants ; un incident consomme ce budget.
 
-**<span class="term" data-term="sla">SLA</span>** : la promesse faite par contrat à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO. Exemple : 99 % de disponibilité par mois, sinon 10 % de remise sur la facture. Le détail est dans [Observabilité](observabilite.md).
+**<span class="term" data-term="sla">SLA</span>** : la promesse faite par contrat à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO. Exemple : 99 % de disponibilité par mois, sinon 10 % de remise sur la facture. Le détail est dans [Observabilité](observabilite.md).
 
 :material-book-open-variant: Doc de référence : [Atlassian, Common incident management metrics](https://www.atlassian.com/incident-management/kpis/common-metrics) (consultée en novembre 2026)
 { .doc-ref }
@@ -843,7 +843,7 @@ Si le projet tourne mal malgré tout, les critères d'arrêt sont déjà écrits
 
 ## Mesurer le succès
 
-Je sais que ma gestion d'incident progresse quand les incidents sont vus plus tôt, atténués plus vite et reviennent moins, pas quand le MTTR moyen baisse d'un trimestre à l'autre. Je relève une base sur le trimestre précédent : part des incidents détectés par un client, médiane du délai jusqu'à l'atténuation, incidents récurrents. Je mesure la même chose sur le trimestre suivant, et je surveille un garde-fou : le nombre d'incidents ne doit pas baisser parce qu'on en déclare moins, donc je suis aussi les quasi-incidents. Les SLO viennent de [Observabilité](observabilite.md#objectifs-et-alertes) ; un <span class="term" data-term="sla">SLA</span> est la promesse contractuelle faite à un client, avec une pénalité, toujours plus lâche que le SLO. Le tableau donne des valeurs d'exemple.
+Je sais que ma gestion d'incident progresse quand les incidents sont vus plus tôt, atténués plus vite et reviennent moins, pas quand le MTTR moyen baisse d'un trimestre à l'autre. Je relève une base sur le trimestre précédent : part des incidents détectés par un client, médiane du délai jusqu'à l'atténuation, incidents récurrents. Je mesure la même chose sur le trimestre suivant, et je surveille un garde-fou : le nombre d'incidents ne doit pas baisser parce qu'on en déclare moins, donc je suis aussi les quasi-incidents. Les SLO viennent de [Observabilité](observabilite.md#objectifs-et-alertes) ; un <span class="term" data-term="sla">SLA</span> est la promesse contractuelle faite à un client, avec une pénalité, en général plus lâche que le SLO. Le tableau donne des valeurs d'exemple.
 
 | Solution ou situation | Indicateur de succès (SLI) | SLO probable | SLA probable |
 |---|---|---|---|
@@ -859,7 +859,7 @@ Je sais que ma gestion d'incident progresse quand les incidents sont vus plus t�
 [À prendre avec précaution : ordres de grandeur d'exemple, à fixer avec le métier]
 
 !!! noob "As noob"
-    Une pizzeria promet « livrée en 45 minutes ou remboursée » : c'est le SLA, une promesse au client avec une pénalité. En cuisine, l'équipe vise 30 minutes : c'est le SLO, son objectif interne. Le chronomètre de chaque livraison, c'est le SLI. Si les livraisons glissent vers 35 minutes, l'équipe réagit bien avant de rembourser qui que ce soit. La phrase à retenir : **le SLO alerte en interne, le SLA coûte de l'argent, donc le SLO est toujours plus strict.**
+    Une pizzeria promet « livrée en 45 minutes ou remboursée » : c'est le SLA, une promesse au client avec une pénalité. En cuisine, l'équipe vise 30 minutes : c'est le SLO, son objectif interne. Le chronomètre de chaque livraison, c'est le SLI. Si les livraisons glissent vers 35 minutes, l'équipe réagit bien avant de rembourser qui que ce soit. La phrase à retenir : **le SLO alerte en interne, le SLA coûte de l'argent, donc je garde le SLO plus strict.**
 
 ## Pièges à éviter
 

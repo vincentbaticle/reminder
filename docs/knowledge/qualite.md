@@ -571,7 +571,7 @@ pipeline #1234
 
 **SLO (Service Level Objective)** : un objectif chiffré interne sur un <span class="term" data-term="sli">SLI</span>, sur une fenêtre de temps, par exemple « 97 % de réussite sur 30 jours ».
 
-**SLA (Service Level Agreement)** : la promesse écrite dans le contrat d'un client, avec une pénalité si elle n'est pas tenue (un avoir, un remboursement). Elle est toujours plus lâche que le <span class="term" data-term="slo">SLO</span>, pour que l'équipe soit alertée bien avant de devoir payer. Exemple : SLO interne de 99,9 % de disponibilité, <span class="term" data-term="sla">SLA</span> de 99,5 % dans le contrat.
+**SLA (Service Level Agreement)** : la promesse écrite dans le contrat d'un client, avec une pénalité si elle n'est pas tenue (un avoir, un remboursement). Elle est en général plus lâche que le <span class="term" data-term="slo">SLO</span>, pour que l'équipe soit alertée bien avant de devoir payer. Exemple : SLO interne de 99,9 % de disponibilité, <span class="term" data-term="sla">SLA</span> de 99,5 % dans le contrat.
 
 **Mutation testing** : un outil modifie volontairement le code (il remplace `<=` par `<`, `+` par `-`...) puis relance les tests. Si aucun test n'échoue, c'est qu'aucun test ne vérifie cette ligne, même si elle est couverte.
 
@@ -730,7 +730,7 @@ Le syllabus ISTQB Foundation (version 4.0, 2023) résume le métier en sept prin
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
-La norme **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** (première édition en 2011, révisée en 2023, à vérifier) découpe la qualité d'un produit logiciel en caractéristiques. Elle sert de liste de contrôle : une stratégie de test qui ne parle que de fonctionnel en oublie huit sur neuf. Noms de l'édition 2023 :
+La norme **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** (première édition en 2011, révisée en 2023, à vérifier) découpe la qualité d'un produit logiciel en caractéristiques. Elle sert de liste de contrôle : une stratégie de qualité limitée au fonctionnel risque de négliger huit autres caractéristiques importantes. Toutes ne se vérifient pas par un test : certaines passent par une analyse, une revue, un audit ou une mesure en production, comme le montre la dernière colonne. Noms de l'édition 2023 :
 
 | Caractéristique                                     | Question                                          | Exemple de vérification                         |
 |-----------------------------------------------------|---------------------------------------------------|-------------------------------------------------|
@@ -744,7 +744,7 @@ La norme **<span class="term" data-term="iso-25010">ISO/IEC 25010</span>** (prem
 | flexibilité (ex « portabilité »)                    | s'adapte-t-il à un autre environnement, à la croissance ? | même image Docker en local, en CI et en production |
 | sûreté (ajoutée en 2023)                            | évite-t-il de mettre des personnes en danger ?    | arrêt sûr d'un automate sur une valeur aberrante |
 
-**Quand et comment.** Au lancement d'un projet ou d'une stratégie de test : passer les neuf lignes avec le PO, en garder trois ou quatre prioritaires, et pour chacune écrire une exigence mesurable (« p95 < 500 ms à 50 utilisateurs ») et le test qui la vérifie. Les autres lignes sont écartées explicitement, avec la raison.
+**Quand et comment.** Au lancement d'un projet ou d'une stratégie de test : passer les neuf lignes avec le PO, en garder trois ou quatre prioritaires, et pour chacune écrire une exigence mesurable (« p95 < 500 ms à 50 utilisateurs ») et la façon de la vérifier (test, analyse, revue ou mesure en production). Les autres lignes sont écartées explicitement, avec la raison.
 
 **Risques.** Transformer la norme en dossier : neuf exigences écrites pour un outil interne de cinq utilisateurs coûtent des jours sans rien changer aux tests. Je garde trois ou quatre lignes. À l'inverse, ne jamais la passer en revue laisse des trous découverts en production, comme une page lente ou inaccessible alors que « tous les tests passent ».
 
@@ -2100,7 +2100,7 @@ Un helper naît à la 2e copie, jamais à la 3e. Et pas d'abstraction pour un ap
 Je sais qu'une solution de cette page marche quand un chiffre a bougé, pas quand elle est en place. Je relève une référence avant (par exemple 6 défauts échappés majeurs par mois et 4 % de tests instables, chiffres d'exemple), je mesure la même chose de la même façon après, sur une fenêtre assez longue pour lisser le bruit (un ou deux mois), et je garde une métrique garde-fou qui ne doit pas se dégrader : un pipeline deux fois plus rapide ne compte pas si les défauts échappés remontent. Le choix des indicateurs suit [Mesurer la qualité](#mesurer-la-qualite) (GQM, DDP) ; ici, je fixe pour chaque solution un <span class="term" data-term="sli">SLI</span>, un <span class="term" data-term="slo">SLO</span> interne, et un <span class="term" data-term="sla">SLA</span> seulement quand un client a un contrat.
 
 !!! noob "As noob"
-    Le SLO, c'est l'heure à laquelle je me fixe d'arriver à un rendez-vous : 13 h 50 pour un rendez-vous à 14 h. Le SLA, c'est l'heure promise à l'autre, 14 h, avec un café offert si je suis en retard. Je vise plus tôt que ce que je promets, pour garder de la marge. La phrase à retenir : **le SLO est ma cible interne, le SLA ma promesse payante au client, toujours plus lâche que le SLO.**
+    Le SLO, c'est l'heure à laquelle je me fixe d'arriver à un rendez-vous : 13 h 50 pour un rendez-vous à 14 h. Le SLA, c'est l'heure promise à l'autre, 14 h, avec un café offert si je suis en retard. Je vise plus tôt que ce que je promets, pour garder de la marge. La phrase à retenir : **le SLO est ma cible interne, le SLA ma promesse payante au client, en général plus lâche que le SLO.**
 
 | Solution ou situation | Indicateur de succès (SLI) | SLO probable | SLA probable |
 |---|---|---|---|

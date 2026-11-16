@@ -49,7 +49,7 @@ hide:
 
     Les commandes par situation : merge ou rebase, conflit, réparer une erreur, retrouver un commit perdu.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/git.md)
 
@@ -59,7 +59,7 @@ hide:
 
     Factory, Builder, Singleton, Adapter, Decorator, Facade, Repository, injection de dépendances : le même exemple en PHP, Python et Java, au choix.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/design-patterns.md)
 
@@ -69,7 +69,7 @@ hide:
 
     Strategy, Observer, Command, Template Method, Chain of Responsibility et State : le même exemple en PHP, Python et Java, au choix.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/design-patterns-comportement.md)
 
@@ -79,7 +79,7 @@ hide:
 
     SOLID lettre par lettre, les défauts STUPID, KISS, DRY, YAGNI, loi de Déméter, composition plutôt qu'héritage, cohésion et couplage, CUPID : en PHP, Python et Java, et ce qu'on en demande en entretien.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/principes-conception.md)
 
@@ -89,7 +89,7 @@ hide:
 
     Carte des échelles (code, application, système, infrastructure, entreprise), styles d'architecture, architecture hexagonale (quand, pourquoi, comment), urbanisation du SI et TOGAF, DDD, CAP et PACELC, réplication et quorum, sagas, CQRS, résilience (retry, circuit breaker), haute disponibilité, RTO et RPO, estimation de capacité, C4 et fitness functions, tech radar d'entreprise.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/architecture.md)
 
@@ -99,7 +99,7 @@ hide:
 
     React, application web sur mobile et PWA (iPhone, service worker), micro front-ends et Module Federation, design system et Storybook, stratégies de rendu (CSR, SSR, SSG, ISR), bundlers.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/front-end.md)
 
@@ -109,7 +109,7 @@ hide:
 
     SELECT, jointures, regroupements, transactions, EXPLAIN et index, pièges des NULL et des dates, faire grandir une base (vertical ou horizontal, partitions, sharding), migrer un schéma sans interruption, injection, SQL pour la QA.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/sql.md)
 
@@ -125,7 +125,7 @@ hide:
 
     Méthodes et codes HTTP, pagination, versions, OpenAPI, API first, API management, GraphQL, messages et événements, files, DLQ, outbox, AsyncAPI.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/api-rest-async.md)
 
@@ -161,7 +161,7 @@ hide:
 
     Pods, Deployment, readiness / liveness / startup probes, puis Dockerfile, Helm, Argo CD et Cloud Run : le chemin d'une image jusqu'à la production.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/kubernetes.md)
 
@@ -171,7 +171,7 @@ hide:
 
     Logs, métriques, traces, OpenTelemetry, collecteur, sampling, SLO, SLA, ITA et alertes, et le cas du bruit des probes.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/observabilite.md)
 
@@ -181,7 +181,7 @@ hide:
 
     Conception technique, ADR, trunk-based, tests automatisés, livraison et déploiement continus, déploiement progressif, tests en production, DORA, SPACE, DevEx, amélioration continue.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/livraison.md)
 
@@ -191,7 +191,7 @@ hide:
 
     Cycle de vie d'un incident, sévérités, rôles, communication, runbooks, postmortem sans recherche de coupable, suivi des actions, MTTR et ses limites, astreinte, game days.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/incidents.md)
 
@@ -207,7 +207,7 @@ hide:
 
     pyramide, trophée, nid d'abeille, quadrants, ISO/IEC 25010, niveaux de test, tests synthétiques, Testcontainers, contrats, Gherkin, couverture, quality gates, CI, tests canary et blue-green, A/B test, mutation testing, écoles de Londres et de Detroit, tests instables, revue.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/qualite.md)
 
@@ -217,7 +217,7 @@ hide:
 
     Stratégie par les risques et critères de sortie, scénarios, partitions et valeurs limites, tables de décision, transitions d'état, tests par paires et par propriétés, test exploratoire, données de test, TDD et code legacy, rapport de bug, accessibilité.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/conception-tests.md)
 
@@ -247,7 +247,7 @@ hide:
 
     Décisions pilotées par les données, time to insight, temps réel, A/B testing, visualisation, gouvernance des données, data science, IA prédictive et générative, FinOps.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/donnees-decision.md)
 
@@ -257,7 +257,7 @@ hide:
 
     Boucle interne et externe, projet prêt en une commande, CI rapide, platform engineering, golden paths, portail, documentation (Diátaxis), onboarding, migrations à grande échelle, mesurer sans surveiller.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/devx.md)
 
@@ -273,7 +273,7 @@ hide:
 
     Construire un contexte pertinent (context engineering), LLM, agent, sub-agent et skill, CLAUDE.md, mémoire, recherche dans le code, outils du moment, avec des exemples concrets.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/ia-agents.md)
 
@@ -283,7 +283,7 @@ hide:
 
     Donner des capacités à un agent de code et les encadrer : outils, permissions, MCP, skills, sub-agents, hooks, plugins, mods, mode non interactif, workflows multi-agents.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/ia-capacites.md)
 
@@ -293,7 +293,7 @@ hide:
 
     Mesurer l'usage des assistants IA sans surveiller les personnes, pseudonymisation, EU AI Act, et les débats sur l'intelligence et la conscience des modèles.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/ia-entreprise.md)
 
@@ -309,7 +309,7 @@ hide:
 
     Livres blancs, articles de recherche, RFC, normes, manifestes et ouvrages de référence : ce que chacun dit, pourquoi il compte encore, comment le citer en entretien, de Conway et Brooks à Dynamo, Raft, Accelerate et « Attention Is All You Need ».
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/textes-fondateurs.md)
 
@@ -319,7 +319,7 @@ hide:
 
     Conway, Brooks, Parkinson, Hofstadter, Goodhart, Hyrum, Postel, Gall, Amdahl, Little, Chesterton et les autres : l'énoncé, l'origine, un exemple, et le mauvais usage à éviter.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/lois-et-principes.md)
 
@@ -329,7 +329,7 @@ hide:
 
     Westrum, sécurité psychologique, Team Topologies, OKR, Cynefin, Lean, théorie des contraintes, Wardley, CAPEX et OPEX, coût du retard, parler à la direction, carrière d'expert.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/culture-entreprise.md)
 
@@ -355,7 +355,7 @@ hide:
 
     Pourquoi, quand et comment faire sa veille, et les sources à suivre pour l'architecte, la DevX et la plateforme, la QA et le développeur.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/veille.md)
 

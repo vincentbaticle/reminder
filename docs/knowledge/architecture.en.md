@@ -88,7 +88,7 @@ with broker   orders-service --publishes OrderPaid--> [broker] --> email-service
 
 **<span class="term" data-term="slo">SLO</span>** (service level objective): the internal target the team sets on an SLI, over a time window. Example: 99.9% of those requests successful over a rolling 30 days.
 
-**<span class="term" data-term="sla">SLA</span>** (service level agreement): the contractual promise made to a customer, with a penalty when it is not kept, always looser than the SLO to keep a margin. Example: 99.5% per month, otherwise a 10% credit on the invoice.
+**<span class="term" data-term="sla">SLA</span>** (service level agreement): the contractual promise made to a customer, with a penalty when it is not kept, usually looser than the SLO to keep a margin. Example: 99.5% per month, otherwise a 10% credit on the invoice.
 
 | I want to... | I look at... |
 |---|---|
@@ -624,6 +624,16 @@ Each following section answers one of these fallacies.
 
 The **<span class="term" data-term="cap-theorem">CAP theorem</span>** (conjectured by Eric Brewer in 2000, proven by Seth Gilbert and Nancy Lynch in 2002): when a **<span class="term" data-term="network-partition">network partition</span>** cuts the system in two, I must choose between **consistency** (refuse to answer rather than answer wrong) and **availability** (answer with possibly stale data). Partitions are not optional: the real choice is C or A during the cut.
 
+The three letters have a precise meaning in the 2002 proof, stricter than their everyday meaning, and that is what an architecture interview question checks:
+
+| Letter | Formal meaning | What it rules out |
+|---|---|---|
+| C | **linearizability**: everything behaves as if there were a single copy; once a write is confirmed, every read, on any node, sees that value or a newer one | eventual consistency, or only "read your own writes" |
+| A | **every request received by a non-failing node gets a response**, other than an error, with no time bound imposed | a system that only answers on the majority side of the cluster |
+| P | the system keeps working when any number of messages between nodes are lost | nothing: on a real network, cuts happen |
+
+Consequence: many databases are neither "CP" nor "AP" in the strict sense. A database with a leader and replicas read asynchronously is not linearizable (so not C), and refuses writes on the side cut off from the leader (so not A). Martin Kleppmann suggests, in "Please stop calling databases CP or AP" (2015), describing instead the consistency level offered and the behavior during a cut.
+
 **<span class="term" data-term="pacelc">PACELC</span>** (Daniel Abadi, 2012) completes it: if there is a **P**artition, choose **A** or **C**; **E**lse (in normal times), choose between **L**atency and **C**onsistency. That is the most frequent case: waiting for every replica's confirmation makes each write slower.
 
 !!! noob "As noob"
@@ -649,7 +659,7 @@ flowchart TD
 
 **Risks.** Ignoring it means promising the business a system that is "always available and always right", then finding out during the first partition that it answers wrong or not at all, without anyone having chosen which. I have the choice made in advance, data by data, between refusing and answering with a possibly stale value, and I write it down in an ADR.
 
-:material-book-open-variant: Reference docs: [Seth Gilbert and Nancy Lynch, "Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services"](https://dl.acm.org/doi/10.1145/564585.564601) (2002); [Daniel Abadi, "Consistency Tradeoffs in Modern Distributed Database System Design"](https://www.cs.umd.edu/~abadi/papers/abadi-pacelc.pdf) (2012)
+:material-book-open-variant: Reference docs: [Seth Gilbert and Nancy Lynch, "Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services"](https://dl.acm.org/doi/10.1145/564585.564601) (2002); [Martin Kleppmann, "Please stop calling databases CP or AP"](https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap.html) (May 2015); [Daniel Abadi, "Consistency Tradeoffs in Modern Distributed Database System Design"](https://www.cs.umd.edu/~abadi/papers/abadi-pacelc.pdf) (2012)
 { .doc-ref }
 
 ### Strong or eventual consistency
@@ -1785,7 +1795,7 @@ Pitfall: a flag is debt. Every forgotten flag doubles the paths to test; I give 
 | ship `orders-service` without waiting for the billing team to finish its version | services or modules deployable alone, with compatible contracts |
 | rename a column or an API field without downtime, while the old and the new version run side by side during the deployment | expand and contract |
 | merge every day a feature that will only be ready in three weeks | a switched-off feature flag |
-| know whether my architecture slows delivery down | the four DORA metrics, and the number of teams to coordinate per release |
+| know whether my architecture slows delivery down | the five DORA metrics, and the number of teams to coordinate per release |
 
 :material-book-open-variant: Reference docs: [Jez Humble, continuousdelivery.com](https://continuousdelivery.com/) (accessed November 2026); [Danilo Sato, "ParallelChange"](https://martinfowler.com/bliki/ParallelChange.html) (2014)
 { .doc-ref }
@@ -1796,7 +1806,7 @@ Pitfall: a flag is debt. Every forgotten flag doubles the paths to test; I give 
     | N1 | the team knows how to do an expand and contract or add a feature flag, but only for changes that feel scary |
     | N2 | every schema change follows expand and contract, every unfinished feature ships behind a flag with an owner and a removal date, and every service deploys on its own |
     | N3 | CI refuses a breaking migration (renaming, dropping a column still read), and a flag past its removal date fails the pipeline |
-    | N4 | the team tracks the four DORA metrics and the number of teams to coordinate per release, and tackles first the coupling that slows them |
+    | N4 | the team tracks the five DORA metrics and the number of teams to coordinate per release, and tackles first the coupling that slows them |
 
     **I measure**: deployment frequency per service and the delay between merge and production, read in the CI/CD tool; the number of flags older than their removal date, read in the flag tool.
 
@@ -2261,7 +2271,7 @@ Pitfalls:
 
 ## Measuring success
 
-An architecture solution works when a number moves the right way without another one getting worse. Before changing anything, I record a baseline: availability, p99 latency or delivery frequency over the last four weeks, for example. After the change, I record the same measure, the same way, over a window of the same length, so I do not compare a week of sales with a quiet week. And I pick a guard metric that must not move: adding a cache must not make wrong prices appear, splitting into services must not lower the availability of the chain. The tracked number is an SLI, the target the team sets on it is an SLO, and the promise made to a customer with a penalty is an SLA, always looser than the SLO.
+An architecture solution works when a number moves the right way without another one getting worse. Before changing anything, I record a baseline: availability, p99 latency or delivery frequency over the last four weeks, for example. After the change, I record the same measure, the same way, over a window of the same length, so I do not compare a week of sales with a quiet week. And I pick a guard metric that must not move: adding a cache must not make wrong prices appear, splitting into services must not lower the availability of the chain. The tracked number is an SLI, the target the team sets on it is an SLO, and the promise made to a customer with a penalty is an SLA, usually looser than the SLO.
 
 | Solution or situation | Success indicator (SLI) | Likely SLO | Likely SLA |
 |---|---|---|---|

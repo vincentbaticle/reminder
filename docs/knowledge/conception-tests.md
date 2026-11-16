@@ -72,7 +72,7 @@ défaut       : 65 est refusé, parce que le code écrit < 65 au lieu de <= 65
 
 **SLO (Service Level Objective)** : un objectif chiffré interne sur un <span class="term" data-term="sli">SLI</span>, sur une fenêtre de temps, par exemple « moins de 5 % de bugs impossibles à reproduire sur 30 jours ».
 
-**SLA (Service Level Agreement)** : la promesse écrite dans le contrat d'un client, avec une pénalité si elle n'est pas tenue. Elle est toujours plus lâche que le <span class="term" data-term="slo">SLO</span>, pour que l'équipe soit alertée bien avant de devoir payer. Exemple : correction d'un défaut critique en 8 h ouvrées en interne, <span class="term" data-term="sla">SLA</span> de 24 h ouvrées dans le contrat de support.
+**SLA (Service Level Agreement)** : la promesse écrite dans le contrat d'un client, avec une pénalité si elle n'est pas tenue. Elle est en général plus lâche que le <span class="term" data-term="slo">SLO</span>, pour que l'équipe soit alertée bien avant de devoir payer. Exemple : correction d'un défaut critique en 8 h ouvrées en interne, <span class="term" data-term="sla">SLA</span> de 24 h ouvrées dans le contrat de support.
 
 :material-book-open-variant: Doc de référence : [Google SRE Book, Service Level Objectives](https://sre.google/sre-book/service-level-objectives/) (2016)
 { .doc-ref }

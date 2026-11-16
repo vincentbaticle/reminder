@@ -717,7 +717,7 @@ If my team tests a high-risk system, like a CV screening tool, that system must 
 
 I know the solutions on this page work when a number moves in the right direction without degrading another one. Before rolling out an AI assistant, an LLM gateway or a measurement setup, I record a baseline: for example the median MR lead time over the last three months, or the monthly cost of model calls. I take the same measure again a quarter later, over the same window. And I watch a guard metric that must not degrade: the change failure rate when the assistant writes more code, the number of opt-out requests when usage measurement starts.
 
-Three words to set targets. The <span class="term" data-term="sli">SLI</span> is the measured indicator, for example the share of calls to the LLM gateway that succeed. The <span class="term" data-term="slo">SLO</span> is the internal target the team sets on that indicator, for example 99.9% over 30 days. The <span class="term" data-term="sla">SLA</span> is the written promise made to a customer, with a penalty if it is not kept, for example 99.5%: it is always looser than the SLO, to keep a margin.
+Three words to set targets. The <span class="term" data-term="sli">SLI</span> is the measured indicator, for example the share of calls to the LLM gateway that succeed. The <span class="term" data-term="slo">SLO</span> is the internal target the team sets on that indicator, for example 99.9% over 30 days. The <span class="term" data-term="sla">SLA</span> is the written promise made to a customer, with a penalty if it is not kept, for example 99.5%: it is usually looser than the SLO, to keep a margin.
 
 | Solution or situation | Success indicator (SLI) | Likely SLO | Likely SLA |
 |---|---|---|---|

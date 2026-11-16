@@ -61,7 +61,7 @@ Cette page présente six patterns de comportement du GoF, avec le même exemple 
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective, objectif de niveau de service) : la cible interne que je me fixe sur ce chiffre, par exemple « un nouveau mode de livraison ne touche qu'un seul fichier existant, la table des stratégies ».
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO. Un choix de pattern reste interne au code : il n'a presque jamais de SLA, sauf quand il protège un service promis au client, comme le middleware d'authentification devant une API publique.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO. Un choix de pattern reste interne au code : il n'a presque jamais de SLA, sauf quand il protège un service promis au client, comme le middleware d'authentification devant une API publique.
 
 ## Patterns de comportement
 

@@ -58,7 +58,7 @@ The French word "incidentologie" has no exact English equivalent. English speake
 
 **<span class="term" data-term="slo">SLO</span>**: the internal target set on that SLI. Example: 99.5% of payments in under 2 s over a rolling 30 days; an incident consumes this budget.
 
-**<span class="term" data-term="sla">SLA</span>**: the contractual promise to a customer, with a penalty if it is missed, always looser than the SLO. Example: 99% availability per month, otherwise a 10% discount on the invoice. Details in [Observability](observabilite.md).
+**<span class="term" data-term="sla">SLA</span>**: the contractual promise to a customer, with a penalty if it is missed, usually looser than the SLO. Example: 99% availability per month, otherwise a 10% discount on the invoice. Details in [Observability](observabilite.md).
 
 :material-book-open-variant: Reference docs: [Atlassian, Common incident management metrics](https://www.atlassian.com/incident-management/kpis/common-metrics) (accessed November 2026)
 { .doc-ref }
@@ -843,7 +843,7 @@ If the project goes wrong anyway, the stop criteria are already written: we stop
 
 ## Measuring success
 
-I know my incident management is improving when incidents are seen earlier, mitigated faster and come back less, not when the average MTTR drops from one quarter to the next. I take a baseline over the previous quarter: share of incidents detected by a customer, median time to mitigation, recurring incidents. I measure the same thing over the next quarter, and I watch a guard metric: the number of incidents must not drop because fewer are declared, so I also track near misses. SLOs come from [Observability](observabilite.md#objectives-and-alerts); an <span class="term" data-term="sla">SLA</span> is the contractual promise made to a customer, with a penalty, always looser than the SLO. The table gives example values.
+I know my incident management is improving when incidents are seen earlier, mitigated faster and come back less, not when the average MTTR drops from one quarter to the next. I take a baseline over the previous quarter: share of incidents detected by a customer, median time to mitigation, recurring incidents. I measure the same thing over the next quarter, and I watch a guard metric: the number of incidents must not drop because fewer are declared, so I also track near misses. SLOs come from [Observability](observabilite.md#objectives-and-alerts); an <span class="term" data-term="sla">SLA</span> is the contractual promise made to a customer, with a penalty, usually looser than the SLO. The table gives example values.
 
 | Solution or situation | Success indicator (SLI) | Likely SLO | Likely SLA |
 |---|---|---|---|
@@ -859,7 +859,7 @@ I know my incident management is improving when incidents are seen earlier, miti
 [Take with caution: example orders of magnitude, to set with the business]
 
 !!! noob "As noob"
-    A pizzeria promises "delivered in 45 minutes or your money back": that is the SLA, a promise to the customer with a penalty. In the kitchen, the team aims for 30 minutes: that is the SLO, its internal target. The stopwatch on each delivery is the SLI. If deliveries drift towards 35 minutes, the team reacts long before refunding anyone. The takeaway: **the SLO raises the alarm internally, the SLA costs money, so the SLO is always stricter.**
+    A pizzeria promises "delivered in 45 minutes or your money back": that is the SLA, a promise to the customer with a penalty. In the kitchen, the team aims for 30 minutes: that is the SLO, its internal target. The stopwatch on each delivery is the SLI. If deliveries drift towards 35 minutes, the team reacts long before refunding anyone. The takeaway: **the SLO raises the alarm internally, the SLA costs money, so I keep the SLO stricter.**
 
 ## Pitfalls to avoid
 

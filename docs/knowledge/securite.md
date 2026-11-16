@@ -48,7 +48,7 @@ Les noms de domaines, d'applications et de comptes sont des exemples.
 
 **<span class="term" data-term="slo">SLO</span>** : l'objectif interne que l'équipe se fixe sur ce SLI. Exemple : 95 % des failles critiques corrigées en moins de 7 jours.
 
-**<span class="term" data-term="sla">SLA</span>** : la promesse faite par contrat à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO pour garder de la marge. Exemple : un contrat entreprise qui promet de corriger une faille critique en moins de 30 jours.
+**<span class="term" data-term="sla">SLA</span>** : la promesse faite par contrat à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO pour garder de la marge. Exemple : un contrat entreprise qui promet de corriger une faille critique en moins de 30 jours.
 
 :material-book-open-variant: Doc de référence : [OWASP, Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html) (consultée en novembre 2026)
 { .doc-ref }
@@ -370,7 +370,7 @@ Rendez-vous sur https://example.com/activate et entrez le code : WDJB-MJHT
 
 OAuth 2.1 n'invente pas de nouveau protocole. C'est OAuth 2.0 **nettoyé** : il regroupe en un seul texte les bonnes pratiques de sécurité accumulées depuis 2012, et retire ce qui s'est révélé dangereux.
 
-Statut : c'est encore un **brouillon** de l'IETF (version 16, septembre 2026), pas une norme publiée. Mais les grands fournisseurs, dont Auth0, Okta et Microsoft, en appliquent déjà les règles, et le protocole <span class="term" data-term="mcp">MCP</span> (les connecteurs des assistants IA) l'exige.
+Statut : c'est encore un **brouillon** de l'IETF (version 17, octobre 2026), pas une norme publiée. Mais les grands fournisseurs, dont Auth0, Okta et Microsoft, en appliquent déjà les règles, et le protocole <span class="term" data-term="mcp">MCP</span> (les connecteurs des assistants IA) l'exige.
 
 *Okta : concurrent de Auth0, Keycloak*
 { .tool-rel }
@@ -389,7 +389,7 @@ Statut : c'est encore un **brouillon** de l'IETF (version 16, septembre 2026), p
 
 « Client public » : une application qui ne peut pas garder un <span class="term" data-term="secret">secret</span>, parce que son code est chez l'utilisateur (SPA, appli mobile, CLI). Par opposition au « client confidentiel », un back-end qui garde son `client_secret` sur un serveur.
 
-:material-book-open-variant: Doc de référence : [IETF, The OAuth 2.1 Authorization Framework](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) (brouillon, version 16, septembre 2026) ; [oauth.net, OAuth 2.1](https://oauth.net/2.1/) (consultée en novembre 2026)
+:material-book-open-variant: Doc de référence : [IETF, The OAuth 2.1 Authorization Framework](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) (brouillon, version 17, octobre 2026) ; [oauth.net, OAuth 2.1](https://oauth.net/2.1/) (consultée en novembre 2026)
 { .doc-ref }
 
 ### Idée reçue : « avec OAuth 2.1 et DPoP, il n'y a plus de mots de passe »
@@ -2018,7 +2018,7 @@ Ce qui fait une bonne réponse : relier chaque mécanisme à l'attaque qu'il emp
 
 ## Pour aller plus loin
 - [Bearer of Good News : OAuth 2.0 to 2.1](https://bearer.sambego.tech/) : une présentation sur le passage d'OAuth 2.0 à 2.1 (date de publication non indiquée).
-- [Le brouillon OAuth 2.1 à l'IETF (version 16, septembre 2026)](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/)
+- [Le brouillon OAuth 2.1 à l'IETF (version 17, octobre 2026)](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/)
 - [RFC 9449 : DPoP (septembre 2023)](https://www.rfc-editor.org/rfc/rfc9449)
 - [Spécification MCP : enregistrement des clients (révision du 28 juillet 2026)](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/client-registration)
 - [OWASP API Security Top 10, édition 2023](https://owasp.org/API-Security/)

@@ -48,7 +48,7 @@ Domain, application and account names are examples.
 
 **<span class="term" data-term="slo">SLO</span>**: the internal target the team sets on that SLI. Example: 95% of critical vulnerabilities fixed in under 7 days.
 
-**<span class="term" data-term="sla">SLA</span>**: the contractual promise to a customer, with a penalty if it is missed, always looser than the SLO to keep a margin. Example: an enterprise contract that promises to fix a critical vulnerability in under 30 days.
+**<span class="term" data-term="sla">SLA</span>**: the contractual promise to a customer, with a penalty if it is missed, usually looser than the SLO to keep a margin. Example: an enterprise contract that promises to fix a critical vulnerability in under 30 days.
 
 :material-book-open-variant: Reference docs: [OWASP, Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html) (accessed November 2026)
 { .doc-ref }
@@ -370,7 +370,7 @@ Go to https://example.com/activate and enter the code: WDJB-MJHT
 
 OAuth 2.1 does not invent a new protocol. It is OAuth 2.0 **cleaned up**: it gathers in a single text the security best practices accumulated since 2012, and removes what turned out to be dangerous.
 
-Status: it is still an IETF **draft** (version 16, September 2026), not a published standard. But the major providers, including Auth0, Okta and Microsoft, already apply its rules, and the <span class="term" data-term="mcp">MCP</span> protocol (the connectors of AI assistants) requires it.
+Status: it is still an IETF **draft** (version 17, October 2026), not a published standard. But the major providers, including Auth0, Okta and Microsoft, already apply its rules, and the <span class="term" data-term="mcp">MCP</span> protocol (the connectors of AI assistants) requires it.
 
 *Okta: competes with Auth0, Keycloak*
 { .tool-rel }
@@ -389,7 +389,7 @@ Status: it is still an IETF **draft** (version 16, September 2026), not a publis
 
 "Public client": an application that cannot keep a <span class="term" data-term="secret">secret</span>, because its code is on the user's side (SPA, mobile app, CLI). As opposed to a "confidential client", a back end that keeps its `client_secret` on a server.
 
-:material-book-open-variant: Reference docs: [IETF, The OAuth 2.1 Authorization Framework](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) (draft, version 16, September 2026); [oauth.net, OAuth 2.1](https://oauth.net/2.1/) (accessed November 2026)
+:material-book-open-variant: Reference docs: [IETF, The OAuth 2.1 Authorization Framework](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) (draft, version 17, October 2026); [oauth.net, OAuth 2.1](https://oauth.net/2.1/) (accessed November 2026)
 { .doc-ref }
 
 ### Misconception: "with OAuth 2.1 and DPoP, there are no more passwords"
@@ -2018,7 +2018,7 @@ What makes a good answer: linking each mechanism to the attack it prevents ("PKC
 
 ## Further reading
 - [Bearer of Good News: OAuth 2.0 to 2.1](https://bearer.sambego.tech/): a presentation on moving from OAuth 2.0 to 2.1 (publication date not given).
-- [The OAuth 2.1 draft at the IETF (version 16, September 2026)](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/)
+- [The OAuth 2.1 draft at the IETF (version 17, October 2026)](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/)
 - [RFC 9449: DPoP (September 2023)](https://www.rfc-editor.org/rfc/rfc9449)
 - [MCP specification: client registration (July 28, 2026 revision)](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/client-registration)
 - [OWASP API Security Top 10, 2023 edition](https://owasp.org/API-Security/)

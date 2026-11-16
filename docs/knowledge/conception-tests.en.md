@@ -72,7 +72,7 @@ defect     : 65 is refused, because the code says < 65 instead of <= 65
 
 **SLO (Service Level Objective)**: an internal numeric target on an <span class="term" data-term="sli">SLI</span>, over a time window, for example "under 5% of bugs that cannot be reproduced over 30 days".
 
-**SLA (Service Level Agreement)**: the promise written into a customer's contract, with a penalty if it is not met. It is always looser than the <span class="term" data-term="slo">SLO</span>, so the team is alerted well before having to pay. Example: a critical defect fixed within 8 business hours internally, an <span class="term" data-term="sla">SLA</span> of 24 business hours in the support contract.
+**SLA (Service Level Agreement)**: the promise written into a customer's contract, with a penalty if it is not met. It is usually looser than the <span class="term" data-term="slo">SLO</span>, so the team is alerted well before having to pay. Example: a critical defect fixed within 8 business hours internally, an <span class="term" data-term="sla">SLA</span> of 24 business hours in the support contract.
 
 :material-book-open-variant: Reference docs: [Google SRE Book, Service Level Objectives](https://sre.google/sre-book/service-level-objectives/) (2016)
 { .doc-ref }

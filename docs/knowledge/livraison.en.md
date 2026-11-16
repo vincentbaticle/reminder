@@ -43,7 +43,7 @@ flowchart LR
 :material-book-open-variant: Reference docs: [Martin Fowler, "Continuous Integration"](https://martinfowler.com/articles/continuousIntegration.html) (2006, revised 2024); [Martin Fowler, "ContinuousDelivery"](https://martinfowler.com/bliki/ContinuousDelivery.html) (2013)
 { .doc-ref }
 
-**<span class="term" data-term="sli">SLI</span>, <span class="term" data-term="slo">SLO</span>, <span class="term" data-term="sla">SLA</span>**: the SLI is the measured indicator, for instance the share of this month's deployments that caused neither an incident nor a rollback (93%). The SLO is the internal target the team sets on that SLI, for instance at least 90% over 30 days. The SLA is the contractual promise made to a customer, with a penalty if it is not kept, for instance 99.5% availability per month, otherwise a 10% credit; it is always looser than the SLO, so the team reacts before it has to pay. Details in [Observability](observabilite.md#sli-slo-error-budget). Example figures.
+**<span class="term" data-term="sli">SLI</span>, <span class="term" data-term="slo">SLO</span>, <span class="term" data-term="sla">SLA</span>**: the SLI is the measured indicator, for instance the share of this month's deployments that caused neither an incident nor a rollback (93%). The SLO is the internal target the team sets on that SLI, for instance at least 90% over 30 days. The SLA is the contractual promise made to a customer, with a penalty if it is not kept, for instance 99.5% availability per month, otherwise a 10% credit; it is usually looser than the SLO, so the team reacts before it has to pay. Details in [Observability](observabilite.md#sli-slo-error-budget). Example figures.
 
 **DORA capability**: a practice that studies from the DORA research programme (DevOps Research and Assessment, yearly reports since 2014) link to delivery performance. The badges on this site link to each capability's page on [dora.dev](https://dora.dev/capabilities/).
 
@@ -643,15 +643,18 @@ Without observability, I move my canary to 5% but have no number to tell whether
 
 <span class="term" data-term="dora-metrics">DORA metrics</span> measure the delivery flow of a **team** (never of a person):
 
-| Metric | Question | Example |
-|---|---|---|
-| deployment frequency | how often do we ship? | 42 production deployments over 30 days |
-| change <span class="term" data-term="lead-time">lead time</span> | how long between commit and production? | median: 1 day and 4 h |
-| <span class="term" data-term="change-failure-rate">change failure rate</span> | what share of deployments causes an incident or a rollback? | 3 out of 42, that is 7% |
-| failed deployment recovery time | how long to get back to normal? | median: 35 min |
+| Dimension | Metric | Question | Example |
+|---|---|---|---|
+| throughput | deployment frequency | how often do we ship? | 42 production deployments over 30 days |
+| throughput | change <span class="term" data-term="lead-time">lead time</span> | how long between commit and production? | median: 1 day and 4 h |
+| throughput | failed deployment recovery time | how long to get back to normal? | median: 35 min |
+| instability | <span class="term" data-term="change-failure-rate">change failure rate</span> | what share of deployments requires immediate intervention (rollback, hotfix)? | 3 out of 42, that is 7% |
+| instability | deployment rework rate | what share of deployments was unplanned, and fixes an incident in production? | 4 out of 42, that is 10% |
+
+Since the 2024 report, DORA counts these **five** metrics, split into two dimensions: **throughput** and **instability**. Recovery time is classed under throughput: it measures how fast the delivery flow restarts after a failure. The first four come from the 2014 to 2017 reports summarized in "Accelerate" (2018), under the name "four keys"; rework rate completes them, because the failure rate does not see fixes deployed later, outside an emergency.
 
 !!! noob "As noob"
-    It is a car dashboard: two speed dials (frequency, lead time) and two safety dials (failure rate, recovery time). Watching a single dial pushes us to drive fast and badly, or carefully and nowhere. The one thing to remember: **we read speed and stability together, for a team, never for a person.**
+    It is a car dashboard: three dials to know whether I am moving (frequency, lead time, time to restart after a breakdown) and two warning lights to know whether the car holds the road (failure rate, unplanned trips back to the garage). Watching a single dial pushes us to drive fast and badly, or carefully and nowhere. The one thing to remember: **we read throughput and instability together, for a team, never for a person.**
 
 Where each metric is measured on the path of a change:
 
@@ -660,12 +663,13 @@ flowchart LR
   C[commit] -->|"lead time for changes"| P[in production]
   P -->|"deployment frequency:<br/>how many per period"| P
   P --> Q{Does the deployment<br/>cause an incident?}
-  Q -->|"no"| OK[speed and stability]
+  Q -->|"no"| OK[successful deployment]
   Q -->|"yes: counts in the<br/>change failure rate"| I[service degraded]
   I -->|"time to restore"| R[service restored]
+  R -->|"unplanned fix deployed:<br/>counts in the rework rate"| P
 ```
 
-The first two measure **speed**, the last two **stability**. The main message of DORA's research: the best-performing teams are better at both at once; going fast does not have to cost stability. The exact names and a fifth metric (rework rate, added in the 2024 report) have changed across editions (to check on dora.dev). The figures in the table are examples.
+The main message of DORA's research: the best-performing teams are better at throughput and instability at once; going fast does not have to cost stability. The figures in the table are examples.
 
 **How to measure them**: from events the tools already produce, never by manual entry. Three sources are enough, joined by the commit hash or the deployment id:
 
@@ -678,31 +682,32 @@ flowchart LR
   E --> LT["Lead time<br/>deployment time minus<br/>commit time, median"]
   E --> CFR["Failure rate<br/>deployments linked to an incident<br/>or a rollback, over the total"]
   E --> TR["Restore<br/>end minus start of incidents<br/>linked to a deployment"]
+  E --> RW["Rework<br/>deployments tagged as<br/>incident fix, over the total"]
 ```
 
 ```
-deploy  sha      env   deployed at       oldest commit     linked incident
-d-101   a1b2c3   prod  2026-10-06 10:12  2026-10-05 16:40  none
-d-102   d4e5f6   prod  2026-10-06 15:30  2026-10-06 11:02  inc-7, 35 min
-d-103   0a9b8c   prod  2026-10-07 09:05  2026-10-06 15:45  none
+deploy  sha      env   deployed at       oldest commit     linked incident  planned
+d-101   a1b2c3   prod  2026-10-06 10:12  2026-10-05 16:40  none             yes
+d-102   d4e5f6   prod  2026-10-06 15:30  2026-10-06 11:02  inc-7, 35 min    yes
+d-103   0a9b8c   prod  2026-10-07 09:05  2026-10-06 15:45  fixes inc-7      no
 ```
 
-On this extract (example): 3 deployments in 2 days, a lead time of 17 h 32 for d-101, a failure rate of 1 in 3, a restore time of 35 min. Three traps: count production only, require every incident to link the deployment at fault (without it, the failure rate is wrong), and count a rollback as a failure even with no incident declared. Google published the open source [Four Keys](https://github.com/dora-team/fourkeys) project in 2020, which ran this computation from Git and CI webhooks; it has been archived since, but its data model is still a good template.
+On this extract (example): 3 deployments in 2 days, a lead time of 17 h 32 for d-101, a failure rate of 1 in 3 (d-102, undone by a rollback), a restore time of 35 min, and a rework rate of 1 in 3 (d-103, the real fix shipped the next day outside the plan). Four traps: count production only, require every incident to link the deployment at fault (without it, the failure rate is wrong), count a rollback as a failure even with no incident declared, and tag at creation every deployment that fixes an incident (without that tag, rework is invisible). Google published the open source [Four Keys](https://github.com/dora-team/fourkeys) project in 2020, which ran this computation from Git and CI webhooks; it has been archived since, but its data model is still a good template.
 
 Source: Nicole Forsgren, Jez Humble and Gene Kim, "Accelerate" (2018), and DORA's "State of DevOps" reports.
 
-:material-book-open-variant: Reference docs: [DORA, "DORA's software delivery metrics: the four keys"](https://dora.dev/guides/dora-metrics-four-keys/) (accessed November 2026); [DORA, Research](https://dora.dev/research/) (accessed November 2026)
+:material-book-open-variant: Reference docs: [DORA, "DORA's software delivery performance metrics"](https://dora.dev/guides/dora-metrics/) (accessed November 2026); [DORA, Research](https://dora.dev/research/) (accessed November 2026)
 { .doc-ref }
 
 !!! maturity "Measuring maturity"
     | Level | What I see in the team |
     |---|---|
     | N1 | someone computes the metrics once by hand, in a spreadsheet, for a presentation |
-    | N2 | the four metrics are computed automatically from Git, pipeline and incident tool events |
+    | N2 | the five metrics are computed automatically from Git, pipeline and incident tool events |
     | N3 | every incident is linked to its deployment without being asked (mandatory field), and the dashboard updates itself |
     | N4 | the team picks its improvement work from these figures read together, and checks their effect |
 
-    **I measure**: the share of incidents that carry the link to the deployment at fault, read in the incident tool; whether a regular review (monthly for instance) exists where the four figures lead to a written decision.
+    **I measure**: the share of incidents that carry the link to the deployment at fault, read in the incident tool; whether a regular review (monthly for instance) exists where the five figures lead to a written decision.
 
 ## Measuring developer experience: SPACE and DevEx
 

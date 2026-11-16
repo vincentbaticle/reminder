@@ -774,7 +774,7 @@ Une alerte typique combine deux fenêtres : une longue, pour ne pas réveiller q
 ### SLA et indisponibilité tolérée (ITA)
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
-- **<span class="term" data-term="sla">SLA</span> (accord)** : l'engagement écrit envers un client, avec une conséquence s'il n'est pas tenu (avoir, pénalité). Il est toujours plus lâche que le SLO, pour que l'équipe soit alertée bien avant de devoir payer.
+- **<span class="term" data-term="sla">SLA</span> (accord)** : l'engagement écrit envers un client, avec une conséquence s'il n'est pas tenu (avoir, pénalité). Il est en général plus lâche que le SLO, pour que l'équipe soit alertée bien avant de devoir payer : c'est une pratique recommandée, pas une partie de la définition.
 - **<span class="term" data-term="ita">ITA</span> (indisponibilité tolérée)** : le même pourcentage traduit en durée de panne cumulée sur la période. C'est la forme que comprennent le métier et l'astreinte : « on a droit à 43 minutes de panne ce mois-ci ». Le sigle est moins répandu que SLA (à vérifier selon les organisations) ; on croise aussi DMIA (durée maximale d'interruption admissible) ou RTO, qui parlent de la durée d'une seule panne, pas d'un cumul.
 
 ```
@@ -965,7 +965,7 @@ Je sais que l'observabilité marche quand les incidents sont vus plus tôt et co
 [À prendre avec précaution : ordres de grandeur d'exemple, à fixer avec le métier]
 
 !!! noob "As noob"
-    Une pizzeria promet « livrée en 45 minutes ou remboursée » : c'est le SLA, une promesse au client avec une pénalité. En cuisine, l'équipe vise 30 minutes : c'est le SLO, son objectif interne. Le chronomètre de chaque livraison, c'est le SLI. Si les livraisons glissent vers 35 minutes, l'équipe réagit bien avant de rembourser qui que ce soit. La phrase à retenir : **le SLO alerte en interne, le SLA coûte de l'argent, donc le SLO est toujours plus strict.**
+    Une pizzeria promet « livrée en 45 minutes ou remboursée » : c'est le SLA, une promesse au client avec une pénalité. En cuisine, l'équipe vise 30 minutes : c'est le SLO, son objectif interne. Le chronomètre de chaque livraison, c'est le SLI. Si les livraisons glissent vers 35 minutes, l'équipe réagit bien avant de rembourser qui que ce soit. La phrase à retenir : **le SLO alerte en interne, le SLA coûte de l'argent, donc je garde le SLO plus strict.**
 
 ## Pièges à éviter
 

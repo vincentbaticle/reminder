@@ -43,7 +43,7 @@ flowchart LR
 :material-book-open-variant: Doc de référence : [Martin Fowler, « Continuous Integration »](https://martinfowler.com/articles/continuousIntegration.html) (2006, révisé en 2024) ; [Martin Fowler, « ContinuousDelivery »](https://martinfowler.com/bliki/ContinuousDelivery.html) (2013)
 { .doc-ref }
 
-**<span class="term" data-term="sli">SLI</span>, <span class="term" data-term="slo">SLO</span>, <span class="term" data-term="sla">SLA</span>** : le SLI est l'indicateur mesuré, par exemple la part des déploiements du mois qui n'ont provoqué ni incident ni retour arrière (93 %). Le SLO est la cible interne que l'équipe se fixe sur ce SLI, par exemple au moins 90 % sur 30 jours. Le SLA est la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, par exemple 99,5 % de disponibilité par mois, sinon un avoir de 10 % ; il est toujours plus lâche que le SLO, pour que l'équipe réagisse avant de devoir payer. Le détail est dans [Observabilité](observabilite.md#sli-slo-budget-derreur). Chiffres d'exemple.
+**<span class="term" data-term="sli">SLI</span>, <span class="term" data-term="slo">SLO</span>, <span class="term" data-term="sla">SLA</span>** : le SLI est l'indicateur mesuré, par exemple la part des déploiements du mois qui n'ont provoqué ni incident ni retour arrière (93 %). Le SLO est la cible interne que l'équipe se fixe sur ce SLI, par exemple au moins 90 % sur 30 jours. Le SLA est la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, par exemple 99,5 % de disponibilité par mois, sinon un avoir de 10 % ; il est en général plus lâche que le SLO, pour que l'équipe réagisse avant de devoir payer. Le détail est dans [Observabilité](observabilite.md#sli-slo-budget-derreur). Chiffres d'exemple.
 
 **Capability DORA** : une pratique dont les études du programme de recherche DORA (DevOps Research and Assessment, rapports annuels depuis 2014) montrent un lien avec la performance de livraison. Les badges de ce site renvoient à la fiche de chaque capability sur [dora.dev](https://dora.dev/capabilities/).
 
@@ -647,15 +647,18 @@ Sans observabilité, je passe mon canary à 5 % mais je n'ai aucun chiffre pour 
 
 Les <span class="term" data-term="dora-metrics">métriques DORA</span> mesurent le flux de livraison d'une **équipe** (jamais d'une personne) :
 
-| Métrique | Question | Exemple de calcul |
-|---|---|---|
-| fréquence de déploiement | à quelle fréquence livre-t-on ? | 42 déploiements en production sur 30 jours |
-| <span class="term" data-term="lead-time">lead time</span> des changements | combien de temps entre le commit et la production ? | médiane : 1 jour et 4 h |
-| <span class="term" data-term="change-failure-rate">taux d'échec des changements</span> | quelle part des déploiements provoque un incident ou un retour arrière ? | 3 sur 42, soit 7 % |
-| temps de restauration après un déploiement raté | combien de temps pour revenir à la normale ? | médiane : 35 min |
+| Dimension | Métrique | Question | Exemple de calcul |
+|---|---|---|---|
+| débit | fréquence de déploiement | à quelle fréquence livre-t-on ? | 42 déploiements en production sur 30 jours |
+| débit | <span class="term" data-term="lead-time">lead time</span> des changements | combien de temps entre le commit et la production ? | médiane : 1 jour et 4 h |
+| débit | temps de restauration après un déploiement raté | combien de temps pour revenir à la normale ? | médiane : 35 min |
+| instabilité | <span class="term" data-term="change-failure-rate">taux d'échec des changements</span> | quelle part des déploiements demande une intervention immédiate (retour arrière, correctif urgent) ? | 3 sur 42, soit 7 % |
+| instabilité | taux de retravail des déploiements | quelle part des déploiements n'était pas prévue, et sert à corriger un incident en production ? | 4 sur 42, soit 10 % |
+
+Depuis le rapport 2024, DORA compte ces **cinq** métriques, rangées en deux dimensions : le **débit** (*throughput*) et l'**instabilité** (*instability*). Le temps de restauration est classé dans le débit : il mesure à quelle vitesse le flux de livraison repart après un échec. Les quatre premières viennent des rapports 2014 à 2017 résumés dans « Accelerate » (2018), sous le nom de *four keys* ; le taux de retravail les complète, car le taux d'échec ne voit pas les correctifs déployés plus tard, hors urgence.
 
 !!! noob "As noob"
-    C'est le tableau de bord d'une voiture : deux cadrans de vitesse (fréquence, lead time) et deux de sécurité (taux d'échec, temps de restauration). Regarder un seul cadran pousse à rouler vite et mal, ou prudemment et nulle part. La phrase à retenir : **on lit la vitesse et la stabilité ensemble, pour une équipe, jamais pour une personne.**
+    C'est le tableau de bord d'une voiture : trois cadrans pour savoir si j'avance (fréquence, lead time, temps pour repartir après une panne) et deux voyants pour savoir si la voiture tient la route (taux d'échec, retours au garage imprévus). Regarder un seul cadran pousse à rouler vite et mal, ou prudemment et nulle part. La phrase à retenir : **on lit le débit et l'instabilité ensemble, pour une équipe, jamais pour une personne.**
 
 Où se mesure chaque métrique sur le chemin d'un changement :
 
@@ -664,12 +667,13 @@ flowchart LR
   C[commit] -->|"lead time des changements"| P[en production]
   P -->|"fréquence de déploiement :<br/>combien par période"| P
   P --> Q{Le déploiement<br/>provoque un incident ?}
-  Q -->|"non"| OK[vitesse et stabilité]
+  Q -->|"non"| OK[déploiement réussi]
   Q -->|"oui : compte dans le<br/>taux d'échec des changements"| I[service dégradé]
   I -->|"temps de restauration"| R[service rétabli]
+  R -->|"correctif déployé hors plan :<br/>compte dans le taux de retravail"| P
 ```
 
-Les deux premières mesurent la **vitesse**, les deux dernières la **stabilité**. Le message principal de la recherche DORA : les équipes les plus performantes sont meilleures sur les deux à la fois ; aller vite ne se paie pas forcément en stabilité. Les noms exacts et une cinquième métrique (taux de retravail, ajoutée dans le rapport 2024) ont évolué selon les éditions (à vérifier sur dora.dev). Les chiffres du tableau sont des exemples.
+Le message principal de la recherche DORA : les équipes les plus performantes sont meilleures sur le débit et l'instabilité à la fois ; aller vite ne se paie pas forcément en stabilité. Les chiffres du tableau sont des exemples.
 
 **Comment les mesurer** : à partir d'événements que les outils produisent déjà, jamais par une saisie à la main. Trois sources suffisent, reliées par le hash du commit ou l'identifiant du déploiement :
 
@@ -682,31 +686,32 @@ flowchart LR
   E --> LT["Lead time<br/>heure du déploiement moins<br/>heure du commit, médiane"]
   E --> CFR["Taux d'échec<br/>déploiements liés à un incident<br/>ou à un rollback, sur le total"]
   E --> TR["Restauration<br/>fin moins début des incidents<br/>liés à un déploiement"]
+  E --> RW["Retravail<br/>déploiements marqués<br/>correctif d'incident, sur le total"]
 ```
 
 ```
-deploy  sha      env   déployé à         commit le plus ancien  incident lié
-d-101   a1b2c3   prod  2026-10-06 10:12  2026-10-05 16:40       aucun
-d-102   d4e5f6   prod  2026-10-06 15:30  2026-10-06 11:02       inc-7, 35 min
-d-103   0a9b8c   prod  2026-10-07 09:05  2026-10-06 15:45       aucun
+deploy  sha      env   déployé à         commit le plus ancien  incident lié    prévu
+d-101   a1b2c3   prod  2026-10-06 10:12  2026-10-05 16:40       aucun           oui
+d-102   d4e5f6   prod  2026-10-06 15:30  2026-10-06 11:02       inc-7, 35 min   oui
+d-103   0a9b8c   prod  2026-10-07 09:05  2026-10-06 15:45       corrige inc-7   non
 ```
 
-Sur cet extrait (exemple) : 3 déploiements en 2 jours, un lead time de 17 h 32 pour d-101, un taux d'échec de 1 sur 3, une restauration de 35 min. Trois pièges : ne compter que la production, exiger sur chaque incident le lien vers le déploiement en cause (sans lui, le taux d'échec est faux), et compter un rollback comme un échec même sans incident déclaré. Google a publié en 2020 le projet open source [Four Keys](https://github.com/dora-team/fourkeys), qui faisait ce calcul à partir des webhooks de Git et de la CI ; il est archivé depuis, mais son schéma de données reste un bon modèle.
+Sur cet extrait (exemple) : 3 déploiements en 2 jours, un lead time de 17 h 32 pour d-101, un taux d'échec de 1 sur 3 (d-102, annulé par un retour arrière), une restauration de 35 min, et un taux de retravail de 1 sur 3 (d-103, le vrai correctif livré le lendemain hors plan). Quatre pièges : ne compter que la production, exiger sur chaque incident le lien vers le déploiement en cause (sans lui, le taux d'échec est faux), compter un rollback comme un échec même sans incident déclaré, et marquer à la création chaque déploiement qui corrige un incident (sans ce marquage, le retravail est invisible). Google a publié en 2020 le projet open source [Four Keys](https://github.com/dora-team/fourkeys), qui faisait ce calcul à partir des webhooks de Git et de la CI ; il est archivé depuis, mais son schéma de données reste un bon modèle.
 
 Source : Nicole Forsgren, Jez Humble et Gene Kim, « Accelerate » (2018), et les rapports « State of DevOps » de DORA.
 
-:material-book-open-variant: Doc de référence : [DORA, « DORA's software delivery metrics: the four keys »](https://dora.dev/guides/dora-metrics-four-keys/) (consultée en novembre 2026) ; [DORA, Research](https://dora.dev/research/) (consultée en novembre 2026)
+:material-book-open-variant: Doc de référence : [DORA, « DORA's software delivery performance metrics »](https://dora.dev/guides/dora-metrics/) (consultée en novembre 2026) ; [DORA, Research](https://dora.dev/research/) (consultée en novembre 2026)
 { .doc-ref }
 
 !!! maturity "Mesurer la maturité"
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
     | N1 | quelqu'un calcule une fois les métriques à la main, dans un tableur, pour une présentation |
-    | N2 | les quatre métriques sont calculées automatiquement à partir des événements de Git, du pipeline et de l'outil d'incident |
+    | N2 | les cinq métriques sont calculées automatiquement à partir des événements de Git, du pipeline et de l'outil d'incident |
     | N3 | chaque incident est relié à son déploiement sans qu'on le demande (champ obligatoire), et le tableau se met à jour seul |
     | N4 | l'équipe choisit ses chantiers d'amélioration à partir de ces chiffres lus ensemble, et vérifie leur effet |
 
-    **Je mesure** : la part des incidents qui portent le lien vers le déploiement en cause, lue dans l'outil d'incident ; l'existence d'une revue régulière (mensuelle par exemple) où les quatre chiffres mènent à une décision écrite.
+    **Je mesure** : la part des incidents qui portent le lien vers le déploiement en cause, lue dans l'outil d'incident ; l'existence d'une revue régulière (mensuelle par exemple) où les cinq chiffres mènent à une décision écrite.
 
 ## Mesurer l'expérience développeur : SPACE et DevEx
 

@@ -774,7 +774,7 @@ At 14.4, the 30-day budget would be empty in just over 2 days.
 ### SLA and tolerated downtime (ITA)
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-- **<span class="term" data-term="sla">SLA</span> (agreement)**: the written commitment to a client, with a consequence when it is not met (service credit, penalty). It is always looser than the SLO, so the team is alerted well before it has to pay.
+- **<span class="term" data-term="sla">SLA</span> (agreement)**: the written commitment to a client, with a consequence when it is not met (service credit, penalty). It is usually looser than the SLO, so the team is alerted well before it has to pay: a recommended practice, not part of the definition.
 - **<span class="term" data-term="ita">ITA</span> (tolerated downtime, from the French "indisponibilité tolérée")**: the same percentage turned into total downtime over the period. It is the form the business and on-call people understand: "we are allowed 43 minutes of outage this month". The acronym is less common than SLA (to check depending on the organisation); we also meet MTD (maximum tolerable downtime) or RTO, which talk about the length of a single outage, not a total.
 
 ```
@@ -965,7 +965,7 @@ I know observability works when incidents are seen earlier and understood faster
 [Take with caution: example orders of magnitude, to set with the business]
 
 !!! noob "As noob"
-    A pizzeria promises "delivered in 45 minutes or your money back": that is the SLA, a promise to the customer with a penalty. In the kitchen, the team aims for 30 minutes: that is the SLO, its internal target. The stopwatch on each delivery is the SLI. If deliveries drift towards 35 minutes, the team reacts long before refunding anyone. The takeaway: **the SLO raises the alarm internally, the SLA costs money, so the SLO is always stricter.**
+    A pizzeria promises "delivered in 45 minutes or your money back": that is the SLA, a promise to the customer with a penalty. In the kitchen, the team aims for 30 minutes: that is the SLO, its internal target. The stopwatch on each delivery is the SLI. If deliveries drift towards 35 minutes, the team reacts long before refunding anyone. The takeaway: **the SLO raises the alarm internally, the SLA costs money, so I keep the SLO stricter.**
 
 ## Pitfalls to avoid
 

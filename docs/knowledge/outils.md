@@ -38,7 +38,7 @@ Les services `orders-service`, `catalog-service`, `report-service` et `email-ser
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective) : la cible interne fixée sur un SLI. Exemple : « plus vieux message de moins de 60 s, 99 % du temps ».
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO. Exemple : un fournisseur cloud qui rembourse une partie de la facture sous 99,9 % de disponibilité mensuelle.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO. Exemple : un fournisseur cloud qui rembourse une partie de la facture sous 99,9 % de disponibilité mensuelle.
 
 ## Lire les mini benchmarks
 

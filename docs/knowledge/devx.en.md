@@ -54,7 +54,7 @@ What already lives elsewhere is not repeated here: DORA metrics, SPACE and the D
 
 **<span class="term" data-term="slo">SLO</span>** (*Service Level Objective*): the internal target the team sets on an SLI. Example: "p95 CI under 15 minutes, four weeks out of five".
 
-**<span class="term" data-term="sla">SLA</span>** (*Service Level Agreement*): the contractual promise made to a customer, with a penalty when it is not kept, always looser than the SLO to keep a margin. Example: a remote environment vendor that refunds part of the subscription below 99.5% monthly availability.
+**<span class="term" data-term="sla">SLA</span>** (*Service Level Agreement*): the contractual promise made to a customer, with a penalty when it is not kept, usually looser than the SLO to keep a margin. Example: a remote environment vendor that refunds part of the subscription below 99.5% monthly availability.
 
 | Word | Question it asks | Example measure |
 |---|---|---|

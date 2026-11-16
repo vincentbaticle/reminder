@@ -44,7 +44,7 @@ CLS   unexpected shifts of content during loading              good: 0.1 or less
 
 **<span class="term" data-term="slo">SLO</span>** (service level objective): the internal target the team sets on an SLI. Example: LCP under 2.5 s over a rolling 28 days.
 
-**<span class="term" data-term="sla">SLA</span>** (service level agreement): the contractual promise made to a customer, with a penalty if it is not met, always looser than the SLO. A consumer front end usually has none.
+**<span class="term" data-term="sla">SLA</span>** (service level agreement): the contractual promise made to a customer, with a penalty if it is not met, usually looser than the SLO. A consumer front end usually has none.
 
 | I want... | I look at... |
 |---|---|

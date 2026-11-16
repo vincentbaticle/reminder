@@ -75,7 +75,7 @@ erDiagram
 
 **<span class="term" data-term="slo">SLO</span>** : l'objectif interne que l'équipe se fixe sur ce SLI. Exemple : 95 % de ces requêtes sous 50 ms sur 30 jours glissants.
 
-**<span class="term" data-term="sla">SLA</span>** : la promesse faite par contrat à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO pour garder de la marge. Exemple : la base de l'application disponible 99,9 % du mois, sinon un avoir sur la facture.
+**<span class="term" data-term="sla">SLA</span>** : la promesse faite par contrat à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO pour garder de la marge. Exemple : la base de l'application disponible 99,9 % du mois, sinon un avoir sur la facture.
 
 :material-book-open-variant: Doc de référence : [PostgreSQL, Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html) (version 18, 2025) ; [MySQL, FOREIGN KEY Constraints](https://dev.mysql.com/doc/refman/8.4/en/create-table-foreign-keys.html) (MySQL 8.4)
 { .doc-ref }

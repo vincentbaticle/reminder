@@ -1,5 +1,5 @@
 site_name: Reminder
-site_description: Pense-bêtes perso
+site_description: Pense-bêtes d'ingénierie logicielle en français et en anglais (architecture, API, sécurité, tests, livraison, observabilité, IA) avec une définition, un exemple et quand utiliser quoi
 site_url: https://vincentbaticle.github.io/reminder/
 repo_url: https://github.com/vincentbaticle/reminder
 docs_dir: docs
@@ -58,6 +58,7 @@ plugins:
         - locale: en
           name: English
           build: true
+          site_description: Software engineering cheat sheets in French and English (architecture, APIs, security, testing, delivery, observability, AI) with a definition, an example and when to use what
           copyright: Content under the CC BY 4.0 license, provided as is, without any warranty. Not a source of truth.
           nav_translations:
             Accueil: Home

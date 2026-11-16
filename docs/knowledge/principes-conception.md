@@ -57,7 +57,7 @@ Cette page présente SOLID, son contraire STUPID, puis les principes voisins (KI
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective, objectif de niveau de service) : la cible interne que je me fixe sur ce chiffre, par exemple « un seul module touché pour un changement de règle métier, dans 9 MR sur 10 ».
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO. Un principe de conception est une pratique interne : il n'a pas de SLA, sauf indirectement quand il sert un engagement client, comme la disponibilité d'une API.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO. Un principe de conception est une pratique interne : il n'a pas de SLA, sauf indirectement quand il sert un engagement client, comme la disponibilité d'une API.
 
 ## SOLID
 

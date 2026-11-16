@@ -88,7 +88,7 @@ avec broker   orders-service --publie OrderPaid--> [broker] --> email-service li
 
 **<span class="term" data-term="slo">SLO</span>** (service level objective) : l'objectif interne que l'équipe se fixe sur un SLI, sur une fenêtre de temps. Exemple : 99,9 % de ces requêtes réussies sur 30 jours glissants.
 
-**<span class="term" data-term="sla">SLA</span>** (service level agreement) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, toujours plus lâche que le SLO pour garder une marge. Exemple : 99,5 % par mois, sinon un avoir de 10 % sur la facture.
+**<span class="term" data-term="sla">SLA</span>** (service level agreement) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, en général plus lâche que le SLO pour garder une marge. Exemple : 99,5 % par mois, sinon un avoir de 10 % sur la facture.
 
 | Je veux... | Je regarde... |
 |---|---|
@@ -624,6 +624,16 @@ Chaque section qui suit est une réponse à l'une de ces illusions.
 
 Le **<span class="term" data-term="cap-theorem">théorème CAP</span>** (conjecture d'Eric Brewer en 2000, démontrée par Seth Gilbert et Nancy Lynch en 2002) : quand une **<span class="term" data-term="network-partition">partition réseau</span>** coupe le système en deux, il faut choisir entre **cohérence** (refuser de répondre plutôt que répondre faux) et **disponibilité** (répondre avec une donnée peut-être ancienne). Les partitions ne se choisissent pas : le vrai choix est C ou A pendant la coupure.
 
+Les trois lettres ont un sens précis dans la démonstration de 2002, plus strict que leur sens courant, et c'est ce que vérifie une question d'entretien d'architecture :
+
+| Lettre | Sens formel | Ce que ça exclut |
+|---|---|---|
+| C | **linéarisabilité** : tout se passe comme s'il n'y avait qu'une seule copie ; dès qu'une écriture est confirmée, toute lecture, sur n'importe quel nœud, voit cette valeur ou une plus récente | la cohérence à terme, ou « lire ses propres écritures » seulement |
+| A | **chaque requête reçue par un nœud qui n'est pas en panne obtient une réponse**, autre qu'une erreur, sans limite de temps imposée | un système qui répond seulement sur la partie majoritaire du cluster |
+| P | le système continue de fonctionner quand des messages entre nœuds sont perdus, en nombre quelconque | rien : sur un vrai réseau, les coupures arrivent |
+
+Conséquence : beaucoup de bases ne sont ni « CP » ni « AP » au sens strict. Une base avec un leader et des réplicas lus en asynchrone n'est pas linéarisable (donc pas C), et refuse les écritures du côté coupé du leader (donc pas A). Martin Kleppmann propose pour ça, dans « Please stop calling databases CP or AP » (2015), de décrire plutôt le niveau de cohérence offert et le comportement pendant une coupure.
+
 **<span class="term" data-term="pacelc">PACELC</span>** (Daniel Abadi, 2012) complète : s'il y a **P**artition, choisir **A** ou **C** ; **E**lse (sinon, en temps normal), choisir entre **L**atence et **C**ohérence. C'est le cas le plus fréquent : attendre la confirmation de tous les réplicas rend chaque écriture plus lente.
 
 !!! noob "As noob"
@@ -649,7 +659,7 @@ flowchart TD
 
 **Risques.** L'ignorer, c'est promettre au métier un système « toujours disponible et toujours juste », puis découvrir pendant la première coupure qu'il répond faux ou plus du tout, sans que personne ait choisi lequel. Je fais choisir à l'avance, donnée par donnée, entre refuser et répondre avec une valeur peut-être ancienne, et j'écris ce choix dans un ADR.
 
-:material-book-open-variant: Doc de référence : [Seth Gilbert et Nancy Lynch, « Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services »](https://dl.acm.org/doi/10.1145/564585.564601) (2002) ; [Daniel Abadi, « Consistency Tradeoffs in Modern Distributed Database System Design »](https://www.cs.umd.edu/~abadi/papers/abadi-pacelc.pdf) (2012)
+:material-book-open-variant: Doc de référence : [Seth Gilbert et Nancy Lynch, « Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services »](https://dl.acm.org/doi/10.1145/564585.564601) (2002) ; [Martin Kleppmann, « Please stop calling databases CP or AP »](https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap.html) (mai 2015) ; [Daniel Abadi, « Consistency Tradeoffs in Modern Distributed Database System Design »](https://www.cs.umd.edu/~abadi/papers/abadi-pacelc.pdf) (2012)
 { .doc-ref }
 
 ### Cohérence forte ou à terme
@@ -1785,7 +1795,7 @@ Piège : un flag est une dette. Chaque flag oublié double les chemins à tester
 | livrer `orders-service` sans attendre que l'équipe facturation ait fini sa version | des services ou modules déployables seuls, avec des contrats compatibles |
 | renommer une colonne ou un champ d'API sans coupure, alors que l'ancienne et la nouvelle version tournent en même temps pendant le déploiement | expand and contract |
 | fusionner tous les jours une fonctionnalité qui ne sera prête que dans trois semaines | un feature flag éteint |
-| savoir si mon architecture freine la livraison | les quatre métriques DORA, et le nombre d'équipes à coordonner par mise en production |
+| savoir si mon architecture freine la livraison | les cinq métriques DORA, et le nombre d'équipes à coordonner par mise en production |
 
 :material-book-open-variant: Doc de référence : [Jez Humble, continuousdelivery.com](https://continuousdelivery.com/) (consultée en novembre 2026) ; [Danilo Sato, « ParallelChange »](https://martinfowler.com/bliki/ParallelChange.html) (2014)
 { .doc-ref }
@@ -1796,7 +1806,7 @@ Piège : un flag est une dette. Chaque flag oublié double les chemins à tester
     | N1 | l'équipe sait faire un expand and contract ou poser un feature flag, mais seulement pour les changements qui font peur |
     | N2 | chaque changement de schéma suit expand and contract, chaque fonctionnalité non finie part derrière un flag avec un responsable et une date de retrait, et chaque service se déploie seul |
     | N3 | la CI refuse une migration cassante (renommage, suppression d'une colonne encore lue), et un flag dont la date de retrait est dépassée fait échouer le pipeline |
-    | N4 | l'équipe suit les quatre métriques DORA et le nombre d'équipes à coordonner par mise en production, et s'attaque d'abord au couplage qui les freine |
+    | N4 | l'équipe suit les cinq métriques DORA et le nombre d'équipes à coordonner par mise en production, et s'attaque d'abord au couplage qui les freine |
 
     **Je mesure** : la fréquence de déploiement par service et le délai entre fusion et production, lus dans l'outil de CI/CD ; le nombre de flags plus vieux que leur date de retrait, lu dans l'outil de flags.
 
@@ -2261,7 +2271,7 @@ Pièges :
 
 ## Mesurer le succès
 
-Une solution d'architecture marche quand un chiffre bouge dans le bon sens sans qu'un autre se dégrade. Avant de changer quoi que ce soit, je relève une base : la disponibilité, la latence p99 ou la fréquence de livraison des quatre dernières semaines, par exemple. Après le changement, je relève la même mesure, de la même façon, sur une fenêtre de même durée, pour ne pas comparer une semaine de soldes à une semaine creuse. Et je choisis une métrique de garde qui ne doit pas bouger : ajouter un cache ne doit pas faire apparaître de prix faux, découper en services ne doit pas faire baisser la disponibilité de la chaîne. Le chiffre suivi est un SLI, l'objectif que l'équipe se fixe dessus est un SLO, et la promesse faite à un client avec pénalité est un SLA, toujours plus lâche que le SLO.
+Une solution d'architecture marche quand un chiffre bouge dans le bon sens sans qu'un autre se dégrade. Avant de changer quoi que ce soit, je relève une base : la disponibilité, la latence p99 ou la fréquence de livraison des quatre dernières semaines, par exemple. Après le changement, je relève la même mesure, de la même façon, sur une fenêtre de même durée, pour ne pas comparer une semaine de soldes à une semaine creuse. Et je choisis une métrique de garde qui ne doit pas bouger : ajouter un cache ne doit pas faire apparaître de prix faux, découper en services ne doit pas faire baisser la disponibilité de la chaîne. Le chiffre suivi est un SLI, l'objectif que l'équipe se fixe dessus est un SLO, et la promesse faite à un client avec pénalité est un SLA, en général plus lâche que le SLO.
 
 | Solution ou situation | Indicateur de succès (SLI) | SLO probable | SLA probable |
 |---|---|---|---|

@@ -46,7 +46,7 @@ Les lois qui portent un nom (Conway, Brooks, Hyrum, Goodhart...) sont expliquée
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective, objectif de niveau de service) : la cible interne que je me fixe sur ce chiffre, par exemple 99,9 % de requêtes réussies sur 30 jours.
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, par exemple 99,5 % par mois avec un avoir en dessous ; toujours plus lâche que le SLO. Lire un texte n'a pas de SLA : seules les pratiques qui en découlent et touchent un service client en ont un.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement, accord de niveau de service) : la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue, par exemple 99,5 % par mois avec un avoir en dessous ; en général plus lâche que le SLO. Lire un texte n'a pas de SLA : seules les pratiques qui en découlent et touchent un service client en ont un.
 
 Exemple : lire une citation d'article comme une fiche d'identité.
 
@@ -716,9 +716,9 @@ Le livre blanc AWS « Disaster Recovery of Workloads on AWS » (2021) est cité 
 
 ### Forsgren, Humble et Kim, « Accelerate » (2018)
 
-**Ce qu'il dit.** Le livre explique la méthode et les résultats des rapports 2014 à 2017 : quatre métriques (fréquence de déploiement, délai de livraison, taux d'échec des changements, temps de restauration) et vingt-quatre capacités qui les améliorent, du trunk-based development à la culture d'équipe.
+**Ce qu'il dit.** Le livre explique la méthode et les résultats des rapports 2014 à 2017 : quatre métriques (fréquence de déploiement, délai de livraison, taux d'échec des changements, temps de restauration) et vingt-quatre capacités qui les améliorent, du trunk-based development à la culture d'équipe. DORA y a ajouté une cinquième métrique en 2024, le taux de retravail des déploiements.
 **Pourquoi il compte encore.** Il a montré que vitesse et stabilité vont ensemble, ce qui a mis fin à beaucoup de débats « on ralentit pour être plus sûrs ».
-**Citer en entretien.** « Accelerate (2018) montre que les équipes qui livrent souvent ont aussi moins d'échecs ; je mesure les quatre métriques ensemble, jamais une seule. »
+**Citer en entretien.** « Accelerate (2018) montre que les équipes qui livrent souvent ont aussi moins d'échecs ; je mesure les métriques DORA ensemble, jamais une seule. »
 **Dans ce pense-bête.** [Mesurer la livraison : DORA](livraison.md#mesurer-la-livraison-dora).
 
 **Risques.** Prises comme objectifs, les métriques DORA se font contourner, par exemple avec des déploiements vides pour gonfler la fréquence : c'est la loi de Goodhart. L'étude montre une corrélation sur des données d'enquête, pas une recette garantie pour mon équipe. Je suis les métriques par paires, au niveau de l'équipe, et je compare mon équipe à elle-même dans le temps plutôt qu'aux autres.
@@ -730,7 +730,7 @@ Le livre blanc AWS « Disaster Recovery of Workloads on AWS » (2021) est cité 
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
     | N1 | les mises en production sont rares et manuelles, avec une procédure connue d'une ou deux personnes |
-    | N2 | un pipeline de déploiement unique construit, teste et déploie chaque commit, et les quatre métriques DORA sont calculées |
+    | N2 | un pipeline de déploiement unique construit, teste et déploie chaque commit, et les cinq métriques DORA sont calculées |
     | N3 | le pipeline déploie et revient en arrière seul sur alerte, et aucune mise en production ne demande d'étape manuelle |
     | N4 | l'équipe suit les métriques DORA par paires (fréquence et taux d'échec, délai et temps de restauration) et choisit ses chantiers d'amélioration d'après elles |
 

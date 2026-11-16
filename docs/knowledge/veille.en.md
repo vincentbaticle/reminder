@@ -29,7 +29,7 @@ Tech watch means keeping up with what changes in my job (tools, practices, ideas
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective): the internal target I set on that number, for example "at least one trial a month, eleven months out of twelve".
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, always looser than the SLO. A personal or team tech watch has no external customer, so no SLA.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, usually looser than the SLO. A personal or team tech watch has no external customer, so no SLA.
 
 ## Why, when and how
 

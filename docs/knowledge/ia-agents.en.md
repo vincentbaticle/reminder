@@ -162,7 +162,7 @@ Bigger means slower and more expensive, but fewer mistakes on hard work. A sub-a
 
 **<span class="term" data-term="slo">SLO</span>** (Service Level Objective): the internal target I set on that number, for example "at least 7 tasks out of 10 merged without a rewrite, over a month".
 
-**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, always looser than the SLO. Internal use of agents has none; a product that sells an agent to customers, like a paid review bot, can have one.
+**<span class="term" data-term="sla">SLA</span>** (Service Level Agreement): the contractual promise made to a customer, with a penalty if it is not kept, usually looser than the SLO. Internal use of agents has none; a product that sells an agent to customers, like a paid review bot, can have one.
 
 :material-book-open-variant: Reference docs: [Anthropic, Glossary](https://docs.claude.com/en/docs/about-claude/glossary) (accessed November 2026)
 { .doc-ref }

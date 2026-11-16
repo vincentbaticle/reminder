@@ -22,7 +22,7 @@ L'<span class="term" data-term="observability">observabilité</span>, c'est la c
 
 La page suit l'ordre d'une enquête : les trois signaux, puis le détail des traces, la façon de les collecter, de réduire leur volume, et comment en tirer des objectifs et des <span class="term" data-term="alert-monitoring">alertes</span>. Elle finit par un cas concret.
 
-Les routes métier et les chiffres sont des exemples. `my-api` est un service fictif. Les termes API, route et codes HTTP sont définis dans la page [Kubernetes](kubernetes.md#vocabulaire).
+Les routes métier et les chiffres sont des exemples. `my-api` est un service fictif. Les termes API et route sont définis dans le [Vocabulaire de la page API](api-rest-async.md#vocabulaire), les codes HTTP dans [Les codes de réponse](api-rest-async.md#les-codes-de-reponse).
 
 :material-swap-horizontal: Les outils cités dans cette page : lesquels se remplacent, lesquels se combinent ? Voir [Complémentaires ou concurrents](outils.md#complementaires-ou-concurrents).
 { .doc-ref }

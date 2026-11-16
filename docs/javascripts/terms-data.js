@@ -6752,6 +6752,36 @@ window.REMINDER_TERMS = {
    "definition": "Manipuler une personne pour obtenir un accès ou une information, au lieu d’attaquer la technique.",
    "example": "Un faux technicien appelle le support : « je suis en déplacement, réinitialisez mon MFA », et obtient l’accès au compte.",
    "example_is_code": false
+  },
+  "container-registry": {
+   "term": "Registre d'images",
+   "definition": "Serveur qui stocke les images de conteneurs, rangées par nom et par tag. La CI y pousse les images qu'elle construit, et le cluster y tire celle qu'un pod doit lancer.",
+   "example": "docker push registry.example.com/my-api:1.4.1",
+   "example_is_code": true
+  },
+  "k8s-namespace": {
+   "term": "Namespace (Kubernetes)",
+   "definition": "Espace de noms dans un cluster Kubernetes : les noms des ressources n'ont à être uniques qu'à l'intérieur, et les quotas et les droits se posent par namespace. On en fait souvent un par équipe ou par environnement.",
+   "example": "kubectl get pods -n my-team",
+   "example_is_code": true
+  },
+  "kubectl": {
+   "term": "kubectl",
+   "definition": "Client en ligne de commande de l'API d'un cluster Kubernetes : lister les ressources, décrire un pod, lire ses logs, appliquer un manifeste.",
+   "example": "kubectl describe pod my-api-7f9c-abcde -n my-team",
+   "example_is_code": true
+  },
+  "gitops": {
+   "term": "GitOps",
+   "definition": "Façon de déployer où un dépôt Git décrit l'état voulu du système, et où un agent installé dans le cluster l'applique et corrige tout écart. Déployer, c'est fusionner une MR ; revenir en arrière, c'est l'annuler.",
+   "example": "Une MR passe image.tag de 1.4.0 à 1.4.1 dans values-prod.yaml ; une fois fusionnée, les pods de prod passent en 1.4.1 sans que personne ne lance de commande.",
+   "example_is_code": false
+  },
+  "argo-cd": {
+   "term": "Argo CD",
+   "definition": "Outil GitOps de la CNCF, installé dans le cluster Kubernetes : il surveille un dépôt Git, génère les manifestes (Helm, Kustomize ou YAML brut), les applique, et signale ou corrige tout écart entre Git et le cluster.",
+   "example": "$ argocd app get my-api-prod\nSync Status:   OutOfSync from main (a1b2c3d)\nHealth Status: Healthy",
+   "example_is_code": true
   }
  },
  "en": {
@@ -13504,6 +13534,36 @@ window.REMINDER_TERMS = {
    "definition": "Manipulating a person to get access or information, instead of attacking the technology.",
    "example": "A fake technician calls the help desk: \"I'm on the road, reset my MFA\", and gets access to the account.",
    "example_is_code": false
+  },
+  "container-registry": {
+   "term": "Image registry",
+   "definition": "Server that stores container images, organized by name and tag. CI pushes the images it builds there, and the cluster pulls the one a pod has to start.",
+   "example": "docker push registry.example.com/my-api:1.4.1",
+   "example_is_code": true
+  },
+  "k8s-namespace": {
+   "term": "Namespace (Kubernetes)",
+   "definition": "Name space inside a Kubernetes cluster: resource names only need to be unique inside it, and quotas and permissions are set per namespace. Teams often get one per team or per environment.",
+   "example": "kubectl get pods -n my-team",
+   "example_is_code": true
+  },
+  "kubectl": {
+   "term": "kubectl",
+   "definition": "Command-line client of a Kubernetes cluster API: list resources, describe a pod, read its logs, apply a manifest.",
+   "example": "kubectl describe pod my-api-7f9c-abcde -n my-team",
+   "example_is_code": true
+  },
+  "gitops": {
+   "term": "GitOps",
+   "definition": "A way of deploying where a Git repository describes the desired state of the system, and an agent installed in the cluster applies it and fixes any drift. Deploying means merging an MR; rolling back means reverting it.",
+   "example": "An MR sets image.tag from 1.4.0 to 1.4.1 in values-prod.yaml; once merged, the production pods move to 1.4.1 without anyone running a command.",
+   "example_is_code": false
+  },
+  "argo-cd": {
+   "term": "Argo CD",
+   "definition": "CNCF GitOps tool installed in the Kubernetes cluster: it watches a Git repository, renders the manifests (Helm, Kustomize or plain YAML), applies them, and reports or fixes any gap between Git and the cluster.",
+   "example": "$ argocd app get my-api-prod\nSync Status:   OutOfSync from main (a1b2c3d)\nHealth Status: Healthy",
+   "example_is_code": true
   }
  }
 };

@@ -27,65 +27,42 @@ Ports, <span class="term" data-term="yaml">YAML</span> values and business route
 
 ## Terminology
 
-### API, route, JSON
-An **<span class="term" data-term="api">API</span>** is a service's front door for other programs. A **<span class="term" data-term="endpoint">route</span>** (or endpoint) is one specific address of that API. Responses are often in **<span class="term" data-term="json">JSON</span>**, a text data format.
-``` { .text .ex-illus title="Illustration" }
-GET /readyz         health route
-GET /v1/orders/42          business route
-{"id": 42, "title": "..."}   JSON response
+The general web notions this page uses have their own page: API, route and JSON in the [API page Terminology](api-rest-async.md#terminology), HTTP codes in [Response codes](api-rest-async.md#response-codes), caching in [Where to put a cache](architecture.md#where-to-put-a-cache), SLI, SLO and SLA in [SLI, SLO, error budget](observabilite.md#sli-slo-error-budget). Here, only the words of deployment.
+
+### The path of a change to the pod
+
+I fixed a bug in `my-api` and I want the fix to run in production. Between my MR and the pod that answers, the same words keep coming back. The drawing puts them in order, the table defines them, and each one has its own section further down.
+
+```mermaid
+flowchart LR
+  Dev["merged MR<br/>my-api repo"] --> CI["CI<br/>docker build"]
+  CI -->|"push my-api:1.4.1"| Reg[("image<br/>registry")]
+  CI -->|"MR image.tag: 1.4.1"| Cfg["config repo<br/>Helm values"]
+  Cfg --> Argo["Argo CD<br/>renders the manifests"]
+  Argo -->|"applies"| API["Kubernetes cluster<br/>API server"]
+  API --> Pod["my-api 1.4.1 pods<br/>namespace my-team"]
+  Reg -.->|"pulls the image"| Pod
 ```
 
-:material-book-open-variant: Reference docs: [RFC 8259, The JSON Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259) (2017); [MDN, HTTP overview](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview) (accessed November 2026)
-{ .doc-ref }
-
-### HTTP codes and timeout
-Every <span class="term" data-term="http-response">HTTP response</span> carries a <span class="term" data-term="http-status-code">code</span> that says how things went.
-
-| Code      | Meaning                                           |
-|-----------|---------------------------------------------------|
-| `200`     | OK                                                |
-| `404`     | resource not found                                |
-| `500`     | internal service error                            |
-| `503`     | service unavailable for now (for example its database does not answer) |
-| <span class="term" data-term="timeout">timeout</span>   | no answer at all within the expected delay        |
-
-
-:material-book-open-variant: Reference docs: [RFC 9110, HTTP Semantics, status codes](https://www.rfc-editor.org/rfc/rfc9110#name-status-codes) (2022); [MDN, HTTP response status codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) (accessed November 2026)
-{ .doc-ref }
-
-### Cache
-A temporary copy of some data, kept close at hand to answer faster without recomputing everything. The trade-off: the copy can lag behind the real data.
-
-:material-book-open-variant: Reference docs: [MDN, HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching) (accessed November 2026)
-{ .doc-ref }
-
-### Deadlock
-Two processes wait for each other and neither can move forward. The application is running but no longer answers.
-``` { .text .ex-illus title="Illustration" }
-process A : holds row 1, waits for row 2
-process B : holds row 2, waits for row 1
-```
-
-:material-book-open-variant: Reference docs: [PostgreSQL, Deadlocks](https://www.postgresql.org/docs/current/explicit-locking.html#LOCKING-DEADLOCKS) (version 18, 2025)
-{ .doc-ref }
-
-### SLI, SLO, SLA
-An **<span class="term" data-term="sli">SLI</span>** is the measured indicator, an **<span class="term" data-term="slo">SLO</span>** the internal target the team sets on that indicator, an **<span class="term" data-term="sla">SLA</span>** the contractual promise made to a customer, with a penalty if it is not kept. The SLA is usually looser than the SLO, so the team reacts before it has to pay. A worked example (example figures), details in [Observability](observabilite.md#sli-slo-error-budget):
-``` { .text .ex-illus title="Illustration" }
-SLI   share of my-api requests with no 5xx this month   99.93%
-SLO   the team's internal target                        99.9% over 30 days
-SLA   promised to the customer, 10% credit otherwise    99.5% per month
-```
-
-:material-book-open-variant: Reference docs: [Google SRE book, Service Level Objectives](https://sre.google/sre-book/service-level-objectives/) (2016)
-{ .doc-ref }
+| Word | What it is | Example | Details |
+|---|---|---|---|
+| <span class="term" data-term="container">container</span> | an isolated process that carries its application and its libraries, so it runs the same on my laptop, in CI and in production | `my-api` runs with Python 3.12 even if the machine has Python 3.9 | [Container](#container) |
+| <span class="term" data-term="docker-image">image</span> | the frozen template of a container, built once by CI from a `Dockerfile` | the `my-api` image at version 1.4.1 | [Docker: the image](#docker-the-image) |
+| <span class="term" data-term="image-tag">image tag</span> | the version label written after the colon: changing the tag means choosing which version runs | `my-api:1.4.1` | [Docker: the image](#docker-the-image) |
+| <span class="term" data-term="container-registry">image registry</span> | the server where CI stores images, and where the cluster fetches them when a pod starts | `registry.example.com/my-api` | [Docker: the image](#docker-the-image) |
+| <span class="term" data-term="k8s-manifest">manifest</span> | a YAML file that describes a desired resource (a Deployment, a Service): Kubernetes makes reality match it | `kind: Deployment` with `replicas: 3` | [Deployment](#deployment) |
+| <span class="term" data-term="k8s-namespace">namespace</span> | a name space inside the cluster that separates the resources of a team or an environment | `my-team`, `preview-mr-42` | [Namespace and kubectl](#namespace-and-kubectl) |
+| <span class="term" data-term="kubectl">kubectl</span> | the command line that talks to the cluster API: read the state, describe a pod, read its logs | `kubectl get pods -n my-team` | [Namespace and kubectl](#namespace-and-kubectl) |
+| <span class="term" data-term="helm-chart">Helm</span>, chart, values | a template of manifests with holes (the chart), filled by a different values file per environment | `values-prod.yaml` holds `replicaCount: 3` | [Helm](#helm-the-deployment-template) |
+| <span class="term" data-term="gitops">GitOps</span> | the rule "what runs is what Git describes": I deploy through an MR, never with a command by hand | an MR that sets `image.tag` to `1.4.1` | [Argo CD](#argo-cd-git-decides-what-runs) |
+| <span class="term" data-term="argo-cd">Argo CD</span> | the GitOps tool installed in the cluster: it reads the config repo, renders the manifests, applies them, then fixes any drift | the `my-api-prod` application goes from `OutOfSync` to `Synced` | [Argo CD](#argo-cd-git-decides-what-runs) |
 
 ### Kubernetes, cluster, node
 
 *Kubernetes: competes with Cloud Run; complements Docker, Helm, Argo CD*
 { .tool-rel }
 
-**<span class="term" data-term="kubernetes">Kubernetes</span>** (often shortened to K8s) is the system that launches applications in <span class="term" data-term="container">containers</span>, watches them, restarts them and spreads the <span class="term" data-term="network-traffic">traffic</span>. A **<span class="term" data-term="cluster">cluster</span>** is the set of machines it manages, and each machine is a **<span class="term" data-term="node-k8s">node</span>**.
+**<span class="term" data-term="kubernetes">Kubernetes</span>** (often shortened to K8s) is the system that launches applications in containers, watches them, restarts them and spreads the <span class="term" data-term="network-traffic">traffic</span>. A **<span class="term" data-term="cluster">cluster</span>** is the set of machines it manages, and each machine is a **<span class="term" data-term="node-k8s">node</span>**.
 ``` { .text .ex-illus title="Illustration" }
 cluster prod
 ├─ node 1 : pod my-api-abcde, pod worker-x1
@@ -116,6 +93,35 @@ flowchart LR
 ```
 
 :material-book-open-variant: Reference docs: [Kubernetes, Cluster Architecture](https://kubernetes.io/docs/concepts/architecture/) (accessed November 2026); [Kubernetes, Nodes](https://kubernetes.io/docs/concepts/architecture/nodes/) (accessed November 2026)
+{ .doc-ref }
+
+### Namespace and kubectl
+
+In a shared cluster, two teams each want a Service called `api`, and the platform team wants to cap what each one consumes. A **namespace** solves this: it is a name space, names only need to be unique inside it, and quotas and permissions are set per namespace. **kubectl** is the command-line client of the cluster API. When Argo CD drives the cluster, I use it to read and diagnose, not to change what runs: a change made with kubectl would be undone at the next sync.
+
+``` { .text .ex-ref title="Reference" }
+$ kubectl get namespaces
+NAME            STATUS   AGE
+my-team         Active   210d
+preview-mr-42   Active   2d
+
+$ kubectl get pods -n my-team
+NAME                 READY   STATUS    RESTARTS   AGE
+my-api-7f9c-abcde    1/1     Running   0          3h
+my-api-7f9c-fghij    1/1     Running   0          3h
+
+$ kubectl describe pod my-api-7f9c-abcde -n my-team
+$ kubectl logs my-api-7f9c-abcde -n my-team --previous
+```
+
+| I want... | I use... |
+|---|---|
+| to know whether my service's pods are running and how many times they restarted since this morning's deployment | `kubectl get pods -n my-team` |
+| to understand why a pod does not start, for example an image missing from the registry or a failing probe | `kubectl describe pod`, `Events` section |
+| to read what the application wrote just before it crashed and was restarted | `kubectl logs --previous` |
+| to change the version that runs, or the number of copies | not kubectl: an MR on the config repo, see [Argo CD](#argo-cd-git-decides-what-runs) |
+
+:material-book-open-variant: Reference docs: [Kubernetes, Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) (accessed November 2026); [kubectl Quick Reference](https://kubernetes.io/docs/reference/kubectl/quick-reference/) (accessed November 2026)
 { .doc-ref }
 
 ### Deployment
@@ -339,7 +345,7 @@ livenessProbe:
 10:01:45  GET /livez  200      OK after restart
 ```
 
-**Risks.** A liveness probe that checks the my-api database restarts every pod at once the day the database goes down, and fixes nothing: I only check the process itself (`/livez` answers without calling anyone). Thresholds that are too tight (`failureThreshold: 1`, `timeoutSeconds: 1`) kill a container that is merely slow, for example during a traffic peak, which removes capacity at the worst moment: I allow several failures in a row. Without liveness, an app stuck in a deadlock stays frozen, answering nothing, until someone restarts it by hand.
+**Risks.** A liveness probe that checks the my-api database restarts every pod at once the day the database goes down, and fixes nothing: I only check the process itself (`/livez` answers without calling anyone). Thresholds that are too tight (`failureThreshold: 1`, `timeoutSeconds: 1`) kill a container that is merely slow, for example during a traffic peak, which removes capacity at the worst moment: I allow several failures in a row. Without liveness, an app stuck in a <span class="term" data-term="deadlock">deadlock</span> stays frozen, answering nothing, until someone restarts it by hand.
 
 ### Startup probe
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>

@@ -22,7 +22,7 @@
 
 The page follows the order of an investigation: the three signals, then traces in detail, how to collect them, how to reduce their volume, and how to turn them into objectives and <span class="term" data-term="alert-monitoring">alerts</span>. It ends with a case study.
 
-The business routes and the numbers are examples. `my-api` is a fictitious service. The terms API, route and HTTP codes are defined on the [Kubernetes](kubernetes.md#terminology) page.
+The business routes and the numbers are examples. `my-api` is a fictitious service. The terms API and route are defined in the [API page Terminology](api-rest-async.md#terminology), HTTP codes in [Response codes](api-rest-async.md#response-codes).
 
 :material-swap-horizontal: The tools mentioned on this page: which ones replace each other, which ones combine? See [Complementary or competing](outils.md#complementary-or-competing).
 { .doc-ref }

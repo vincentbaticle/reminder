@@ -27,65 +27,42 @@ Les ports, les valeurs <span class="term" data-term="yaml">YAML</span> et les ro
 
 ## Vocabulaire
 
-### API, route, JSON
-Une **<span class="term" data-term="api">API</span>** est la porte d'entrée d'un service pour les autres programmes. Une **<span class="term" data-term="endpoint">route</span>** (ou endpoint) est une adresse précise de cette API. Les réponses sont souvent en **<span class="term" data-term="json">JSON</span>**, un format texte de données.
-``` { .text .ex-illus title="Illustration" }
-GET /readyz         route de santé
-GET /v1/orders/42          route métier
-{"id": 42, "title": "..."}   réponse JSON
+Les notions web générales que cette page utilise ont leur propre page : API, route et JSON dans le [Vocabulaire de la page API](api-rest-async.md#vocabulaire), les codes HTTP dans [Les codes de réponse](api-rest-async.md#les-codes-de-reponse), le cache dans [Où placer un cache](architecture.md#ou-placer-un-cache), SLI, SLO et SLA dans [SLI, SLO, budget d'erreur](observabilite.md#sli-slo-budget-derreur). Ici, seulement les mots du déploiement.
+
+### Le chemin d'une modification jusqu'au pod
+
+J'ai corrigé un bug dans `my-api` et je veux que la correction tourne en production. Entre ma MR et le pod qui répond, les mêmes mots reviennent sans arrêt. Le dessin les place dans l'ordre, le tableau les définit, et chacun a sa section plus bas.
+
+```mermaid
+flowchart LR
+  Dev["MR fusionnée<br/>dépôt my-api"] --> CI["CI<br/>docker build"]
+  CI -->|"push my-api:1.4.1"| Reg[("registre<br/>d'images")]
+  CI -->|"MR image.tag: 1.4.1"| Cfg["dépôt de config<br/>values Helm"]
+  Cfg --> Argo["Argo CD<br/>génère les manifestes"]
+  Argo -->|"applique"| API["cluster Kubernetes<br/>API server"]
+  API --> Pod["pods my-api 1.4.1<br/>namespace my-team"]
+  Reg -.->|"tire l'image"| Pod
 ```
 
-:material-book-open-variant: Doc de référence : [RFC 8259, The JSON Data Interchange Format](https://www.rfc-editor.org/rfc/rfc8259) (2017) ; [MDN, HTTP overview](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview) (consultée en novembre 2026)
-{ .doc-ref }
-
-### Codes HTTP et timeout
-Chaque <span class="term" data-term="http-response">réponse HTTP</span> porte un <span class="term" data-term="http-status-code">code</span> qui dit comment ça s'est passé.
-
-| Code      | Sens                                              |
-|-----------|---------------------------------------------------|
-| `200`     | OK                                                |
-| `404`     | ressource introuvable                             |
-| `500`     | erreur interne du service                         |
-| `503`     | service indisponible pour l'instant (par exemple sa base ne répond pas) |
-| <span class="term" data-term="timeout">timeout</span>   | pas de réponse du tout dans le délai prévu        |
-
-
-:material-book-open-variant: Doc de référence : [RFC 9110, HTTP Semantics, status codes](https://www.rfc-editor.org/rfc/rfc9110#name-status-codes) (2022) ; [MDN, HTTP response status codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) (consultée en novembre 2026)
-{ .doc-ref }
-
-### Cache
-Une copie temporaire d'une donnée, gardée à portée de main pour répondre plus vite sans tout recalculer. Contrepartie : la copie peut être en retard sur la vraie donnée.
-
-:material-book-open-variant: Doc de référence : [MDN, HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching) (consultée en novembre 2026)
-{ .doc-ref }
-
-### Deadlock (interblocage)
-Deux traitements s'attendent mutuellement et aucun ne peut avancer. L'appli tourne mais ne répond plus.
-``` { .text .ex-illus title="Illustration" }
-traitement A : tient la ligne 1, attend la ligne 2
-traitement B : tient la ligne 2, attend la ligne 1
-```
-
-:material-book-open-variant: Doc de référence : [PostgreSQL, Deadlocks](https://www.postgresql.org/docs/current/explicit-locking.html#LOCKING-DEADLOCKS) (version 18, 2025)
-{ .doc-ref }
-
-### SLI, SLO, SLA
-Un **<span class="term" data-term="sli">SLI</span>** est l'indicateur mesuré, un **<span class="term" data-term="slo">SLO</span>** la cible interne que l'équipe se fixe sur cet indicateur, un **<span class="term" data-term="sla">SLA</span>** la promesse contractuelle faite à un client, avec une pénalité si elle n'est pas tenue. Le SLA est en général plus lâche que le SLO, pour que l'équipe réagisse avant de devoir payer. Exemple chiffré (chiffres d'exemple), le détail est dans [Observabilité](observabilite.md#sli-slo-budget-derreur) :
-``` { .text .ex-illus title="Illustration" }
-SLI   part des requêtes de my-api sans 5xx ce mois-ci   99,93 %
-SLO   objectif interne de l'équipe                       99,9 % sur 30 jours
-SLA   promis au client, avoir de 10 % sinon              99,5 % par mois
-```
-
-:material-book-open-variant: Doc de référence : [Google SRE book, Service Level Objectives](https://sre.google/sre-book/service-level-objectives/) (2016)
-{ .doc-ref }
+| Mot | Ce que c'est | Exemple | Détail |
+|---|---|---|---|
+| <span class="term" data-term="container">conteneur</span> | un processus isolé qui embarque son appli et ses bibliothèques, pour tourner pareil sur mon poste, en CI et en prod | `my-api` tourne avec Python 3.12 même si la machine a Python 3.9 | [Conteneur](#conteneur) |
+| <span class="term" data-term="docker-image">image</span> | le modèle figé d'un conteneur, construit une fois par la CI à partir d'un `Dockerfile` | l'image de `my-api` en version 1.4.1 | [Docker : l'image](#docker-limage) |
+| <span class="term" data-term="image-tag">tag d'image</span> | l'étiquette de version écrite après les deux-points : changer le tag, c'est choisir la version qui tourne | `my-api:1.4.1` | [Docker : l'image](#docker-limage) |
+| <span class="term" data-term="container-registry">registre d'images</span> | le serveur où la CI range les images, et où le cluster vient les chercher au démarrage d'un pod | `registry.example.com/my-api` | [Docker : l'image](#docker-limage) |
+| <span class="term" data-term="k8s-manifest">manifeste</span> | un fichier YAML qui décrit une ressource voulue (un Deployment, un Service) : Kubernetes fait en sorte que la réalité lui ressemble | `kind: Deployment` avec `replicas: 3` | [Deployment](#deployment) |
+| <span class="term" data-term="k8s-namespace">namespace</span> | un espace de noms dans le cluster, qui sépare les ressources d'une équipe ou d'un environnement | `my-team`, `preview-mr-42` | [Namespace et kubectl](#namespace-et-kubectl) |
+| <span class="term" data-term="kubectl">kubectl</span> | la ligne de commande qui parle à l'API du cluster : lire l'état, décrire un pod, lire ses logs | `kubectl get pods -n my-team` | [Namespace et kubectl](#namespace-et-kubectl) |
+| <span class="term" data-term="helm-chart">Helm</span>, chart, values | un modèle de manifestes avec des trous (le chart), rempli par un fichier de valeurs différent par environnement | `values-prod.yaml` contient `replicaCount: 3` | [Helm](#helm-le-modele-de-deploiement) |
+| <span class="term" data-term="gitops">GitOps</span> | la règle « ce qui tourne est ce que décrit Git » : je déploie par une MR, jamais par une commande à la main | une MR qui passe `image.tag` à `1.4.1` | [Argo CD](#argo-cd-git-decide-de-ce-qui-tourne) |
+| <span class="term" data-term="argo-cd">Argo CD</span> | l'outil GitOps installé dans le cluster : il lit le dépôt de config, génère les manifestes, les applique, puis corrige tout écart | l'application `my-api-prod` passe de `OutOfSync` à `Synced` | [Argo CD](#argo-cd-git-decide-de-ce-qui-tourne) |
 
 ### Kubernetes, cluster, nœud
 
 *Kubernetes : concurrent de Cloud Run ; complémentaire de Docker, Helm, Argo CD*
 { .tool-rel }
 
-**<span class="term" data-term="kubernetes">Kubernetes</span>** (souvent abrégé K8s) est le système qui lance les applications dans des <span class="term" data-term="container">conteneurs</span>, les surveille, les redémarre et répartit le <span class="term" data-term="network-traffic">trafic</span>. Un **<span class="term" data-term="cluster">cluster</span>** est l'ensemble des machines qu'il gère, et chaque machine est un **<span class="term" data-term="node-k8s">nœud</span>** (node).
+**<span class="term" data-term="kubernetes">Kubernetes</span>** (souvent abrégé K8s) est le système qui lance les applications dans des conteneurs, les surveille, les redémarre et répartit le <span class="term" data-term="network-traffic">trafic</span>. Un **<span class="term" data-term="cluster">cluster</span>** est l'ensemble des machines qu'il gère, et chaque machine est un **<span class="term" data-term="node-k8s">nœud</span>** (node).
 ``` { .text .ex-illus title="Illustration" }
 cluster prod
 ├─ nœud 1 : pod my-api-abcde, pod worker-x1
@@ -116,6 +93,35 @@ flowchart LR
 ```
 
 :material-book-open-variant: Doc de référence : [Kubernetes, Cluster Architecture](https://kubernetes.io/docs/concepts/architecture/) (consultée en novembre 2026) ; [Kubernetes, Nodes](https://kubernetes.io/docs/concepts/architecture/nodes/) (consultée en novembre 2026)
+{ .doc-ref }
+
+### Namespace et kubectl
+
+Dans un cluster partagé, deux équipes veulent chacune un Service nommé `api`, et l'équipe plateforme veut limiter ce que chacune consomme. Un **namespace** règle ça : c'est un espace de noms, les noms n'ont à être uniques qu'à l'intérieur, et quotas et droits se posent par namespace. **kubectl** est le client en ligne de commande de l'API du cluster. Quand Argo CD pilote le cluster, je m'en sers pour lire et diagnostiquer, pas pour changer ce qui tourne : une modification faite avec kubectl serait annulée à la synchronisation suivante.
+
+``` { .text .ex-ref title="Référence" }
+$ kubectl get namespaces
+NAME            STATUS   AGE
+my-team         Active   210d
+preview-mr-42   Active   2d
+
+$ kubectl get pods -n my-team
+NAME                 READY   STATUS    RESTARTS   AGE
+my-api-7f9c-abcde    1/1     Running   0          3h
+my-api-7f9c-fghij    1/1     Running   0          3h
+
+$ kubectl describe pod my-api-7f9c-abcde -n my-team
+$ kubectl logs my-api-7f9c-abcde -n my-team --previous
+```
+
+| Je veux... | J'utilise... |
+|---|---|
+| savoir si les pods de mon service tournent et combien de fois ils ont redémarré depuis le déploiement de ce matin | `kubectl get pods -n my-team` |
+| comprendre pourquoi un pod ne démarre pas, par exemple une image introuvable dans le registre ou une probe en échec | `kubectl describe pod`, section `Events` |
+| lire ce que l'appli a écrit juste avant de planter et d'être redémarrée | `kubectl logs --previous` |
+| changer la version qui tourne, ou le nombre de copies | pas kubectl : une MR sur le dépôt de config, voir [Argo CD](#argo-cd-git-decide-de-ce-qui-tourne) |
+
+:material-book-open-variant: Doc de référence : [Kubernetes, Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) (consultée en novembre 2026) ; [kubectl Quick Reference](https://kubernetes.io/docs/reference/kubectl/quick-reference/) (consultée en novembre 2026)
 { .doc-ref }
 
 ### Deployment
@@ -339,7 +345,7 @@ livenessProbe:
 10:01:45  GET /livez  200      OK après redémarrage
 ```
 
-**Risques.** Une liveness qui vérifie la base de my-api redémarre tous les pods en même temps le jour où la base tombe, sans rien réparer : je ne vérifie que le processus lui-même (`/livez` répond sans appeler personne). Des seuils trop serrés (`failureThreshold: 1`, `timeoutSeconds: 1`) tuent un conteneur seulement lent, par exemple pendant un pic de trafic, ce qui retire de la capacité au pire moment : je laisse plusieurs échecs d'affilée. Sans liveness, une appli bloquée par un deadlock reste figée, sans répondre, jusqu'à ce que quelqu'un la relance à la main.
+**Risques.** Une liveness qui vérifie la base de my-api redémarre tous les pods en même temps le jour où la base tombe, sans rien réparer : je ne vérifie que le processus lui-même (`/livez` répond sans appeler personne). Des seuils trop serrés (`failureThreshold: 1`, `timeoutSeconds: 1`) tuent un conteneur seulement lent, par exemple pendant un pic de trafic, ce qui retire de la capacité au pire moment : je laisse plusieurs échecs d'affilée. Sans liveness, une appli bloquée par un <span class="term" data-term="deadlock">deadlock</span> reste figée, sans répondre, jusqu'à ce que quelqu'un la relance à la main.
 
 ### Startup probe
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>

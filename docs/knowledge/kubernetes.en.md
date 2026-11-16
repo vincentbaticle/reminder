@@ -125,7 +125,7 @@ $ kubectl logs my-api-7f9c-abcde -n my-team --previous
 { .doc-ref }
 
 ### Deployment
-The Kubernetes object that says "I want 3 copies of my-api, with this <span class="term" data-term="docker-image">image</span>". Kubernetes creates the <span class="term" data-term="pod">pods</span> and recreates them if they disappear.
+The Kubernetes object that says "I want 3 copies of my-api, with this image". Kubernetes creates the <span class="term" data-term="pod">pods</span> and recreates them if they disappear.
 
 !!! noob "As noob"
     The Deployment is a restaurant's head chef: I say "I always want 3 cooks", they replace one who falls ill, and swap them one at a time when the recipe changes. The one thing to remember: **I describe the desired state, Kubernetes works to stay there.**
@@ -807,10 +807,66 @@ flowchart LR
 *Argo CD: competes with Flux; complements Helm, Kubernetes*
 { .tool-rel }
 
-**Argo CD** is a **GitOps** tool. The Git repository describes the desired state of the <span class="term" data-term="cluster">cluster</span>, and Argo CD applies it and fixes any drift. Deploying means opening an <span class="term" data-term="merge-request">MR</span> that changes the <span class="term" data-term="image-tag">image tag</span>. Rolling back means reverting that MR.
+My team deploys `my-api` by running `helm upgrade` from CI, and sometimes from a laptop during an incident. Three months later, nobody can say which version runs in production without looking inside the cluster, a replica count changed by hand during a traffic peak is still there, and CI holds admin rights on the production cluster. **<span class="term" data-term="gitops">GitOps</span>** fixes this by reversing the direction: instead of CI pushing to the cluster, an agent installed in the cluster pulls the desired state from Git and applies it. **<span class="term" data-term="argo-cd">Argo CD</span>** is that agent. Together with Flux, it is one of the two GitOps tools that graduated from the CNCF (late 2022).
 
 !!! noob "As noob"
     GitOps is a thermostat: I set the temperature I want (the Git repository), and the device heats or cuts off on its own to get back there, even if someone opens the window (a change made by hand in the cluster). The one thing to remember: **to change what runs, we change Git, not the cluster.**
+
+The CNCF OpenGitOps working group sums up GitOps in four principles (version 1.0.0, 2021):
+
+| Principle | What it means for `my-api` |
+|---|---|
+| declarative | Git describes the desired result (3 pods on 1.4.1), not the commands to get there |
+| versioned and immutable | every desired state is a commit: I know who deployed what and when, and I can go back to any commit |
+| pulled automatically | Argo CD, inside the cluster, fetches Git: CI no longer needs access to the cluster |
+| continuously reconciled | Argo CD keeps comparing Git and the cluster, then reports or fixes the gap |
+
+**The words of Argo CD.**
+
+| Word | What it is | Example |
+|---|---|---|
+| <span class="term" data-term="argo-application">Application</span> | the Argo CD resource that links a source (a Git folder, a Helm chart) to a namespace of a cluster | `my-api-prod`: the generic chart with the `my-api` values, to the `my-team` namespace |
+| <span class="term" data-term="config-repo">config repo</span> | the Git repository that describes what runs, separate from the code repository: the application's CI opens an MR there for every new version | `deploy-config`, which holds `my-api/values-prod.yaml` |
+| sync | the action of applying Git to the cluster, by hand (button, `argocd app sync`) or automatically | Argo CD applies the MR merged a minute ago |
+| sync status | `Synced` when the cluster matches Git, `OutOfSync` otherwise | `OutOfSync` right after the merge, `Synced` once applied |
+| health | the state of the resources once applied: `Healthy`, `Progressing` (rollout under way), `Degraded` (pods never ready) | `Degraded` when the 1.4.1 readiness probe fails |
+| <span class="term" data-term="configuration-drift">drift</span> | a difference between Git and the cluster, most often a change made by hand | someone ran `kubectl scale --replicas=6` |
+| `selfHeal` | option that reverts drift on its own, without waiting for a new commit | the 6 replicas go back to 3 a few seconds later |
+| `prune` | option that deletes from the cluster a resource removed from Git, off by default for safety | the CronJob removed from the chart disappears from the cluster |
+| <span class="term" data-term="argo-applicationset">ApplicationSet</span> | a generator of Applications: one per environment, per cluster, or per open MR | an Application `preview-mr-42` created when MR 42 opens, deleted when it closes |
+
+The production Application of `my-api`. It takes the platform team's [generic chart](#one-generic-chart-for-every-service) and the `my-api` values from the config repo (two sources, the second one referenced by `$values`), and it lives in Git too:
+
+``` { .yaml .ex-ref title="Reference" }
+# Example: Argo CD Application of my-api in production, automated sync
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-api-prod
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://charts.example.com/platform
+      chart: generic
+      targetRevision: 3.2.0
+      helm:
+        valueFiles:
+          - $values/my-api/values.yaml
+          - $values/my-api/values-prod.yaml
+    - repoURL: https://git.example.com/my-team/deploy-config.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: my-team
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+The full path of a version, from the code MR to the pod:
 
 ```mermaid
 sequenceDiagram
@@ -823,17 +879,48 @@ sequenceDiagram
   participant K8s as cluster
   Dev->>App: merges the MR
   App->>CI: pipeline
-  CI->>Reg: push my-api:1.4.0
-  CI->>Cfg: MR "image.tag: 1.4.0" in values-prod.yaml
+  CI->>Reg: push my-api:1.4.1
+  CI->>Cfg: MR "image.tag: 1.4.1" in values-prod.yaml
   Argo->>Cfg: watches the main branch
   Argo->>Argo: helm template with values-prod.yaml
   Argo->>K8s: applies the manifests, fixes drift
-  K8s->>Reg: pulls image my-api:1.4.0
+  K8s->>Reg: pulls image my-api:1.4.1
 ```
 
-**Risks.** An MR merged into the config repo reaches production at the next sync, mistakes included: I protect the branch, I have production MRs reviewed, and I look at the Argo CD diff before syncing. With self-healing (`selfHeal`), an emergency fix made by hand in the cluster is reverted a few minutes later: during an incident, I go through an MR, or I suspend the application's sync and say so in the channel. If Argo CD is down, nothing deploys any more: I monitor it like a production service.
+**Rolling back.** Version 1.4.1 returns 500 errors. With automated sync, Argo CD refuses `argocd app rollback`, and a `kubectl rollout undo` would be reverted by `selfHeal`: I roll back through Git. By default, Argo CD polls Git every 2 to 3 minutes; a repository webhook makes detection immediate. Times are examples:
+``` { .text .ex-illus title="Illustration" }
+time   action                                              Argo CD status
+14:02  MR "image.tag: 1.4.1" merged                        OutOfSync
+14:04  Argo CD sees the commit and applies it              Synced, Progressing
+14:05  rollout finished, the 5xx alert fires               Synced, Healthy
+14:08  I revert the MR (git revert), reviewed and merged   OutOfSync
+14:09  Argo CD applies image.tag: 1.4.0                    Synced, Progressing
+14:10  1.4.0 pods ready, the 5xx drop                      Synced, Healthy
+```
+At 14:05, Argo CD says `Healthy` while the application returns 500s: it reads the Kubernetes state (pods ready, rollout finished), not the error rate. To stop a version that degrades the service automatically, I need a [progressive deployment](livraison.md#progressive-deployment) that reads the metrics (Argo Rollouts, Flagger).
 
-:material-book-open-variant: Reference docs: [Argo CD, Core Concepts](https://argo-cd.readthedocs.io/en/stable/core_concepts/) (accessed November 2026); [OpenGitOps, Principles](https://opengitops.dev/) (version 1.0.0, 2021)
+**When.** As soon as several people or several services deploy to the same Kubernetes cluster, and I want to answer "what runs in production, and since when?" by reading Git. **Not when**: a single service on Cloud Run or another PaaS, with no cluster to watch; a team whose CI does not build versioned images yet (that is the step before, level N2 below); my work loop on a dev cluster, where I wait for the result in seconds, not minutes (see [Speeding up the inner loop](devx.md#speeding-up-the-inner-loop)).
+
+**Why.** The gain: history and audit for free (`git log` says who deployed what), a rollback that is an MR like any other, a CI with no rights at all on the production cluster, drift that is visible and fixed, and the same procedure for every service. The cost: one more repository and one more MR per deployment, a few minutes of delay, Argo CD itself to install, upgrade and monitor, and secrets that must never be written in clear text in Git (see [ConfigMap and Secret](#configmap-and-secret-config-per-environment)).
+
+**How**, step by step:
+
+1. I split the config repo from the code repo: a config MR does not rerun the whole application CI, and merge rights on production are not the same.
+2. I describe each service and each environment with an Application, or with an ApplicationSet when they all look alike, and I store these files in Git.
+3. The application's CI, after pushing the image, opens an MR that changes `image.tag`; in production, that MR is reviewed.
+4. I start with manual sync in production, reading the Argo CD diff before each sync. I switch to automated sync with `selfHeal` once the team trusts it, and I turn on `prune` last.
+5. I monitor Argo CD like a production service, and I send its notifications (failed sync, `Degraded` application) to the team channel.
+
+**Risks.** An MR merged into the config repo reaches production at the next sync, mistakes included: I protect the branch, I have production MRs reviewed, and I look at the Argo CD diff before syncing. With `selfHeal`, an emergency fix made by hand in the cluster is reverted a few seconds later: during an incident, I go through an MR, or I suspend the application's automated sync and say so in the channel. With `prune`, a folder renamed by mistake in the config repo deletes the resources of the old name: I review MRs that move files. If Argo CD is down, nothing deploys any more: I monitor it like everything else.
+
+| Situation | Choice |
+|---|---|
+| several teams deploy to Kubernetes clusters and want to see the state of each application in a web UI, with the diff before every sync | Argo CD |
+| a platform team wants the same GitOps principle driven entirely by Kubernetes resources and the command line, with no web UI shipped by the project (to check) | Flux |
+| a single small service on a single cluster, a team of two: CI runs `helm upgrade --atomic` with an account limited to its namespace | CI-pushed deployment, giving up drift correction |
+| no cluster at all, I hand over an image and the provider runs it | [Cloud Run](#cloud-run-no-cluster) |
+
+:material-book-open-variant: Reference docs: [Argo CD, Core Concepts](https://argo-cd.readthedocs.io/en/stable/core_concepts/) (accessed November 2026); [Argo CD, Automated Sync Policy](https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/) (accessed November 2026); [OpenGitOps, Principles](https://opengitops.dev/) (version 1.0.0, 2021)
 { .doc-ref }
 
 ### Cloud Run: no cluster

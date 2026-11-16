@@ -6782,6 +6782,24 @@ window.REMINDER_TERMS = {
    "definition": "Outil GitOps de la CNCF, installé dans le cluster Kubernetes : il surveille un dépôt Git, génère les manifestes (Helm, Kustomize ou YAML brut), les applique, et signale ou corrige tout écart entre Git et le cluster.",
    "example": "$ argocd app get my-api-prod\nSync Status:   OutOfSync from main (a1b2c3d)\nHealth Status: Healthy",
    "example_is_code": true
+  },
+  "argo-application": {
+   "term": "Application (Argo CD)",
+   "definition": "Ressource Argo CD qui relie une source (un dossier d'un dépôt Git, un chart Helm) à un namespace d'un cluster, avec sa règle de synchronisation. Une Application par service et par environnement, en général.",
+   "example": "apiVersion: argoproj.io/v1alpha1\nkind: Application\nmetadata:\n  name: my-api-prod",
+   "example_is_code": true
+  },
+  "config-repo": {
+   "term": "Dépôt de config",
+   "definition": "Dépôt Git qui décrit ce qui tourne dans chaque environnement (tags d'image, values Helm, Applications Argo CD), séparé du dépôt du code de l'appli. En GitOps, déployer, c'est y fusionner une MR.",
+   "example": "deploy-config/my-api/values-prod.yaml contient image.tag: 1.4.1",
+   "example_is_code": false
+  },
+  "argo-applicationset": {
+   "term": "ApplicationSet (Argo CD)",
+   "definition": "Ressource Argo CD qui génère des Applications à partir d'un modèle et d'un générateur : une par cluster, par dossier du dépôt, ou par merge request ouverte.",
+   "example": "Un ApplicationSet avec le générateur Pull Request crée l'Application preview-mr-42 à l'ouverture de la MR 42 et la supprime à sa fermeture.",
+   "example_is_code": false
   }
  },
  "en": {
@@ -13564,6 +13582,24 @@ window.REMINDER_TERMS = {
    "definition": "CNCF GitOps tool installed in the Kubernetes cluster: it watches a Git repository, renders the manifests (Helm, Kustomize or plain YAML), applies them, and reports or fixes any gap between Git and the cluster.",
    "example": "$ argocd app get my-api-prod\nSync Status:   OutOfSync from main (a1b2c3d)\nHealth Status: Healthy",
    "example_is_code": true
+  },
+  "argo-application": {
+   "term": "Application (Argo CD)",
+   "definition": "Argo CD resource that links a source (a folder of a Git repository, a Helm chart) to a namespace of a cluster, with its sync policy. Usually one Application per service and per environment.",
+   "example": "apiVersion: argoproj.io/v1alpha1\nkind: Application\nmetadata:\n  name: my-api-prod",
+   "example_is_code": true
+  },
+  "config-repo": {
+   "term": "Config repo",
+   "definition": "Git repository that describes what runs in each environment (image tags, Helm values, Argo CD Applications), separate from the application's code repository. With GitOps, deploying means merging an MR there.",
+   "example": "deploy-config/my-api/values-prod.yaml holds image.tag: 1.4.1",
+   "example_is_code": false
+  },
+  "argo-applicationset": {
+   "term": "ApplicationSet (Argo CD)",
+   "definition": "Argo CD resource that generates Applications from a template and a generator: one per cluster, per repository folder, or per open merge request.",
+   "example": "An ApplicationSet with the Pull Request generator creates the preview-mr-42 Application when MR 42 opens and deletes it when it closes.",
+   "example_is_code": false
   }
  }
 };

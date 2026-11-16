@@ -511,14 +511,16 @@ Je sais que mes tests offensifs servent quand le temps pendant lequel une faille
 
 ## Pièges à éviter
 
-- **Tester sans autorisation écrite** : je scanne le site d'un fournisseur « pour vérifier », et c'est un délit, même sans rien casser. J'obtiens des règles d'engagement signées avant tout test ([voir Le cadre](#le-cadre-autorisation-perimetre-et-divulgation)).
-- **Trier au CVSS seul** : je passe la semaine sur des failles « critiques » jamais exploitées pendant qu'une faille du KEV reste ouverte. Je trie par KEV, puis EPSS et exposition, puis CVSS ([voir Noter et trier](#noter-et-trier-une-faille)).
-- **Un pentest sans retest** : je corrige, je ne revérifie pas, et un correctif partiel laisse la faille ouverte. Je planifie le retest en même temps que le pentest ([voir Les formes de test offensif](#les-formes-de-test-offensif)).
-- **Corriger sans test de non-régression** : la faille revient à la prochaine refonte de la route. Chaque faille confirmée devient un test de refus ([voir L'IA qui attaque](#lia-qui-attaque-simulation-et-recherche-de-failles)).
-- **Croire un constat d'IA sans le reproduire** : je corrige une faille qui n'existe pas, ou je publie un signalement faux chez un mainteneur. Je n'accepte qu'un constat avec une preuve rejouée.
-- **Lancer un agent offensif sur la production** : il supprime des données en prouvant une faille d'administration. Environnement jetable, données fictives, comptes sans droits destructeurs.
-- **Exposer un laboratoire vulnérable** : je lance Juice Shop sur `0.0.0.0` dans un café, et ma machine devient une cible. Je publie le port sur `127.0.0.1` seulement ([voir S'entraîner légalement](#sentrainer-legalement)).
-- **Punir les clics dans une campagne de phishing** : les gens arrêtent de signaler. Je mesure et je récompense le signalement ([voir Ingénierie sociale](#ingenierie-sociale)).
+| Piège | Ce qui se passe | Solution |
+| --- | --- | --- |
+| **Tester sans autorisation écrite** : je scanne le site d'un fournisseur « pour vérifier ». | C'est un délit, même sans rien casser. | J'obtiens des règles d'engagement signées avant tout test ([Le cadre](#le-cadre-autorisation-perimetre-et-divulgation)). |
+| **Trier au CVSS seul** : je passe la semaine sur des failles « critiques » jamais exploitées. | Pendant ce temps, une faille du KEV reste ouverte. | Je trie par KEV, puis EPSS et exposition, puis CVSS ([Noter et trier](#noter-et-trier-une-faille)). |
+| **Un pentest sans retest** : je corrige et je ne revérifie pas. | Un correctif partiel laisse la faille ouverte. | Je planifie le retest en même temps que le pentest ([Les formes de test offensif](#les-formes-de-test-offensif)). |
+| **Corriger sans test de non-régression** : je corrige la faille sans ajouter de test. | La faille revient à la prochaine refonte de la route. | Chaque faille confirmée devient un test de refus ([L'IA qui attaque](#lia-qui-attaque-simulation-et-recherche-de-failles)). |
+| **Croire un constat d'IA sans le reproduire** : j'accepte le constat tel quel. | Je corrige une faille qui n'existe pas, ou je publie un signalement faux chez un mainteneur. | Je n'accepte qu'un constat avec une preuve rejouée. |
+| **Lancer un agent offensif sur la production** : je pointe l'agent sur l'environnement réel. | Il supprime des données en prouvant une faille d'administration. | Je le lance sur un environnement jetable, avec des données fictives et des comptes sans droits destructeurs. |
+| **Exposer un laboratoire vulnérable** : je lance Juice Shop sur `0.0.0.0` dans un café. | Ma machine devient une cible. | Je publie le port sur `127.0.0.1` seulement ([S'entraîner légalement](#sentrainer-legalement)). |
+| **Punir les clics dans une campagne de phishing** : je sanctionne les personnes qui cliquent. | Les gens arrêtent de signaler. | Je mesure et je récompense le signalement ([Ingénierie sociale](#ingenierie-sociale)). |
 
 ## Ce qu'on demande en entretien
 

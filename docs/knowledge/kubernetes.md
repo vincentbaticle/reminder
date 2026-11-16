@@ -1014,13 +1014,15 @@ Je sais que mes réglages Kubernetes marchent quand les utilisateurs ne voient p
 
 ## Pièges à éviter
 
-- **La base dans la liveness** : je vérifie la base de données dans la liveness, donc le jour où la base tombe, Kubernetes redémarre tous les pods en boucle sans rien réparer. Je mets la dépendance dans la readiness, et la liveness ne vérifie que l'appli elle-même ([voir Quelle probe pour quel besoin](#quelle-probe-pour-quel-besoin)).
-- **Pas de startup probe pour une appli lente** : mon appli charge un gros cache au démarrage, donc la liveness la tue avant qu'elle ait fini de démarrer. J'ajoute une startup probe, qui retient la liveness tant que le démarrage n'est pas terminé ([voir Startup probe](#startup-probe)).
-- **Redémarrer au lieu de comprendre un `OOMKilled`** : je laisse le pod redémarrer en boucle avec le code `137`, donc la fuite mémoire ou la limit trop basse reste là. Je lis `kubectl describe pod`, puis je corrige la fuite ou j'ajuste la limit ([voir requests et limits](#ressources-requests-et-limits)).
-- **Un Secret en clair dans Git** : je commite un Secret en le croyant chiffré, alors qu'il est seulement encodé en base64, donc quiconque lit le dépôt a le mot de passe. Je le remplis depuis un gestionnaire de secrets ([voir ConfigMap et Secret](#configmap-et-secret-la-config-par-environnement)).
-- **Un ConfigMap modifié qui ne change rien** : je change `LOG_LEVEL` dans le ConfigMap et j'attends l'effet, mais les variables d'environnement sont lues au démarrage, donc les pods gardent l'ancienne valeur. Je relance les pods après le changement ([voir ConfigMap et Secret](#configmap-et-secret-la-config-par-environnement)).
-- **Un rollback à la main sous Argo CD** : je lance `kubectl rollout undo`, donc Argo CD remet la version de Git à la synchronisation suivante. J'annule la MR qui a changé le tag d'image ([voir Argo CD](#argo-cd-git-decide-de-ce-qui-tourne)).
-- **Un chart générique où tout est configurable** : chaque champ Kubernetes devient une value, donc le fichier de values devient un deuxième langage, plus dur que les manifestes. J'expose peu de choses, avec des valeurs par défaut sûres et une porte de sortie documentée ([voir le chart générique](#un-chart-generique-pour-tous-les-services)).
+| Piège | Ce qui se passe | Solution |
+| --- | --- | --- |
+| **La base dans la liveness** : je vérifie la base de données dans la liveness. | Le jour où la base tombe, Kubernetes redémarre tous les pods en boucle sans rien réparer. | Je mets la dépendance dans la readiness, et la liveness ne vérifie que l'appli elle-même ([Quelle probe pour quel besoin](#quelle-probe-pour-quel-besoin)). |
+| **Pas de startup probe pour une appli lente** : mon appli charge un gros cache au démarrage. | La liveness la tue avant qu'elle ait fini de démarrer. | J'ajoute une startup probe, qui retient la liveness tant que le démarrage n'est pas terminé ([Startup probe](#startup-probe)). |
+| **Redémarrer au lieu de comprendre un `OOMKilled`** : je laisse le pod redémarrer en boucle avec le code `137`. | La fuite mémoire ou la limit trop basse reste là. | Je lis `kubectl describe pod`, puis je corrige la fuite ou j'ajuste la limit ([requests et limits](#ressources-requests-et-limits)). |
+| **Un Secret en clair dans Git** : je commite un Secret en le croyant chiffré, alors qu'il est seulement encodé en base64. | Quiconque lit le dépôt a le mot de passe. | Je le remplis depuis un gestionnaire de secrets ([ConfigMap et Secret](#configmap-et-secret-la-config-par-environnement)). |
+| **Un ConfigMap modifié qui ne change rien** : je change `LOG_LEVEL` dans le ConfigMap et j'attends l'effet. | Les variables d'environnement sont lues au démarrage, donc les pods gardent l'ancienne valeur. | Je relance les pods après le changement ([ConfigMap et Secret](#configmap-et-secret-la-config-par-environnement)). |
+| **Un rollback à la main sous Argo CD** : je lance `kubectl rollout undo`. | Argo CD remet la version de Git à la synchronisation suivante. | J'annule la MR qui a changé le tag d'image ([Argo CD](#argo-cd-git-decide-de-ce-qui-tourne)). |
+| **Un chart générique où tout est configurable** : chaque champ Kubernetes devient une value. | Le fichier de values devient un deuxième langage, plus dur que les manifestes. | J'expose peu de choses, avec des valeurs par défaut sûres et une porte de sortie documentée ([le chart générique](#un-chart-generique-pour-tous-les-services)). |
 
 ## Ce qu'on demande en entretien
 

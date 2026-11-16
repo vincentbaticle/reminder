@@ -157,13 +157,15 @@ Je sais que ma veille marche quand elle change des décisions, pas quand je lis 
 
 ## Pièges à éviter
 
-- **Tout suivre** : je m'abonne à trente sources par peur de rater quelque chose, donc je n'en lis aucune et tout s'empile. Je garde trois sources que je lis vraiment.
-- **Lire au fil de l'eau** : je lis dès qu'un article passe, donc la veille grignote mes journées sans rien produire. Je garde un créneau fixe et court, comme 1 h le vendredi ([voir quand](#pourquoi-quand-et-comment)).
-- **Suivre la mode** : j'adopte un outil parce que tout le monde le partage cette semaine, donc mon équipe se retrouve avec un projet trop jeune, au seul mainteneur. Je regarde l'âge du projet, le nombre de mainteneurs et qui l'utilise en production, puis je le classe dans le [radar](#vocabulaire).
-- **Croire l'éditeur sur parole** : je prends un blog d'éditeur pour un avis neutre, alors qu'il vend son produit. Je croise avec une source indépendante avant de proposer quoi que ce soit.
-- **Lire sans garder de trace** : je ne note rien, donc trois mois plus tard je ne retrouve ni la source ni pourquoi l'outil m'avait plu. J'écris une ligne par sujet retenu, avec la date, la source et mon avis.
-- **Ne jamais essayer** : je lis tout mais je ne teste rien, donc je n'ai que des impressions à proposer à l'équipe. J'essaie une chose par mois sur un vrai cas, même petit.
-- **Suivre une source morte** : je m'abonne à une newsletter citée partout qui a cessé de paraître ou changé de nom. Je vérifie qu'une source est toujours active avant de m'y abonner.
+| Piège | Ce qui se passe | Solution |
+| --- | --- | --- |
+| **Tout suivre** : je m'abonne à trente sources par peur de rater quelque chose. | Je n'en lis aucune et tout s'empile. | Je garde trois sources que je lis vraiment. |
+| **Lire au fil de l'eau** : je lis dès qu'un article passe. | La veille grignote mes journées sans rien produire. | Je garde un créneau fixe et court, comme 1 h le vendredi ([Quand](#pourquoi-quand-et-comment)). |
+| **Suivre la mode** : j'adopte un outil parce que tout le monde le partage cette semaine. | Mon équipe se retrouve avec un projet trop jeune, au seul mainteneur. | Je regarde l'âge du projet, le nombre de mainteneurs et qui l'utilise en production, puis je le classe dans le [radar](#vocabulaire). |
+| **Croire l'éditeur sur parole** : je prends un blog d'éditeur pour un avis neutre. | Je m'appuie sur un texte écrit pour vendre son produit. | Je croise avec une source indépendante avant de proposer quoi que ce soit. |
+| **Lire sans garder de trace** : je ne note rien. | Trois mois plus tard, je ne retrouve ni la source ni pourquoi l'outil m'avait plu. | J'écris une ligne par sujet retenu, avec la date, la source et mon avis. |
+| **Ne jamais essayer** : je lis tout mais je ne teste rien. | Je n'ai que des impressions à proposer à l'équipe. | J'essaie une chose par mois sur un vrai cas, même petit. |
+| **Suivre une source morte** : je m'abonne à une newsletter citée partout qui a cessé de paraître ou changé de nom. | Je ne reçois rien, ou plus sous le nom que je suivais. | Je vérifie qu'une source est toujours active avant de m'y abonner. |
 
 ## Ce qu'on demande en entretien
 

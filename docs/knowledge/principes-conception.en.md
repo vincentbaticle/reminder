@@ -1756,14 +1756,16 @@ I know a principle helped when changes get smaller and safer, not when the code 
 
 ## Pitfalls to avoid
 
-- **SOLID as a checklist**: I apply the five principles everywhere, on principle. Result: one interface per class, a factory for each object, and a newcomer who opens eight files to follow a single action. A principle answers a pain I have today, not a list to tick.
-- **An interface for a single implementation**: I create `OrderRepositoryInterface` "just in case", while only the PostgreSQL version exists. I have two files instead of one, and nothing is decoupled. I add the interface the day a second implementation arrives, or a test that needs a fake.
-- **DRY across two business contexts**: billing and support each have a `Customer` with the same fields, so I merge them. Then billing wants to add a VAT number and support a priority level: each team must wait for the other's agreement to touch the shared model, which becomes a bottleneck.
-- **DRY in tests**: I factor my tests with nested helpers and parameters everywhere. The day a test breaks, I have to climb back through three functions to understand what it checked. In a test, readability comes before avoiding repetition.
-- **Confusing dependency inversion and injection**: an [injection container](design-patterns.md#injection-container) (the object that builds objects and plugs in their dependencies) does not guarantee business code does not depend on technical code. What matters is who defines the interface.
-- **Inheritance to reuse code**: I inherit from a class just to use its methods, with no true "is a" relationship, like an `ArchiveRepository` inheriting from a writable repository. Sooner or later, an inherited method no longer makes sense for the child and Liskov breaks.
-- **Swallowing an exception**: I wrap a call in `try / except Exception: pass` so that "it no longer crashes". An outage of the payment provider becomes a silent success, and orders go out "paid" without payment. I catch only the errors I know how to handle and let the others bubble up ([Error handling](#error-handling)).
-- **Optimization without measurement**: I complicate code because I assume it is slow, without measuring it. The real slowness is often elsewhere, and I am left with harder-to-read code for nothing. I measure first.
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **SOLID as a checklist**: I apply the five principles everywhere, on principle. | I get one interface per class, a factory for each object, and a newcomer opens eight files to follow a single action. | I apply a principle when it answers a pain I have today, not as a list to tick. |
+| **An interface for a single implementation**: I create `OrderRepositoryInterface` "just in case", while only the PostgreSQL version exists. | I have two files instead of one, and nothing is decoupled. | I add the interface the day a second implementation arrives, or a test that needs a fake. |
+| **DRY across two business contexts**: billing and support each have a `Customer` with the same fields, so I merge them. | When billing wants to add a VAT number and support a priority level, each team must wait for the other's agreement to touch the shared model, which becomes a bottleneck. | I keep one `Customer` per business context, even when their fields look alike. |
+| **DRY in tests**: I factor my tests with nested helpers and parameters everywhere. | The day a test breaks, I have to climb back through three functions to understand what it checked. | In a test, I put readability before avoiding repetition. |
+| **Confusing dependency inversion and injection**: I believe an [injection container](design-patterns.md#injection-container) (the object that builds objects and plugs in their dependencies) is enough to protect business code from technical code. | The container does not guarantee business code does not depend on technical code. | I look at who defines the interface, because that is what matters. |
+| **Inheritance to reuse code**: I inherit from a class just to use its methods, with no true "is a" relationship, like an `ArchiveRepository` inheriting from a writable repository. | Sooner or later, an inherited method no longer makes sense for the child and Liskov breaks. | I only inherit when there is a true "is a" relationship. |
+| **Swallowing an exception**: I wrap a call in `try / except Exception: pass` so that "it no longer crashes". | An outage of the payment provider becomes a silent success, and orders go out "paid" without payment. | I catch only the errors I know how to handle and let the others bubble up ([Error handling](#error-handling)). |
+| **Optimization without measurement**: I complicate code because I assume it is slow, without measuring it. | The real slowness is often elsewhere, and I am left with harder-to-read code for nothing. | I measure first. |
 
 ## What interviews ask
 

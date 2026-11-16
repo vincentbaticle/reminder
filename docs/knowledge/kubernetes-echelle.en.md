@@ -449,7 +449,9 @@ I know autoscaling works when latency stays stable at the peak without paying fo
 
 ## Pitfalls to avoid
 
-- **A fixed `replicas` next to the HPA**: I leave `replicas: 3` in the Helm template while the HPA is enabled, so Argo CD sets 3 while the HPA sets 6. I remove `replicas` from the template, and I check that `requests.cpu` is declared, otherwise the HPA decides nothing ([see HPA](#hpa-the-baseline)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **A fixed `replicas` next to the HPA**: I leave `replicas: 3` in the Helm template while the HPA is enabled. | Argo CD sets 3 while the HPA sets 6. | I remove `replicas` from the template, and I check that `requests.cpu` is declared, otherwise the HPA decides nothing ([HPA](#hpa-the-baseline)). |
 
 ## What interviews ask
 

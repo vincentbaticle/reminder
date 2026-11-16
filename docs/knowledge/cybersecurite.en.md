@@ -511,14 +511,16 @@ I know my offensive tests are useful when the time a vulnerability stays open go
 
 ## Pitfalls to avoid
 
-- **Testing without written permission**: I scan a supplier's site "to check", and it is a crime, even without breaking anything. I get signed rules of engagement before any test ([see The framework](#the-framework-permission-scope-and-disclosure)).
-- **Triaging by CVSS alone**: I spend the week on "critical" vulnerabilities never exploited while a KEV vulnerability stays open. I triage by KEV, then EPSS and exposure, then CVSS ([see Scoring and triaging](#scoring-and-triaging-a-vulnerability)).
-- **A pentest without a retest**: I fix, I do not check again, and a partial fix leaves the vulnerability open. I plan the retest together with the pentest ([see Forms of offensive testing](#forms-of-offensive-testing)).
-- **Fixing without a regression test**: the vulnerability comes back at the next rewrite of the route. Each confirmed vulnerability becomes a refusal test ([see AI that attacks](#ai-that-attacks-simulation-and-vulnerability-research)).
-- **Believing an AI finding without reproducing it**: I fix a vulnerability that does not exist, or send a false report to a maintainer. I only accept a finding with a replayed proof.
-- **Running an offensive agent on production**: it deletes data while proving an admin vulnerability. Throwaway environment, fake data, accounts without destructive rights.
-- **Exposing a vulnerable lab**: I run Juice Shop on `0.0.0.0` in a café, and my machine becomes a target. I publish the port on `127.0.0.1` only ([see Practicing legally](#practicing-legally)).
-- **Punishing clicks in a phishing campaign**: people stop reporting. I measure and reward reporting ([see Social engineering](#social-engineering)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **Testing without written permission**: I scan a supplier's site "to check". | It is a crime, even without breaking anything. | I get signed rules of engagement before any test ([The framework](#the-framework-permission-scope-and-disclosure)). |
+| **Triaging by CVSS alone**: I spend the week on "critical" vulnerabilities never exploited. | Meanwhile, a KEV vulnerability stays open. | I triage by KEV, then EPSS and exposure, then CVSS ([Scoring and triaging](#scoring-and-triaging-a-vulnerability)). |
+| **A pentest without a retest**: I fix and I do not check again. | A partial fix leaves the vulnerability open. | I plan the retest together with the pentest ([Forms of offensive testing](#forms-of-offensive-testing)). |
+| **Fixing without a regression test**: I fix the vulnerability without adding a test. | The vulnerability comes back at the next rewrite of the route. | Each confirmed vulnerability becomes a refusal test ([AI that attacks](#ai-that-attacks-simulation-and-vulnerability-research)). |
+| **Believing an AI finding without reproducing it**: I take the finding as it is. | I fix a vulnerability that does not exist, or send a false report to a maintainer. | I only accept a finding with a replayed proof. |
+| **Running an offensive agent on production**: I point the agent at the real environment. | It deletes data while proving an admin vulnerability. | I run it on a throwaway environment, with fake data and accounts without destructive rights. |
+| **Exposing a vulnerable lab**: I run Juice Shop on `0.0.0.0` in a café. | My machine becomes a target. | I publish the port on `127.0.0.1` only ([Practicing legally](#practicing-legally)). |
+| **Punishing clicks in a phishing campaign**: I sanction the people who click. | People stop reporting. | I measure and reward reporting ([Social engineering](#social-engineering)). |
 
 ## What interviews ask
 

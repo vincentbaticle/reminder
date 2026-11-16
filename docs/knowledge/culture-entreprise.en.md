@@ -1286,14 +1286,16 @@ I know these frameworks work when a behaviour or a lead time changes, not when t
 
 ## Pitfalls to avoid
 
-- **Copying the Spotify model**: I rename my teams squads and tribes because the diagram seems to work elsewhere, and nothing changes, neither autonomy, nor architecture, nor culture; I keep the idea (autonomy, communities) and split teams according to their cognitive load and their flows ([see the Spotify model](#the-spotify-model-and-its-limits)).
-- **Two A's on a RACI row**: I make two people accountable for the database migration, each thinks the other decides, and the decision is never made; I keep a single A per row ([see RACI](#raci)).
-- **A key result that is a task**: I write "move the runners to bigger machines" as a key result, I tick the task without knowing whether CI got faster; I write measurable, verifiable results, and say whether the OKR is committed or aspirational ([see OKR](#okr)).
-- **A goal with no counter-metric**: I set a support ticket handling time to bring down, and the team closes tickets without solving them; I pair each goal with a counter-metric that worsens if people cheat, like the reopened ticket rate ([see Goodhart](#avoiding-the-goodhart-trap)).
-- **The heavy process for everything**: I give every library choice the caution of a one-way door, and the whole organisation slows down; I first classify the decision as type 1 or type 2, and decide reversible ones quickly ([see type 1 and type 2](#type-1-and-type-2-decisions)).
-- **Speeding up outside the bottleneck**: I optimise a step that is not the constraint, like the build, while manual acceptance testing blocks everything, and throughput does not move; I identify the constraint before investing ([see the theory of constraints](#theory-of-constraints)).
-- **Too much work in progress**: my team starts twenty tickets at once to "move forward on everything", and each ticket takes four weeks on average to come out; I set a WIP limit and finish before starting ([see Little's law](#littles-law-and-wip-limits)).
-- **A raw technical argument in front of leadership**: I defend a rewrite by talking about library versions, it comes across as an engineer's whim and gets turned down; I translate into money, time, risk or customers, with the cost of the "do nothing" option ([see the trade-off in business terms](#presenting-a-technical-trade-off-in-business-terms)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **Copying the Spotify model**: I rename my teams squads and tribes because the diagram seems to work elsewhere. | Nothing changes, neither autonomy, nor architecture, nor culture. | I keep the idea (autonomy, communities) and split teams according to their cognitive load and their flows ([The Spotify model](#the-spotify-model-and-its-limits)). |
+| **Two A's on a RACI row**: I make two people accountable for the database migration. | Each thinks the other decides, and the decision is never made. | I keep a single A per row ([RACI](#raci)). |
+| **A key result that is a task**: I write "move the runners to bigger machines" as a key result. | I tick the task without knowing whether CI got faster. | I write measurable, verifiable results, and say whether the OKR is committed or aspirational ([OKR](#okr)). |
+| **A goal with no counter-metric**: I set a support ticket handling time to bring down. | The team closes tickets without solving them. | I pair each goal with a counter-metric that worsens if people cheat, like the reopened ticket rate ([Goodhart](#avoiding-the-goodhart-trap)). |
+| **The heavy process for everything**: I give every library choice the caution of a one-way door. | The whole organisation slows down. | I first classify the decision as type 1 or type 2, and decide reversible ones quickly ([Type 1 and type 2](#type-1-and-type-2-decisions)). |
+| **Speeding up outside the bottleneck**: I optimise a step that is not the constraint, like the build, while manual acceptance testing blocks everything. | Throughput does not move. | I identify the constraint before investing ([The theory of constraints](#theory-of-constraints)). |
+| **Too much work in progress**: my team starts twenty tickets at once to "move forward on everything". | Each ticket takes four weeks on average to come out. | I set a WIP limit and finish before starting ([Little's law](#littles-law-and-wip-limits)). |
+| **A raw technical argument in front of leadership**: I defend a rewrite by talking about library versions. | It comes across as an engineer's whim and gets turned down. | I translate into money, time, risk or customers, with the cost of the "do nothing" option ([The trade-off in business terms](#presenting-a-technical-trade-off-in-business-terms)). |
 
 ## What interviews ask
 

@@ -1461,14 +1461,16 @@ I know the solutions on this page work when developers actually wait less, not w
 
 ## Pitfalls to avoid
 
-- **Setup never replayed**: I leave the project setup untested, it decays without anyone noticing, and the next newcomer spends two days stuck on a wrong step; I have a weekly CI job replay it on a blank image ([see the setup](#setting-up-a-project-in-one-command)).
-- **Volume hiding the dependencies**: I mount the repository in `/app` without realising the volume hides the `.venv` or `node_modules` the image installed, so the application no longer finds its dependencies; I install dependencies outside that folder, or protect them with a dedicated volume ([see Docker Compose](#docker-compose-and-code-mounted-through-a-volume)).
-- **Speeding up the wrong job**: I shorten the longest job without looking at runner wait time or the critical path, so the pipeline gains almost nothing; I first lay a real pipeline on a timeline, then fix the wait, the cache and the shard balance ([see CI](#a-fast-and-reliable-ci)).
-- **Tolerated flaky tests**: I let tests fail at random, the team learns to rerun without reading the error, and a real red goes unnoticed; I quarantine those tests with an owner and a deadline, and I track the share of pipelines rerun on the same commit.
-- **Component included at `@main`**: I include the CI component without a pinned version to avoid MRs, and a single change breaks every project on the same day, with no review and no easy rollback; I pin the version and let a bot open the version bump MRs ([see the CI component](#shared-versioned-ci-component)).
-- **Thick template**: I put the whole CI and configuration in the template, and each project stays frozen on its creation day, never receiving the fixes; I keep a thin template and shared, versioned building blocks ([see golden paths](#golden-paths-and-templates)).
-- **Portal before a reliable catalogue**: I build a nice portal while deploying still takes a ticket, or I fill the catalogue by hand, and the incident alert goes to a team that no longer exists; I make the data come from the repositories, checked by CI, and the portal comes afterwards ([see the portal](#developer-portal-and-catalogue)).
-- **Measuring individuals**: I accept a ranking of developers by commit count, the numbers become a target and get gamed; I measure teams and systems, cross tools with a survey, and publish a charter ([see measuring](#measuring-without-monitoring-people)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **Setup never replayed**: I leave the project setup untested. | It decays without anyone noticing, and the next newcomer spends two days stuck on a wrong step. | I have a weekly CI job replay it on a blank image ([The setup](#setting-up-a-project-in-one-command)). |
+| **Volume hiding the dependencies**: I mount the repository in `/app` without realising the volume hides the `.venv` or `node_modules` the image installed. | The application no longer finds its dependencies. | I install dependencies outside that folder, or protect them with a dedicated volume ([Docker Compose](#docker-compose-and-code-mounted-through-a-volume)). |
+| **Speeding up the wrong job**: I shorten the longest job without looking at runner wait time or the critical path. | The pipeline gains almost nothing. | I first lay a real pipeline on a timeline, then fix the wait, the cache and the shard balance ([CI](#a-fast-and-reliable-ci)). |
+| **Tolerated flaky tests**: I let tests fail at random. | The team learns to rerun without reading the error, and a real red goes unnoticed. | I quarantine those tests with an owner and a deadline, and I track the share of pipelines rerun on the same commit. |
+| **Component included at `@main`**: I include the CI component without a pinned version to avoid MRs. | A single change breaks every project on the same day, with no review and no easy rollback. | I pin the version and let a bot open the version bump MRs ([The CI component](#shared-versioned-ci-component)). |
+| **Thick template**: I put the whole CI and configuration in the template. | Each project stays frozen on its creation day, never receiving the fixes. | I keep a thin template and shared, versioned building blocks ([Golden paths](#golden-paths-and-templates)). |
+| **Portal before a reliable catalogue**: I build a nice portal while deploying still takes a ticket, or I fill the catalogue by hand. | The incident alert goes to a team that no longer exists. | I make the data come from the repositories, checked by CI, and the portal comes afterwards ([The portal](#developer-portal-and-catalogue)). |
+| **Measuring individuals**: I accept a ranking of developers by commit count. | The numbers become a target and get gamed. | I measure teams and systems, cross tools with a survey, and publish a charter ([Measuring](#measuring-without-monitoring-people)). |
 
 ## What interviews ask
 

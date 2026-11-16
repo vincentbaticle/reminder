@@ -1441,14 +1441,16 @@ I know the solutions on this page work when the experience of my API's consumers
 
 ## Pitfalls to avoid
 
-- **A `200` that hides an error**: I return `200` with `{"error": "not found"}` in the body, so the front end thinks everything is fine, monitoring counts no error and the tests stay green. I return the real `4xx` or `5xx` code ([see response codes](#response-codes)).
-- **A replayable `POST` with no protection**: I leave `POST /payments` without an `Idempotency-Key`, so a double click or a network that resends the request charges the customer twice. I require an idempotency key, and the server returns the first result when the same key comes back ([see HTTP methods](#http-methods)).
-- **A breaking change without a new version**: I rename a response field, so the applications already wired to my API crash. I add the new field next to the old one, announce the removal date with `Deprecation` and `Sunset`, then remove the old one ([see Versioning](#versioning)).
-- **A GraphQL test that only reads the HTTP code**: I only check the `200`, so the errors stored in `errors` go unnoticed. I check `data` **and** the absence of `errors` ([see Testing a GraphQL API](#testing-a-graphql-api)).
-- **A GraphQL server with no safeguard**: I let each `customer` resolver run its own query and accept any depth, so 50 orders cost 51 SQL queries and one nested query can bring the server to its knees. I add a DataLoader and a depth or cost limit ([see server-side pitfalls](#server-side-pitfalls)).
-- **A consumer that believes in single delivery**: I process each message as if it arrived only once, while most brokers deliver at-least-once, so the customer gets two emails or is charged twice. I record the ID of the processed message, in the same transaction as the business effect ([see Delivery guarantees](#delivery-guarantees)).
-- **Writing to the database, then publishing**: I save the order then publish the event separately, so if the broker is unreachable the order exists but no other service is told. I write the event to an `outbox` table, in the same transaction as the order ([see the write-then-publish trap](#the-write-then-publish-trap)).
-- **A DLQ nobody looks at**: I set failed messages aside without watching anything, so orders get lost silently. I put an alert on the DLQ and someone analyses what lands there ([see the dead letter queue](#dead-letter-queue-dlq)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **A `200` that hides an error**: I return `200` with `{"error": "not found"}` in the body. | The front end thinks everything is fine, monitoring counts no error and the tests stay green. | I return the real `4xx` or `5xx` code ([Response codes](#response-codes)). |
+| **A replayable `POST` with no protection**: I leave `POST /payments` without an `Idempotency-Key`. | A double click or a network that resends the request charges the customer twice. | I require an idempotency key, and the server returns the first result when the same key comes back ([HTTP methods](#http-methods)). |
+| **A breaking change without a new version**: I rename a response field. | The applications already wired to my API crash. | I add the new field next to the old one, announce the removal date with `Deprecation` and `Sunset`, then remove the old one ([Versioning](#versioning)). |
+| **A GraphQL test that only reads the HTTP code**: I only check the `200`. | The errors stored in `errors` go unnoticed. | I check `data` **and** the absence of `errors` ([Testing a GraphQL API](#testing-a-graphql-api)). |
+| **A GraphQL server with no safeguard**: I let each `customer` resolver run its own query and accept any depth. | 50 orders cost 51 SQL queries and one nested query can bring the server to its knees. | I add a DataLoader and a depth or cost limit ([Server-side pitfalls](#server-side-pitfalls)). |
+| **A consumer that believes in single delivery**: I process each message as if it arrived only once, while most brokers deliver at-least-once. | The customer gets two emails or is charged twice. | I record the ID of the processed message, in the same transaction as the business effect ([Delivery guarantees](#delivery-guarantees)). |
+| **Writing to the database, then publishing**: I save the order then publish the event separately. | If the broker is unreachable, the order exists but no other service is told. | I write the event to an `outbox` table, in the same transaction as the order ([The write-then-publish trap](#the-write-then-publish-trap)). |
+| **A DLQ nobody looks at**: I set failed messages aside without watching anything. | Orders get lost silently. | I put an alert on the DLQ and someone analyses what lands there ([The dead letter queue](#dead-letter-queue-dlq)). |
 
 ## What interviews ask
 

@@ -2126,11 +2126,13 @@ I know a pattern paid off when the change it was meant to ease really gets small
 
 ## Pitfalls to avoid
 
-- **Pattern for the pattern's sake**: I add a factory, an interface and a strategy for a single case. Result: three classes to read instead of an `if`. A pattern is justified by a present problem, not a future one.
-- **The name without the shape**: I call a class that does everything `OrderManagerFactoryService`. A pattern name promises a precise structure, and the reviewer relies on it, so they misread what the code does.
-- **Singletons everywhere**: I hide global state, so my tests affect each other: a test passes alone and fails after another one. Dependency injection solves the same problem cleanly.
-- **The container called everywhere**: I call `$container->get(...)` from business code, so the container becomes a service locator and the dependencies vanish from the constructor signature. I call the container only at the entry point, the rest receives its dependencies through the constructor ([see the injection container](#injection-container)).
-- **Stacked decorators**: I wrap an object in a dozen layers (cache, logs, retry, metrics), so when debugging the call stack becomes unreadable. I keep the useful layers and name them clearly ([see Decorator](#decorator)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **Pattern for the pattern's sake**: I add a factory, an interface and a strategy for a single case. | I have three classes to read instead of an `if`. | I only use a pattern for a present problem, not a future one. |
+| **The name without the shape**: I call a class that does everything `OrderManagerFactoryService`. | A pattern name promises a precise structure, and the reviewer relies on it, so they misread what the code does. | I only give a pattern's name to a class that has its structure. |
+| **Singletons everywhere**: I hide global state. | My tests affect each other: a test passes alone and fails after another one. | I use dependency injection, which solves the same problem cleanly. |
+| **The container called everywhere**: I call `$container->get(...)` from business code. | The container becomes a service locator and the dependencies vanish from the constructor signature. | I call the container only at the entry point, the rest receives its dependencies through the constructor ([The injection container](#injection-container)). |
+| **Stacked decorators**: I wrap an object in a dozen layers (cache, logs, retry, metrics). | When debugging, the call stack becomes unreadable. | I keep the useful layers and name them clearly ([Decorator](#decorator)). |
 
 ## What interviews ask
 

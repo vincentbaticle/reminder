@@ -1976,14 +1976,16 @@ I know these security measures work when the time I stay exposed goes down, not 
 
 ## Pitfalls to avoid
 
-- **ID token sent to the API**: I send the ID token to the API instead of the access token, although it is made for the client application and grants no rights on an API. I always send the access token to the API, and keep the ID token to know who is logged in ([see OIDC](#openid-connect-oidc-knowing-who-is-logged-in)).
-- **Sensitive data in a JWT**: I put confidential information in the token payload, although a JWT is signed, not encrypted: anyone reads it by pasting it into jwt.io. I only put identifiers and rights in it ([see JWT](#jwt-what-a-token-looks-like)).
-- **Keeping the Implicit or Password flows**: I let my SPA receive the token in the URL, or my app ask for the password in its own form. The token leaks into history, logs and the Referer, and the app sees passwords it should never see. I use Authorization Code + PKCE for every login by a person ([see what changes with OAuth 2.1](#what-changes)).
-- **Forgetting the audience**: I request a token from Auth0 without `audience`, and get a token my API cannot use, so every call is rejected. I always set the audience of the target API ([see the role of the audience](#the-role-of-the-audience)).
-- **Committed secret "but the repo is private"**: I push an API key to Git thinking nobody will see it. It is in every clone and in the history forever. I revoke it and generate a new one right away, and I run gitleaks as a pre-commit hook ([see secrets](#secrets)).
-- **Relying on CORS to protect the API**: I believe a list of allowed origins blocks unwanted calls, although `curl` or a script ignore CORS completely. I check authentication and rights on the server side, on every route ([see CORS](#cors-the-preflight-request)).
-- **Open DCR without control**: I leave dynamic registration on although I do not need it. Anyone can create an "Official HR tool" app and get a token on behalf of ada. I disable it, or switch to CIMD ([see why it is a problem](#why-it-is-a-problem)).
-- **No BOLA test**: I test that ada sees her orders, but never that she cannot see grace's. The day a route forgets the check, ada reads order 43 by changing the URL. I write one rejection test per route ([see the common vulnerabilities](#the-most-common-api-vulnerabilities)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **ID token sent to the API**: I send the ID token to the API instead of the access token. | The ID token is made for the client application and grants no rights on an API. | I always send the access token to the API, and keep the ID token to know who is logged in ([OIDC](#openid-connect-oidc-knowing-who-is-logged-in)). |
+| **Sensitive data in a JWT**: I put confidential information in the token payload. | A JWT is signed, not encrypted: anyone reads it by pasting it into jwt.io. | I only put identifiers and rights in it ([JWT](#jwt-what-a-token-looks-like)). |
+| **Keeping the Implicit or Password flows**: I let my SPA receive the token in the URL, or my app ask for the password in its own form. | The token leaks into history, logs and the Referer, and the app sees passwords it should never see. | I use Authorization Code + PKCE for every login by a person ([What changes with OAuth 2.1](#what-changes)). |
+| **Forgetting the audience**: I request a token from Auth0 without `audience`. | I get a token my API cannot use, so every call is rejected. | I always set the audience of the target API ([The role of the audience](#the-role-of-the-audience)). |
+| **Committed secret "but the repo is private"**: I push an API key to Git thinking nobody will see it. | It is in every clone and in the history forever. | I revoke it and generate a new one right away, and I run gitleaks as a pre-commit hook ([Secrets](#secrets)). |
+| **Relying on CORS to protect the API**: I believe a list of allowed origins blocks unwanted calls. | `curl` or a script ignore CORS completely. | I check authentication and rights on the server side, on every route ([CORS](#cors-the-preflight-request)). |
+| **Open DCR without control**: I leave dynamic registration on although I do not need it. | Anyone can create an "Official HR tool" app and get a token on behalf of ada. | I disable it, or switch to CIMD ([Why it is a problem](#why-it-is-a-problem)). |
+| **No BOLA test**: I test that ada sees her orders, but never that she cannot see grace's. | The day a route forgets the check, ada reads order 43 by changing the URL. | I write one rejection test per route ([The common vulnerabilities](#the-most-common-api-vulnerabilities)). |
 
 ## What interviews ask
 

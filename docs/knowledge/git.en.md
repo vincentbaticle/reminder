@@ -785,14 +785,16 @@ I know my Git habits work when the team spends less time fighting with history, 
 
 ## Pitfalls to avoid
 
-- **Starting from a stale local `main`**: I create my branch from my local `main` without a `fetch`, so I start from an outdated base and collect avoidable conflicts at MR time. I run `git fetch` then `git switch -c feat/login origin/main` ([see I am starting new work](#i-am-starting-new-work)).
-- **Rebasing a shared branch**: I rebase a branch others have committed on, so my commits get new SHAs and their local copy no longer matches. I keep rebase for a branch that is mine alone, and merge otherwise ([see My branch is behind main](#my-branch-is-behind-main-merge-or-rebase)).
-- **Pushing with `--force`**: after a rebase, I push with `--force`, so I silently overwrite what a colleague pushed in the meantime. I use `--force-with-lease`, which refuses in that case ([see I need to push after a rebase](#i-need-to-push-after-a-rebase)).
-- **Picking the wrong side during a rebase**: I run `git checkout --ours` thinking I keep my version, so I keep the `main` one and my change disappears. I reread the top and bottom table before choosing: during a rebase, "ours" is `origin/main` ([see I have a conflict](#i-have-a-conflict)).
-- **Merging a lockfile by hand**: I resolve a conflict in `uv.lock` or `yarn.lock` line by line, so the file no longer matches any consistent resolution of the dependencies. I take one of the two versions then regenerate (`uv lock`, `yarn install`).
-- **Running `reset` on a shared commit**: I remove with `git reset` a commit already pushed to `main`, so the others' history no longer matches mine. What is already shared is undone with `git revert` ([see I made a mistake](#i-made-a-mistake-which-command)).
-- **Believing a commit is lost**: after a `reset --hard` or a botched rebase, I redo the work by hand while it still exists. I find it with `git reflog` and put a branch on it ([see I lost a commit](#i-lost-a-commit-after-a-reset-or-a-botched-rebase)).
-- **Removing a secret with a new commit**: I pushed a password in `.env` and only delete it, so it stays readable in the history by anyone with access to the repo. I change the secret right away ([see I want to ignore a file](#i-want-to-ignore-a-file)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **Starting from a stale local `main`**: I create my branch from my local `main` without a `fetch`. | I start from an outdated base and collect avoidable conflicts at MR time. | I run `git fetch` then `git switch -c feat/login origin/main` ([I am starting new work](#i-am-starting-new-work)). |
+| **Rebasing a shared branch**: I rebase a branch others have committed on. | My commits get new SHAs and their local copy no longer matches. | I keep rebase for a branch that is mine alone, and merge otherwise ([My branch is behind main](#my-branch-is-behind-main-merge-or-rebase)). |
+| **Pushing with `--force`**: after a rebase, I push with `--force`. | I silently overwrite what a colleague pushed in the meantime. | I use `--force-with-lease`, which refuses in that case ([I need to push after a rebase](#i-need-to-push-after-a-rebase)). |
+| **Picking the wrong side during a rebase**: I run `git checkout --ours` thinking I keep my version. | I keep the `main` one and my change disappears. | I reread the top and bottom table before choosing: during a rebase, "ours" is `origin/main` ([I have a conflict](#i-have-a-conflict)). |
+| **Merging a lockfile by hand**: I resolve a conflict in `uv.lock` or `yarn.lock` line by line. | The file no longer matches any consistent resolution of the dependencies. | I take one of the two versions then regenerate (`uv lock`, `yarn install`). |
+| **Running `reset` on a shared commit**: I remove with `git reset` a commit already pushed to `main`. | The others' history no longer matches mine. | I undo what is already shared with `git revert` ([I made a mistake](#i-made-a-mistake-which-command)). |
+| **Believing a commit is lost**: after a `reset --hard` or a botched rebase, I think my work is gone. | I redo the work by hand while it still exists. | I find it with `git reflog` and put a branch on it ([I lost a commit](#i-lost-a-commit-after-a-reset-or-a-botched-rebase)). |
+| **Removing a secret with a new commit**: I pushed a password in `.env` and only delete it. | It stays readable in the history by anyone with access to the repo. | I change the secret right away ([I want to ignore a file](#i-want-to-ignore-a-file)). |
 
 ## What interviews ask
 

@@ -615,14 +615,16 @@ Je sais que ma gestion des dépendances marche quand les installations sont rapi
 
 ## Pièges à éviter
 
-- **`npm install` ou `composer update` en CI** : j'installe autre chose que ce qui a été testé, et un pipeline casse un mercredi sans changement de code. J'utilise `npm ci`, `composer install`, `uv sync --locked` ([voir Manifeste et lockfile](#manifeste-et-lockfile)).
-- **Résoudre un conflit de lockfile à la main** : je fusionne les deux versions ligne par ligne, et le fichier devient incohérent. Je prends celui de la branche cible et je relance l'installation pour le régénérer.
-- **Deux gestionnaires dans le même dépôt** : un `package-lock.json` et un `yarn.lock` divergent, et chaque poste installe un arbre différent. J'en garde un, je supprime l'autre lockfile, je fixe le gestionnaire dans `packageManager` ou `mise.toml`.
-- **Importer un paquet non déclaré** : mon code utilise `debug` parce qu'une dépendance l'a installé à plat ; il disparaît à une mise à jour et le build casse. Je déclare tout ce que j'importe, et pnpm me le rappelle ([voir JavaScript](#javascript-et-typescript-npm-pnpm-yarn-bun)).
-- **`--extra-index-url` pour un paquet interne** : pip cherche le nom aussi sur PyPI et prend la version la plus haute, celle d'un attaquant. Un seul index, le registre de l'entreprise ([voir Sécuriser l'installation](#securiser-linstallation)).
-- **`sudo pip install` ou `--break-system-packages`** : j'écrase une bibliothèque dont l'OS a besoin. Je travaille dans un `.venv` ([voir les trois familles](#les-trois-familles-de-gestionnaires)).
-- **Un `override` qu'on oublie** : je force une version d'une dépendance transitive pour débloquer une MR, et elle reste figée deux ans. Je note pourquoi et quand la retirer ([voir Résolution et conflits](#resolution-et-conflits)).
-- **`--legacy-peer-deps` par réflexe** : l'installation passe, mais un plugin tourne avec une version de son hôte qu'il ne supporte pas, et l'erreur arrive à l'exécution. Je règle le conflit de versions.
+| Piège | Ce qui se passe | Solution |
+| --- | --- | --- |
+| **`npm install` ou `composer update` en CI** : je lance ces commandes dans le pipeline et j'installe autre chose que ce qui a été testé. | Un pipeline casse un mercredi sans changement de code. | J'utilise `npm ci`, `composer install`, `uv sync --locked` ([Manifeste et lockfile](#manifeste-et-lockfile)). |
+| **Résoudre un conflit de lockfile à la main** : je fusionne les deux versions ligne par ligne. | Le fichier devient incohérent. | Je prends celui de la branche cible et je relance l'installation pour le régénérer. |
+| **Deux gestionnaires dans le même dépôt** : je laisse un `package-lock.json` et un `yarn.lock` cohabiter. | Les deux lockfiles divergent, et chaque poste installe un arbre différent. | J'en garde un, je supprime l'autre lockfile, je fixe le gestionnaire dans `packageManager` ou `mise.toml`. |
+| **Importer un paquet non déclaré** : mon code utilise `debug` parce qu'une dépendance l'a installé à plat. | Il disparaît à une mise à jour et le build casse. | Je déclare tout ce que j'importe, et pnpm me le rappelle ([JavaScript](#javascript-et-typescript-npm-pnpm-yarn-bun)). |
+| **`--extra-index-url` pour un paquet interne** : j'ajoute un second index avec `--extra-index-url` pour installer un paquet de l'entreprise. | pip cherche le nom aussi sur PyPI et prend la version la plus haute, celle d'un attaquant. | J'utilise un seul index, le registre de l'entreprise ([Sécuriser l'installation](#securiser-linstallation)). |
+| **`sudo pip install` ou `--break-system-packages`** : j'installe un paquet directement dans le Python du système. | J'écrase une bibliothèque dont l'OS a besoin. | Je travaille dans un `.venv` ([les trois familles](#les-trois-familles-de-gestionnaires)). |
+| **Un `override` qu'on oublie** : je force une version d'une dépendance transitive pour débloquer une MR. | Elle reste figée deux ans. | Je note pourquoi et quand la retirer ([Résolution et conflits](#resolution-et-conflits)). |
+| **`--legacy-peer-deps` par réflexe** : j'ajoute ce drapeau dès qu'un conflit de versions bloque l'installation. | L'installation passe, mais un plugin tourne avec une version de son hôte qu'il ne supporte pas, et l'erreur arrive à l'exécution. | Je règle le conflit de versions. |
 
 ## Ce qu'on demande en entretien
 

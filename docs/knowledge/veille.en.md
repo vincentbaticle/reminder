@@ -157,13 +157,15 @@ I know my tech watch works when it changes decisions, not when I read a lot. Bef
 
 ## Pitfalls to avoid
 
-- **Following everything**: I subscribe to thirty sources out of fear of missing out, so I read none of them and everything piles up. I keep three sources I really read.
-- **Reading on the fly**: I read as soon as an article shows up, so the watch eats into my days without producing anything. I keep a fixed, short slot, like 1 hour on Friday ([see when](#why-when-and-how)).
-- **Following the hype**: I adopt a tool because everyone shares it this week, so my team ends up with a project that is too young, with a single maintainer. I look at the project's age, the number of maintainers and who runs it in production, then I place it in the [radar](#terminology).
-- **Taking the vendor at their word**: I treat a vendor blog as a neutral opinion, while it sells its product. I cross-check with an independent source before proposing anything.
-- **Reading without keeping a record**: I write nothing down, so three months later I find neither the source nor why I liked the tool. I write one line per topic I keep, with the date, the source and my opinion.
-- **Never trying**: I read everything but test nothing, so I only have impressions to offer the team. I try one thing a month on a real case, even a small one.
-- **Following a dead source**: I subscribe to a newsletter quoted everywhere that stopped publishing or got renamed. I check that a source is still active before subscribing.
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **Following everything**: I subscribe to thirty sources out of fear of missing out. | I read none of them and everything piles up. | I keep three sources I really read. |
+| **Reading on the fly**: I read as soon as an article shows up. | The watch eats into my days without producing anything. | I keep a fixed, short slot, like 1 hour on Friday ([When](#why-when-and-how)). |
+| **Following the hype**: I adopt a tool because everyone shares it this week. | My team ends up with a project that is too young, with a single maintainer. | I look at the project's age, the number of maintainers and who runs it in production, then I place it in the [radar](#terminology). |
+| **Taking the vendor at their word**: I treat a vendor blog as a neutral opinion. | I rely on a text written to sell its product. | I cross-check with an independent source before proposing anything. |
+| **Reading without keeping a record**: I write nothing down. | Three months later, I find neither the source nor why I liked the tool. | I write one line per topic I keep, with the date, the source and my opinion. |
+| **Never trying**: I read everything but test nothing. | I only have impressions to offer the team. | I try one thing a month on a real case, even a small one. |
+| **Following a dead source**: I subscribe to a newsletter quoted everywhere that stopped publishing or got renamed. | I receive nothing, or no longer under the name I was following. | I check that a source is still active before subscribing. |
 
 ## What interviews ask
 

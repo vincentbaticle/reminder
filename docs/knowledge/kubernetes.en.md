@@ -1014,13 +1014,15 @@ I know my Kubernetes settings work when users no longer notice deployments or re
 
 ## Pitfalls to avoid
 
-- **The database in the liveness probe**: I check the database in the liveness probe, so the day the database goes down, Kubernetes restarts every pod in a loop without fixing anything. I put the dependency in the readiness probe, and the liveness probe only checks the app itself ([see Which probe for which need](#which-probe-for-which-need)).
-- **No startup probe for a slow app**: my app loads a big cache at startup, so the liveness probe kills it before it has finished starting. I add a startup probe, which holds the liveness probe back until startup is done ([see Startup probe](#startup-probe)).
-- **Restarting instead of understanding an `OOMKilled`**: I let the pod restart in a loop with code `137`, so the memory leak or the too-low limit stays. I read `kubectl describe pod`, then fix the leak or adjust the limit ([see requests and limits](#resources-requests-and-limits)).
-- **A Secret in plain text in Git**: I commit a Secret believing it is encrypted, while it is only base64-encoded, so anyone who reads the repo has the password. I fill it from a secrets manager ([see ConfigMap and Secret](#configmap-and-secret-config-per-environment)).
-- **A modified ConfigMap that changes nothing**: I change `LOG_LEVEL` in the ConfigMap and wait for the effect, but environment variables are read at startup, so the pods keep the old value. I restart the pods after the change ([see ConfigMap and Secret](#configmap-and-secret-config-per-environment)).
-- **A manual rollback under Argo CD**: I run `kubectl rollout undo`, so Argo CD puts back the Git version at the next sync. I revert the MR that changed the image tag ([see Argo CD](#argo-cd-git-decides-what-runs)).
-- **A generic chart where everything is configurable**: every Kubernetes field becomes a value, so the values file turns into a second language, harder than the manifests. I expose few things, with safe defaults and a documented way out ([see the generic chart](#one-generic-chart-for-every-service)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **The database in the liveness probe**: I check the database in the liveness probe. | The day the database goes down, Kubernetes restarts every pod in a loop without fixing anything. | I put the dependency in the readiness probe, and the liveness probe only checks the app itself ([Which probe for which need](#which-probe-for-which-need)). |
+| **No startup probe for a slow app**: my app loads a big cache at startup. | The liveness probe kills it before it has finished starting. | I add a startup probe, which holds the liveness probe back until startup is done ([Startup probe](#startup-probe)). |
+| **Restarting instead of understanding an `OOMKilled`**: I let the pod restart in a loop with code `137`. | The memory leak or the too-low limit stays. | I read `kubectl describe pod`, then fix the leak or adjust the limit ([requests and limits](#resources-requests-and-limits)). |
+| **A Secret in plain text in Git**: I commit a Secret believing it is encrypted, while it is only base64-encoded. | Anyone who reads the repo has the password. | I fill it from a secrets manager ([ConfigMap and Secret](#configmap-and-secret-config-per-environment)). |
+| **A modified ConfigMap that changes nothing**: I change `LOG_LEVEL` in the ConfigMap and wait for the effect. | Environment variables are read at startup, so the pods keep the old value. | I restart the pods after the change ([ConfigMap and Secret](#configmap-and-secret-config-per-environment)). |
+| **A manual rollback under Argo CD**: I run `kubectl rollout undo`. | Argo CD puts back the Git version at the next sync. | I revert the MR that changed the image tag ([Argo CD](#argo-cd-git-decides-what-runs)). |
+| **A generic chart where everything is configurable**: every Kubernetes field becomes a value. | The values file turns into a second language, harder than the manifests. | I expose few things, with safe defaults and a documented way out ([the generic chart](#one-generic-chart-for-every-service)). |
 
 ## What interviews ask
 

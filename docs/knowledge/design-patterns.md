@@ -2126,11 +2126,13 @@ Je sais qu'un pattern a servi quand le changement qu'il devait faciliter devient
 
 ## Pièges à éviter
 
-- **Le pattern pour le pattern** : j'ajoute une factory, une interface et une stratégie pour un seul cas. Résultat : trois classes à lire au lieu d'un `if`. Un pattern se justifie par un problème présent, pas futur.
-- **Le nom sans la forme** : j'appelle `OrderManagerFactoryService` une classe qui fait tout. Le nom d'un pattern promet une structure précise, le relecteur s'y fie, donc il se trompe sur ce que fait le code.
-- **Le Singleton partout** : je cache un état global, donc mes tests s'influencent entre eux : un test passe seul et échoue après un autre. L'injection de dépendances règle le même problème proprement.
-- **Le conteneur appelé partout** : j'appelle `$container->get(...)` depuis le code métier, donc le conteneur devient un service locator et les dépendances disparaissent de la signature du constructeur. Je n'appelle le conteneur qu'au point d'entrée, le reste reçoit ses dépendances par le constructeur ([voir le conteneur d'injection](#conteneur-dinjection)).
-- **Les décorateurs empilés** : j'enveloppe un objet dans une dizaine de couches (cache, logs, retry, métriques), donc au débogage la pile d'appels devient illisible. Je garde les couches utiles et je les nomme clairement ([voir Decorator](#decorator-decorateur)).
+| Piège | Ce qui se passe | Solution |
+| --- | --- | --- |
+| **Le pattern pour le pattern** : j'ajoute une factory, une interface et une stratégie pour un seul cas. | J'ai trois classes à lire au lieu d'un `if`. | Je ne pose un pattern que pour un problème présent, pas futur. |
+| **Le nom sans la forme** : j'appelle `OrderManagerFactoryService` une classe qui fait tout. | Le nom d'un pattern promet une structure précise, le relecteur s'y fie, donc il se trompe sur ce que fait le code. | Je ne donne le nom d'un pattern qu'à une classe qui en a la structure. |
+| **Le Singleton partout** : je cache un état global. | Mes tests s'influencent entre eux : un test passe seul et échoue après un autre. | J'utilise l'injection de dépendances, qui règle le même problème proprement. |
+| **Le conteneur appelé partout** : j'appelle `$container->get(...)` depuis le code métier. | Le conteneur devient un service locator et les dépendances disparaissent de la signature du constructeur. | Je n'appelle le conteneur qu'au point d'entrée, le reste reçoit ses dépendances par le constructeur ([Le conteneur d'injection](#conteneur-dinjection)). |
+| **Les décorateurs empilés** : j'enveloppe un objet dans une dizaine de couches (cache, logs, retry, métriques). | Au débogage, la pile d'appels devient illisible. | Je garde les couches utiles et je les nomme clairement ([Decorator](#decorator-decorateur)). |
 
 ## Ce qu'on demande en entretien
 

@@ -2123,14 +2123,16 @@ I know a solution from this page works when a number has moved, not when it is i
 
 ## Pitfalls to avoid
 
-- **A double across a boundary**: I replace the database or the HTTP partner with a mock in an API test. The mock answers what I expect, not what the real neighbour does, so the test stays green while production breaks, like the `403` response that lost its `WWW-Authenticate` header. I prove the behaviour with a real request, against real neighbours ([see The rule](#the-rule)).
-- **Coverage taken as proof**: I reassure myself with 100 % coverage. A test without an `assert` runs the whole function and checks nothing, so a bug gets through despite the number. I reread the assertions and try mutation testing ([see What it says](#what-it-says-and-what-it-does-not)).
-- **`allow_failure` to unblock a merge**: I set a red job to `allow_failure: true` because it waits for a package version not yet published. I have merged a known broken state. I read the order the red job tells me, merge the dependency first, then rerun ([see Never weaken a gate](#never-weaken-a-gate)).
-- **Silently retrying a flaky test**: I rerun the pipeline until it goes green. The team learns to ignore red, and on the day of a real bug nobody looks. I quarantine the test with a ticket, an owner and a deadline, and look for the cause ([see the strategy](#strategy-for-a-flaky-test)).
-- **Hooks on staged files only**: I trust the commit hook, which only sees staged files. CI checks the whole branch and turns red, sometimes at the third review iteration. I run `pre-commit run --all-files` before pushing ([see Running hooks](#running-hooks-on-the-whole-tree)).
-- **A shallow clone to judge new code**: I let CI clone with a partial history. The "new code" diff comes back wrong without any error, and the quality gate judges something other than my MR. I set `GIT_DEPTH: 0` ([see the gate traps](#traps)).
-- **An SLO computed on MRs**: I include MR pipelines in the pass rate. They fail more by nature, so the SLO is always broken on noise and nobody reads the alert any more. I compute the rate on the main branch ([see SLOs](#slos-on-test-suites)).
-- **A fallback value on a required field**: I write `product.title ?? "Untitled"` while the contract makes `title` required. A data gap passes for valid data and only shows up in production. I raise an error instead of hiding the gap ([see No fallback value](#no-fallback-value-that-hides-a-gap)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **A double across a boundary**: I replace the database or the HTTP partner with a mock in an API test. | The mock answers what I expect, not what the real neighbour does, so the test stays green while production breaks, like the `403` response that lost its `WWW-Authenticate` header. | I prove the behaviour with a real request, against real neighbours ([The rule](#the-rule)). |
+| **Coverage taken as proof**: I reassure myself with 100 % coverage. | A test without an `assert` runs the whole function and checks nothing, so a bug gets through despite the number. | I reread the assertions and try mutation testing ([What it says](#what-it-says-and-what-it-does-not)). |
+| **`allow_failure` to unblock a merge**: I set a red job to `allow_failure: true` because it waits for a package version not yet published. | I have merged a known broken state. | I read the order the red job tells me, merge the dependency first, then rerun ([Never weaken a gate](#never-weaken-a-gate)). |
+| **Silently retrying a flaky test**: I rerun the pipeline until it goes green. | The team learns to ignore red, and on the day of a real bug nobody looks. | I quarantine the test with a ticket, an owner and a deadline, and look for the cause ([The strategy](#strategy-for-a-flaky-test)). |
+| **Hooks on staged files only**: I trust the commit hook, which only sees staged files. | CI checks the whole branch and turns red, sometimes at the third review iteration. | I run `pre-commit run --all-files` before pushing ([Running hooks](#running-hooks-on-the-whole-tree)). |
+| **A shallow clone to judge new code**: I let CI clone with a partial history. | The "new code" diff comes back wrong without any error, and the quality gate judges something other than my MR. | I set `GIT_DEPTH: 0` ([The gate traps](#traps)). |
+| **An SLO computed on MRs**: I include MR pipelines in the pass rate. | They fail more by nature, so the SLO is always broken on noise and nobody reads the alert any more. | I compute the rate on the main branch ([SLOs](#slos-on-test-suites)). |
+| **A fallback value on a required field**: I write `product.title ?? "Untitled"` while the contract makes `title` required. | A data gap passes for valid data and only shows up in production. | I raise an error instead of hiding the gap ([No fallback value](#no-fallback-value-that-hides-a-gap)). |
 
 ## What interviews ask
 

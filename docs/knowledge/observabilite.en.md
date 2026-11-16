@@ -981,14 +981,16 @@ I know observability works when incidents are seen earlier and understood faster
 
 ## Pitfalls to avoid
 
-- **A high-cardinality label**: I add a `user_id` label to `http_requests_total`, so I get one series per user and storage explodes. I keep labels with few values (route, HTTP code, pod) and put the user ID in logs or traces ([see Metric types](#metric-types)).
-- **Following the average latency**: I watch the average, so slow requests vanish in the calculation and nobody sees what the unluckiest users go through. I look at the p95, and the p99 for extreme cases ([see p95 latency](#p95-latency)).
-- **An uninstrumented service in the middle of the chain**: a service or a home-made HTTP client does not copy the `traceparent` header, so the trace splits into two unrelated traces. I instrument every service, and check that the header also travels in messages ([see Propagation across services](#propagation-across-services)).
-- **Head sampling to cut volume**: I keep one trace in ten at random, from the start of the request, so I also throw away nine errors in ten. I use tail sampling in the collector, which keeps errors and slow requests ([see Tail sampling](#tail-sampling)).
-- **Excluding probes in the instrumentation**: I remove `/readyz` and `/livez` from traces to cut the noise, so I lose the trace of the failing probe, the one that explains why a pod was restarted. I only drop successful probes, through tail sampling in the collector ([see the case study](#case-study-kubernetes-probe-noise)).
-- **Logs without a `trace_id`**: my logs do not carry the trace ID, so during an incident I search by hand through millions of lines, just when time matters most. I let OpenTelemetry add the `trace_id` to every line ([see Log and trace correlation](#log-and-trace-correlation)).
-- **Alerting on a cause**: I wake the on-call person for "CPU at 85%", often with no visible effect, so the team gets used to ignoring alerts. I alert on what the user experiences, or on a burn rate ([see Alert on symptoms](#alert-on-symptoms-not-on-causes)).
-- **An SLA as tight as the SLO**: I promise the customer the same percentage as my internal objective, so the team is only alerted when it already has to pay. I keep the SLA looser than the SLO ([see SLA and tolerated downtime](#sla-and-tolerated-downtime-ita)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **A high-cardinality label**: I add a `user_id` label to `http_requests_total`. | I get one series per user and storage explodes. | I keep labels with few values (route, HTTP code, pod) and put the user ID in logs or traces ([Metric types](#metric-types)). |
+| **Following the average latency**: I watch the average. | Slow requests vanish in the calculation and nobody sees what the unluckiest users go through. | I look at the p95, and the p99 for extreme cases ([p95 latency](#p95-latency)). |
+| **An uninstrumented service in the middle of the chain**: a service or a home-made HTTP client does not copy the `traceparent` header. | The trace splits into two unrelated traces. | I instrument every service, and check that the header also travels in messages ([Propagation across services](#propagation-across-services)). |
+| **Head sampling to cut volume**: I keep one trace in ten at random, from the start of the request. | I also throw away nine errors in ten. | I use tail sampling in the collector, which keeps errors and slow requests ([Tail sampling](#tail-sampling)). |
+| **Excluding probes in the instrumentation**: I remove `/readyz` and `/livez` from traces to cut the noise. | I lose the trace of the failing probe, the one that explains why a pod was restarted. | I only drop successful probes, through tail sampling in the collector ([the case study](#case-study-kubernetes-probe-noise)). |
+| **Logs without a `trace_id`**: my logs do not carry the trace ID. | During an incident, I search by hand through millions of lines, just when time matters most. | I let OpenTelemetry add the `trace_id` to every line ([Log and trace correlation](#log-and-trace-correlation)). |
+| **Alerting on a cause**: I wake the on-call person for "CPU at 85%", often with no visible effect. | The team gets used to ignoring alerts. | I alert on what the user experiences, or on a burn rate ([Alert on symptoms](#alert-on-symptoms-not-on-causes)). |
+| **An SLA as tight as the SLO**: I promise the customer the same percentage as my internal objective. | The team is only alerted when it already has to pay. | I keep the SLA looser than the SLO ([SLA and tolerated downtime](#sla-and-tolerated-downtime-ita)). |
 
 ## What interviews ask
 

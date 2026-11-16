@@ -615,14 +615,16 @@ I know my dependency management works when installs are fast, identical everywhe
 
 ## Pitfalls to avoid
 
-- **`npm install` or `composer update` in CI**: I install something other than what was tested, and a pipeline breaks on a Wednesday with no code change. I use `npm ci`, `composer install`, `uv sync --locked` ([see Manifest and lockfile](#manifest-and-lockfile)).
-- **Resolving a lockfile conflict by hand**: I merge both versions line by line, and the file becomes inconsistent. I take the target branch's file and rerun the install to regenerate it.
-- **Two managers in the same repository**: a `package-lock.json` and a `yarn.lock` diverge, and each laptop installs a different tree. I keep one, delete the other lockfile, and pin the manager in `packageManager` or `mise.toml`.
-- **Importing an undeclared package**: my code uses `debug` because a dependency installed it flat; it disappears in an update and the build breaks. I declare everything I import, and pnpm reminds me ([see JavaScript](#javascript-and-typescript-npm-pnpm-yarn-bun)).
-- **`--extra-index-url` for an internal package**: pip also looks for the name on PyPI and takes the higher version, an attacker's. A single index, the company registry ([see Securing installation](#securing-installation)).
-- **`sudo pip install` or `--break-system-packages`**: I overwrite a library the OS needs. I work in a `.venv` ([see the three families](#the-three-families-of-managers)).
-- **An `override` nobody remembers**: I force a version of a transitive dependency to unblock a merge request, and it stays frozen for two years. I write down why and when to remove it ([see Resolution and conflicts](#resolution-and-conflicts)).
-- **`--legacy-peer-deps` by reflex**: the install passes, but a plugin runs with a host version it does not support, and the error shows up at run time. I fix the version conflict.
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **`npm install` or `composer update` in CI**: I run these commands in the pipeline and install something other than what was tested. | A pipeline breaks on a Wednesday with no code change. | I use `npm ci`, `composer install`, `uv sync --locked` ([Manifest and lockfile](#manifest-and-lockfile)). |
+| **Resolving a lockfile conflict by hand**: I merge both versions line by line. | The file becomes inconsistent. | I take the target branch's file and rerun the install to regenerate it. |
+| **Two managers in the same repository**: I let a `package-lock.json` and a `yarn.lock` live side by side. | The two lockfiles diverge, and each laptop installs a different tree. | I keep one, delete the other lockfile, and pin the manager in `packageManager` or `mise.toml`. |
+| **Importing an undeclared package**: my code uses `debug` because a dependency installed it flat. | It disappears in an update and the build breaks. | I declare everything I import, and pnpm reminds me ([JavaScript](#javascript-and-typescript-npm-pnpm-yarn-bun)). |
+| **`--extra-index-url` for an internal package**: I add a second index with `--extra-index-url` to install a company package. | pip also looks for the name on PyPI and takes the higher version, an attacker's. | I use a single index, the company registry ([Securing installation](#securing-installation)). |
+| **`sudo pip install` or `--break-system-packages`**: I install a package straight into the system Python. | I overwrite a library the OS needs. | I work in a `.venv` ([the three families](#the-three-families-of-managers)). |
+| **An `override` nobody remembers**: I force a version of a transitive dependency to unblock a merge request. | It stays frozen for two years. | I write down why and when to remove it ([Resolution and conflicts](#resolution-and-conflicts)). |
+| **`--legacy-peer-deps` by reflex**: I add this flag as soon as a version conflict blocks the install. | The install passes, but a plugin runs with a host version it does not support, and the error shows up at run time. | I fix the version conflict. |
 
 ## What interviews ask
 

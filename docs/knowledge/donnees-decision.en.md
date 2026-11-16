@@ -939,14 +939,16 @@ I know the solutions on this page work when the numbers I decide on are correct,
 
 ## Pitfalls to avoid
 
-- **Numbers first, question later**: I open the dashboard and then find a story that fits the numbers, so I decide on a coincidence; I write the question and the decision rule before looking ([see Deciding with data](#deciding-with-data)).
-- **Correlation taken for a cause**: I see that mobile app customers buy more and I push the app, when it may be loyal customers who install it; only a controlled experiment proves an effect ([see A/B testing](#ab-testing)).
-- **A/B test stopped too early**: I stop the test as soon as version B "looks good", false positives multiply and I keep a version that does no better; I set the metric, the duration and the number of visitors beforehand, and let it run for at least one full week.
-- **Real time everywhere**: I build streaming for a number looked at once a month, and pay for infrastructure and on-call for nothing; I keep real time for decisions where every minute counts, like a broken payment ([see Time to insight](#time-to-insight)).
-- **Misleading chart**: I draw bars whose axis does not start at zero, or a dashboard of 40 charts, and a 2% gap looks huge or nobody reads anything; I start from the 3 to 5 decisions the dashboard must help make ([see Visualising data](#visualising-data)).
-- **Data leakage in the model**: I let the model see during training a piece of information it will not have in real life, like the cancellation date, and its too-good results collapse in production; I evaluate on data it has never seen and remove that information ([see Data science](#data-science-and-predictive-models)).
-- **No data quality test**: I rely on the pipeline to flag errors, but wrong data does not crash it, it produces a wrong number found weeks later; I test at every handover, starting with the columns a decision depends on ([see Testing data quality](#testing-data-quality)).
-- **Savings with no unit**: I announce savings on the total bill, which barely moves because volume grew; I start from a measured baseline and bring the cost back to a unit, like the cost per 1,000 orders ([see Costs and savings](#costs-and-savings)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **Numbers first, question later**: I open the dashboard and then find a story that fits the numbers. | I decide on a coincidence. | I write the question and the decision rule before looking ([Deciding with data](#deciding-with-data)). |
+| **Correlation taken for a cause**: I see that mobile app customers buy more and I push the app. | It may be loyal customers who install it, so I push the app with no proof that it makes people buy more. | I rely on a controlled experiment, the only thing that proves an effect ([A/B testing](#ab-testing)). |
+| **A/B test stopped too early**: I stop the test as soon as version B "looks good". | False positives multiply and I keep a version that does no better. | I set the metric, the duration and the number of visitors beforehand, and let it run for at least one full week. |
+| **Real time everywhere**: I build streaming for a number looked at once a month. | I pay for infrastructure and on-call for nothing. | I keep real time for decisions where every minute counts, like a broken payment ([Time to insight](#time-to-insight)). |
+| **Misleading chart**: I draw bars whose axis does not start at zero, or a dashboard of 40 charts. | A 2% gap looks huge, or nobody reads anything. | I start from the 3 to 5 decisions the dashboard must help make ([Visualising data](#visualising-data)). |
+| **Data leakage in the model**: I let the model see during training a piece of information it will not have in real life, like the cancellation date. | Its too-good results collapse in production. | I evaluate on data it has never seen and remove that information ([Data science](#data-science-and-predictive-models)). |
+| **No data quality test**: I rely on the pipeline to flag errors. | Wrong data does not crash it, it produces a wrong number found weeks later. | I test at every handover, starting with the columns a decision depends on ([Testing data quality](#testing-data-quality)). |
+| **Savings with no unit**: I announce savings on the total bill. | The bill barely moves because volume grew. | I start from a measured baseline and bring the cost back to a unit, like the cost per 1,000 orders ([Costs and savings](#costs-and-savings)). |
 
 ## What interviews ask
 

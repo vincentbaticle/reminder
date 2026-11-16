@@ -1532,13 +1532,15 @@ I know a behavioral pattern paid off when the change it was meant to ease really
 
 ## Pitfalls to avoid
 
-- **Deep inheritance**: I stack a `Template Method` four levels deep, and nobody knows anymore which class writes which step. Beyond one level, I prefer composition (Strategy, Decorator).
-- **Observer when order matters**: I go through subscribers while billing must succeed before the email is sent, or an error in a subscriber must cancel everything. Nothing in the code states that order, so the email can go out for an order whose billing failed. In that case, I write direct calls ([see Observer](#observer)).
-- **The strategy choice copied everywhere**: I read `"express"` with an `if` in the controller, then in the export, then in the mobile API. A typo falls into the wrong strategy without any error. I centralize the choice in a single table and raise an error on an unknown name ([see Strategy](#strategy)).
-- **The subscriber that fails silently**: an exception in the email subscriber is swallowed, or stops the stock subscriber that comes next from running. The customer gets nothing, the stock is wrong, and nobody sees it. I isolate each subscriber: its error is logged, the others go on ([see Observer](#observer)).
-- **Approximate undo**: my `undo()` removes "the last item in the cart" instead of the one the command added, so when a promotion has just added a gift, undo removes the gift. Each command keeps what it did, and I test it with the `execute()` then `undo()` pair ([see Command](#command)).
-- **Middleware order left to chance**: I declare the cache middleware before the authentication one, so a response cached for a logged-in user is served to a call without a token. I write the chain in one place and a test checks its order ([see Chain of Responsibility](#chain-of-responsibility)).
-- **The state table that lives only in the code**: a SQL fix script writes `shipped` straight into the database, without going through the object, and the rule is bypassed. I back the table with a database constraint, or route every write through the object ([see State](#state)).
+| Pitfall | What happens | Solution |
+| --- | --- | --- |
+| **Deep inheritance**: I stack a `Template Method` four levels deep. | Nobody knows anymore which class writes which step. | Beyond one level, I prefer composition (Strategy, Decorator). |
+| **Observer when order matters**: I go through subscribers while billing must succeed before the email is sent, or an error in a subscriber must cancel everything. | Nothing in the code states that order, so the email can go out for an order whose billing failed. | In that case, I write direct calls ([Observer](#observer)). |
+| **The strategy choice copied everywhere**: I read `"express"` with an `if` in the controller, then in the export, then in the mobile API. | A typo falls into the wrong strategy without any error. | I centralize the choice in a single table and raise an error on an unknown name ([Strategy](#strategy)). |
+| **The subscriber that fails silently**: I let an exception in the email subscriber be swallowed, or stop the stock subscriber that comes next from running. | The customer gets nothing, the stock is wrong, and nobody sees it. | I isolate each subscriber: its error is logged, the others go on ([Observer](#observer)). |
+| **Approximate undo**: my `undo()` removes "the last item in the cart" instead of the one the command added. | When a promotion has just added a gift, undo removes the gift. | Each command keeps what it did, and I test it with the `execute()` then `undo()` pair ([Command](#command)). |
+| **Middleware order left to chance**: I declare the cache middleware before the authentication one. | A response cached for a logged-in user is served to a call without a token. | I write the chain in one place and a test checks its order ([Chain of Responsibility](#chain-of-responsibility)). |
+| **The state table that lives only in the code**: I let a SQL fix script write `shipped` straight into the database, without going through the object. | The rule is bypassed. | I back the table with a database constraint, or route every write through the object ([State](#state)). |
 
 ## What interviews ask
 

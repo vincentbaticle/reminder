@@ -449,7 +449,9 @@ Je sais que l'autoscaling marche quand la latence reste stable au pic sans que j
 
 ## Pièges à éviter
 
-- **Un `replicas` fixe à côté du HPA** : je laisse `replicas: 3` dans le modèle Helm alors que le HPA est activé, donc Argo CD remet 3 pendant que le HPA remet 6. Je retire `replicas` du modèle, et je vérifie que `requests.cpu` est déclaré, sans quoi le HPA ne décide rien ([voir HPA](#hpa-le-point-de-depart)).
+| Piège | Ce qui se passe | Solution |
+| --- | --- | --- |
+| **Un `replicas` fixe à côté du HPA** : je laisse `replicas: 3` dans le modèle Helm alors que le HPA est activé. | Argo CD remet 3 pendant que le HPA remet 6. | Je retire `replicas` du modèle, et je vérifie que `requests.cpu` est déclaré, sans quoi le HPA ne décide rien ([HPA](#hpa-le-point-de-depart)). |
 
 ## Ce qu'on demande en entretien
 

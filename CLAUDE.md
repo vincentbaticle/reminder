@@ -79,7 +79,7 @@ Personal cheat sheets published as a MkDocs Material site, in French (default) a
 
 ## Rule: standard closing sections
 
-- Every page (expressions excepted) ends, before its sources, with `## Mesurer le succès` (see above), `## Pièges à éviter` / `## Pitfalls to avoid` (5 to 8 first-person bullets: the mistake, its consequence, what to do instead) and `## Ce qu'on demande en entretien` / `## What interviews ask` (typical questions as quotes, then how to answer, with links to the page's sections).
+- Every page (expressions excepted) ends, before its sources, with `## Mesurer le succès` (see above), `## Pièges à éviter` / `## Pitfalls to avoid` (a `Piège | Ce qui se passe | Solution` / `Pitfall | What happens | Solution` table of 5 to 8 rows: the mistake as a bold short name then one first-person sentence, its consequence, what I do instead with a link to the section that explains it) and `## Ce qu'on demande en entretien` / `## What interviews ask` (typical questions as quotes, then how to answer, with links to the page's sections).
 
 ## Rule: kind of every code block
 

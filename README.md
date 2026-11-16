@@ -20,6 +20,7 @@ Mes pense-bêtes, à lire en ligne sur **[vincentbaticle.github.io/reminder](htt
 
 - [API REST et asynchrone](docs/knowledge/api-rest-async.md) : méthodes et codes HTTP, pagination, versions, OpenAPI, API first, API management, GraphQL, événements, files, DLQ, outbox, AsyncAPI
 - [Sécurité](docs/knowledge/securite.md) : opérations de sécurité (SIEM, NDR, CSPM, SAST), OAuth, OIDC, PKCE, OAuth 2.1, DPoP, DCR, Auth0, OWASP API Top 10, STRIDE, zero trust et mTLS, RGPD dans l'architecture, secrets
+- [Cybersécurité et hacking éthique](docs/knowledge/cybersecurite.md) : cadre légal et divulgation, kill chain et MITRE ATT&CK, pentest, red team, bug bounty, outils offensifs, s'entraîner légalement, CVSS, EPSS et KEV, chaîne d'approvisionnement, outils d'IA qui simulent des attaques (Daybreak)
 
 ### Exploitation
 
@@ -33,6 +34,7 @@ Mes pense-bêtes, à lire en ligne sur **[vincentbaticle.github.io/reminder](htt
 - [Qualité et tests](docs/knowledge/qualite.md) : pyramide, trophée, nid d'abeille, quadrants, ISO/IEC 25010, niveaux de test, tests synthétiques, Testcontainers, contrats, Gherkin, couverture, quality gates, CI, tests canary et blue-green, A/B test, mutation testing, écoles de Londres et de Detroit, tests instables, revue de code
 - [Concevoir les tests](docs/knowledge/conception-tests.md) : stratégie par les risques, critères de sortie, techniques de conception de tests, test exploratoire, données de test, TDD et code legacy, rapport de bug, accessibilité
 - [Panorama des outils techniques](docs/knowledge/outils.md) : RabbitMQ, Kafka, Pub/Sub, Redis, bases, Kubernetes, CI, observabilité, tests, Checkly, tech radars, avec mini benchmarks et quoi choisir
+- [Gestionnaires de paquets](docs/knowledge/gestionnaires-paquets.md) : système, versions d'outils et langage, lockfile, SemVer, résolution des conflits, npm, pnpm, yarn, Bun, uv, Poetry, Composer, Maven, workspaces, registres privés, sécuriser l'installation
 - [Developer Experience et plateforme](docs/knowledge/devx.md) : boucle interne et externe, CI rapide, platform engineering, golden paths, portail, documentation, onboarding, migrations à grande échelle
 - [Données et décision](docs/knowledge/donnees-decision.md) : plateforme de données (lakehouse, ETL, Spark, MLOps), décisions pilotées par les données, time to insight, temps réel, A/B testing, visualisation, gouvernance des données, data science, FinOps
 

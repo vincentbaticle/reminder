@@ -18,7 +18,7 @@
 
     Détail et mots ambigus : [carte des échelles](architecture.md#carte-des-echelles).
 
-Cette page couvre la sécurité qu'on croise tous les jours en développant et en testant : qui a le droit de faire quoi (<span class="term" data-term="authentication">authentification</span>, <span class="term" data-term="authorization">autorisation</span>), comment c'est prouvé (OAuth, <span class="term" data-term="openid-connect">OpenID Connect</span>, <span class="term" data-term="token-oauth">jetons</span>), ce que change OAuth 2.1, ce qu'est Auth0, et les failles les plus courantes des API.
+Cette page couvre la sécurité qu'on croise tous les jours en développant et en testant : qui a le droit de faire quoi (<span class="term" data-term="authentication">authentification</span>, <span class="term" data-term="authorization">autorisation</span>), comment c'est prouvé (OAuth, <span class="term" data-term="openid-connect">OpenID Connect</span>, <span class="term" data-term="token-oauth">jetons</span>), ce que change OAuth 2.1, ce qu'est Auth0, et les failles les plus courantes des API. Le côté attaquant (tests d'intrusion, red team, tri des failles, outils d'IA qui simulent des attaques) est dans [Cybersécurité et hacking éthique](cybersecurite.md).
 
 Les noms de domaines, d'applications et de comptes sont des exemples.
 
@@ -1529,7 +1529,7 @@ Pour un traitement à risque élevé (données de santé, suivi à grande échel
 | scan de dépendances      | cherche les failles connues dans les bibliothèques utilisées  | « la version 2.3 de cette lib a une faille critique » |
 | scan de secrets          | cherche des clés et mots de passe dans le code et l'historique | gitleaks                                 |
 | DAST                     | attaque l'application qui tourne, de l'extérieur               | OWASP ZAP sur l'environnement d'intégration |
-| test d'intrusion         | une personne spécialisée cherche des failles à la main        | avant une mise en production sensible    |
+| test d'intrusion         | une personne spécialisée cherche des failles à la main        | avant une mise en production sensible ([formes de test offensif](cybersecurite.md#les-formes-de-test-offensif)) |
 
 Chaque outil tourne là où il est le moins cher de corriger ce qu'il trouve : le plus tôt possible pour ce qui se voit dans le code, sur l'application qui tourne pour le reste.
 
@@ -1566,7 +1566,7 @@ Lecture : `requests` 2.31.0 a une faille connue, corrigée en 2.32.0 (sortie ill
 { .tool-rel }
 
 
-**Risques.** Un scan qui bloque le pipeline sur toute faille connue, même sans correctif disponible, bloque aussi les livraisons urgentes, et l'équipe finit par désactiver le contrôle. Je bloque sur les failles critiques qui ont un correctif, et je trace les autres comme risques acceptés avec une date de revue. Un scan ne voit que les failles déjà publiées : une dépendance piégée publiée la veille passe.
+**Risques.** Un scan qui bloque le pipeline sur toute faille connue, même sans correctif disponible, bloque aussi les livraisons urgentes, et l'équipe finit par désactiver le contrôle. Je bloque sur les failles critiques qui ont un correctif, et je trace les autres comme risques acceptés avec une date de revue. Un scan ne voit que les failles déjà publiées : une dépendance piégée publiée la veille passe. Les réglages du gestionnaire de paquets qui réduisent ce risque (lockfile avec empreintes, scripts bloqués, délai avant adoption) sont dans [Sécuriser l'installation](gestionnaires-paquets.md#securiser-linstallation).
 
 :material-book-open-variant: Doc de référence : [pip-audit](https://github.com/pypa/pip-audit) (consultée en novembre 2026)
 { .doc-ref }

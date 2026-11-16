@@ -18,7 +18,7 @@
 
     Details and ambiguous words: [map of scales](architecture.md#map-of-scales).
 
-This page covers the security topics I run into every day when developing and testing: who is allowed to do what (<span class="term" data-term="authentication">authentication</span>, <span class="term" data-term="authorization">authorization</span>), how it is proven (OAuth, <span class="term" data-term="openid-connect">OpenID Connect</span>, <span class="term" data-term="token-oauth">tokens</span>), what OAuth 2.1 changes, what Auth0 is, and the most common API vulnerabilities.
+This page covers the security topics I run into every day when developing and testing: who is allowed to do what (<span class="term" data-term="authentication">authentication</span>, <span class="term" data-term="authorization">authorization</span>), how it is proven (OAuth, <span class="term" data-term="openid-connect">OpenID Connect</span>, <span class="term" data-term="token-oauth">tokens</span>), what OAuth 2.1 changes, what Auth0 is, and the most common API vulnerabilities. The attacker's side (penetration tests, red team, vulnerability triage, AI tools that simulate attacks) is in [Cybersecurity and ethical hacking](cybersecurite.md).
 
 Domain, application and account names are examples.
 
@@ -1529,7 +1529,7 @@ For high-risk processing (health data, large-scale monitoring), a <span class="t
 | dependency scan          | looks for known vulnerabilities in the libraries used          | "version 2.3 of this lib has a critical vulnerability" |
 | secret scan              | looks for keys and passwords in the code and the history       | gitleaks                                 |
 | DAST                     | attacks the running application from the outside               | OWASP ZAP on the integration environment |
-| penetration test         | a specialist looks for vulnerabilities by hand                 | before a sensitive production release    |
+| penetration test         | a specialist looks for vulnerabilities by hand                 | before a sensitive production release ([forms of offensive testing](cybersecurite.md#forms-of-offensive-testing)) |
 
 Each tool runs where fixing what it finds is cheapest: as early as possible for what shows in the code, on the running application for the rest.
 
@@ -1566,7 +1566,7 @@ Reading: `requests` 2.31.0 has a known vulnerability, fixed in 2.32.0 (illustrat
 { .tool-rel }
 
 
-**Risks.** A scan that blocks the pipeline on every known vulnerability, even with no fix available, also blocks urgent releases, and the team ends up disabling the check. I block on critical vulnerabilities that have a fix, and I track the others as accepted risks with a review date. A scan only sees vulnerabilities already published: a booby-trapped dependency released the day before gets through.
+**Risks.** A scan that blocks the pipeline on every known vulnerability, even with no fix available, also blocks urgent releases, and the team ends up disabling the check. I block on critical vulnerabilities that have a fix, and I track the others as accepted risks with a review date. A scan only sees vulnerabilities already published: a booby-trapped dependency released the day before gets through. The package manager settings that reduce this risk (lockfile with hashes, blocked scripts, delay before adoption) are in [Securing installation](gestionnaires-paquets.md#securing-installation).
 
 :material-book-open-variant: Reference docs: [pip-audit](https://github.com/pypa/pip-audit) (accessed November 2026)
 { .doc-ref }

@@ -6626,6 +6626,132 @@ window.REMINDER_TERMS = {
    "definition": "Builder qui fabrique un objet valide par défaut ; chaque test ne précise que ce qui compte pour lui.",
    "example": "order = OrderBuilder().with_total(12_000).build()",
    "example_is_code": true
+  },
+  "package-registry": {
+   "term": "Registre de paquets",
+   "definition": "Serveur où les paquets sont publiés et d’où le gestionnaire de paquets les télécharge.",
+   "example": "pip install requests télécharge requests depuis PyPI, le registre public de Python.",
+   "example_is_code": false
+  },
+  "package-manifest": {
+   "term": "Manifeste",
+   "definition": "Fichier écrit à la main qui liste les dépendances directes d’un projet et les versions acceptées.",
+   "example": "{\n  \"dependencies\": {\n    \"react\": \"^18.3.1\"\n  }\n}",
+   "example_is_code": true
+  },
+  "version-range": {
+   "term": "Plage de versions",
+   "definition": "Règle du manifeste qui dit quelles versions d’une dépendance sont acceptées, au lieu d’une version unique.",
+   "example": "\"date-fns\": \"^3.6.0\"",
+   "example_is_code": true
+  },
+  "virtual-environment": {
+   "term": "Environnement virtuel",
+   "definition": "Dossier isolé qui contient l’interpréteur et les paquets d’un seul projet, pour que deux projets n’écrasent pas leurs versions.",
+   "example": "python -m venv .venv\nsource .venv/bin/activate\npip install requests",
+   "example_is_code": true
+  },
+  "typosquatting": {
+   "term": "Typosquatting",
+   "definition": "Publication d’un paquet malveillant sous un nom presque identique à celui d’un paquet populaire, en comptant sur une faute de frappe.",
+   "example": "Un attaquant publie reqeusts sur PyPI ; un développeur qui tape pip install reqeusts installe son code.",
+   "example_is_code": false
+  },
+  "install-script": {
+   "term": "Script d’installation",
+   "definition": "Commande qu’un paquet fait exécuter automatiquement pendant son installation, souvent pour compiler ou télécharger un binaire.",
+   "example": "\"scripts\": {\n  \"postinstall\": \"node download-binary.js\"\n}",
+   "example_is_code": true
+  },
+  "dependency-confusion": {
+   "term": "Confusion de dépendances",
+   "definition": "Attaque où un paquet public porte le nom d’un paquet interne avec une version plus haute, et se fait installer à sa place.",
+   "example": "L’entreprise utilise shop-auth 1.2 en interne ; un attaquant publie shop-auth 99.0 sur le registre public, que pip choisit avec --extra-index-url.",
+   "example_is_code": false
+  },
+  "package-provenance": {
+   "term": "Provenance",
+   "definition": "Attestation signée qui dit quel workflow de CI, à partir de quel commit, a construit un paquet publié.",
+   "example": "npm publish --provenance",
+   "example_is_code": true
+  },
+  "sbom": {
+   "term": "SBOM",
+   "definition": "Software Bill of Materials : la liste de tous les composants d’un logiciel, dépendances transitives comprises, dans un format standard.",
+   "example": "syft my-api:1.4.0 -o cyclonedx-json > sbom.json",
+   "example_is_code": true
+  },
+  "exploit": {
+   "term": "Exploit",
+   "definition": "Code ou suite d’actions qui utilise une faille pour obtenir un effet concret, comme lire des données interdites.",
+   "example": "Un script qui appelle /orders/1, /orders/2, /orders/3... avec le jeton d’ada et récupère les commandes de tout le monde.",
+   "example_is_code": false
+  },
+  "zero-day": {
+   "term": "Zero-day",
+   "definition": "Faille inconnue de l’éditeur, donc sans correctif disponible au moment où elle est exploitée.",
+   "example": "Un attaquant exploite une faille du navigateur le jour même où il la découvre, avant que l’éditeur ne la connaisse.",
+   "example_is_code": false
+  },
+  "attack-surface": {
+   "term": "Surface d’attaque",
+   "definition": "Tout ce qu’un attaquant peut atteindre depuis l’extérieur : routes, ports, comptes, fichiers exposés.",
+   "example": "my-api expose 40 routes publiques, un port SSH et un bucket en lecture publique : c’est sa surface d’attaque.",
+   "example_is_code": false
+  },
+  "pentest": {
+   "term": "Test d’intrusion (pentest)",
+   "definition": "Attaque autorisée, limitée dans le temps et le périmètre, dont le livrable est un rapport des failles trouvées.",
+   "example": "Deux pentesteurs attaquent l’environnement de recette pendant deux semaines et remettent un rapport de 12 constats.",
+   "example_is_code": false
+  },
+  "red-team": {
+   "term": "Red team",
+   "definition": "Équipe qui joue le rôle d’un vrai attaquant, sans prévenir les défenseurs, pour éprouver la détection et la réponse.",
+   "example": "La red team obtient un accès par un mail piégé et voit si l’équipe sécurité la repère avant qu’elle n’atteigne la base clients.",
+   "example_is_code": false
+  },
+  "bug-bounty": {
+   "term": "Bug bounty",
+   "definition": "Programme qui rémunère des chercheurs extérieurs pour chaque faille signalée selon des règles publiées.",
+   "example": "Une faille BOLA signalée sur l’API rapporte 1 500 euros à la chercheuse, selon la grille du programme (montant d’exemple).",
+   "example_is_code": false
+  },
+  "ctf": {
+   "term": "CTF",
+   "definition": "Capture The Flag : exercice ou compétition où l’on exploite des failles volontaires pour récupérer une chaîne secrète, le drapeau.",
+   "example": "FLAG{sql_injection_101}",
+   "example_is_code": true
+  },
+  "privilege-escalation": {
+   "term": "Élévation de privilèges",
+   "definition": "Passer d’un accès limité à un accès plus puissant, par exemple d’un compte utilisateur à administrateur.",
+   "example": "L’attaquant connecté en tant qu’ada modifie le champ role=admin dans sa requête de profil, et l’API l’accepte.",
+   "example_is_code": false
+  },
+  "lateral-movement": {
+   "term": "Mouvement latéral",
+   "definition": "Une fois entré sur une machine, passer à d’autres systèmes du même réseau avec les accès trouvés.",
+   "example": "Depuis le serveur web piraté, l’attaquant lit une clé cloud et s’en sert pour ouvrir la base de données.",
+   "example_is_code": false
+  },
+  "bas": {
+   "term": "Simulation d’attaque (BAS)",
+   "definition": "Breach and Attack Simulation : outil qui rejoue automatiquement des techniques d’attaque connues pour vérifier qu’elles sont bloquées ou détectées.",
+   "example": "Chaque nuit, Caldera tente un vol d’identifiants sur un poste de test et vérifie que le SIEM a levé une alerte.",
+   "example_is_code": false
+  },
+  "supply-chain-attack": {
+   "term": "Attaque de la chaîne d’approvisionnement",
+   "definition": "Attaque qui pirate un composant dont dépendent beaucoup de logiciels (bibliothèque, outil de build) pour toucher tous leurs utilisateurs d’un coup.",
+   "example": "xz-utils (2024) : une porte dérobée cachée dans une bibliothèque de compression utilisée par SSH sur de nombreuses distributions Linux.",
+   "example_is_code": false
+  },
+  "social-engineering": {
+   "term": "Ingénierie sociale",
+   "definition": "Manipuler une personne pour obtenir un accès ou une information, au lieu d’attaquer la technique.",
+   "example": "Un faux technicien appelle le support : « je suis en déplacement, réinitialisez mon MFA », et obtient l’accès au compte.",
+   "example_is_code": false
   }
  },
  "en": {
@@ -13252,6 +13378,132 @@ window.REMINDER_TERMS = {
    "definition": "A builder that makes a valid object by default; each test only sets what matters to it.",
    "example": "order = OrderBuilder().with_total(12_000).build()",
    "example_is_code": true
+  },
+  "package-registry": {
+   "term": "Package registry",
+   "definition": "Server where packages are published and from which the package manager downloads them.",
+   "example": "pip install requests downloads requests from PyPI, Python's public registry.",
+   "example_is_code": false
+  },
+  "package-manifest": {
+   "term": "Manifest",
+   "definition": "Hand-written file listing a project's direct dependencies and the accepted versions.",
+   "example": "{\n  \"dependencies\": {\n    \"react\": \"^18.3.1\"\n  }\n}",
+   "example_is_code": true
+  },
+  "version-range": {
+   "term": "Version range",
+   "definition": "Manifest rule saying which versions of a dependency are accepted, instead of a single version.",
+   "example": "\"date-fns\": \"^3.6.0\"",
+   "example_is_code": true
+  },
+  "virtual-environment": {
+   "term": "Virtual environment",
+   "definition": "Isolated folder holding the interpreter and packages of a single project, so two projects do not overwrite each other's versions.",
+   "example": "python -m venv .venv\nsource .venv/bin/activate\npip install requests",
+   "example_is_code": true
+  },
+  "typosquatting": {
+   "term": "Typosquatting",
+   "definition": "Publishing a malicious package under a name almost identical to a popular one, betting on a typo.",
+   "example": "An attacker publishes reqeusts on PyPI; a developer who types pip install reqeusts installs their code.",
+   "example_is_code": false
+  },
+  "install-script": {
+   "term": "Install script",
+   "definition": "Command a package runs automatically during its installation, often to compile or download a binary.",
+   "example": "\"scripts\": {\n  \"postinstall\": \"node download-binary.js\"\n}",
+   "example_is_code": true
+  },
+  "dependency-confusion": {
+   "term": "Dependency confusion",
+   "definition": "Attack where a public package takes the name of an internal package with a higher version, and gets installed instead.",
+   "example": "The company uses shop-auth 1.2 internally; an attacker publishes shop-auth 99.0 on the public registry, which pip picks with --extra-index-url.",
+   "example_is_code": false
+  },
+  "package-provenance": {
+   "term": "Provenance",
+   "definition": "Signed statement saying which CI workflow, from which commit, built a published package.",
+   "example": "npm publish --provenance",
+   "example_is_code": true
+  },
+  "sbom": {
+   "term": "SBOM",
+   "definition": "Software Bill of Materials: the list of all components of a piece of software, transitive dependencies included, in a standard format.",
+   "example": "syft my-api:1.4.0 -o cyclonedx-json > sbom.json",
+   "example_is_code": true
+  },
+  "exploit": {
+   "term": "Exploit",
+   "definition": "Code or sequence of actions that uses a vulnerability to get a concrete effect, like reading forbidden data.",
+   "example": "A script that calls /orders/1, /orders/2, /orders/3... with ada's token and retrieves everyone's orders.",
+   "example_is_code": false
+  },
+  "zero-day": {
+   "term": "Zero-day",
+   "definition": "Vulnerability unknown to the vendor, so with no fix available when it is exploited.",
+   "example": "An attacker exploits a browser vulnerability the very day they discover it, before the vendor knows about it.",
+   "example_is_code": false
+  },
+  "attack-surface": {
+   "term": "Attack surface",
+   "definition": "Everything an attacker can reach from outside: routes, ports, accounts, exposed files.",
+   "example": "my-api exposes 40 public routes, an SSH port and a publicly readable bucket: that is its attack surface.",
+   "example_is_code": false
+  },
+  "pentest": {
+   "term": "Penetration test (pentest)",
+   "definition": "Authorized attack, limited in time and scope, whose deliverable is a report of the vulnerabilities found.",
+   "example": "Two pentesters attack the acceptance environment for two weeks and deliver a report with 12 findings.",
+   "example_is_code": false
+  },
+  "red-team": {
+   "term": "Red team",
+   "definition": "Team that plays a real attacker, without warning the defenders, to put detection and response to the test.",
+   "example": "The red team gets in through a booby-trapped email and sees whether the security team spots it before it reaches the customer database.",
+   "example_is_code": false
+  },
+  "bug-bounty": {
+   "term": "Bug bounty",
+   "definition": "Program that pays outside researchers for each vulnerability reported under published rules.",
+   "example": "A BOLA vulnerability reported on the API earns the researcher 1,500 euros, per the program's grid (example amount).",
+   "example_is_code": false
+  },
+  "ctf": {
+   "term": "CTF",
+   "definition": "Capture The Flag: exercise or competition where you exploit deliberate vulnerabilities to retrieve a secret string, the flag.",
+   "example": "FLAG{sql_injection_101}",
+   "example_is_code": true
+  },
+  "privilege-escalation": {
+   "term": "Privilege escalation",
+   "definition": "Going from limited access to more powerful access, for example from a user account to administrator.",
+   "example": "The attacker logged in as ada changes the role=admin field in their profile request, and the API accepts it.",
+   "example_is_code": false
+  },
+  "lateral-movement": {
+   "term": "Lateral movement",
+   "definition": "Once inside one machine, moving to other systems of the same network with the access found there.",
+   "example": "From the compromised web server, the attacker reads a cloud key and uses it to open the database.",
+   "example_is_code": false
+  },
+  "bas": {
+   "term": "Breach and attack simulation (BAS)",
+   "definition": "Tool that automatically replays known attack techniques to check they are blocked or detected.",
+   "example": "Every night, Caldera attempts a credential theft on a test machine and checks that the SIEM raised an alert.",
+   "example_is_code": false
+  },
+  "supply-chain-attack": {
+   "term": "Supply chain attack",
+   "definition": "Attack that compromises a component many programs depend on (library, build tool) to hit all their users at once.",
+   "example": "xz-utils (2024): a backdoor hidden in a compression library used by SSH on many Linux distributions.",
+   "example_is_code": false
+  },
+  "social-engineering": {
+   "term": "Social engineering",
+   "definition": "Manipulating a person to get access or information, instead of attacking the technology.",
+   "example": "A fake technician calls the help desk: \"I'm on the road, reset my MFA\", and gets access to the account.",
+   "example_is_code": false
   }
  }
 };

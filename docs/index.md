@@ -135,9 +135,19 @@ hide:
 
     OAuth, OIDC, JWT, flux et PKCE, OAuth 2.1, DPoP, métadonnées, DCR, Auth0, OWASP API Top 10, modélisation des menaces (STRIDE), zero trust et mTLS, RGPD dans l'architecture, secrets.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/securite.md)
+
+-   :material-incognito:{ .lg .middle } **Cybersécurité et hacking éthique**
+
+    ---
+
+    Cadre légal et divulgation, kill chain et MITRE ATT&CK, pentest, red team, purple team et bug bounty, nmap et Burp, s'entraîner légalement, CVSS, EPSS et KEV, chaîne d'approvisionnement, et les outils d'IA qui simulent des attaques (Daybreak, XBOW, Claude Mythos).
+
+    *:material-calendar-check: Mis à jour le 16/11/2026*
+
+    [:octicons-arrow-right-24: Ouvrir](knowledge/cybersecurite.md)
 
 </div>
 
@@ -217,9 +227,19 @@ hide:
 
     RabbitMQ, Kafka, Pub/Sub, Redis, PostgreSQL, BigQuery, Kubernetes, Argo CD, CI, observabilité, Playwright, k6, Checkly : mini benchmarks et pourquoi l'un ou l'autre, et les tech radars (Thoughtworks, CNCF, Zalando, BYOR).
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 16/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/outils.md)
+
+-   :material-package-variant-closed:{ .lg .middle } **Gestionnaires de paquets**
+
+    ---
+
+    Système, versions d'outils et langage, manifeste et lockfile, SemVer et plages, résolution des conflits, npm, pnpm, yarn, Bun, uv, Poetry, Composer, Maven, workspaces, registres privés, sécuriser l'installation, mises à jour.
+
+    *:material-calendar-check: Mis à jour le 16/11/2026*
+
+    [:octicons-arrow-right-24: Ouvrir](knowledge/gestionnaires-paquets.md)
 
 -   :material-chart-box-outline:{ .lg .middle } **Données et décision**
 

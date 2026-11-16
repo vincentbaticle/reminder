@@ -135,9 +135,19 @@ hide:
 
     OAuth, OIDC, JWT, flows and PKCE, OAuth 2.1, DPoP, metadata, DCR, Auth0, OWASP API Top 10, threat modeling (STRIDE), zero trust and mTLS, GDPR in the architecture, secrets.
 
-    *:material-calendar-check: Updated on 2026-11-15*
+    *:material-calendar-check: Updated on 2026-11-16*
 
     [:octicons-arrow-right-24: Open](knowledge/securite.md)
+
+-   :material-incognito:{ .lg .middle } **Cybersecurity and ethical hacking**
+
+    ---
+
+    Legal framework and disclosure, kill chain and MITRE ATT&CK, pentest, red team, purple team and bug bounty, nmap and Burp, practicing legally, CVSS, EPSS and KEV, supply chain, and AI tools that simulate attacks (Daybreak, XBOW, Claude Mythos).
+
+    *:material-calendar-check: Updated on 2026-11-16*
+
+    [:octicons-arrow-right-24: Open](knowledge/cybersecurite.md)
 
 </div>
 
@@ -217,9 +227,19 @@ hide:
 
     RabbitMQ, Kafka, Pub/Sub, Redis, PostgreSQL, BigQuery, Kubernetes, Argo CD, CI, observability, Playwright, k6, Checkly: mini benchmarks and why one or the other, and tech radars (Thoughtworks, CNCF, Zalando, BYOR).
 
-    *:material-calendar-check: Updated on 2026-11-15*
+    *:material-calendar-check: Updated on 2026-11-16*
 
     [:octicons-arrow-right-24: Open](knowledge/outils.md)
+
+-   :material-package-variant-closed:{ .lg .middle } **Package managers**
+
+    ---
+
+    System, tool versions and language, manifest and lockfile, SemVer and ranges, conflict resolution, npm, pnpm, yarn, Bun, uv, Poetry, Composer, Maven, workspaces, private registries, securing installation, updates.
+
+    *:material-calendar-check: Updated on 2026-11-16*
+
+    [:octicons-arrow-right-24: Open](knowledge/gestionnaires-paquets.md)
 
 -   :material-chart-box-outline:{ .lg .middle } **Data and decisions**
 

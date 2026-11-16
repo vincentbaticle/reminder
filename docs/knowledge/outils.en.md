@@ -1828,6 +1828,8 @@ run = "pytest"
 
 **JavaScript package managers**: `npm` (ships with Node), **yarn** and **pnpm** (faster, pnpm saves disk space by sharing packages).
 
+Detailed comparison by language, lockfiles, conflict resolution, private registries and install security: [Package managers](gestionnaires-paquets.md).
+
 *npm: competes with yarn, pnpm*<br>
 *pnpm: competes with npm, yarn*
 { .tool-rel }
@@ -2070,7 +2072,10 @@ flowchart LR
 | uv, pip, Poetry, pdm | <span class="pill pill-rel pill-rel-compete">competing</span> | one Python dependency manager per project |
 | mise, asdf | <span class="pill pill-rel pill-rel-compete">competing</span> | two tool version managers; mise also reads asdf's files |
 | mise + uv | <span class="pill pill-rel pill-rel-complement">complementary</span> | mise pins the Python and tool versions, uv installs the project's dependencies (uv can also install Python: decide as a team) |
-| npm, yarn, pnpm | <span class="pill pill-rel pill-rel-compete">competing</span> | one JavaScript package manager per repository, the one whose lockfile is committed |
+| npm, yarn, pnpm, Bun | <span class="pill pill-rel pill-rel-compete">competing</span> | one JavaScript package manager per repository, the one whose lockfile is committed ([comparison](gestionnaires-paquets.md#javascript-and-typescript-npm-pnpm-yarn-bun)) |
+| conda + uv | <span class="pill pill-rel pill-rel-overlap">overlapping</span> | conda also installs non-Python libraries (CUDA, GDAL), uv only PyPI packages; conda first, then uv or pip for the rest |
+| Maven, Gradle | <span class="pill pill-rel pill-rel-compete">competing</span> | two Java build and dependency tools; Gradle faster thanks to its cache, Maven simpler to read |
+| Artifactory, Nexus, GitLab Package Registry | <span class="pill pill-rel pill-rel-compete">competing</span> | private registries and mirrors of public registries; one per company ([private registries](gestionnaires-paquets.md#private-registries-mirrors-and-cache)) |
 | React, Vue, Angular, Svelte | <span class="pill pill-rel pill-rel-compete">competing</span> | one interface framework per application; the choice commits hiring and the design system for years |
 | React + Next.js, React + Vite | <span class="pill pill-rel pill-rel-complement">complementary</span> | React draws the interface; Next.js adds routing and server rendering, Vite the dev server and the build |
 
@@ -2103,6 +2108,11 @@ flowchart LR
 | Hypothesis + pytest, Hypothesis + Schemathesis | <span class="pill pill-rel pill-rel-complement">complementary</span> | Hypothesis generates the inputs of a pytest test; Schemathesis uses it to attack an API from its OpenAPI contract |
 | axe-core, Pa11y, WAVE | <span class="pill pill-rel pill-rel-compete">competing</span> | three automatic accessibility checkers; none replaces a keyboard and screen reader test |
 | axe-core + Playwright | <span class="pill pill-rel pill-rel-complement">complementary</span> | Playwright opens the page, axe-core looks for the accessibility defects that can be detected automatically |
+| Burp Suite, OWASP ZAP, Caido | <span class="pill pill-rel pill-rel-compete">competing</span> | three intercepting proxies to see, change and replay a web application's requests ([toolbox](cybersecurite.md#the-toolbox)) |
+| nmap + nuclei + Burp Suite | <span class="pill pill-rel pill-rel-complement">complementary</span> | nmap finds open services, nuclei looks for known vulnerabilities on them, Burp is for digging by hand |
+| Caldera, Atomic Red Team, Pentera | <span class="pill pill-rel pill-rel-overlap">overlapping</span> | attack simulations that replay ATT&CK techniques; Caldera and Atomic Red Team are open, Pentera commercial |
+| Daybreak, Claude Mythos Preview, XBOW | <span class="pill pill-rel pill-rel-compete">competing</span> | AI agents that find and prove vulnerabilities; restricted access, to check again ([AI that attacks](cybersecurite.md#ai-that-attacks-simulation-and-vulnerability-research)) |
+| AI offensive agent + human penetration test | <span class="pill pill-rel pill-rel-complement">complementary</span> | the agent tests each release, the person finds business logic flaws and validates findings |
 
 ### Identity, flags, collaboration and AI
 

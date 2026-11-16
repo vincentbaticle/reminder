@@ -1828,6 +1828,8 @@ run = "pytest"
 
 **Gestionnaires de paquets JavaScript** : `npm` (fourni avec Node), **yarn** et **pnpm** (plus rapides, pnpm économise le disque en partageant les paquets).
 
+Comparatif détaillé par langage, lockfiles, résolution des conflits, registres privés et sécurité de l'installation : [Gestionnaires de paquets](gestionnaires-paquets.md).
+
 *npm : concurrent de yarn, pnpm*<br>
 *pnpm : concurrent de npm, yarn*
 { .tool-rel }
@@ -2070,7 +2072,10 @@ flowchart LR
 | uv, pip, Poetry, pdm | <span class="pill pill-rel pill-rel-compete">concurrents</span> | un seul gestionnaire de dépendances Python par projet |
 | mise, asdf | <span class="pill pill-rel pill-rel-compete">concurrents</span> | deux gestionnaires de versions d'outils ; mise lit aussi les fichiers d'asdf |
 | mise + uv | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | mise fixe la version de Python et des outils, uv installe les dépendances du projet (uv sait aussi installer Python : à trancher dans l'équipe) |
-| npm, yarn, pnpm | <span class="pill pill-rel pill-rel-compete">concurrents</span> | un seul gestionnaire de paquets JavaScript par dépôt, celui dont le lockfile est commité |
+| npm, yarn, pnpm, Bun | <span class="pill pill-rel pill-rel-compete">concurrents</span> | un seul gestionnaire de paquets JavaScript par dépôt, celui dont le lockfile est commité ([comparatif](gestionnaires-paquets.md#javascript-et-typescript-npm-pnpm-yarn-bun)) |
+| conda + uv | <span class="pill pill-rel pill-rel-overlap">chevauchement</span> | conda installe aussi les bibliothèques non Python (CUDA, GDAL), uv seulement les paquets PyPI ; conda d'abord, puis uv ou pip pour le reste |
+| Maven, Gradle | <span class="pill pill-rel pill-rel-compete">concurrents</span> | deux outils de build et de dépendances Java ; Gradle plus rapide grâce à son cache, Maven plus simple à lire |
+| Artifactory, Nexus, GitLab Package Registry | <span class="pill pill-rel pill-rel-compete">concurrents</span> | registres privés et miroirs des registres publics ; un seul par entreprise ([registres privés](gestionnaires-paquets.md#registres-prives-miroirs-et-cache)) |
 | React, Vue, Angular, Svelte | <span class="pill pill-rel pill-rel-compete">concurrents</span> | un seul framework d'interface par application ; le choix engage le recrutement et le design system pour des années |
 | React + Next.js, React + Vite | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | React dessine l'interface ; Next.js ajoute le routage et le rendu serveur, Vite le serveur de développement et le build |
 
@@ -2103,6 +2108,11 @@ flowchart LR
 | Hypothesis + pytest, Hypothesis + Schemathesis | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | Hypothesis génère les entrées d'un test pytest ; Schemathesis s'en sert pour attaquer une API depuis son contrat OpenAPI |
 | axe-core, Pa11y, WAVE | <span class="pill pill-rel pill-rel-compete">concurrents</span> | trois vérificateurs d'accessibilité automatiques ; aucun ne remplace un test au clavier et au lecteur d'écran |
 | axe-core + Playwright | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | Playwright ouvre la page, axe-core y cherche les défauts d'accessibilité détectables automatiquement |
+| Burp Suite, OWASP ZAP, Caido | <span class="pill pill-rel pill-rel-compete">concurrents</span> | trois proxys d'interception pour voir, modifier et rejouer les requêtes d'une application web ([boîte à outils](cybersecurite.md#la-boite-a-outils)) |
+| nmap + nuclei + Burp Suite | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | nmap trouve les services ouverts, nuclei y cherche les failles connues, Burp sert à creuser à la main |
+| Caldera, Atomic Red Team, Pentera | <span class="pill pill-rel pill-rel-overlap">chevauchement</span> | simulations d'attaque qui rejouent des techniques ATT&CK ; Caldera et Atomic Red Team sont ouverts, Pentera commercial |
+| Daybreak, Claude Mythos Preview, XBOW | <span class="pill pill-rel pill-rel-compete">concurrents</span> | agents IA qui cherchent et prouvent des failles ; accès restreints, à revérifier ([L'IA qui attaque](cybersecurite.md#lia-qui-attaque-simulation-et-recherche-de-failles)) |
+| agent offensif IA + test d'intrusion humain | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | l'agent teste chaque version, la personne trouve les failles de logique métier et valide les constats |
 
 ### Identité, flags, collaboration et IA
 

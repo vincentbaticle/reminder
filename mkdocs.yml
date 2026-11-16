@@ -74,6 +74,8 @@ plugins:
             Qualité et tests: Quality and testing
             API REST et asynchrone: REST and async APIs
             Sécurité: Security
+            Cybersécurité et hacking éthique: Cybersecurity and ethical hacking
+            Gestionnaires de paquets: Package managers
             Panorama des outils techniques: Tech tools landscape
             Expressions courantes (multilingue): Common expressions (multilingual)
             Principes de conception: Design principles
@@ -136,6 +138,7 @@ nav:
       - API et sécurité:
           - API REST et asynchrone: knowledge/api-rest-async.md
           - Sécurité: knowledge/securite.md
+          - Cybersécurité et hacking éthique: knowledge/cybersecurite.md
       - Exploitation:
           - Conteneurs, Kubernetes et déploiement: knowledge/kubernetes.md
           - Observabilité: knowledge/observabilite.md
@@ -145,6 +148,7 @@ nav:
           - Qualité et tests: knowledge/qualite.md
           - Concevoir les tests: knowledge/conception-tests.md
           - Panorama des outils techniques: knowledge/outils.md
+          - Gestionnaires de paquets: knowledge/gestionnaires-paquets.md
           - Données et décision: knowledge/donnees-decision.md
           - Developer Experience et plateforme: knowledge/devx.md
       - IA:

@@ -477,6 +477,8 @@ deploy:
     - ./deploy.sh
 ```
 
+Here, CI pushes the version to production with a deployment token. On Kubernetes, the other model is <span class="term" data-term="gitops">GitOps</span>: the `deploy` job no longer touches the cluster, it opens an MR that changes the image tag in a config repo, and <span class="term" data-term="argo-cd">Argo CD</span>, installed in the cluster, applies it. The `when: manual` becomes the review of that MR: continuous delivery keeps its human, and no production token lives in CI any more. Details, example and rollback in [Argo CD](kubernetes.md#argo-cd-git-decides-what-runs).
+
 | Situation | Choice |
 |---|---|
 | my tests are reliable, I can expose a version to part of the traffic, and I roll back in one click (with database migrations in [expand / contract](sql.md#expand-contract), otherwise the rollback breaks) | continuous deployment |

@@ -20,6 +20,13 @@
 
 <span class="term" data-term="kubernetes">Kubernetes</span> fait tourner les applications dans des <span class="term" data-term="container">conteneurs</span>, vérifie qu'elles vont bien et les redémarre si besoin. Cette page couvre ce qu'il faut connaître côté appli : <span class="term" data-term="pod">pods</span>, <span class="term" data-term="k8s-deployment">déploiements</span> et <span class="term" data-term="probe">probes</span>, puis le chemin d'une image jusqu'au cluster (Docker, Helm, Argo CD, Cloud Run), l'autoscaling (HPA, KEDA, Knative, Karpenter) et les opérateurs. Pour comprendre ce que l'appli produit une fois lancée (<span class="term" data-term="logs">logs</span>, <span class="term" data-term="metric">métriques</span>, <span class="term" data-term="trace-distributed">traces</span>), voir la page [Observabilité](observabilite.md).
 
+!!! info "Par où commencer"
+    - **Je veux seulement déployer mon service**, sans devenir expert de Kubernetes : le plus souvent, une équipe plateforme m'offre un chemin balisé (template, [chart générique](#un-chart-generique-pour-tous-les-services), Argo CD), décrit côté organisation dans [Golden paths et templates](devx.md#golden-paths-et-templates). Ici, je lis seulement [le chemin d'une modification jusqu'au pod](#le-chemin-dune-modification-jusquau-pod).
+    - **Je veux comprendre ou déboguer un pod** qui redémarre, qui ne reçoit pas de trafic ou qui manque de mémoire : [Pods, conteneurs et probes](#pods-conteneurs-et-probes), puis [Namespace et kubectl](#namespace-et-kubectl).
+    - **Je monte ou je relis la chaîne de déploiement** : [Construire et déployer](#construire-et-deployer-docker-helm-argo-cd-cloud-run), et le pipeline qui la déclenche dans [Livraison et déploiement continus](livraison.md#livraison-et-deploiement-continus).
+    - **Je dois tenir la charge ou faire tourner Kafka** : [Autoscaling](#autoscaling-et-serverless-hpa-keda-knative-karpenter) et [Opérateurs](#operateurs-kubernetes-strimzi).
+    - **Je construis la plateforme pour les autres équipes** : [Platform engineering](devx.md#platform-engineering-la-plateforme-comme-produit), puis le chart générique et Argo CD ici.
+
 Les ports, les valeurs <span class="term" data-term="yaml">YAML</span> et les routes métier sont des exemples. `my-api` est un service fictif.
 
 :material-swap-horizontal: Les outils cités dans cette page : lesquels se remplacent, lesquels se combinent ? Voir [Complémentaires ou concurrents](outils.md#complementaires-ou-concurrents).
@@ -727,7 +734,7 @@ spec:
 ### Un chart générique pour tous les services
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
-Écrire un chart par service, c'est copier vingt fois les mêmes templates (Deployment, Service, probes, HPA...) et les corriger vingt fois. L'alternative : **un seul chart générique**, maintenu par une équipe plateforme, versionné comme une bibliothèque. Chaque service n'écrit plus de template : il fournit seulement ses **values** (image, port, probes, ressources, scaling). Helm prévoit même un type de chart pour ça, le *library chart*, qui ne contient que des modèles réutilisables. Des exemples publics : `app-template` (bjw-s), `application` (Stakater), et la bibliothèque `common` de Bitnami.
+Écrire un chart par service, c'est copier vingt fois les mêmes templates (Deployment, Service, probes, HPA...) et les corriger vingt fois. L'alternative : **un seul chart générique**, maintenu par une équipe plateforme, versionné comme une bibliothèque. Chaque service n'écrit plus de template : il fournit seulement ses **values** (image, port, probes, ressources, scaling). Helm prévoit même un type de chart pour ça, le *library chart*, qui ne contient que des modèles réutilisables. Des exemples publics : `app-template` (bjw-s), `application` (Stakater), et la bibliothèque `common` de Bitnami. C'est la brique de base du [golden path](devx.md#golden-paths-et-templates) de déploiement que propose une équipe plateforme.
 
 !!! noob "As noob"
     Le chart générique, c'est un formulaire administratif pré-imprimé : l'équipe plateforme a dessiné les cases une fois pour toutes, chaque service remplit seulement ses cases (nom, image, port). Personne ne redessine le formulaire, et quand la plateforme l'améliore (une nouvelle sécurité, une meilleure probe), tous les services en profitent en changeant de version.

@@ -20,6 +20,13 @@
 
 <span class="term" data-term="kubernetes">Kubernetes</span> runs applications in <span class="term" data-term="container">containers</span>, checks that they are healthy and restarts them when needed. This page covers what I need to know on the application side: <span class="term" data-term="pod">pods</span>, <span class="term" data-term="k8s-deployment">deployments</span> and <span class="term" data-term="probe">probes</span>, then the path of an image to the cluster (Docker, Helm, Argo CD, Cloud Run), autoscaling (HPA, KEDA, Knative, Karpenter) and operators. To understand what the application produces once it runs (<span class="term" data-term="logs">logs</span>, <span class="term" data-term="metric">metrics</span>, <span class="term" data-term="trace-distributed">traces</span>), see the [Observability](observabilite.md) page.
 
+!!! info "Where to start"
+    - **I only want to deploy my service**, without becoming a Kubernetes expert: most often a platform team gives me a paved path (template, [generic chart](#one-generic-chart-for-every-service), Argo CD), described from the organization side in [Golden paths and templates](devx.md#golden-paths-and-templates). Here, I only read [the path of a change to the pod](#the-path-of-a-change-to-the-pod).
+    - **I want to understand or debug a pod** that restarts, gets no traffic or runs out of memory: [Pods, containers and probes](#pods-containers-and-probes), then [Namespace and kubectl](#namespace-and-kubectl).
+    - **I build or review the deployment chain**: [Building and deploying](#building-and-deploying-docker-helm-argo-cd-cloud-run), and the pipeline that triggers it in [Continuous delivery and deployment](livraison.md#continuous-delivery-and-deployment).
+    - **I need to handle load or run Kafka**: [Autoscaling](#autoscaling-and-serverless-hpa-keda-knative-karpenter) and [Operators](#kubernetes-operators-strimzi).
+    - **I build the platform for other teams**: [Platform engineering](devx.md#platform-engineering-the-platform-as-a-product), then the generic chart and Argo CD here.
+
 Ports, <span class="term" data-term="yaml">YAML</span> values and business routes are examples. `my-api` is a fictitious service.
 
 :material-swap-horizontal: The tools mentioned on this page: which ones replace each other, which ones combine? See [Complementary or competing](outils.md#complementary-or-competing).
@@ -727,7 +734,7 @@ spec:
 ### One generic chart for every service
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-Writing one chart per service means copying the same templates (Deployment, Service, probes, HPA...) twenty times and fixing them twenty times. The alternative: **a single generic chart**, maintained by a platform team and versioned like a library. Each service no longer writes templates: it only provides its **values** (image, port, probes, resources, scaling). Helm even has a chart type for this, the *library chart*, which only holds reusable templates. Public examples: `app-template` (bjw-s), `application` (Stakater), and Bitnami's `common` library.
+Writing one chart per service means copying the same templates (Deployment, Service, probes, HPA...) twenty times and fixing them twenty times. The alternative: **a single generic chart**, maintained by a platform team and versioned like a library. Each service no longer writes templates: it only provides its **values** (image, port, probes, resources, scaling). Helm even has a chart type for this, the *library chart*, which only holds reusable templates. Public examples: `app-template` (bjw-s), `application` (Stakater), and Bitnami's `common` library. It is the base brick of the deployment [golden path](devx.md#golden-paths-and-templates) a platform team offers.
 
 !!! noob "As noob"
     The generic chart is a pre-printed form: the platform team drew the boxes once and for all, each service only fills in its own boxes (name, image, port). Nobody redraws the form, and when the platform improves it (a new security setting, a better probe), every service benefits by moving to the new version.

@@ -36,7 +36,7 @@ What already lives elsewhere is not repeated here: DORA metrics, SPACE and the D
 
 **<span class="term" data-term="process-friction">Friction</span>**: anything that slows down or discourages a developer without adding value. Example: an 18-step README where three steps are wrong.
 
-**<span class="term" data-term="cognitive-load">Cognitive load</span>**: the amount of things a person must keep in mind to do a task. The notion comes from the psychology of learning (John Sweller, 1988); the book "Team Topologies" (Matthew Skelton and Manuel Pais, 2019) applies it to teams. Example: having to know Kubernetes, Terraform and three cloud consoles to deploy a simple fix.
+**<span class="term" data-term="cognitive-load">Cognitive load</span>**: the amount of things a person must keep in mind to do a task. The notion comes from the psychology of learning (John Sweller, 1988); the book "Team Topologies" (Matthew Skelton and Manuel Pais, 2019) applies it to teams. Example: having to know [Kubernetes](kubernetes.md), Terraform and three cloud consoles to deploy a simple fix.
 
 **<span class="term" data-term="flow-state">Flow state</span>** (deep focus): the deep concentration where work moves forward without apparent effort, described by Mihaly Csikszentmihalyi, "Flow" (1990). Every wait longer than a few seconds and every interruption can break it.
 
@@ -487,14 +487,57 @@ preview-stop:
 
 `preview-seed.json` holds the accounts `ada@example.test` and `grace@example.test`, three orders and a reduced catalogue. Secrets come from protected, masked variables limited to `preview/*` environments: a payment sandbox key, an integration test account. GitLab keywords to check for my version. To know whether the investment is worth it, I track the number of MRs the product owner validates before the merge and the number of late change requests after release; if the need is confirmed, I extend it to the most requested back-end services.
 
+**<span class="term" data-term="gitops">GitOps</span> variant.** Here, CI runs `helm upgrade` itself. For a throwaway environment, that is acceptable. But if the other environments are deployed by [Argo CD](kubernetes.md#argo-cd-git-decides-what-runs), CI keeps rights on the cluster just for previews, and what it deploys there escapes Argo CD. The alternative: an <span class="term" data-term="argo-applicationset">ApplicationSet</span> with the *Pull Request* generator, which creates one Application per open MR labeled `preview`, and deletes it when the MR closes. CI only has to push the image tagged with the commit SHA. The namespace created by `CreateNamespace` is not deleted with the Application (to check for your Argo CD version): I clean it up with a scheduled job, or I have the chart create the namespace itself.
+
+``` { .yaml .ex-ref title="Reference" }
+# Example: one Argo CD Application per open MR labeled preview, deleted when it closes
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: front-previews
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - pullRequest:
+        gitlab:
+          project: my-team/front
+          api: https://git.example.com/
+          labels: [preview]
+          pullRequestState: opened
+        requeueAfterSeconds: 300
+  template:
+    metadata:
+      name: "front-mr-{{.number}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://git.example.com/my-team/front.git
+        targetRevision: "{{.head_sha}}"
+        path: chart
+        helm:
+          parameters:
+            - name: image.tag
+              value: "{{.head_sha}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "preview-mr-{{.number}}"
+      syncPolicy:
+        automated:
+          prune: true
+        syncOptions:
+          - CreateNamespace=true
+```
+
 | I want... | I use... |
 |---|---|
 | my product owner wants to click through the new screen before the merge, and the shared staging is often broken by another team | one environment per MR for the front end only, wired to integration |
 | I change a back-end service with no screen, already validated by its contract and integration tests | no per-MR environment: the CI is enough |
 | a tester wants to explore each MR with known data, like a customer who has three orders | a seed job with a versioned fictitious dataset |
 | forgotten environments push the cluster bill up every month | `auto_stop_in`, a quota per namespace, a cap on the number of environments |
+| the other environments are deployed by Argo CD, and I do not want CI to keep rights on the cluster for previews | an ApplicationSet with the Pull Request generator |
 
-:material-book-open-variant: Reference docs: [GitLab, Review Apps](https://docs.gitlab.com/ci/review_apps/) (accessed November 2026); [GitLab, Environments](https://docs.gitlab.com/ci/environments/) (accessed November 2026)
+:material-book-open-variant: Reference docs: [GitLab, Review Apps](https://docs.gitlab.com/ci/review_apps/) (accessed November 2026); [Argo CD, Pull Request Generator](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Pull-Request/) (accessed November 2026); [GitLab, Environments](https://docs.gitlab.com/ci/environments/) (accessed November 2026)
 { .doc-ref }
 
 !!! maturity "Measuring maturity"
@@ -884,6 +927,8 @@ A <span class="term" data-term="golden-path">golden path</span> covers a common 
 
 !!! noob "As noob"
     The golden path is the marked, maintained trail to the most visited summit: I can always cut through the woods, but then I carry my own map, water and rescue plan. The takeaway: **the official path is the easiest one, not the only one allowed.**
+
+**The deployment golden path.** On Kubernetes, the most common paved path comes down to two bricks maintained by the platform team: a [generic Helm chart](kubernetes.md#one-generic-chart-for-every-service), where each team only fills in its values (image, port, resources), and <span class="term" data-term="argo-cd">Argo CD</span>, which deploys from a config repo on every merged MR ([details](kubernetes.md#argo-cd-git-decides-what-runs)). To ship, the product team no longer needs to know Deployments, probes or kubectl; it finds them on the [Kubernetes](kubernetes.md) page the day it has to debug. The cluster's complexity does not disappear: it moves from every team to the platform team, which carries it once.
 
 <span class="term" data-term="scaffolding">Scaffolding</span> generates a project's initial structure from a template. Its trap is <span class="term" data-term="template-drift">template drift</span>: each project keeps the choices of the day it was created, and the new template version never reaches it. Two remedies:
 

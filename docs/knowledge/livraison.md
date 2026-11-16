@@ -481,6 +481,8 @@ deploy:
     - ./deploy.sh
 ```
 
+Ici, c'est la CI qui pousse la version vers la production, avec un jeton de déploiement. Sur Kubernetes, l'autre modèle est <span class="term" data-term="gitops">GitOps</span> : le job `deploy` ne touche plus au cluster, il ouvre une MR qui change le tag d'image dans un dépôt de config, et <span class="term" data-term="argo-cd">Argo CD</span>, installé dans le cluster, l'applique. Le `when: manual` devient la relecture de cette MR : la livraison continue garde son humain, et aucun jeton de production ne vit plus dans la CI. Détail, exemple et retour arrière dans [Argo CD](kubernetes.md#argo-cd-git-decide-de-ce-qui-tourne).
+
 | Situation | Choix |
 |---|---|
 | mes tests sont fiables, je sais exposer une version à une partie du trafic, et je reviens en arrière en un clic (avec des migrations de base en [expand / contract](sql.md#expand-contract), sinon le retour arrière casse) | déploiement continu |

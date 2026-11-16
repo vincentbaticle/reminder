@@ -169,6 +169,16 @@ hide:
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/kubernetes.md)
 
+-   :material-arrow-expand-all:{ .lg .middle } **Kubernetes à l'échelle**
+
+    ---
+
+    Autoscaling des pods et des nœuds (HPA, KEDA, Knative, Karpenter) et opérateurs (Strimzi) : faire suivre la charge sans payer des machines vides.
+
+    *:material-calendar-check: Mis à jour le 16/11/2026*
+
+    [:octicons-arrow-right-24: Ouvrir](knowledge/kubernetes-echelle.md)
+
 -   :material-chart-timeline-variant:{ .lg .middle } **Observabilité**
 
     ---

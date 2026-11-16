@@ -169,6 +169,16 @@ hide:
 
     [:octicons-arrow-right-24: Open](knowledge/kubernetes.md)
 
+-   :material-arrow-expand-all:{ .lg .middle } **Kubernetes at scale**
+
+    ---
+
+    Pod and node autoscaling (HPA, KEDA, Knative, Karpenter) and operators (Strimzi): following the load without paying for empty machines.
+
+    *:material-calendar-check: Updated on 2026-11-16*
+
+    [:octicons-arrow-right-24: Open](knowledge/kubernetes-echelle.md)
+
 -   :material-chart-timeline-variant:{ .lg .middle } **Observability**
 
     ---

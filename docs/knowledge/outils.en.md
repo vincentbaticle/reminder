@@ -990,7 +990,7 @@ pulumi up
 
 **When**: a platform team that wants teams to request a database or a bucket the way they request a Deployment, in YAML in Git, applied by [Argo CD](kubernetes.md#argo-cd-git-decides-what-runs). Not without Kubernetes, nor for a small team: the setup is heavy.
 
-**Why**: Crossplane is a set of [operators](kubernetes.md#kubernetes-operators-strimzi) that create cloud resources and **fix them continuously**: a manual change is undone within minutes, without waiting for an `apply`. With its *compositions*, the platform exposes a simple resource ("a size M PostgreSQL database") hiding fifty parameters. Cost: one more API to design and maintain, and debugging that goes through `kubectl describe`. A CNCF project (status to check).
+**Why**: Crossplane is a set of [operators](kubernetes-echelle.md#kubernetes-operators-strimzi) that create cloud resources and **fix them continuously**: a manual change is undone within minutes, without waiting for an `apply`. With its *compositions*, the platform exposes a simple resource ("a size M PostgreSQL database") hiding fifty parameters. Cost: one more API to design and maintain, and debugging that goes through `kubectl describe`. A CNCF project (status to check).
 
 !!! noob "As noob"
     Terraform is a contractor I call in for a job: it does the work, then leaves, and only notices a manual change on its next visit. Crossplane is a caretaker who stays on site: it keeps comparing what exists with what is declared, and puts things back as soon as it sees a gap. The takeaway: **Terraform fixes things on the next `apply`, Crossplane fixes them all the time.**

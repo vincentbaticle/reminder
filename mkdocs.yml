@@ -66,6 +66,7 @@ plugins:
             Agents, skills et contexte: Agents, skills and context
             IA en entreprise: AI at work
             Conteneurs, Kubernetes et déploiement: Containers, Kubernetes and deployment
+            Kubernetes à l'échelle: Kubernetes at scale
             API et sécurité: APIs and security
             Exploitation: Operations
             Qualité et outils: Quality and tools
@@ -142,6 +143,7 @@ nav:
           - Cybersécurité et hacking éthique: knowledge/cybersecurite.md
       - Exploitation:
           - Conteneurs, Kubernetes et déploiement: knowledge/kubernetes.md
+          - Kubernetes à l'échelle: knowledge/kubernetes-echelle.md
           - Observabilité: knowledge/observabilite.md
           - Livraison et pratiques d'ingénierie: knowledge/livraison.md
           - Incidents et incidentologie: knowledge/incidents.md

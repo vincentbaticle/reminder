@@ -24,7 +24,8 @@ Mes pense-bêtes, à lire en ligne sur **[vincentbaticle.github.io/reminder](htt
 
 ### Exploitation
 
-- [Conteneurs, Kubernetes et déploiement](docs/knowledge/kubernetes.md) : pods, Deployment, probes, autoscaling (HPA, KEDA, Knative, Karpenter), opérateurs, Dockerfile, Helm, Argo CD, Cloud Run
+- [Conteneurs, Kubernetes et déploiement](docs/knowledge/kubernetes.md) : pods, Deployment, probes, Dockerfile, Helm, Argo CD et GitOps, Cloud Run
+- [Kubernetes à l'échelle](docs/knowledge/kubernetes-echelle.md) : autoscaling (HPA, KEDA, Knative, Karpenter), opérateurs (Strimzi)
 - [Observabilité](docs/knowledge/observabilite.md) : logs, métriques, traces, OpenTelemetry, collecteur, sampling, SLO, SLA, ITA et alertes
 - [Incidents et incidentologie](docs/knowledge/incidents.md) : cycle de vie, sévérités, rôles, postmortem sans recherche de coupable, MTTR et ses limites, astreinte, game days
 - [Livraison et pratiques d'ingénierie](docs/knowledge/livraison.md) : conception technique, ADR, trunk-based, livraison et déploiement continus, déploiement progressif, tests en production, DORA, SPACE, DevEx

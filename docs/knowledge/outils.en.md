@@ -1406,7 +1406,7 @@ A single failing condition is enough: the quality gate turns "Failed", the Sonar
 <a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
 
-*Unleash: competes with LaunchDarkly*
+*Unleash: competes with LaunchDarkly, flagd; complements OpenFeature*
 { .tool-rel }
 
 My team wants to ship a new checkout flow without forcing it on everyone at once, and be able to stop it fast if it causes trouble. A **feature flag** is a switch in the code, driven from a UI, that turns a feature on without redeploying: for a share of users, for a country, or for the internal team. **Unleash** is an open source feature flag tool (<span class="term" data-term="saas">SaaS</span> alternatives: LaunchDarkly, Flagsmith).
@@ -1414,7 +1414,7 @@ My team wants to ship a new checkout flow without forcing it on everyone at once
 !!! noob "As noob"
     It is the switch of a room that is already wired: the ceiling light is installed (the code is deployed), but I decide from the panel when to turn it on, and in which rooms. If it flickers, I switch it off without calling the electrician back. The one thing to remember: **deploying the code and turning the feature on become two separate moves.**
 
-*LaunchDarkly: competes with Unleash*
+*LaunchDarkly: competes with Unleash, flagd; complements OpenFeature*
 { .tool-rel }
 
 
@@ -1439,6 +1439,54 @@ The testing trap: each flag doubles the possible journeys. Test both positions w
 | a setting never changes once in production, like the database address | an <span class="term" data-term="environment-variable">environment variable</span> |
 
 :material-book-open-variant: Reference docs: [Unleash, Docs](https://docs.getunleash.io/) (accessed November 2026); [Pete Hodgson, Feature Toggles](https://martinfowler.com/articles/feature-toggles.html) (2017)
+{ .doc-ref }
+
+### OpenFeature: switching flag tools without touching the code
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+*OpenFeature: complements Unleash, LaunchDarkly, flagd*<br>
+*flagd: competes with Unleash, LaunchDarkly; complements OpenFeature*
+{ .tool-rel }
+
+My team has used Unleash for two years, and management wants to move to a SaaS to stop hosting it. The problem: the `unleash.is_enabled(...)` call is repeated in 120 files, so switching tools means touching 120 files and retesting every journey. That is <span class="term" data-term="vendor-lock-in">vendor lock-in</span> that comes not from the contract, but from my own code. <span class="term" data-term="openfeature">OpenFeature</span> is an open API specification for reading feature flags, independent of the tool: my code always calls the same API, and the real tool plugs in behind it, in a single place, as a **provider** (an adapter available for Unleash, LaunchDarkly, flagd and others, depending on the language). flagd is the project's open source flag server, which reads its flags from a plain JSON file.
+
+!!! info "Written in November 2026"
+    OpenFeature has been a CNCF project since June 2022, at the "incubating" level since November 2023. The list of available providers changes with the language: to check in the OpenFeature ecosystem before choosing.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: the tool's SDK is called directly, and this call is copied into 120 files
+if unleash.is_enabled("refunds-v2", context={"userId": customer_id}):
+    process_refund_v2(order)
+```
+
+``` { .python .ex-good title="Recommended" }
+from openfeature import api
+from openfeature.contrib.provider.flagd import FlagdProvider
+from openfeature.evaluation_context import EvaluationContext
+
+# Good: the flag tool is chosen once, at application startup
+api.set_provider_and_wait(FlagdProvider())
+
+# Good: everywhere in the code, the same standard call, whatever tool is plugged in behind
+client = api.get_client()
+if client.get_boolean_value("refunds-v2", False, EvaluationContext(targeting_key=customer_id)):
+    process_refund_v2(order)
+```
+
+Moving from flagd to Unleash or to a SaaS changes only the `set_provider_and_wait` line and its import: the `get_boolean_value` calls spread through the code stay identical (module names to check against the Python SDK version). The second argument, `False`, is the default value: the one the code gets if the tool does not answer.
+
+| I want... | I use... |
+|---|---|
+| I start with one flag tool, but I want to be able to switch in two years without rewriting the calls, like the day we leave a self-hosted Unleash for a SaaS | OpenFeature in the code, with the chosen tool's provider |
+| I want simple flags, versioned in Git with the rest of the configuration, with no UI and no database | flagd and its JSON file, behind OpenFeature |
+| I need a feature specific to one tool, like its A/B experiment reports | the tool's SDK for that feature, OpenFeature for the rest |
+
+**When**: from the first flag of a new project, since the API costs almost nothing extra; or before a tool migration, replacing the direct calls once and for all. **When not**: a single service, three flags, no tool change in sight: the extra layer brings nothing. **Why**: the exit door stays open, and I can plug an in-memory provider into tests to force each position of a flag. **How**: I set the provider in a single place at startup, I pass the user in the evaluation context, and I keep safe default values (the old journey).
+
+**Risks.** `set_provider` is non-blocking in Python: the provider initializes in the background, and the first requests get the default value without any error. If that default is `True` for a risky journey, it goes to production for everyone for a few seconds. I use `set_provider_and_wait` at startup and cautious defaults. The standard API covers reading flags, not everything each tool sells: a vendor-specific feature ties me to that vendor, so I keep it isolated in a single module.
+
+:material-book-open-variant: Reference docs: [OpenFeature, Introduction](https://openfeature.dev/docs/reference/intro) (accessed November 2026); [CNCF, OpenFeature](https://www.cncf.io/projects/openfeature/) (accessed November 2026)
 { .doc-ref }
 
 !!! maturity "Measuring maturity"
@@ -2075,6 +2123,10 @@ flowchart LR
 | mise, asdf | <span class="pill pill-rel pill-rel-compete">competing</span> | two tool version managers; mise also reads asdf's files |
 | mise + uv | <span class="pill pill-rel pill-rel-complement">complementary</span> | mise pins the Python and tool versions, uv installs the project's dependencies (uv can also install Python: decide as a team) |
 | npm, yarn, pnpm, Bun | <span class="pill pill-rel pill-rel-compete">competing</span> | one JavaScript package manager per repository, the one whose lockfile is committed ([comparison](gestionnaires-paquets.md#javascript-and-typescript-npm-pnpm-yarn-bun)) |
+| Nx, Turborepo | <span class="pill pill-rel pill-rel-compete">competing</span> | two JavaScript monorepo tools that run only the tasks of touched projects, with a remote cache ([monorepo or several repositories](gestionnaires-paquets.md#monorepo-or-several-repositories-how-to-decide)) |
+| pnpm + Turborepo or Nx | <span class="pill pill-rel pill-rel-complement">complementary</span> | pnpm installs and links the workspace packages, Turborepo or Nx decide which tasks to rerun |
+| Bazel, Pants | <span class="pill pill-rel pill-rel-compete">competing</span> | hermetic, multi-language builds with a remote cache, for large monorepos; expensive to maintain |
+| Nx, Bazel | <span class="pill pill-rel pill-rel-overlap">overlapping</span> | Nx also handles several languages through plugins, Bazel targets very large repositories and enforces hermetic builds |
 | conda + uv | <span class="pill pill-rel pill-rel-overlap">overlapping</span> | conda also installs non-Python libraries (CUDA, GDAL), uv only PyPI packages; conda first, then uv or pip for the rest |
 | Maven, Gradle | <span class="pill pill-rel pill-rel-compete">competing</span> | two Java build and dependency tools; Gradle faster thanks to its cache, Maven simpler to read |
 | Artifactory, Nexus, GitLab Package Registry | <span class="pill pill-rel pill-rel-compete">competing</span> | private registries and mirrors of public registries; one per company ([private registries](gestionnaires-paquets.md#private-registries-mirrors-and-cache)) |
@@ -2103,6 +2155,8 @@ flowchart LR
 | Bruno, Postman | <span class="pill pill-rel pill-rel-compete">competing</span> | two API clients to explore and replay requests |
 | Playwright + Checkly | <span class="pill pill-rel pill-rel-complement">complementary</span> | Checkly replays Playwright scripts in production every N minutes: the same test serves in CI and in monitoring |
 | pytest + Testcontainers | <span class="pill pill-rel pill-rel-complement">complementary</span> | pytest runs the tests, Testcontainers starts a real, disposable database or broker for them |
+| WireMock, MockServer, Mountebank | <span class="pill pill-rel pill-rel-compete">competing</span> | three fake HTTP service servers that answer what the test planned, to simulate a partner API |
+| WireMock + Testcontainers | <span class="pill pill-rel pill-rel-complement">complementary</span> | Testcontainers starts WireMock in a throwaway container, the test declares the fake partner's responses in it |
 | Pact + Microcks / Prism | <span class="pill pill-rel pill-rel-complement">complementary</span> | Pact checks the contract between two services; Microcks and Prism (competing with each other) serve a fake partner built from the contract |
 | Allure, ReportPortal | <span class="pill pill-rel pill-rel-compete">competing</span> | two test reporting and history tools |
 | Gherkin + pytest-bdd / Cucumber | <span class="pill pill-rel pill-rel-complement">complementary</span> | Gherkin is the scenario language, pytest-bdd or Cucumber run them |
@@ -2121,7 +2175,8 @@ flowchart LR
 | Tools | Relation | In practice |
 |---|---|---|
 | Auth0, Keycloak, Okta | <span class="pill pill-rel pill-rel-compete">competing</span> | three identity providers: Keycloak is self-hosted, Auth0 and Okta are paid services |
-| Unleash, LaunchDarkly | <span class="pill pill-rel pill-rel-compete">competing</span> | two feature flag platforms |
+| Unleash, LaunchDarkly, flagd | <span class="pill pill-rel pill-rel-compete">competing</span> | three feature flag tools; flagd is the simplest, with no UI, its flags live in a JSON file |
+| OpenFeature + Unleash, LaunchDarkly or flagd | <span class="pill pill-rel pill-rel-complement">complementary</span> | OpenFeature is the standard API called in the code, the flag tool plugs in behind it as a provider ([OpenFeature](#openfeature-switching-flag-tools-without-touching-the-code)) |
 | Vault, cloud secret managers | <span class="pill pill-rel pill-rel-compete">competing</span> | a central secrets vault, or the one of the cloud in use |
 | Jira + Confluence + Slack + Backstage | <span class="pill pill-rel pill-rel-complement">complementary</span> | tickets, documentation, chat, service portal: each has its own role |
 | Claude Code, Cursor, GitHub Copilot | <span class="pill pill-rel pill-rel-compete">competing</span> | AI coding assistants; some teams use two (one in the editor, one in the terminal) |
@@ -2173,11 +2228,14 @@ The typical questions:
 - "PostgreSQL or BigQuery?", "Why not search the catalogue with a `LIKE`?" How I answer: I contrast OLTP and OLAP, then I suggest a search engine fed from the database ([Databases](#databases-postgresql-mysql-bigquery), [Search and documents](#search-and-documents-elasticsearch-mongodb)).
 - "Terraform or Pulumi?", "What is the Terraform state, and where do you store it?" How I answer: I contrast declarative HCL with a real language, then I keep the state in a bucket with a lock, never in Git ([Terraform and OpenTofu](#terraform-and-opentofu-the-declarative-standard)).
 - "Playwright, Cypress or Selenium?", "How do you test a feature behind a feature flag?" How I answer: I go through the criteria of the table (browsers, auto-waiting, parallelism), then I test both flag positions while the flag exists ([Playwright, Cypress, Selenium](#playwright-cypress-selenium), [Feature flags: Unleash](#feature-flags-unleash)).
+- "How do you avoid depending on a feature flag vendor?" How I answer: I make the code call a standard API, OpenFeature, and plug the real tool in at a single place as a provider; switching tools then touches a single line, as long as I wait for the provider to be ready and keep cautious default values ([OpenFeature](#openfeature-switching-flag-tools-without-touching-the-code)).
 
 - "Do you know the Technology Radar?", "How does your company choose its technologies?" How I answer: I describe the four rings and the justification of each entry, then I tell apart the public radar, which opens the discussion, from the company radar, which says what is supported where I work ([Tech radar](#tech-radar-thoughtworks-byor-zalando-aoe-cncf), [Architecture: company tech radar](architecture.md#company-tech-radar)).
 - "How do you know a new tool, like a cache or a broker, really brought something?" How I answer: I give the indicator that justified the choice, its baseline before, the same measure after, cost as the guard metric, then the difference between the internal SLO and the SLA promised to the customer ([Measuring success](#measuring-success)).
 
 What makes a good answer: start from the need, not the tool, so I name the problem, the tool that solves it, what it costs (operations, licence, vendor lock-in) and the case where I would not pick it.
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
 
 ## Summary
 
@@ -2195,7 +2253,7 @@ What makes a good answer: start from the need, not the tool, so I name the probl
 | Secrets          | Vault                            | who can access which secret, and where is it logged?        |
 | Gateway and proxy | KrakenD, nginx, Caddy, Traefik, Envoy | APIs to secure and aggregate, simple HTTPS, dynamic routing, or service mesh? |
 | CI and quality   | GitLab CI, SonarQube, Renovate   | what must be blocked before merge?                          |
-| Feature flags    | Unleash                          | can a feature be cut without redeploying?                   |
+| Feature flags    | Unleash, OpenFeature             | can a feature be cut without redeploying?                   |
 | Observability    | OpenTelemetry, Datadog, Prometheus, Grafana | who runs the platform, and at what volume cost?  |
 | Identity         | Auth0, Keycloak                  | buy or operate?                                             |
 | Testing          | pytest, Playwright, k6, Checkly  | API, UI, load, or production monitoring?                    |

@@ -1037,3 +1037,5 @@ The typical questions:
 - "How do you prove a Kubernetes configuration change helped?" How to answer: I compare errors during deployments, restarts and peak latency before and after, with cluster cost as a guard metric ([Measuring success](#measuring-success)).
 
 What makes a good answer: tell what the user sees and what Kubernetes does, step by step (the pod taken out of traffic, the container restarted, the pod stuck `Pending`), rather than reciting YAML fields.
+
+The questions by role, with more detailed answers and worked exercises: [DevX Engineer](../entretiens/devx-engineer/questions.md).

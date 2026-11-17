@@ -811,6 +811,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : elle dit ce que la commande fait à l'historique, et donc à qui elle peut nuire : tout ce qui réécrit (rebase, reset, force push) est sans danger sur ma branche seule, et dangereux dès qu'elle est partagée.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Software Engineer](../entretiens/software-engineer/questions.md).
+
 ## Aide-mémoire rapide
 
 <a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a>

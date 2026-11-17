@@ -522,11 +522,102 @@ Règle : avant tout `UPDATE` ou `DELETE`, lancer le même `WHERE` dans un `SELEC
 
     **Je mesure** : la part des modifications de données en production passées par un script relu, lue en comparant l'outil de MR au journal d'audit de la base ; le nombre de comptes humains avec un droit d'écriture, lu dans les `GRANT`.
 
+## Modéliser une table
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a>
+
+Avant d'écrire `CREATE TABLE`, je pars du métier : quelles choses je range (clients, commandes, articles), comment elles se relient (un client passe plusieurs commandes), et quelles règles ne doivent jamais être violées (une commande a toujours un client, un montant n'est jamais négatif). Deux décisions en découlent : où vit chaque information, et quelles règles la base fait respecter elle-même.
+
+### Les formes normales, en clair
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+La <span class="term" data-term="db-normalization">normalisation</span> range chaque fait à un seul endroit, pour éviter les copies qui finissent par diverger. Edgar F. Codd a posé le modèle relationnel en 1970, puis les deuxième et troisième formes normales en 1971. En mots simples :
+
+| Forme normale | Ce qu'elle demande | Exemple de violation |
+|---|---|---|
+| 1re (1NF) | une seule valeur par case, pas de liste dans une colonne | `orders.skus = 'A12,B7,C3'` : impossible de compter ou de joindre proprement les articles |
+| 2e (2NF) | chaque colonne dépend de toute la clé, pas d'une partie | dans `order_items (order_id, sku, quantity, product_name)`, le nom du produit ne dépend que de `sku` |
+| 3e (3NF) | chaque colonne dépend de la clé, et pas d'une autre colonne | `orders.customer_email` dépend du client, pas de la commande |
+
+``` { .sql .ex-bad title="À éviter" }
+-- À éviter : le nom du client est recopié dans chaque commande
+CREATE TABLE orders (
+    id            bigint PRIMARY KEY,
+    customer_name text,
+    total_cents   bigint
+);
+```
+Si ada change de nom, ses anciennes commandes gardent l'ancien : la base a deux vérités, et le rapport « commandes par client » compte deux clients au lieu d'un.
+
+``` { .sql .ex-good title="Recommandé" }
+-- Bien : le nom vit dans customers, la commande pointe vers le client
+CREATE TABLE customers (
+    id    bigint PRIMARY KEY,
+    email text   NOT NULL UNIQUE,
+    name  text   NOT NULL
+);
+
+CREATE TABLE orders (
+    id          bigint PRIMARY KEY,
+    customer_id bigint NOT NULL REFERENCES customers (id),
+    total_cents bigint NOT NULL CHECK (total_cents >= 0)
+);
+```
+
+**Quand** : par défaut, pour toute donnée qu'on modifie. **Pourquoi** : une modification se fait à un seul endroit, donc aucune incohérence possible. **Le coût** : plus de jointures à la lecture.
+
+:material-book-open-variant: Doc de référence : [Wikipedia, Database normalization](https://en.wikipedia.org/wiki/Database_normalization) (consultée en novembre 2026)
+{ .doc-ref }
+
+### Les contraintes : la base garde les règles
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Le code de l'application vérifie déjà que l'e-mail est unique et que le montant est positif. Mais le code a des bugs, un script de correction passe à côté, une deuxième application écrit dans la même base, et deux requêtes simultanées passent toutes les deux le contrôle (voir [Race condition](#race-condition-et-mise-a-jour-perdue)). Une <span class="term" data-term="db-constraint">contrainte</span> déclarée dans le schéma, elle, refuse l'écriture fautive quelle que soit sa provenance.
+
+| Contrainte | Ce qu'elle refuse, même si le code a un bug |
+|---|---|
+| `PRIMARY KEY` | deux lignes avec le même identifiant |
+| `NOT NULL` | une commande sans client ou sans montant |
+| `UNIQUE` sur `email` | deux comptes avec le même e-mail, même créés à la même milliseconde |
+| `CHECK (total_cents >= 0)` | un montant négatif |
+| `FOREIGN KEY` (`REFERENCES customers`) | une commande pour un client qui n'existe pas, ou la suppression d'un client qui a des commandes |
+
+Le code garde sa vérification pour renvoyer un message clair à l'utilisateur ; la contrainte est le filet. Côté API, je traduis l'erreur de la base (SQLSTATE `23505` pour l'unicité, `23503` pour une clé étrangère sur PostgreSQL) en `409` plutôt qu'en `500`.
+
+**Risques.** Ajouter une contrainte sur une grosse table existante la lit en entier et peut bloquer les écritures : je passe par `NOT VALID` puis `VALIDATE CONSTRAINT` (voir [Index et contraintes sans bloquer](#index-et-contraintes-sans-bloquer)). Et les lignes existantes qui violent déjà la règle font échouer la validation : je les compte et je les corrige avant.
+
+:material-book-open-variant: Doc de référence : [PostgreSQL, Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html) (version 18, 2025)
+{ .doc-ref }
+
+### Quand dénormaliser
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Dénormaliser, c'est recopier volontairement une information pour lire plus vite. Je le fais seulement pour un besoin mesuré, et je sais qui tient la copie à jour.
+
+| Situation | Je dénormalise ? |
+|---|---|
+| la commande doit garder le prix payé, même si le prix du produit change le lendemain | oui : `order_items.unit_price_cents` est un fait historique, pas une copie |
+| la liste des clients affiche leur nombre de commandes, et `COUNT(*)` à chaque affichage est mesuré trop lent | oui, avec un compteur tenu dans la même transaction que l'insertion, ou une vue matérialisée |
+| je veux juste éviter une jointure sur `customers` qui prend 2 ms | non : la jointure est indexée et le gain ne vaut pas le risque de divergence |
+| un entrepôt de données pour l'analyse, alimenté chaque nuit | oui : les tables d'analyse sont faites pour être lues, pas modifiées |
+
+**Risques.** Une copie que personne ne met à jour diverge en silence : je nomme la source de vérité, je mets à jour la copie dans la même transaction, et une requête de contrôle compare les deux de temps en temps.
+
+!!! maturity "Mesurer la maturité"
+    | Niveau | Ce que j'observe dans l'équipe |
+    |---|---|
+    | N1 | les tables ont une clé primaire, et quelqu'un pense aux `NOT NULL` et aux clés étrangères à la création |
+    | N2 | chaque règle métier qui doit toujours tenir (unicité, montant positif, lien vers le parent) a sa contrainte, vérifiée en revue de migration |
+    | N3 | la base refuse seule les écritures fautives, l'API les traduit en `409`, et un linter de migrations signale une colonne sans `NOT NULL` ou une clé étrangère sans index |
+    | N4 | l'équipe suit le nombre de lignes incohérentes trouvées par les requêtes de contrôle et ajoute une contrainte à chaque incohérence qui revient |
+
+    **Je mesure** : le nombre de lignes orphelines ou en double trouvées par les requêtes de contrôle chaque semaine ; la part des tables avec clés étrangères déclarées, lue dans `information_schema.table_constraints`.
+
 ## Écritures concurrentes
 
 <a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a>
 
-Mon application tourne sur plusieurs instances, donc deux requêtes peuvent modifier la même ligne à la même milliseconde : deux virements depuis le même compte, deux clients qui réservent la dernière place d'un concert. Une transaction seule ne suffit pas toujours : selon le niveau d'isolation, les deux peuvent lire la même valeur avant que l'une d'elles écrive. Cette section donne les quatre outils, du plus simple au plus lourd : l'`UPDATE` atomique, le verrou pessimiste, le verrou optimiste, le niveau d'isolation.
+Mon application tourne sur plusieurs instances, donc deux requêtes peuvent modifier la même ligne à la même milliseconde : deux virements depuis le même compte, deux clients qui réservent la dernière place d'un concert. Une transaction seule ne suffit pas toujours : selon le niveau d'isolation, les deux peuvent lire la même valeur avant que l'une d'elles écrive. Cette section donne les quatre outils, du plus simple au plus lourd : l'`UPDATE` atomique, le verrou pessimiste, le verrou optimiste, le niveau d'isolation, plus la contrainte d'exclusion pour les créneaux qui ne doivent pas se chevaucher.
 
 ### Race condition et mise à jour perdue
 <a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
@@ -660,9 +751,67 @@ ada a lu la version 7. grace enregistre d'abord : la ligne passe en version 8. Q
 | lire plusieurs lignes, appliquer une règle métier, puis les modifier, comme un virement entre deux comptes | `SELECT ... FOR UPDATE`, lignes verrouillées par identifiant croissant |
 | que plusieurs workers se partagent une table de tâches sans jamais prendre deux fois la même | `FOR UPDATE SKIP LOCKED` |
 | qu'une personne qui édite une fiche pendant cinq minutes n'écrase pas la modification faite entre-temps par une collègue | un verrou optimiste : colonne `version`, conflit renvoyé en `409` |
+| empêcher deux réservations d'un même prestataire sur des créneaux qui se chevauchent, comme 10 h à 11 h et 10 h 30 à 11 h 30 | une contrainte d'exclusion PostgreSQL (voir [Contrainte d'exclusion](#contrainte-dexclusion-pas-de-creneaux-qui-se-chevauchent)) |
 | protéger une règle qui porte sur plusieurs lignes, comme « au moins un médecin de garde » | `SERIALIZABLE` avec nouvelle tentative (voir [Niveaux d'isolation](#niveaux-disolation)) |
 
 :material-book-open-variant: Doc de référence : [Martin Fowler, Optimistic Offline Lock](https://martinfowler.com/eaaCatalog/optimisticOfflineLock.html) (Patterns of Enterprise Application Architecture, 2002)
+{ .doc-ref }
+
+### Contrainte d'exclusion : pas de créneaux qui se chevauchent
+<a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Mon application réserve des créneaux chez un prestataire : ada prend 10 h à 11 h, grace demande 10 h 30 à 11 h 30 au même moment. Une contrainte d'unicité ne sert à rien ici : les deux créneaux sont différents, ils se **chevauchent**. Le réflexe « je vérifie qu'aucune réservation ne chevauche, puis j'insère » est le motif lire, décider, écrire de la [race condition](#race-condition-et-mise-a-jour-perdue) : les deux requêtes vérifient en même temps, ne voient rien, et insèrent toutes les deux. Et aucune ligne n'existe encore à verrouiller avec `FOR UPDATE`.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : vérifier puis insérer, deux requêtes simultanées ne voient aucun chevauchement et insèrent toutes les deux
+overlap = db.query_one(
+    "SELECT 1 FROM bookings WHERE provider_id = %s AND status <> 'cancelled' "
+    "AND starts_at < %s AND ends_at > %s",
+    provider_id, ends_at, starts_at,
+)
+if overlap is None:
+    db.execute("INSERT INTO bookings (provider_id, starts_at, ends_at, status) VALUES (%s, %s, %s, 'confirmed')",
+               provider_id, starts_at, ends_at)
+```
+
+Une <span class="term" data-term="exclusion-constraint">contrainte d'exclusion</span> (PostgreSQL, depuis la version 9.0, 2010) généralise l'unicité : elle refuse deux lignes qui vérifient **ensemble** une condition, ici « même prestataire **et** plages qui se chevauchent ». Elle s'appuie sur un index GiST ; l'extension `btree_gist` permet d'y mettre aussi l'égalité sur `provider_id`.
+
+``` { .sql .ex-good title="Recommandé" }
+-- Bien : la base refuse deux réservations actives qui se chevauchent pour le même prestataire
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+CREATE TABLE bookings (
+    id          bigint    PRIMARY KEY,
+    provider_id bigint    NOT NULL,
+    during      tstzrange NOT NULL,
+    status      text      NOT NULL,
+    EXCLUDE USING gist (provider_id WITH =, during WITH &&) WHERE (status <> 'cancelled')
+);
+```
+
+``` { .sql .ex-ref title="Référence" }
+-- Exemple : la seconde réservation chevauche la première et est refusée
+INSERT INTO bookings VALUES (1, 7, '[2026-11-20 10:00, 2026-11-20 11:00)', 'confirmed');
+INSERT INTO bookings VALUES (2, 7, '[2026-11-20 10:30, 2026-11-20 11:30)', 'confirmed');
+-- ERROR:  conflicting key value violates exclusion constraint "bookings_provider_id_during_excl"
+```
+
+Ce qu'il faut comprendre de la déclaration :
+
+- `tstzrange` est une plage de dates avec fuseau. `[` inclut la borne, `)` l'exclut : 10 h à 11 h et 11 h à 12 h ne se chevauchent pas, deux rendez-vous peuvent s'enchaîner.
+- `&&` veut dire « se chevauchent » ; `=` sur `provider_id` limite la règle au même prestataire.
+- `WHERE (status <> 'cancelled')` : une réservation annulée libère le créneau.
+
+Côté code, j'insère directement et j'attrape l'erreur SQLSTATE `23P01` (`exclusion_violation`) pour répondre `409` avec « créneau déjà pris ». Comme pour l'`UPDATE` atomique, je le prouve par un test qui lance 20 réservations simultanées du même créneau et compte exactement une réservation.
+
+!!! noob "As noob"
+    Un agenda papier où chaque rendez-vous est un trait de crayon sur la journée : la secrétaire refuse d'en tracer un qui recouvre un trait existant pour le même médecin. Deux secrétaires au téléphone en même temps ne peuvent pas tricher, parce que c'est l'agenda lui-même qui refuse. La phrase à retenir : **pour « pas de chevauchement », je déclare la règle dans la table, je ne la vérifie pas avant d'insérer.**
+
+**Quand** : réservations de salles, de prestataires, de véhicules, périodes de prix ou de contrat qui ne doivent pas se recouvrir. **Pas** : sur MySQL, qui n'a pas d'équivalent : je verrouille alors la ligne du prestataire avec `SELECT ... FOR UPDATE` avant de vérifier et d'insérer, ou je découpe le temps en créneaux fixes avec une contrainte d'unicité sur `(provider_id, slot_start)`. **Pourquoi** : la règle tient même avec dix instances de l'API, sans verrou dans le code.
+
+**Risques.** Ajouter la contrainte sur une table existante construit l'index et échoue si des chevauchements existent déjà : je les cherche et je les corrige d'abord, et je mesure la durée du verrou sur une copie de la table (une contrainte d'exclusion ne peut pas être ajoutée en `NOT VALID`, à vérifier sur ma version). Un index GiST est plus lent à mettre à jour qu'un B-tree : sur une table qui reçoit des milliers d'insertions par seconde, je mesure avant.
+
+:material-book-open-variant: Doc de référence : [PostgreSQL, Constraints, Exclusion Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION) (version 18, 2025) ; [PostgreSQL, Range Types](https://www.postgresql.org/docs/current/rangetypes.html) (version 18, 2025) ; [PostgreSQL, btree_gist](https://www.postgresql.org/docs/current/btree-gist.html) (version 18, 2025)
 { .doc-ref }
 
 ### Niveaux d'isolation
@@ -876,6 +1025,62 @@ SELECT id FROM customers WHERE LOWER(email) = 'ada@example.com';
 ```
 
 :material-book-open-variant: Doc de référence : [Markus Winand, Anatomy of an SQL Index](https://use-the-index-luke.com/sql/anatomy) (consultée en novembre 2026) ; [PostgreSQL, Index Types](https://www.postgresql.org/docs/current/indexes-types.html) (version 18, 2025)
+{ .doc-ref }
+
+### Index composite : l'ordre des colonnes et l'index couvrant
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Ma page « mes commandes » filtre sur un client et trie par date : `WHERE customer_id = 123 ORDER BY created_at DESC LIMIT 50`. Un index sur `customer_id` seul trouve les commandes du client, mais la base doit ensuite toutes les trier pour garder les 50 plus récentes. Un <span class="term" data-term="composite-index">index composite</span> porte plusieurs colonnes, triées dans l'ordre où je les déclare : d'abord par client, puis, à l'intérieur de chaque client, par date. La base saute au client 123, lit ses commandes déjà rangées par date et s'arrête à 50.
+
+**La règle d'ordre** (Markus Winand, « SQL Performance Explained », 2012) : les colonnes comparées par **égalité** d'abord, puis la colonne de **plage** (`>=`, `BETWEEN`) ou de **tri**. Un index composite sert aussi aux requêtes qui n'utilisent que ses premières colonnes : `(customer_id, created_at)` sert `WHERE customer_id = 123`, mais pas `WHERE created_at >= '2026-01-01'` seul.
+
+``` { .sql .ex-bad title="À éviter" }
+-- À éviter : la plage en premier, la base parcourt toutes les commandes de l'année, tous clients confondus, pour garder celles du client 123
+CREATE INDEX idx_orders_created_customer ON orders (created_at, customer_id);
+SELECT id, created_at, status FROM orders
+WHERE customer_id = 123 AND created_at >= '2026-01-01';
+```
+
+``` { .sql .ex-good title="Recommandé" }
+-- Bien : l'égalité en premier, la base saute au client 123 puis lit seulement sa tranche de dates
+CREATE INDEX idx_orders_customer_created ON orders (customer_id, created_at);
+SELECT id, created_at, status FROM orders
+WHERE customer_id = 123 AND created_at >= '2026-01-01';
+```
+
+Je le vérifie avec `EXPLAIN` avant et après. Sur MySQL, la colonne `Extra` dit si la base trie elle-même les lignes (sorties simplifiées, chiffres d'exemple) :
+
+``` { .text .ex-ref title="Référence · avant, index sur customer_id seul" }
+EXPLAIN SELECT id, created_at, status FROM orders WHERE customer_id = 123 ORDER BY created_at DESC LIMIT 50;
+
+type: ref    key: idx_orders_customer            rows: 3200    Extra: Using filesort
+```
+``` { .text .ex-ref title="Référence · après, index (customer_id, created_at)" }
+type: ref    key: idx_orders_customer_created    rows: 3200    Extra: Backward index scan
+```
+`Using filesort` a disparu : la base lit l'index dans l'ordre (à l'envers ici, d'où `Backward index scan` sur MySQL 8, ce qui est normal) et s'arrête après 50 lignes, même si l'estimation `rows` ne change pas. Sur PostgreSQL, c'est l'étape `Sort` qui disparaît du plan (voir [la boucle](#rendre-une-requete-rapide-la-boucle)).
+
+**L'index couvrant.** Si toutes les colonnes que la requête lit sont dans l'index, la base n'a même plus besoin d'aller lire la table : c'est un <span class="term" data-term="covering-index">index couvrant</span>. En InnoDB (MySQL), chaque index secondaire contient déjà la clé primaire `id`, donc `(customer_id, created_at, status)` couvre `SELECT id, created_at, status`, et `EXPLAIN` affiche `Using index`. PostgreSQL (depuis la version 11, 2018) ajoute des colonnes transportées sans les trier avec `INCLUDE`, et le plan affiche `Index Only Scan` :
+
+``` { .sql .ex-ref title="Référence" }
+-- Exemple : index couvrant PostgreSQL, status est transporté dans l'index sans servir au tri
+CREATE INDEX CONCURRENTLY idx_orders_customer_created_cov
+    ON orders (customer_id, created_at DESC) INCLUDE (status);
+```
+
+!!! noob "As noob"
+    Un annuaire est trié par nom, puis par prénom. Trouver tous les « Martin » prénommés de A à C est rapide ; trouver tous les prénoms « Ada », quel que soit le nom, oblige à lire tout l'annuaire. Et si l'annuaire donne déjà le numéro de téléphone, je n'ai pas besoin d'aller frapper chez la personne : c'est l'index couvrant. La phrase à retenir : **l'égalité d'abord, la plage ou le tri ensuite, et je vérifie avec `EXPLAIN`.**
+
+| Je veux... | J'utilise... |
+|---|---|
+| afficher les 50 dernières commandes d'un client, comme la page « mes commandes » | un index `(customer_id, created_at)` |
+| filtrer sur un client et un statut, puis sur une période, comme « les commandes payées du client 123 en 2026 » | les deux égalités d'abord : `(customer_id, status, created_at)` |
+| éviter la lecture de la table pour une requête très fréquente qui lit peu de colonnes | un index couvrant : les colonnes lues ajoutées en fin d'index, ou `INCLUDE` sur PostgreSQL |
+| chercher seulement par date, sur toutes les commandes, comme un rapport mensuel | un index séparé sur `created_at` : `(customer_id, created_at)` ne le sert pas |
+
+**Risques.** Chaque index ralentit chaque `INSERT` et chaque `UPDATE` des colonnes qu'il contient, et prend de la place : je ne crée pas un index par requête. Un index `(customer_id)` devient redondant à côté de `(customer_id, created_at)`, je le supprime après avoir vérifié qu'aucun plan ne l'utilise seul. Un index couvrant trop large grossit vite. Sur PostgreSQL, un `Index Only Scan` lit quand même la table pour les pages que `VACUUM` n'a pas encore marquées visibles : `Heap Fetches` dans le plan dit combien.
+
+:material-book-open-variant: Doc de référence : [Markus Winand, Concatenated Indexes](https://use-the-index-luke.com/sql/where-clause/the-equals-operator/concatenated-keys) (consultée en novembre 2026) ; [Markus Winand, Index-Only Scan](https://use-the-index-luke.com/sql/clustering/index-only-scan-covering-index) (consultée en novembre 2026) ; [PostgreSQL, Multicolumn Indexes](https://www.postgresql.org/docs/current/indexes-multicolumn.html) (version 18, 2025) ; [PostgreSQL, Index-Only Scans and Covering Indexes](https://www.postgresql.org/docs/current/indexes-index-only-scans.html) (version 18, 2025)
 { .doc-ref }
 
 ### Rendre une requête rapide : la boucle
@@ -1903,12 +2108,17 @@ Les questions typiques :
 - « Quelle différence entre INNER JOIN et LEFT JOIN ? », « Comment trouver les clients qui n'ont jamais commandé ? » Pour répondre : je donne le nombre de lignes renvoyées sur un petit exemple, puis le motif `LEFT JOIN ... IS NULL` ([Joindre des tables](#joindre-des-tables), [Trouver ce qui manque](#trouver-ce-qui-manque-left-join-is-null)).
 - « WHERE ou HAVING ? », « Comment trouver des doublons ? » Pour répondre : je rappelle que `WHERE` filtre les lignes avant le regroupement et `HAVING` les groupes après, avec `GROUP BY ... HAVING COUNT(*) > 1` ([HAVING : filtrer après le regroupement](#having-filtrer-apres-le-regroupement)).
 - « Comment trouves-tu le deuxième plus gros montant, ou les trois dernières commandes de chaque client ? » Pour répondre : j'utilise une fonction de fenêtre, `ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC)`, puis je garde les rangs voulus dans une requête englobante, parce qu'un `WHERE` ne peut pas filtrer sur le rang directement ([Fonctions de fenêtre](#fonctions-de-fenetre)).
+- « Comment modélises-tu une table ? », « Pourquoi mettre des contraintes en base si le code vérifie déjà ? », « Quand dénormaliser ? » Pour répondre : je pars des entités et des règles métier, je normalise par défaut (chaque fait à un seul endroit), je pose `NOT NULL`, `UNIQUE`, `CHECK` et les clés étrangères parce que la contrainte tient même quand le code a un bug, et je ne dénormalise que pour un besoin mesuré ([Modéliser une table](#modeliser-une-table)).
+- « Dans quel ordre mets-tu les colonnes d'un index composite ? », « Qu'est-ce qu'un index couvrant ? » Pour répondre : l'égalité d'abord, puis la plage ou le tri, avec `(customer_id, created_at)` pour « les 50 dernières commandes d'un client » ; je montre `Using filesort` qui disparaît dans `EXPLAIN`, puis l'index couvrant qui évite de lire la table (`INCLUDE` sur PostgreSQL) ([Index composite](#index-composite-lordre-des-colonnes-et-lindex-couvrant)).
 - « Une page est lente à cause de la base, que fais-tu ? », « Qu'est-ce qu'un index, et quand ne sert-il à rien ? », « Qu'est-ce que le problème N+1 ? » Pour répondre : je déroule mesurer, lire le plan avec `EXPLAIN ANALYZE`, changer une seule chose, remesurer ([Performances](#performances), [Le problème N+1](#le-probleme-n1)), et [Les pièges côté serveur de GraphQL](api-rest-async.md#les-pieges-cote-serveur).
 - « Comment vérifies-tu en base l'effet d'un test ? », « Qu'est-ce qu'une transaction, que veut dire ACID ? » Pour répondre : je montre le `BEGIN ... ROLLBACK` et les requêtes types de la QA ([Ce qu'une transaction garantit (ACID)](#ce-quune-transaction-garantit-acid), [SQL pour la QA](#sql-pour-la-qa)).
 - « Deux personnes réservent la dernière place en même temps, que se passe-t-il ? », « Verrou optimiste ou pessimiste ? », « Quel est le niveau d'isolation par défaut de PostgreSQL ? » Pour répondre : je montre le motif lire, décider, écrire et sa chronologie, puis l'`UPDATE ... WHERE seats_left > 0` atomique ; je choisis le verrou pessimiste quand les conflits sont fréquents et l'optimiste quand ils sont rares ; je cite `READ COMMITTED` pour PostgreSQL et `REPEATABLE READ` pour MySQL, et l'écriture biaisée que seul `SERIALIZABLE` empêche ([Écritures concurrentes](#ecritures-concurrentes), [Niveaux d'isolation](#niveaux-disolation)).
+- « Comment empêches-tu deux réservations du même créneau ? » Pour répondre : je montre pourquoi « vérifier puis insérer » laisse passer deux requêtes simultanées, puis la contrainte d'exclusion `EXCLUDE USING gist (provider_id WITH =, during WITH &&)` avec `btree_gist` et une plage `tstzrange`, et l'erreur `23P01` traduite en `409` ([Contrainte d'exclusion](#contrainte-dexclusion-pas-de-creneaux-qui-se-chevauchent)).
 - « ORM ou SQL écrit à la main ? », « Active Record ou Data Mapper ? » Pour répondre : l'ORM pour le courant, le SQL paramétré pour les agrégations et les requêtes critiques, avec une règle d'équipe ; puis la différence entre un objet qui s'enregistre lui-même et une session qui enregistre un objet ignorant la base ([ORM : accéder à la base depuis le code](#orm-acceder-a-la-base-depuis-le-code), [Chargement paresseux ou anticipé](#chargement-paresseux-ou-anticipe)).
 - « Comment te protèges-tu de l'injection SQL ? » Pour répondre : je montre la requête concaténée, la saisie `' OR '1'='1`, puis la requête paramétrée ([Sécurité : l'injection SQL](#securite-linjection-sql)).
 - « Ta base sature, que fais-tu ? », « Comment renommer une colonne sans interruption ? » Pour répondre : je monte l'échelle du moins cher au plus cher, puis je déroule expand / contract ([Faire grandir une base de données](#faire-grandir-une-base-de-donnees), [Migrer un schéma sans interruption](#migrer-un-schema-sans-interruption)).
 - « Comment sais-tu qu'une optimisation de base a vraiment marché ? » Pour répondre : je donne une base avant (p95 et nombre de requêtes par appel sur sept jours), la même mesure après sur un trafic comparable, le coût des écritures comme garde-fou, puis je distingue le SLO interne du SLA promis au client ([Mesurer le succès](#mesurer-le-succes)).
 
 Ce qui fait une bonne réponse : écrire la requête sur un petit jeu de données, dire combien de lignes elle renvoie, puis citer le piège qui la fausserait (`NULL`, multiplication, fuseau horaire).
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).

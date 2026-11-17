@@ -918,6 +918,160 @@ Ici : tout vient de la <span class="term" data-term="same-origin">même origine<
 :material-book-open-variant: Doc de référence : [W3C, Content Security Policy Level 3](https://www.w3.org/TR/CSP3/) (consultée en novembre 2026) ; [MDN, CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) (consultée en novembre 2026)
 { .doc-ref }
 
+### Envoi de fichiers : URL présignée, quarantaine et domaine séparé
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Mon API laisse les utilisateurs envoyer des documents (PDF, images, 20 Mo au plus, exemple) que les membres de leur organisation téléchargent ensuite. Un fichier envoyé est une donnée que l'attaquant contrôle entièrement : un fichier énorme qui remplit le stockage, un virus, un `.pdf` qui est en fait du HTML, un SVG qui contient un `<script>`. Servi depuis le domaine de mon application, ce SVG devient une faille XSS : son script s'exécute avec les cookies et les droits de la page.
+
+Le chemin sûr, en cinq étapes :
+
+```mermaid
+flowchart LR
+  C["navigateur"] -- "(1) demande d'envoi" --> A["API"]
+  A -- "(2) URL présignée, 5 min, taille max" --> C
+  C -- "(3) envoi direct" --> Q["bucket quarantaine"]
+  Q -- "(4) objet créé" --> S["scanner :<br/>type réel + antivirus"]
+  S -- "(5) copie si sain" --> P["bucket fichiers sains<br/>servi depuis un autre domaine"]
+```
+
+1. **La taille est imposée par le stockage**, pas seulement vérifiée par l'API, puisque le fichier ne passe pas par l'API : une <span class="term" data-term="presigned-url">URL présignée</span> en `POST` accepte une condition de taille ; une URL en `PUT` ne fixe pas de plage (seulement une taille exacte, à vérifier selon le fournisseur).
+2. **La clé de l'objet est générée par le serveur** (un UUID), jamais tirée du nom envoyé par le client : `../../config` ne vise rien.
+3. **Le fichier arrive en quarantaine**, un bucket privé où le client écrit et où personne ne lit.
+4. **Un scanner vérifie le type réel** par les <span class="term" data-term="magic-bytes">octets magiques</span>, les premiers octets du fichier, au lieu de croire l'extension ou le `Content-Type` déclaré, puis passe un antivirus. Le statut `pending`, `clean` ou `rejected` est stocké en base, et le téléchargement refuse tout ce qui n'est pas `clean`.
+5. **Le téléchargement est servi depuis un autre domaine** (`files.example-usercontent.com`, pas `app.example.com`), en pièce jointe.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : URL en PUT sans limite de taille, clé tirée du nom du client, écriture directe dans le bucket servi
+def create_upload(s3, filename: str) -> str:
+    return s3.generate_presigned_url(
+        "put_object",
+        Params={"Bucket": "my-api-files", "Key": filename},
+        ExpiresIn=86400,
+    )
+```
+Un client envoie 50 Go, ou un fichier nommé `index.html` qui remplace celui d'un autre, et le fichier est téléchargeable avant tout contrôle.
+
+``` { .python .ex-good title="Recommandé" }
+# Bien : presigned POST vers la quarantaine, clé générée, type et taille imposés par le stockage, 5 minutes
+import uuid
+
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+ALLOWED_TYPES = {"application/pdf", "image/png", "image/jpeg"}
+UPLOAD_URL_TTL_SECONDS = 300
+
+
+def create_upload(s3, org_id: str, content_type: str) -> dict:
+    if content_type not in ALLOWED_TYPES:
+        raise ValueError(f"type refusé : {content_type}")
+    key = f"{org_id}/{uuid.uuid4()}"
+    return s3.generate_presigned_post(
+        Bucket="my-api-uploads-quarantine",
+        Key=key,
+        Fields={"Content-Type": content_type},
+        Conditions=[
+            {"Content-Type": content_type},
+            ["content-length-range", 1, MAX_UPLOAD_BYTES],
+        ],
+        ExpiresIn=UPLOAD_URL_TTL_SECONDS,
+    )
+```
+
+``` { .python .ex-good title="Recommandé" }
+# Bien : le scanner lit les premiers octets et compare au type déclaré
+SIGNATURES = {
+    b"%PDF-": "application/pdf",
+    b"\x89PNG\r\n\x1a\n": "image/png",
+    b"\xff\xd8\xff": "image/jpeg",
+}
+
+
+def detect_type(head: bytes) -> str | None:
+    for signature, content_type in SIGNATURES.items():
+        if head.startswith(signature):
+            return content_type
+    return None
+
+
+def is_acceptable(head: bytes, declared_type: str) -> bool:
+    return detect_type(head) == declared_type
+```
+
+La réponse du téléchargement porte deux en-têtes :
+
+``` { .text .ex-ref title="Référence" }
+HTTP/1.1 200 OK
+Content-Type: image/svg+xml
+Content-Disposition: attachment; filename="logo.svg"
+X-Content-Type-Options: nosniff
+```
+
+| En-tête | Sans | Avec |
+|---|---|---|
+| `Content-Disposition: attachment` | le navigateur affiche le SVG dans l'onglet, et son `<script>` s'exécute | le navigateur enregistre le fichier sans l'afficher |
+| `X-Content-Type-Options: nosniff` | le navigateur peut deviner le type d'après le contenu (<span class="term" data-term="mime-sniffing">MIME sniffing</span>) et rendre comme une page un fichier déclaré `text/plain` | le navigateur s'en tient au `Content-Type` déclaré |
+
+!!! noob "As noob"
+    Un colis inconnu arrive au bureau : il ne va pas directement sur le bureau du destinataire, il passe d'abord par le poste de sécurité, qui le pèse, vérifie que l'étiquette « livres » correspond bien à des livres, et le passe aux rayons X. Et si on doit l'ouvrir, on l'ouvre dans une pièce à part. La phrase à retenir : **un fichier envoyé reste suspect tant qu'il n'est pas vérifié, et il ne s'ouvre jamais sur le domaine de mon application.**
+
+**Quand** : dès qu'un utilisateur peut envoyer un fichier que d'autres verront. **Pourquoi** : chaque étape ferme une attaque précise (taille pour le déni de service, quarantaine et antivirus pour le virus, octets magiques pour le faux type, domaine séparé et en-têtes pour le XSS). **Comment** : je déroule [STRIDE](#modeliser-les-menaces-stride) sur ce flux, puis chaque protection devient un test : un fichier de 21 Mo est refusé par le stockage, un HTML renommé `.pdf` passe en `rejected`, un fichier d'une autre organisation renvoie `404` (le [BOLA](#les-failles-les-plus-courantes-des-api) reste le premier risque).
+
+**Risques.** Les en-têtes seuls ne remplacent pas le domaine séparé : ils limitent les dégâts si un fichier piégé passe le scanner. Une URL de lecture présignée qui fuit dans les logs donne accès au fichier à quiconque la lit : durée courte (une minute) et jamais d'URL présignée dans les logs. Le scanner lit des fichiers hostiles avec des bibliothèques qui ont leurs propres failles : je l'isole, avec le <span class="term" data-term="least-privilege">moindre privilège</span>, et je limite la décompression (une archive de 1 Mo peut se décompresser en 100 Go).
+
+:material-book-open-variant: Doc de référence : [OWASP, File Upload Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html) (consultée en novembre 2026) ; [Boto3, Presigned URLs](https://docs.aws.amazon.com/boto3/latest/guide/s3-presigned-urls.html) (consultée en novembre 2026) ; [MDN, X-Content-Type-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options) (consultée en novembre 2026) ; [MDN, Content-Disposition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition) (consultée en novembre 2026)
+{ .doc-ref }
+
+### Énumération des comptes
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Mon formulaire d'inscription répond « cet e-mail est déjà utilisé », et ma page de connexion dit « utilisateur inconnu » ou « mot de passe incorrect » selon le cas. C'est pratique pour l'utilisateur, et tout aussi pratique pour un attaquant : un script teste une liste de 100 000 adresses et garde celles qui ont un compte. C'est l'<span class="term" data-term="account-enumeration">énumération des comptes</span>. La liste obtenue sert ensuite à viser ces personnes par hameçonnage (« votre compte sur mon-site est bloqué ») ou à essayer sur elles des mots de passe fuités ailleurs. Sur un site de santé ou de rencontre, savoir qu'une adresse a un compte est déjà une fuite.
+
+Les endroits qui trahissent l'existence d'un compte : l'inscription, la connexion, le mot de passe oublié, et le temps de réponse de chacun.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : trois réponses différentes, l'attaquant sait quels e-mails ont un compte
+@app.post("/login")
+def login(form: LoginForm):
+    user = users_repo.find_by_email(form.email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Utilisateur inconnu")
+    if not password_hasher.verify(user.password_hash, form.password):
+        raise HTTPException(status_code=401, detail="Mot de passe incorrect")
+    return create_session(user)
+```
+Même avec le même message, une réponse plus rapide trahit le compte inexistant : sans utilisateur, le code ne calcule pas le hachage du mot de passe, qui prend des dizaines de millisecondes avec Argon2id (voir [Stocker un mot de passe](#stocker-un-mot-de-passe)).
+
+``` { .python .ex-good title="Recommandé" }
+# Bien : même code, même message, même travail, que le compte existe ou non
+@app.post("/login")
+def login(form: LoginForm):
+    user = users_repo.find_by_email(form.email)
+    password_hash = user.password_hash if user else DUMMY_PASSWORD_HASH
+    password_ok = password_hasher.verify(password_hash, form.password)
+    if user is None or not password_ok:
+        raise HTTPException(status_code=401, detail="E-mail ou mot de passe incorrect")
+    return create_session(user)
+
+
+# Bien : l'inscription répond toujours pareil, et prévient le vrai propriétaire par e-mail
+@app.post("/signup", status_code=202)
+def signup(form: SignupForm):
+    if users_repo.exists(form.email):
+        mailer.queue("account-already-exists", to=form.email)
+    else:
+        users_repo.create_pending(form.email, form.password)
+        mailer.queue("confirm-your-email", to=form.email)
+    return {"message": "Vérifiez votre boîte mail pour continuer."}
+```
+
+La personne qui a déjà un compte reçoit « Vous avez déjà un compte, mot de passe oublié ? » : elle n'est pas perdue, et l'attaquant, qui ne lit pas cette boîte, n'apprend rien. L'envoi passe par une file, pour que la réponse ait le même délai dans les deux cas. Le mot de passe oublié suit la même règle : « si un compte existe, un e-mail vient de partir ».
+
+**Quand** : sur tout site public où l'existence d'un compte a de la valeur pour un attaquant, c'est-à-dire presque tous. **Pas forcément** : un outil interne derrière l'authentification d'entreprise, ou un produit où les profils sont publics de toute façon. C'est un choix produit à poser avec le PO, parce qu'un message vague gêne un peu l'utilisateur. **Pourquoi** : sans liste de comptes valides, l'hameçonnage ciblé et les essais de mots de passe coûtent beaucoup plus cher. **Comment** : un test par route compare la réponse, le code et le délai pour un e-mail existant et un e-mail inconnu, et une <span class="term" data-term="rate-limit">limite de débit</span> par adresse IP et par e-mail freine les scripts.
+
+**Risques.** Un détail oublié suffit à tout trahir : un code `409` sur l'inscription, un champ `"exists": true` dans une API mobile, un message différent dans le mot de passe oublié. Et le délai identique ne tient que si le travail l'est : un envoi d'e-mail fait dans la requête pour un seul des deux cas recrée l'écart.
+
+:material-book-open-variant: Doc de référence : [OWASP, Authentication Cheat Sheet, Authentication and Error Messages](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#authentication-and-error-messages) (consultée en novembre 2026) ; [OWASP WSTG, Testing for Account Enumeration](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account) (version « latest », date de publication non indiquée)
+{ .doc-ref }
+
 !!! maturity "Mesurer la maturité"
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
@@ -1995,12 +2149,15 @@ Les questions typiques :
 - « Explique OAuth 2.0 », « Quel flux pour une SPA, une appli mobile, un batch ? », « Pourquoi le flux Implicit et le flux Password sont-ils abandonnés ? » Pour répondre : je dessine Authorization Code + PKCE, puis je dis quel flux va avec quel client et ce qu'OAuth 2.1 a retiré ([Les flux OAuth](#les-flux-oauth), [Ce qui change avec OAuth 2.1](#ce-qui-change)).
 - « Qu'y a-t-il dans un JWT, et que doit vérifier l'API ? », « Qu'est-ce qu'un bearer token, et quel est son risque ? » Pour répondre : je cite `iss`, `aud`, `exp`, `scope` et la signature, puis je montre comment DPoP rend un jeton volé inutile ([JWT](#jwt-a-quoi-ressemble-un-jeton), [DPoP](#dpop-un-jeton-qui-ne-sert-qua-son-proprietaire)).
 - « Comment testes-tu la sécurité d'une API ? », « Qu'est-ce que le BOLA ? », « CSRF, XSS, CORS : quelle différence ? » Pour répondre : je pars de l'OWASP API Security Top 10 et je donne le test de refus de chaque faille ([Les failles les plus courantes des API](#les-failles-les-plus-courantes-des-api), [CSRF et cookies SameSite](#csrf-et-cookies-samesite)).
+- « Comment sécurises-tu un envoi de fichiers ? », « Ton formulaire d'inscription dit "e-mail déjà utilisé", un problème ? » Pour répondre : URL présignée en `POST` avec une taille maximale imposée par le stockage, quarantaine, antivirus et vérification des octets magiques, téléchargement servi depuis un autre domaine avec `Content-Disposition: attachment` et `nosniff` ; puis l'énumération des comptes, et la parade : même réponse, même code, même délai, et un e-mail à l'adresse déjà inscrite ([Envoi de fichiers](#envoi-de-fichiers-url-presignee-quarantaine-et-domaine-separe), [Énumération des comptes](#enumeration-des-comptes)).
 - « Comment gères-tu les secrets ? », « Une clé a fuité, que fais-tu ? », « Comment stocker un mot de passe ? » Pour répondre : je parle gestionnaire de secrets, révocation immédiate et Argon2id ([Les secrets](#les-secrets), [Stocker un mot de passe](#stocker-un-mot-de-passe)).
 - « As-tu déjà fait une modélisation des menaces ? », « Qu'est-ce que le zero trust ? » Pour répondre : je déroule STRIDE sur un petit schéma, puis l'idée qu'être dans le réseau ne prouve rien ([Modéliser les menaces : STRIDE](#modeliser-les-menaces-stride), [Zero trust et identité entre services](#zero-trust-et-identite-entre-services), et [NIST SP 800-207](textes-fondateurs.md#nist-sp-800-207-zero-trust-architecture-2020)).
 - « RBAC ou ABAC ? », « Où vérifies-tu les droits ? », « Comment choisis-tu une bibliothèque externe ? » Pour répondre : les rôles pour quelques profils stables, les attributs quand la règle dépend des données (pays, montant, propriétaire), les relations à la Zanzibar pour du partage ; la décision toujours côté serveur, dans le service, en refus par défaut ; pour une dépendance, je déroule besoin, dépendances transitives, licence, signes de maintenance et OpenSSF Scorecard ([Modéliser les droits : RBAC, ABAC, ReBAC](#modeliser-les-droits-rbac-abac-rebac), [Où appliquer les contrôles](#ou-appliquer-les-controles), [Choisir une dépendance](#choisir-une-dependance)).
 - « Comment sais-tu que ta sécurité s'améliore ? » Pour répondre : je cite un SLI de temps d'exposition (délai de correction d'une faille critique, âge des secrets), une base sur un trimestre, la même mesure le trimestre suivant, la friction comme garde-fou, puis un SLO interne plus strict que l'engagement signé avec les clients ([Mesurer le succès](#mesurer-le-succes)).
 
 Ce qui fait une bonne réponse : relier chaque mécanisme à l'attaque qu'il empêche (« PKCE, parce qu'un code intercepté ne doit servir à rien »), puis dire comment je le vérifie par un test de refus.
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
 
 ## Quoi utiliser dans quelle situation
 

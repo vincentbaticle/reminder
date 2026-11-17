@@ -51,6 +51,16 @@ Mes pense-bêtes, à lire en ligne sur **[vincentbaticle.github.io/reminder](htt
 - [Lois et principes éponymes](docs/knowledge/lois-et-principes.md) : Conway, Brooks, Goodhart, Hyrum, Postel, Gall, Amdahl, Little, Chesterton, avec exemple et mauvais usage
 - [Culture d'entreprise et organisation](docs/knowledge/culture-entreprise.md) : Westrum, sécurité psychologique, Team Topologies, OKR, Cynefin, Lean, Wardley, CAPEX et OPEX, parler à la direction
 
+## Entretiens
+
+Pour chaque métier, les questions avec une piste de réponse et des liens vers Knowledge, puis des exercices en direct corrigés.
+
+- Staff Engineer : [questions](docs/entretiens/staff-engineer/questions.md), [exercices en direct](docs/entretiens/staff-engineer/exercices.md)
+- DevX Engineer : [questions](docs/entretiens/devx-engineer/questions.md), [exercices en direct](docs/entretiens/devx-engineer/exercices.md)
+- QA Engineer : [questions](docs/entretiens/qa-engineer/questions.md), [exercices en direct](docs/entretiens/qa-engineer/exercices.md)
+- Software Engineer : [questions](docs/entretiens/software-engineer/questions.md), [exercices en direct](docs/entretiens/software-engineer/exercices.md)
+- Software Architect : [questions](docs/entretiens/software-architect/questions.md), [exercices en direct](docs/entretiens/software-architect/exercices.md)
+
 ## Divers
 
 - [Expressions courantes (multilingue)](docs/knowledge/expressions.md) : expressions françaises courantes et leur équivalent anglais (page bilingue unique)

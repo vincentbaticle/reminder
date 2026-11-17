@@ -657,6 +657,103 @@ conclusion  : hypothèse tenue ; une requête bloquée 30 s aurait révélé un 
 
 <a class="pill pill-scope pill-scope-system" href="../architecture/#carte-des-echelles">Échelle · Système</a> <a class="pill pill-scope pill-scope-infra" href="../architecture/#carte-des-echelles">Échelle · Infrastructure</a>
 
+### Complexité algorithmique (notation O)
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a>
+
+**Énoncé** : la notation O décrit comment le temps (ou la mémoire) d'un algorithme grandit quand la quantité de données grandit, en ignorant les constantes. O(n) veut dire « deux fois plus de données, environ deux fois plus de temps » ; O(n²), « deux fois plus de données, quatre fois plus de temps ».
+
+!!! noob "As noob"
+    Je cherche « Martin » dans un annuaire. Si je connais déjà la page, c'est immédiat : O(1). Si j'ouvre au milieu et que je garde la bonne moitié à chaque fois, il me faut une vingtaine de gestes même pour un million de noms : O(log n). Si je lis toutes les pages, c'est O(n). Si je compare chaque nom à tous les autres pour trouver les doublons, c'est O(n²). La phrase à retenir : **la notation O ne dit pas combien de temps ça prend, elle dit comment ça empire quand les données grossissent.**
+
+**Origine** : notation introduite en mathématiques par Paul Bachmann (1894) et popularisée par Edmund Landau (1909) ; Donald Knuth en fixe l'usage en informatique dans « Big Omicron and Big Omega and Big Theta », SIGACT News (1976).
+
+| Notation | Nom | Exemple de tous les jours | 1 000 éléments | 1 000 000 d'éléments |
+|---|---|---|---|---|
+| O(1) | constant | lire `prices["sku-42"]` dans un dict Python | 1 | 1 |
+| O(log n) | logarithmique | trouver une ligne par un <span class="term" data-term="db-index">index</span> B-tree de PostgreSQL, ou une recherche dichotomique dans une liste triée | environ 10 | environ 20 |
+| O(n) | linéaire | `if sku in skus` sur une liste, ou un parcours complet de table sans index | 1 000 | 1 000 000 |
+| O(n log n) | quasi linéaire | trier avec `sorted()` | environ 10 000 | environ 20 000 000 |
+| O(n²) | quadratique | deux boucles imbriquées, comme comparer chaque commande à chaque client | 1 000 000 | 1 000 000 000 000 |
+
+[À prendre avec précaution : nombres d'opérations arrondis, pour montrer l'ordre de grandeur, pas un temps mesuré]
+
+Le cas le plus fréquent dans le code métier est la boucle imbriquée cachée. Avec 10 000 commandes et 10 000 clients, la première version fait 100 millions de comparaisons ; la seconde en fait 20 000.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : pour chaque commande, je parcours toute la liste des clients, donc O(n × m)
+def attach_customers(orders: list[Order], customers: list[Customer]) -> None:
+    for order in orders:
+        for customer in customers:
+            if customer.id == order.customer_id:
+                order.customer = customer
+```
+
+``` { .python .ex-good title="Recommandé" }
+# Bien : un dict construit une fois en O(m), puis une lecture en O(1) par commande, donc O(n + m)
+def attach_customers(orders: list[Order], customers: list[Customer]) -> None:
+    customers_by_id = {customer.id: customer for customer in customers}
+    for order in orders:
+        order.customer = customers_by_id[order.customer_id]
+```
+
+**Exemple classique : un cache LRU en O(1).** Un cache LRU (*Least Recently Used*) garde un nombre limité d'éléments et, quand il est plein, supprime celui utilisé le moins récemment. Il faut deux choses en temps constant : retrouver une valeur par sa clé, ce que fait une <span class="term" data-term="hash-table">table de hachage</span>, et savoir quel élément est le plus ancien, ce que fait une <span class="term" data-term="doubly-linked-list">liste doublement chaînée</span> : chaque nœud connaît son voisin d'avant et d'après, donc je le détache et je le raccroche en fin de liste en changeant quatre pointeurs, quelle que soit la taille du cache. La table pointe vers les nœuds de la liste, donc je n'ai jamais à parcourir la liste pour trouver un élément.
+
+``` { .text .ex-illus title="Illustration" }
+capacité 3, après put a, put b, put c
+  table : "a" -> nœud a   "b" -> nœud b   "c" -> nœud c
+  liste : [tête] <-> a <-> b <-> c <-> [queue]      (le moins récent après la tête)
+get("a") : la table donne le nœud a, je le détache et je le raccroche avant la queue
+  liste : [tête] <-> b <-> c <-> a <-> [queue]
+put("d") : le cache est plein, j'évince b (après la tête) et je retire "b" de la table
+```
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : list.remove parcourt toute la liste d'ordre, chaque get devient O(n)
+class LRUCache:
+    def __init__(self, capacity: int) -> None:
+        self.capacity, self.items, self.order = capacity, {}, []
+
+    def get(self, key: str) -> object | None:
+        if key not in self.items:
+            return None
+        self.order.remove(key)
+        self.order.append(key)
+        return self.items[key]
+```
+
+``` { .python .ex-good title="Recommandé" }
+from collections import OrderedDict
+
+
+# Bien : OrderedDict combine table de hachage et liste doublement chaînée, get et put sont en O(1)
+class LRUCache:
+    def __init__(self, capacity: int) -> None:
+        self.capacity = capacity
+        self.items: OrderedDict[str, object] = OrderedDict()
+
+    def get(self, key: str) -> object | None:
+        if key not in self.items:
+            return None
+        self.items.move_to_end(key)
+        return self.items[key]
+
+    def put(self, key: str, value: object) -> None:
+        self.items[key] = value
+        self.items.move_to_end(key)
+        if len(self.items) > self.capacity:
+            self.items.popitem(last=False)
+```
+
+Java a la même structure avec `LinkedHashMap` (en ordre d'accès), et pour mettre en cache le résultat d'une fonction, Python fournit déjà `functools.lru_cache`.
+
+**En pratique** : je regarde la <span class="term" data-term="time-complexity">complexité</span> quand une fonction devient lente seulement sur les gros volumes, signe d'une boucle imbriquée ou d'une recherche dans une liste. La même idée explique le problème <span class="term" data-term="n-plus-one">N+1</span> : une requête SQL par élément, dans une boucle, transforme un écran de 50 lignes en 51 requêtes. La notation O donne une moyenne ou un pire cas : la lecture d'un dict est O(1) en moyenne, O(n) dans le pire cas si beaucoup de clés tombent au même endroit.
+
+**Mauvais usage** : optimiser sur la seule notation, sans mesurer. Elle ignore les constantes : pour 10 éléments, parcourir une liste peut être plus rapide que construire un dict. Je mesure d'abord, puis je cherche la boucle qui grandit avec les données.
+
+:material-book-open-variant: Doc de référence : [Wikipédia, Big O notation](https://en.wikipedia.org/wiki/Big_O_notation) (consultée en novembre 2026) ; [Python Wiki, TimeComplexity](https://wiki.python.org/moin/TimeComplexity) (consultée en novembre 2026)
+{ .doc-ref }
+
 ### Loi d'Amdahl
 
 **Énoncé** : le gain de vitesse obtenu en parallélisant est plafonné par la part du travail qui reste séquentielle.
@@ -975,11 +1072,14 @@ Les questions typiques :
 - « Comment estimes-tu une fonctionnalité ? », « Pourquoi nos projets dépassent-ils toujours ? » Pour répondre : je donne une fourchette plutôt qu'une date, et je pars des durées réelles de projets passés plutôt que de la somme des tâches ([Loi de Hofstadter](#loi-de-hofstadter), [Règle des 90-90](#regle-des-90-90), [Erreur de planification](#erreur-de-planification)).
 - « Faut-il fixer un objectif de couverture de code ? », « Quels indicateurs suivrais-tu pour une équipe ? » Pour répondre : je choisis des indicateurs qui se contrebalancent, et jamais d'objectif individuel ([Loi de Goodhart](#loi-de-goodhart), [Loi de Campbell](#loi-de-campbell)).
 - « Comment faire évoluer une API sans casser ses clients ? », « Ton API doit-elle accepter une requête un peu mal formée ? » Pour répondre : je pars du principe que tout comportement visible est utilisé par quelqu'un, je garde des codes d'erreur stables et je refuse clairement ce qui est invalide ([Loi de Hyrum](#loi-de-hyrum), [Principe de robustesse](#principe-de-robustesse-loi-de-postel), et [Versionner](api-rest-async.md#versionner)).
+- « Quelle est la complexité de ton code ? », « Code un cache LRU où get et put sont en O(1) » Pour répondre : je donne les classes O(1), O(log n), O(n), O(n²) avec un exemple chacune (dict, index B-tree, parcours de liste, boucle imbriquée), puis j'explique que le LRU combine une table de hachage, pour trouver la clé, et une liste doublement chaînée, pour déplacer et évincer sans parcourir ([Complexité algorithmique](#complexite-algorithmique-notation-o)).
 - « Pourquoi doubler les serveurs ne double-t-il pas le débit ? », « Comment dimensionner un pool de connexions ? » Pour répondre : je cherche la part du travail qui reste séquentielle et le coût de coordination entre serveurs, puis je dimensionne le pool à partir du débit et du temps de réponse ([Loi d'Amdahl](#loi-damdahl), [Loi d'échelle universelle](#loi-dechelle-universelle-usl), [Loi de Little](#loi-de-little)).
 - « Tu trouves un bout de code que personne ne comprend, tu le supprimes ? » Pour répondre : je cherche d'abord pourquoi il est là, puis je le retire par étapes réversibles ([Barrière de Chesterton](#barriere-de-chesterton)).
 - « Tu cites Brooks ou Goodhart : comment sais-tu que ta décision a marché ? » Pour répondre : je donne l'indicateur mesuré avant et après, comme la part des livraisons dans la fourchette ou le débit par instance ajoutée, sur une fenêtre comparable, avec une métrique garde-fou, et je distingue le SLO interne du SLA promis au client ([Mesurer le succès](#mesurer-le-succes)).
 
 Ce qui fait une bonne réponse : donner la loi en une phrase, un exemple concret, puis sa limite ou son mauvais usage. Citer le nom seul ne prouve rien.
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
 
 ## Quoi citer dans quelle situation
 
@@ -1003,6 +1103,7 @@ Ce qui fait une bonne réponse : donner la loi en une phrase, un exemple concret
 | mon projet dépend d'une bibliothèque open source critique et je veux vérifier qu'elle a de vrais mainteneurs actifs, sans supposer que beaucoup de gens l'ont relue | loi de Linus et son contre-exemple Heartbleed |
 | mon front s'alourdit à chaque version et je veux une limite vérifiée en CI, comme un bundle qui doit rester sous 250 Ko | loi de Wirth |
 | on me répond « ce cas n'arrive jamais » et je veux quand même du temps pour tester les erreurs ou provoquer des pannes contrôlées | loi de Murphy |
+| ma fonction met près de trois heures sur 100 000 commandes alors qu'elle passait en une seconde sur 1 000 (cent fois plus de données, dix mille fois plus de temps), parce qu'elle compare chaque commande à chaque client | complexité algorithmique (passer de O(n²) à O(n)) |
 | quelqu'un veut régler la lenteur en ajoutant des serveurs, alors qu'une partie du travail passe par un seul verrou ou une seule base | lois d'Amdahl et USL |
 | je dois choisir la taille d'un pool de connexions, ou mon équipe a trop de tickets ouverts en même temps et n'en finit aucun | loi de Little |
 | quelqu'un veut supprimer une règle ou un bout de code étrange, comme un `time.sleep(0.2)`, sans savoir pourquoi il est là | barrière de Chesterton |

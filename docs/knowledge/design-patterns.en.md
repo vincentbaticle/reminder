@@ -2146,6 +2146,8 @@ The typical questions:
 
 What makes a good answer: name the problem before the pattern, show a concrete example, then say **when I would not use it**. That is what shows I choose a pattern instead of reciting it.
 
+The questions by role, with more detailed answers and worked exercises: [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
+
 ## Which pattern for which need
 
 | I want... | I use... |

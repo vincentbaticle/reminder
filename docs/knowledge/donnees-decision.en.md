@@ -964,6 +964,8 @@ The typical questions:
 
 What makes a good answer: start from the decision to make and what a wrong number costs, before naming a tool.
 
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md).
+
 ## What to use in which situation
 
 | Situation | I use |

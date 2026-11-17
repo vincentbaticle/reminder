@@ -1134,6 +1134,8 @@ The typical questions:
 
 What makes a good answer: name the mechanism, give a concrete example, then say **what the model does not guarantee and which deterministic mechanism covers it** (test, hook, permission). That is what separates an enthusiastic user's answer from an engineer's.
 
+The questions by role, with more detailed answers and worked exercises: [QA Engineer](../entretiens/qa-engineer/questions.md).
+
 ## What to use in which situation
 
 | Situation                                                                 | I use              |

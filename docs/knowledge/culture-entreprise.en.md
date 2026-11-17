@@ -304,6 +304,57 @@ With InnerSource
 :material-book-open-variant: Reference docs: [InnerSource Commons](https://innersourcecommons.org/) (accessed November 2026)
 { .doc-ref }
 
+### Influence without authority and communities of practice
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+I want five teams to adopt a common format for the error responses of their APIs, but none of them reports to me: I cannot impose anything, and an order from above would be bypassed at the first rushed release. **Influence without authority** means changing a practice through exchange, proof and writing rather than through hierarchy. Allan Cohen and David Bradford ("Influence Without Authority", 1990) describe it as a trade: I look for what matters to the other team (fewer incidents, less on-call, recognition, fewer support tickets) and I offer something that pays in that "currency", not in mine.
+
+!!! noob "As noob"
+    To start a shared compost bin in a building, I do not begin with a poster saying "mandatory from Monday". I first ask the neighbours what bothers them (overflowing bins), I start the bin with the two keen neighbours, then the others follow when they see it works and does not smell. The takeaway: **without the power to impose, I convince through what the other side gains and through a first visible success, not through a rule.**
+
+Three well-known ideas, to combine:
+
+| Idea | What it says | What I do |
+|---|---|---|
+| the trade (Cohen and Bradford, 1990) | people cooperate when they gain something that matters to them | before proposing, I ask team-web what costs it the most; here, support tickets about unreadable error messages |
+| diffusion of innovations (Everett Rogers, "Diffusion of Innovations", 1962) | a novelty spreads from innovators (about 2.5%) to <span class="term" data-term="early-adopters">early adopters</span> (13.5%), then to the majority, which copies those it sees succeed | I start with the volunteer team, never with the most reluctant one |
+| <span class="term" data-term="nemawashi">nemawashi</span> (a Japanese practice, taken up in the Toyota Production System) | prepare the decision by talking to everyone before the meeting, so the meeting confirms instead of discovering | I have each tech lead review my RFC one to one before the joint review |
+
+A <span class="term" data-term="community-of-practice">community of practice</span> (Jean Lave and Etienne Wenger, "Situated Learning", 1991) carries this work over time: people from several teams who share a craft or a practice (testing, accessibility, APIs) meet regularly, on a voluntary basis, to learn from one another. The guilds of the Spotify model (2012) are one version of it. Each member becomes a <span class="term" data-term="champion">champion</span> in their team: the practice spreads without going through me.
+
+**When**: I need to change a practice in teams that do not report to me (a standard, a tool, a convention), or a skill is scattered across several teams. Not for a non-negotiable security or compliance rule: there, the decision belongs to whoever has the authority, and influence only serves to explain it. **Why**: a practice adopted out of conviction survives my departure; an imposed one is bypassed as soon as nobody is watching. The cost: it is slower than an order, and I must accept changing my proposal. **How**:
+
+1. I understand the objections before convincing: which problem the practice solves, what it costs each team.
+2. I prove it with a volunteer team, in non-blocking mode first, and I publish the results, costs and false positives included.
+3. I write the proposal (an RFC) and prepare it one to one before the decision meeting.
+4. I rely on a community of practice and champions in each team, with an exception that is possible but visible and dated.
+5. I measure real <span class="term" data-term="adoption">adoption</span>, not the number of people at the presentation.
+
+Avoid: imposing a common quality gate through an announcement. The teams that do not see the point turn it off, and the standard dies quietly.
+
+``` { .text .ex-bad title="Avoid" }
+week 1   I announce in the general channel: "from Monday, the quality gate blocks every MR"
+week 2   two teams turn it off in their pipeline, a third adds an exception with no end date
+week 6   the gate blocks nothing anywhere, and my next proposal starts with a handicap
+```
+
+Good: the same gate, carried by the trade, a volunteer team and a prepared decision.
+
+``` { .text .ex-good title="Recommended" }
+week 1   I ask each team what costs it the most in review: two mention security flaws
+week 2   team-web, volunteering, tries the gate in informational mode, without blocking
+week 4   I publish its figures, false positives included, and drop two noisy rules
+week 5   each tech lead reviews the RFC one to one before the joint review (nemawashi)
+week 8   the gate blocks on the reliable rules; an exception is possible, with a label and an end date
+(example durations)
+```
+
+**Risks.** a community of practice with no facilitator and no time granted by managers dies out within a few months: I ask that taking part counts as work and I rotate the facilitation. It is not a decision body: if it starts voting rules for every team, it becomes an authority again, without the legitimacy. It can also turn into a club of the already convinced talking among themselves: I measure how many teams are represented. Finally, nemawashi done badly looks like corridor deals: I write in the RFC every objection received one to one and the answer given.
+
+:material-book-open-variant: Reference docs: [Etienne and Beverly Wenger-Trayner, Introduction to communities of practice](https://www.wenger-trayner.com/introduction-to-communities-of-practice/) (accessed November 2026); [Wikipedia, Diffusion of innovations](https://en.wikipedia.org/wiki/Diffusion_of_innovations) (accessed November 2026)
+{ .doc-ref }
+
 ### Two-pizza teams
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
@@ -320,6 +371,7 @@ A <span class="term" data-term="two-pizza-team">two-pizza team</span> is small e
 | to adopt the Spotify model (squads, tribes, chapters) because it seems to work elsewhere | read its critiques first, keep the idea (autonomy, communities), not the names |
 | my team has grown to twelve people and every decision now needs a meeting with everyone | split it around two distinct streams |
 | another team has been waiting three sprints for team-core to add a field to its shared library, and ends up copying it | [InnerSource](#innersource): it proposes the MR, team-core reviews |
+| I want five teams that do not report to me to adopt a common API error format, without going through an order from leadership | [influence without authority](#influence-without-authority-and-communities-of-practice): a volunteer team, an RFC prepared one to one, a community of practice |
 
 :material-book-open-variant: Reference docs: [AWS Whitepaper, Two-pizza teams](https://docs.aws.amazon.com/whitepapers/latest/introduction-devops-aws/two-pizza-teams.html) (accessed November 2026)
 { .doc-ref }
@@ -1032,6 +1084,55 @@ Example figures. The most forgotten line is almost always human time.
 :material-book-open-variant: Reference docs: [Wikipedia, Total cost of ownership](https://en.wikipedia.org/wiki/Total_cost_of_ownership) (accessed November 2026)
 { .doc-ref }
 
+### Vendor lock-in, a cost to price
+
+<a class="pill pill-scope pill-scope-system" href="../architecture/#map-of-scales">Scale · System</a> <a class="pill pill-scope pill-scope-infra" href="../architecture/#map-of-scales">Scale · Infrastructure</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+The orders-service team wants to host its own PostgreSQL database on a Kubernetes cluster, instead of using its cloud provider's managed PostgreSQL, "so as not to be locked in". **Lock-in** (<span class="term" data-term="vendor-lock-in">vendor lock-in</span>) is the situation where leaving a provider is expensive, because the code, the data or the skills depend on its own services. Gregor Hohpe ("Don't get locked up into avoiding lock-in", martinfowler.com, 2019) makes two points: lock-in comes in several forms (vendor, product, version, architecture, skills, legal), and portability has a price too, paid right away, for a departure that may never happen.
+
+!!! noob "As noob"
+    I can rent a furnished or an unfurnished flat. The furnished one saves me weeks at the start, but if I move out, I leave without furniture. Buying my own furniture "in case I move" costs money now, even if I stay ten years. The takeaway: **lock-in is not an absolute evil, it is a future and uncertain cost to compare with the immediate cost of portability.**
+
+So I price lock-in like a risk: **expected cost = likelihood of having to leave × <span class="term" data-term="switching-cost">switching cost</span>**, and I compare it with the immediate extra cost of the portable option, computed as a [total cost of ownership](#total-cost-of-ownership).
+
+``` { .text .ex-illus title="Illustration" }
+option A: managed PostgreSQL
+  likelihood of changing provider within 3 years   10%
+  switching cost: export, import, tests, 2 people for 2 weeks   €8,000
+  expected cost of lock-in: 10% × €8,000   €800
+
+option B: self-hosted PostgreSQL on Kubernetes, "portable"
+  extra operations cost: backups, upgrades, on-call
+  0.3 person for 3 years   €72,000
+
+conclusion: portability costs 90 times the lock-in it avoids
+(example figures)
+```
+
+Two costs are often forgotten in the switching cost. <span class="term" data-term="egress-fees">Egress fees</span>: the provider bills data leaving its network, and leaving with several tens of terabytes can be expensive (several large providers announced in 2024 free egress for customers who migrate out, under conditions, to check). And skills: a team trained on a proprietary tool has to relearn.
+
+So I keep the portability effort for the components where leaving is likely or very expensive, and I write it in a grid:
+
+| Component | Option chosen | Lock-in | Estimated switching cost | Decision |
+|---|---|---|---|---|
+| database | managed PostgreSQL | low: standard engine | 2 weeks | accepted |
+| message queue | provider's proprietary queue | medium: its own API | 4 weeks | accepted, access isolated behind a `MessagePublisher` interface |
+| employee identity | provider's directory | high: every access depends on it | 3 months | written <span class="term" data-term="exit-strategy">exit strategy</span>, reviewed every year |
+| traces and metrics | OpenTelemetry to the provider's tool | low: standard format | change the collector's destination | accepted |
+
+Example durations. **When**: before adopting a proprietary <span class="term" data-term="managed-service">managed service</span>, or when someone proposes to self-host everything "to stay portable". **Why**: without a figure, the debate pits two fears against each other; with a figure, it pits two costs. **How**: for each component, I estimate the likelihood of leaving, the switching cost and the extra cost of portability; I prefer managed services built on an open standard (PostgreSQL, Kubernetes, OpenTelemetry); I always keep the data in an exportable format.
+
+**Risks.** underestimating the likelihood of leaving: a price increase, an acquisition or a new rule (the European DORA regulation, applicable since January 2025, requires financial entities to have an exit strategy for their critical IT providers) changes the calculation; I review the grid every year. Conversely, hiding every service behind an abstraction "just in case" adds code to maintain and deprives me of the features that made the service worth it: the lowest common denominator of three clouds is a bad cloud.
+
+| I want... | I use... |
+|---|---|
+| to decide whether the team takes the provider's managed database or self-hosts it to stay portable | the likelihood of leaving × the switching cost, compared with the TCO of the portable option |
+| to know on which components the portability effort is really worth it, like a proprietary message queue | a lock-in grid per component |
+| to reassure leadership, or a regulator, about a provider everything depends on, like the employee directory | a written exit strategy reviewed every year |
+
+:material-book-open-variant: Reference docs: [Gregor Hohpe, Don't get locked up into avoiding lock-in](https://martinfowler.com/articles/oss-lockin.html) (2019)
+{ .doc-ref }
+
 ### Return on investment
 
 <span class="term" data-term="roi">ROI</span> is computed as (gain - cost) / cost. The **payback period** says how long it takes to recover the investment.
@@ -1254,6 +1355,180 @@ Tanya Reilly adds "The Staff Engineer's Path" (2022): big-picture thinking, exec
 :material-book-open-variant: Reference docs: [Will Larson, Staff archetypes](https://staffeng.com/guides/staff-archetypes/) (2021)
 { .doc-ref }
 
+### Software, solution and enterprise architects
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <a class="pill pill-scope pill-scope-system" href="../architecture/#map-of-scales">Scale · System</a> <a class="pill pill-scope pill-scope-enterprise" href="../architecture/#map-of-scales">Scale · Enterprise</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+One job ad says "architect", another "Staff Engineer", a third "tech lead", and I do not know whether it is the same job. The difference lies less in the title than in what the person answers for, over which scope and which time span. Three architect jobs coexist: the software architect designs the inside of a system, the <span class="term" data-term="solution-architect">solution architect</span> designs the answer to a business need by putting several systems together, and the enterprise architect aligns all the systems with the strategy (<span class="term" data-term="enterprise-architecture">enterprise architecture</span>).
+
+| Role | Question it answers | Scope | Time span | Main deliverable |
+|---|---|---|---|---|
+| tech lead | how does my team design and deliver this topic? | one team | the sprint, the quarter | code, reviews, the split of the work |
+| Staff Engineer | which cross-team technical problem must be solved, and how? | several teams | the quarter, the year | prototypes, RFCs, code on the risky parts |
+| software architect | how is this system built inside? | one system, several teams | several months to a few years | the split, the rules, ADRs |
+| solution architect | how do we answer this specific business need? | one project, several systems | the length of the project | a solution design: build or buy, cost, deadlines, contracts |
+| enterprise architect | which systems does the organization need, and which ones are duplicated? | the whole organization | several years | a <span class="term" data-term="capability-map">capability map</span>, common rules |
+
+In many companies these hats overlap: a Staff Engineer can hold Larson's "architect" archetype, and a software architect can write code. In an interview, I ask what the role really expects. Martin Fowler ("Who Needs an Architect?", IEEE Software, 2003) quotes Ralph Johnson: architecture is "the important stuff, whatever that is".
+
+The same project, seen at the three levels: an online shop wants to offer payment in three instalments.
+
+``` { .text .ex-illus title="Illustration" }
+enterprise  do we already have a "customer financing" capability somewhere, in another
+            business line or a bought tool? if not, is it a capability to build or to buy?
+solution    a split-payment provider plugged in through an API, or in-house development?
+            lead time, cost per transaction, regulated consumer credit, dependence on the provider
+software    once the provider is chosen, how do we plug it into orders-service without the rest
+            of the code depending on its API? a single adapter, contract tests, timeouts
+```
+
+The trap of the job is the <span class="term" data-term="ivory-tower-architect">ivory-tower architect</span>: they draw diagrams without seeing the code or the teams' constraints, their decisions arrive unworkable and the teams work around them. Gregor Hohpe ("The Software Architect Elevator", 2020) offers the opposite picture: the architect rides the elevator between leadership (the penthouse, where strategy and budget are decided) and the engine room (the code), and is useful because they stop at both ends.
+
+**Risks.** an architect who decides alone takes design away from the tech leads, who stop thinking or bypass the rules: I decide with them, write the decision in an ADR and leave local design to the teams. An enterprise architect with no software architect behind produces a target that stays a diagram. Mixing up the roles when hiring gives an "architect" who expects teams to lead, or a Staff who expects a domain to draw: I have what the role answers for written down.
+
+:material-book-open-variant: Reference docs: [Martin Fowler, Who Needs an Architect?](https://martinfowler.com/ieeeSoftware/whoNeedsArchitect.pdf) (IEEE Software, 2003); [Gregor Hohpe, The Architect Elevator](https://architectelevator.com/) (accessed November 2026)
+{ .doc-ref }
+
+### The first 90 days in a new role
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+I join a payment platform as a Staff Engineer. In the first week, three teams ask for my help, each on a different topic, and I am tempted to propose right away the CI rework I did elsewhere. Michael Watkins ("The First 90 Days", 2003, expanded edition 2013) shows that the first months decide what follows: I must understand before acting, and get an early <span class="term" data-term="quick-win">quick win</span> to earn the trust that will let me carry the long projects.
+
+His **STARS** model reminds me that the right strategy depends on the situation I find when I arrive:
+
+| Situation (STARS) | What I find | What I do first |
+|---|---|---|
+| start-up | a team or a product to build | lay the foundations: tools, rules, first hires |
+| turnaround | a system in crisis, like outages every week | decide fast, stabilize, cut what is not useful |
+| accelerated growth | a team that doubles in a year | write down the practices so newcomers follow them |
+| realignment | a situation getting worse without anyone seeing it | make the problem visible, with figures |
+| sustaining success | a team that works well | break nothing, understand why it works before changing it |
+
+I split the three months into three phases, each with a deliverable:
+
+| Period | Goal | Deliverable | Visible win |
+|---|---|---|---|
+| days 1 to 30 | understand: interviews with the same questions for everyone ("what slows you down the most?", "what must we absolutely not break?"), reading the latest postmortems | a short diagnosis, sent to the teams with the question "what did I get wrong?" | a dashboard of flaky tests per team |
+| days 31 to 60 | prove: one or two cross-team problems, a baseline, an experiment with a <span class="term" data-term="pilot-team">pilot team</span> | a prioritized plan, with assumptions and owners | the flaky test that blocks one pipeline in five is fixed |
+| days 61 to 90 | set direction: results compared with the baseline | a six-month roadmap, approved by the tech leads | first ADR accepted on the priority topic |
+
+For the requests that arrive in the first week, I do not say yes to each one: I write them all in one list, group them by theme, and answer "noted, I will come back to you after the diagnosis". Often, three different requests are the same problem seen from three teams.
+
+Avoid: arriving with the solution. The rework proposed in week two does not address the real problems, and the teams remember that I do not listen.
+
+``` { .text .ex-bad title="Avoid" }
+week 1   I say yes to the three requests received, one per team
+week 2   I propose rewriting the whole CI like in my previous job
+week 6   the three requests are half done, the rework is rejected
+```
+
+Good: understand, prove on a small scope, then propose.
+
+``` { .text .ex-good title="Recommended" }
+week 1   I write the three requests in one shared list and group them: two are about flaky tests
+week 4   diagnosis reviewed by the teams, dashboard of flaky tests published
+week 8   the pilot team fixes its tests, random failures halved (example)
+week 12  roadmap approved by the tech leads, no rework started before day 60
+```
+
+**Risks.** listening too long means three months with nothing delivered, and people think I am useless: the quick win of the first month is there precisely to show that I act. A badly chosen quick win (a tool nobody asked for) has the opposite effect: I pick it from what the teams told me in the interviews. Finally, getting the STARS situation wrong is costly: running a turnaround on a team that works breaks what was working.
+
+| I want... | I use... |
+|---|---|
+| to know where to start when I join a role where everyone already asks me for help | the single list of requests, grouped by theme, and interviews with the same questions |
+| to pick my strategy according to the state of the team, in crisis or on the contrary very successful | Watkins' STARS model |
+| to earn the teams' trust before carrying a project of several months | a quick win taken from what they told me, then a pilot team |
+
+:material-book-open-variant: Reference docs: [Genesis Advisers, The First 90 Days](https://www.genesisadvisers.com/the-first-90-days) (accessed November 2026); [Wikipedia, Michael D. Watkins](https://en.wikipedia.org/wiki/Michael_D._Watkins) (accessed November 2026)
+{ .doc-ref }
+
+### Splitting my time and showing impact
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+As a Staff Engineer, I get pulled into meetings, incidents and design reviews. If the release on the 15th depends on code I have to write, a single day taken by an emergency elsewhere delays the whole team. So I keep my coding tasks off the teams' <span class="term" data-term="critical-path">critical path</span>, advice found in Will Larson ("Staff Engineer", 2021): I code what is not urgent for one team but helps several (a prototype that settles an architecture question, an internal tool, a shared fix), and I review or coach what sits on the critical path.
+
+| Task | Does a release depend on it? | Who codes it |
+|---|---|---|
+| the `POST /refunds` endpoint expected for the release on the 15th | yes | team A; I review the design and the MR |
+| the fix that blocks the production release | yes | a developer from team B, pairing with me |
+| the migration script for old invoices | no | me |
+| the internal tool that generates test data | no | me |
+
+Two other texts help split that time. Tanya Reilly ("Being Glue", 2019) names <span class="term" data-term="glue-work">glue work</span>: running meetings, chasing dependencies, onboarding newcomers, keeping the documentation up to date. It is essential, but invisible at promotion time if it is neither chosen nor recognized: I do it on purpose, I tell my manager, and I do not let it eat all my time. Paul Graham ("Maker's schedule, manager's schedule", 2009) explains that a single meeting in the middle of an afternoon breaks half a day of coding: I group my meetings and protect long blocks, following the <span class="term" data-term="makers-schedule">maker's schedule</span>. An example split: 40% design and reviews, 30% coding off the critical path, 30% coaching, adjusted every quarter with my manager.
+
+Showing <span class="term" data-term="staff-impact">Staff impact</span> then takes a four-part story: the **baseline** (the situation in figures before), the **decision** (what I proposed and got accepted), the **adoption** (how many teams use it without me), the **<span class="term" data-term="measured-result">measured result</span>** (the same figure after), keeping what is measured apart from what is only hoped for.
+
+Avoid: counting activity. The recruiter or the promotion committee can conclude nothing from it about the effect produced.
+
+``` { .text .ex-bad title="Avoid" }
+this year, I wrote 40,000 lines of code, ran 30 meetings and wrote 12 documents
+```
+
+Good: the same year, told as an effect on several teams.
+
+``` { .text .ex-good title="Recommended" }
+baseline   30% of the pipelines of 6 teams failed for reasons unrelated to the code
+decision   RFC reviewed by the 6 tech leads: a shared test data library
+adoption   5 teams out of 6 use it, maintained by two champions without me
+result     30% failures down to 4% in 4 months, read in the CI dashboard
+(example figures: I quote my own)
+```
+
+So as not to forget these figures on review day, I keep a <span class="term" data-term="brag-document">brag document</span> (Julia Evans, 2019): every month, I write down what I did, for whom, and the figure that proves it, glue work included.
+
+**Risks.** staying too far from the code costs me credibility and the understanding of the real difficulties: I keep a share of coding, even a small one. Conversely, taking critical path tasks "because I am faster" makes me a bottleneck and takes learning away from the team. A brag document that only lists activities repeats the bad example above: every line ends with an effect.
+
+:material-book-open-variant: Reference docs: [Tanya Reilly, Being Glue](https://noidea.dog/glue) (2019); [Paul Graham, Maker's Schedule, Manager's Schedule](https://paulgraham.com/makersschedule.html) (2009); [Julia Evans, Get your work recognized: write a brag document](https://jvns.ca/blog/brag-documents/) (2019)
+{ .doc-ref }
+
+### Telling an experience with the STAR method
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+"Tell me about a mistake you made", "tell me about a disagreement": these are <span class="term" data-term="behavioral-question">behavioural questions</span>. The recruiter starts from what I actually did to predict what I will do. The <span class="term" data-term="star-method">STAR method</span> (an interview technique attributed to the company DDI, 1970s, to check) structures the answer in four parts: the **Situation** in two sentences, the **Task** I owned, the **Action** I took, the **Result** I got, with figures when possible.
+
+The rules that make the difference:
+
+- I say "I", not "we": the recruiter wants to know what I did, myself;
+- I spend little time on the situation, most of it on the action and the result;
+- I end on what changed afterwards, for me and for the team;
+- I keep it to two minutes, and I prepare four or five true stories (a mistake, a disagreement, an impact, an influence) that cover most questions.
+
+Avoid: a vague, collective answer with no result. The recruiter knows neither what I did nor whether I learned anything.
+
+``` { .text .ex-bad title="Avoid" }
+"Once, we had an issue with a script in production. It was complicated,
+ but we managed to fix it. Since then, we are more careful."
+```
+
+Good: a real mistake, told with STAR, ending on a lasting change.
+
+``` { .text .ex-good title="Recommended" }
+Situation  40 orders of one customer were stuck after a bug.
+Task       I had to fix their status in production.
+Action     I ran an SQL script tested on an almost empty database; a misplaced parenthesis
+           in the WHERE updated 12,000 orders. I saw the row count, warned the team
+           at once, and we restored the statuses within an hour.
+Result     since then, every production script runs in a transaction, with a count
+           before committing; I proposed this template to the team, which adopted it.
+(example figures: I tell my own story)
+```
+
+To "what is your biggest weakness?", the fake flaw ("I am too much of a perfectionist") fails: it dodges the question, the recruiter has heard it a hundred times, and concludes that I cannot recognize my weaknesses. I give a real weakness, harmless for the role, and what I concretely do to make up for it: "I tend to say yes to every request; I now write them in a list and prioritize them with my manager every week".
+
+**Risks.** a made-up or over-rehearsed story shows at the follow-up questions ("what would you do differently?"): I only tell what I lived, and if I have not lived the situation, I say so and present my reasoning as a hypothesis. A mistake too serious for the role worries instead of reassuring: I choose a real but contained impact.
+
+| I want... | I use... |
+|---|---|
+| to answer "tell me about a mistake" or "tell me about a disagreement" without getting lost in the context | the STAR method, in two minutes, saying "I" |
+| to prove an impact beyond my team, in front of a promotion committee or a recruiter | baseline, decision, adoption, measured result, fed by my brag document |
+| to answer "what is your biggest weakness?" without sounding fake | a real weakness, harmless for the role, and what I do to make up for it |
+
+:material-book-open-variant: Reference docs: [Wikipedia, Situation, task, action, result](https://en.wikipedia.org/wiki/Situation,_task,_action,_result) (accessed November 2026)
+{ .doc-ref }
+
 !!! maturity "Measuring maturity"
     | Level | What I see in the team |
     |---|---|
@@ -1305,13 +1580,22 @@ The typical questions:
 - "How would you organise teams around a platform?", "What do you think of the Spotify model?" How I answer: I split by cognitive load with Team Topologies, and I recall that the Spotify article described a snapshot, not a model to copy ([Team Topologies](#team-topologies), [The Spotify model](#the-spotify-model-and-its-limits)).
 - "What is the difference between a KPI and an OKR?", "How do you stop a metric from being inflated artificially?" How I answer: I present a KPI as a permanent thermometer and an OKR as a wanted change over a period, and I give each goal its counter-metric ([KPI or OKR](#kpi-or-okr), [Goodhart](#avoiding-the-goodhart-trap)).
 - "How do you make an important technical decision as a team?", "What do you do when you disagree with a decision?" How I answer: I classify the decision as type 1 or type 2, I use an RFC for heavy decisions, and I write down my objection before committing ([Type 1 and type 2](#type-1-and-type-2-decisions), [RFCs](#rfcs-and-design-documents), [Disagree and commit](#disagree-and-commit)).
-- "Tell me about a disagreement with a colleague", "Tell me about a failure" How I answer: I tell a lived story with the STAR method (the situation, the task I owned, the action I took, the result I got), then what I learned and what I do differently since ([Disagree and commit](#disagree-and-commit)).
+- "Tell me about a disagreement with a colleague", "Tell me about a failure" How I answer: I tell a lived story with the STAR method (the situation, the task I owned, the action I took, the result I got), then what I learned and what I do differently since ([Disagree and commit](#disagree-and-commit), [The STAR method](#telling-an-experience-with-the-star-method)).
 - "Our team delivers slowly, how do you find out why?" How I answer: I map the value stream to see where work waits, look for the constraint, then limit work in progress ([Value stream mapping](#value-stream-mapping), [Little's law](#littles-law-and-wip-limits)).
 - "How do you convince leadership to fund a rewrite?" How I answer: I give the conclusion first, the cost of delay, the "do nothing" option and the type of decision ([Trade-off in business terms](#presenting-a-technical-trade-off-in-business-terms), [Cost of delay](#cost-of-delay)).
 - "How do you estimate and slice a feature?", "A team is blocked on your shared library, what do you do?" How I answer: questions before the number, vertical slices, ranges, a spike, Example Mapping; then InnerSource with a `CONTRIBUTING.md` and a review delay that holds ([Estimating and slicing](#estimating-and-slicing-a-feature), [InnerSource](#innersource)).
 - "How do you know a team practice, like WIP limits or postmortems, really worked?" How I answer: I give a baseline before, the same measure a quarter later, a guard metric, and an internal target (an SLO) rather than a contractual promise ([Measuring success](#measuring-success)).
+- "How do you get teams that do not report to you to adopt a standard?" How I answer: I look for what each team gains, I prove it with a volunteer team in non-blocking mode, I prepare the RFC one to one (nemawashi), then I rely on a community of practice and measure adoption ([Influence without authority](#influence-without-authority-and-communities-of-practice)).
+- "Should we avoid lock-in with a cloud provider?" How I answer: I treat it as a cost, likelihood of leaving × switching cost, compared with the immediate cost of portability, and I keep the effort for the components where leaving is likely ([Vendor lock-in, a cost to price](#vendor-lock-in-a-cost-to-price)).
+- "What sets an architect apart from a tech lead or a Staff Engineer?", "Software, solution, enterprise architect: what are the differences?" How I answer: I compare what each one answers for, their scope and time span, then I show one project seen at the three levels ([The three architects](#software-solution-and-enterprise-architects)).
+- "What would you do in your first three months?" How I answer: understand, prove, set direction, each phase with a deliverable, a visible quick win in the first month, and incoming requests grouped rather than accepted one by one ([The first 90 days](#the-first-90-days-in-a-new-role)).
+- "How do you split your time between code, design and coaching?", "How do you show Staff-level impact?" How I answer: I code off the teams' critical path, I choose my glue work, then I tell the impact as baseline, decision, adoption and measured result ([Splitting my time](#splitting-my-time-and-showing-impact)).
+- "What is your biggest weakness?" How I answer: a real weakness, harmless for the role, and what I do to make up for it, never "I am too much of a perfectionist" ([The STAR method](#telling-an-experience-with-the-star-method)).
+
 
 What makes a good answer: name the framework, illustrate it with a lived or realistic situation, then state its limit, like the Spotify model copied without its context.
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
 
 ## What to use in which situation
 
@@ -1331,6 +1615,8 @@ What makes a good answer: name the framework, illustrate it with a lived or real
 | I am shown a strategic plan made of slogans, with no diagnosis and no concrete action | Rumelt's kernel: diagnosis, policy, actions |
 | the product owner wants a date for a feature of several weeks, and nobody knows yet how to merge two carts | vertical slices, ranges, spike, Example Mapping |
 | several teams depend on one team's library, and that team can no longer keep up with requests | InnerSource, trusted committers |
+| a team wants to self-host everything "so as not to be locked in" with its cloud provider | likelihood of leaving × switching cost, compared with the TCO of the portable option |
+| I join a new role and three teams ask me for help in the first week | the first 90 days: understand, prove, set direction |
 
 ## Sources
 
@@ -1379,3 +1665,12 @@ What makes a good answer: name the framework, illustrate it with a lived or real
 - [Charity Majors, "The Engineer/Manager Pendulum" (2017)](https://charity.wtf/2017/05/11/the-engineer-manager-pendulum/)
 - [Will Larson, "Staff Engineer: Leadership beyond the management track" (2021)](https://staffeng.com/book)
 - Tanya Reilly, "The Staff Engineer's Path" (2022)
+- Allan Cohen and David Bradford, "Influence Without Authority" (1990)
+- Everett Rogers, "Diffusion of Innovations" (1962)
+- Jean Lave and Etienne Wenger, "Situated Learning: Legitimate Peripheral Participation" (1991)
+- [Gregor Hohpe, "Don't get locked up into avoiding lock-in", martinfowler.com (2019)](https://martinfowler.com/articles/oss-lockin.html)
+- [Martin Fowler, "Who Needs an Architect?", IEEE Software (2003)](https://martinfowler.com/ieeeSoftware/whoNeedsArchitect.pdf)
+- Michael Watkins, "The First 90 Days" (2003, expanded edition 2013)
+- [Tanya Reilly, "Being Glue" (2019)](https://noidea.dog/glue)
+- [Paul Graham, "Maker's Schedule, Manager's Schedule" (2009)](https://paulgraham.com/makersschedule.html)
+- [Julia Evans, "Get your work recognized: write a brag document" (2019)](https://jvns.ca/blog/brag-documents/)

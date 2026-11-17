@@ -536,6 +536,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : parler du cadre avant la technique, et finir chaque faille par la façon dont je m'assure qu'elle ne revient pas.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md).
+
 ## Quoi utiliser dans quelle situation
 
 | Situation | J'utilise |

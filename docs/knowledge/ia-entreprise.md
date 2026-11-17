@@ -762,3 +762,5 @@ Les questions typiques :
 - « Comment sais-tu que le déploiement d'un assistant IA ou d'une passerelle LLM a vraiment marché ? » Pour répondre : je donne une base avant, la même mesure un trimestre après, une métrique garde-fou comme le taux d'échec des changements, et je sépare la cible interne (SLO) de la promesse contractuelle (SLA) ([Mesurer le succès](#mesurer-le-succes)).
 
 Ce qui fait une bonne réponse : séparer **ce qui est mesuré ou imposé par un texte** de ce qui relève de l'opinion, dater les règles et les chiffres, puisqu'ils changent vite, et dire où passe la limite (des outils mesurés, pas des personnes jugées).
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).

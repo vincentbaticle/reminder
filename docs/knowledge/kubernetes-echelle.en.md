@@ -458,3 +458,5 @@ I know autoscaling works when latency stays stable at the peak without paying fo
 Typical questions:
 
 - "How do you scale a worker that reads a queue?", "HPA, KEDA or Karpenter?" How I answer: I take the lag as the signal, not the CPU, and I show that each tool acts at a different level ([What to use for scaling](#what-to-use-for-scaling)).
+
+The questions by role, with more detailed answers and worked exercises: [Software Architect](../entretiens/software-architect/questions.md).

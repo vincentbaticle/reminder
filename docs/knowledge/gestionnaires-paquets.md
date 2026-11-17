@@ -416,12 +416,74 @@ La seconde commande lance les tests de `@shop/ui` et de tout ce qui en dépend, 
 :material-book-open-variant: Doc de référence : [pnpm, Workspace](https://pnpm.io/workspaces) (consultée en novembre 2026) ; [uv, Workspaces](https://docs.astral.sh/uv/concepts/projects/workspaces/) (consultée en novembre 2026)
 { .doc-ref }
 
+### Monorepo ou plusieurs dépôts : comment trancher
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a> <a class="pill pill-scope pill-scope-system" href="../architecture/#carte-des-echelles">Échelle · Système</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+*Turborepo : concurrent de Nx ; complémentaire de pnpm*<br>
+*Nx : concurrent de Turborepo, concurrent en partie de Bazel ; complémentaire de pnpm*<br>
+*Bazel : concurrent de Pants, concurrent en partie de Nx*<br>
+*Pants : concurrent de Bazel*
+{ .tool-rel }
+
+Mon organisation a 40 dépôts JavaScript, dont une bibliothèque de composants utilisée par dix applications. Chaque correction de la bibliothèque demande de publier une version, puis d'ouvrir une MR dans chacune des dix applications : un bouton corrigé met une semaine à arriver en production. Une autre équipe a trois services Python qui ne partagent presque rien, et ne voit aucun de ces problèmes. La question « monorepo ou plusieurs dépôts » (un **polyrepo** : un dépôt par projet ou par service) ne se tranche donc pas sur le principe : je compare le coût de coordination entre dépôts au coût d'outillage d'un monorepo.
+
+| Je veux... | Je choisis... |
+|---|---|
+| je veux que mes services, comme `orders-service` et `billing-service`, évoluent chacun à leur rythme, et une MR ne touche presque jamais les deux à la fois | plusieurs dépôts : simple, autonome, sans outillage spécial |
+| ma bibliothèque de composants et les applications JavaScript qui l'utilisent changent ensemble, et chaque correction demande dix MR | un monorepo avec les workspaces de pnpm, puis Nx ou Turborepo quand la CI ralentit |
+| j'ai plusieurs langages (Java, Python, Go), des centaines de développeurs et des builds de plus d'une heure | un monorepo avec Bazel ou Pants, et une équipe pour les maintenir |
+| une partie du code ne doit être lue que par quelques personnes, comme un module de paiement soumis à un audit, ou un code sous une autre licence | des dépôts séparés, car les droits de lecture d'une forge se règlent par dépôt |
+
+**Qui relit quoi.** Dans un monorepo, toutes les équipes écrivent dans le même dépôt, et il faut savoir qui doit relire une MR. Un fichier <span class="term" data-term="codeowners">CODEOWNERS</span> associe chaque dossier à une équipe propriétaire : la forge demande automatiquement sa relecture quand une MR touche ce dossier. Si une seule équipe possède tout, elle relit chaque MR du dépôt et devient la file d'attente de toute l'organisation.
+
+``` { .text .ex-bad title="À éviter" }
+# À éviter : une seule ligne pour tout le dépôt, team-core doit relire chaque MR, même celles du back-office
+*    @team-core
+```
+
+``` { .text .ex-good title="Recommandé · .gitlab/CODEOWNERS" }
+# Bien : chaque dossier a son équipe propriétaire, la dernière ligne qui correspond l'emporte
+*                 @team-devx
+/packages/ui/     @team-design-system
+/apps/web/        @team-core
+/apps/admin/      @team-ops
+```
+
+Une MR qui modifie `packages/ui/` demande donc la relecture de `@team-design-system`, et elle seule. Pour que cette relecture bloque la fusion, la branche protégée doit exiger l'approbation des propriétaires (réglage de GitLab, selon l'édition : à vérifier ; GitHub a la même règle de branche).
+
+**Ne reconstruire que ce qui a changé.** Un outil de build de monorepo calcule le <span class="term" data-term="build-graph">graphe des projets</span> (qui dépend de qui), puis ne lance que les tâches des projets touchés et de ceux qui en dépendent. Il ajoute un <span class="term" data-term="remote-build-cache">cache de build distant</span> : le résultat de chaque tâche est rangé sous une empreinte de ses entrées (sources, lockfile, version des outils), et une machine qui retrouve la même empreinte télécharge le résultat au lieu de refaire le travail.
+
+``` { .text .ex-illus title="Illustration" }
+MR de ada, qui ne touche que apps/admin
+  packages/ui   build  empreinte 7f3a déjà dans le cache distant : résultat téléchargé, 2 s
+  apps/web      test   ne dépend pas de apps/admin : pas lancé
+  apps/admin    build  empreinte nouvelle : exécuté, 40 s, résultat envoyé au cache
+  apps/admin    test   exécuté, 90 s
+durée : un peu plus de 2 min, au lieu de 14 min quand tout est reconstruit (chiffres d'exemple)
+```
+
+``` { .text .ex-ref title="Référence" }
+$ turbo run test --filter="...[origin/main]"
+```
+
+Cette commande lance les tests des paquets modifiés depuis `main` et de tout ce qui en dépend (syntaxe à vérifier dans la documentation de la version utilisée). Nx fait la même chose avec `nx affected -t test`.
+
+Ce cache n'est sûr que si le build est **hermétique** : un <span class="term" data-term="hermetic-build">build hermétique</span> ne dépend que de ses entrées déclarées, jamais de ce qui est installé sur la machine. Sinon, un résultat construit sur un poste avec Node 18 est réutilisé en CI, qui tourne en Node 22, et le bug n'apparaît qu'en production. Bazel et Pants imposent cette discipline : chaque dossier déclare ses sources, ses dépendances et ses outils dans un fichier `BUILD`, et le build refuse ce qui n'est pas déclaré. Nx et Turborepo sont plus souples : ils hachent les fichiers et les variables que je leur indique, à moi de ne rien oublier.
+
+**Quand** : un monorepo dès que les changements qui traversent plusieurs projets sont fréquents ; Bazel ou Pants seulement avec plusieurs langages, de gros volumes et des personnes pour les maintenir. Pas de monorepo pour des projets sans lien, ni pour séparer des droits de lecture. **Pourquoi** : un changement transverse passe en une seule MR testée d'un coup, et chaque bibliothèque n'existe qu'en une version ; le prix est un outillage sérieux. **Comment** : je ne déplace pas 40 dépôts d'un coup. Je regroupe d'abord la bibliothèque et deux applications pilotes en gardant l'historique Git, j'écris le `CODEOWNERS` le premier jour, puis j'ajoute le filtrage et le cache distant quand la CI ralentit. Je mesure le délai entre une modification de la bibliothèque et son arrivée en production, et la durée de la CI, avant et après.
+
+**Risques.** Bazel et Pants coûtent cher à tenir : des fichiers `BUILD` à écrire et à garder justes dans chaque dossier, une intégration aux éditeurs moins bonne, un serveur de cache à héberger, et souvent une petite équipe dédiée pour quelques centaines de développeurs (ordre de grandeur, à vérifier selon les retours publiés). Sans cette équipe, l'outil se dégrade et tout le monde le contourne. Un cache distant ouvert en écriture à tous les postes peut aussi recevoir un résultat faux, construit sur une machine mal réglée ou piégée, puis le servir à toute la CI : je laisse la CI seule écrire dans le cache, les postes ne font que lire. Enfin, un monorepo sans `CODEOWNERS` dilue la responsabilité : personne ne se sent propriétaire du dossier qui casse.
+
+:material-book-open-variant: Doc de référence : [Bazel, Hermeticity](https://bazel.build/basics/hermeticity) (consultée en novembre 2026) ; [GitLab, Code Owners](https://docs.gitlab.com/user/project/codeowners/) (consultée en novembre 2026) ; [Rachel Potvin et Josh Levenberg, « Why Google Stores Billions of Lines of Code in a Single Repository »](https://research.google/pubs/why-google-stores-billions-of-lines-of-code-in-a-single-repository/) (Communications of the ACM, 2016)
+{ .doc-ref }
+
 !!! maturity "Mesurer la maturité"
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
     | N1 | les paquets du dépôt se référencent par des chemins relatifs ou des versions publiées, et chaque dossier a son lockfile |
-    | N2 | un workspace déclaré, un seul lockfile, les paquets internes liés par `workspace:*` |
-    | N3 | la CI ne teste que les paquets touchés et ceux qui en dépendent, calculés par l'outil |
+    | N2 | un workspace déclaré, un seul lockfile, les paquets internes liés par `workspace:*`, et un `CODEOWNERS` qui donne une équipe propriétaire à chaque dossier |
+    | N3 | la CI ne teste que les paquets touchés et ceux qui en dépendent, calculés par l'outil, avec un cache distant que seule la CI alimente |
     | N4 | l'équipe suit la durée médiane de la CI d'une MR et le nombre de paquets reconstruits par MR, et règle le découpage d'après ces chiffres |
 
     **Je mesure** : la durée médiane du pipeline de MR ; le nombre moyen de paquets testés par MR.
@@ -635,10 +697,13 @@ Les questions typiques :
 - « Que veulent dire `^` et `~` ? Et SemVer ? » Pour répondre : majeur, mineur, correctif, puis les plages, avec le piège des versions 0.x ([Versions et plages](#versions-et-plages)).
 - « Deux dépendances veulent deux versions incompatibles de la même bibliothèque : que se passe-t-il ? » Pour répondre : le diamant, la réponse différente de npm, de pip et de Maven, et les `overrides` comme soupape temporaire ([Résolution et conflits](#resolution-et-conflits)).
 - « Pourquoi pnpm plutôt que npm ? », « Pourquoi uv ? » Pour répondre : disque, vitesse, et pour pnpm le refus des imports non déclarés ; pour uv, un seul outil pour Python, l'environnement et le lockfile ([Les outils par langage](#les-outils-par-langage)).
+- « Monorepo ou plusieurs dépôts ? Avec quel outil de build ? » Pour répondre : je pars du coût de coordination entre dépôts (une correction de bibliothèque qui demande dix MR), je donne le tableau de choix, puis l'outillage indispensable : `CODEOWNERS`, CI limitée aux projets touchés, cache distant alimenté par la CI seule, et Bazel ou Pants seulement avec une équipe pour les tenir ([Monorepo ou plusieurs dépôts](#monorepo-ou-plusieurs-depots-comment-trancher)).
 - « Comment protèges-tu ta CI contre un paquet piégé ? », « Qu'est-ce que la confusion de dépendances ? » Pour répondre : registre unique, lockfile avec empreintes, scripts bloqués, délai minimum, provenance et SBOM ([Sécuriser l'installation](#securiser-linstallation)).
 - « Comment gardes-tu les dépendances à jour sans y passer ta vie ? » Pour répondre : robot, CI, fusion automatique des correctifs verts, majeures planifiées, et l'indicateur des majeures en retard ([Mettre à jour les dépendances](#mettre-a-jour-les-dependances)).
 
 Ce qui fait une bonne réponse : relier chaque réglage à l'incident qu'il évite (« `npm ci`, parce qu'un pipeline ne doit pas casser sans changement de code »).
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
 
 ## Quoi utiliser dans quelle situation
 

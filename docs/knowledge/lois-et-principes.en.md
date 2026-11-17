@@ -657,6 +657,103 @@ conclusion  : hypothesis holds; a request hanging for 30 s would have revealed a
 
 <a class="pill pill-scope pill-scope-system" href="../architecture/#map-of-scales">Scale · System</a> <a class="pill pill-scope pill-scope-infra" href="../architecture/#map-of-scales">Scale · Infrastructure</a>
 
+### Algorithmic complexity (Big O)
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a>
+
+**Statement**: Big O notation describes how the time (or memory) of an algorithm grows when the amount of data grows, ignoring constants. O(n) means "twice the data, about twice the time"; O(n²), "twice the data, four times the time".
+
+!!! noob "As noob"
+    I look for "Martin" in a phone book. If I already know the page, it is instant: O(1). If I open in the middle and keep the right half each time, it takes about twenty moves even for a million names: O(log n). If I read every page, it is O(n). If I compare each name with all the others to find duplicates, it is O(n²). The one thing to remember: **Big O does not say how long it takes, it says how it gets worse as the data grows.**
+
+**Origin**: notation introduced in mathematics by Paul Bachmann (1894) and popularized by Edmund Landau (1909); Donald Knuth set its use in computer science in "Big Omicron and Big Omega and Big Theta", SIGACT News (1976).
+
+| Notation | Name | Everyday example | 1,000 items | 1,000,000 items |
+|---|---|---|---|---|
+| O(1) | constant | reading `prices["sku-42"]` from a Python dict | 1 | 1 |
+| O(log n) | logarithmic | finding a row through a PostgreSQL B-tree <span class="term" data-term="db-index">index</span>, or a binary search in a sorted list | about 10 | about 20 |
+| O(n) | linear | `if sku in skus` on a list, or a full table scan without an index | 1,000 | 1,000,000 |
+| O(n log n) | quasi-linear | sorting with `sorted()` | about 10,000 | about 20,000,000 |
+| O(n²) | quadratic | two nested loops, like comparing each order with each customer | 1,000,000 | 1,000,000,000,000 |
+
+[Take with caution: rounded operation counts, to show the order of magnitude, not a measured time]
+
+The most frequent case in business code is the hidden nested loop. With 10,000 orders and 10,000 customers, the first version makes 100 million comparisons; the second makes 20,000.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: for each order, I scan the whole customer list, so O(n × m)
+def attach_customers(orders: list[Order], customers: list[Customer]) -> None:
+    for order in orders:
+        for customer in customers:
+            if customer.id == order.customer_id:
+                order.customer = customer
+```
+
+``` { .python .ex-good title="Recommended" }
+# Good: a dict built once in O(m), then one O(1) read per order, so O(n + m)
+def attach_customers(orders: list[Order], customers: list[Customer]) -> None:
+    customers_by_id = {customer.id: customer for customer in customers}
+    for order in orders:
+        order.customer = customers_by_id[order.customer_id]
+```
+
+**Classic example: an O(1) LRU cache.** An LRU cache (*Least Recently Used*) keeps a limited number of items and, when full, evicts the one used least recently. It needs two things in constant time: finding a value by its key, which a <span class="term" data-term="hash-table">hash table</span> does, and knowing which item is the oldest, which a <span class="term" data-term="doubly-linked-list">doubly linked list</span> does: each node knows its previous and next neighbour, so I detach it and hook it back at the end of the list by changing four pointers, whatever the size of the cache. The table points to the list nodes, so I never have to scan the list to find an item.
+
+``` { .text .ex-illus title="Illustration" }
+capacity 3, after put a, put b, put c
+  table: "a" -> node a   "b" -> node b   "c" -> node c
+  list:  [head] <-> a <-> b <-> c <-> [tail]       (least recent right after the head)
+get("a"): the table gives node a, I detach it and hook it back before the tail
+  list:  [head] <-> b <-> c <-> a <-> [tail]
+put("d"): the cache is full, I evict b (after the head) and remove "b" from the table
+```
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: list.remove scans the whole order list, every get becomes O(n)
+class LRUCache:
+    def __init__(self, capacity: int) -> None:
+        self.capacity, self.items, self.order = capacity, {}, []
+
+    def get(self, key: str) -> object | None:
+        if key not in self.items:
+            return None
+        self.order.remove(key)
+        self.order.append(key)
+        return self.items[key]
+```
+
+``` { .python .ex-good title="Recommended" }
+from collections import OrderedDict
+
+
+# Good: OrderedDict combines a hash table and a doubly linked list, get and put are O(1)
+class LRUCache:
+    def __init__(self, capacity: int) -> None:
+        self.capacity = capacity
+        self.items: OrderedDict[str, object] = OrderedDict()
+
+    def get(self, key: str) -> object | None:
+        if key not in self.items:
+            return None
+        self.items.move_to_end(key)
+        return self.items[key]
+
+    def put(self, key: str, value: object) -> None:
+        self.items[key] = value
+        self.items.move_to_end(key)
+        if len(self.items) > self.capacity:
+            self.items.popitem(last=False)
+```
+
+Java has the same structure with `LinkedHashMap` (in access order), and to cache the result of a function, Python already provides `functools.lru_cache`.
+
+**In practice**: I look at <span class="term" data-term="time-complexity">complexity</span> when a function gets slow only on large volumes, the sign of a nested loop or a search in a list. The same idea explains the <span class="term" data-term="n-plus-one">N+1</span> problem: one SQL query per item, inside a loop, turns a 50-row screen into 51 queries. Big O gives an average or a worst case: a dict read is O(1) on average, O(n) in the worst case if many keys land in the same place.
+
+**Misuse**: optimizing on the notation alone, without measuring. It ignores constants: for 10 items, scanning a list can be faster than building a dict. I measure first, then look for the loop that grows with the data.
+
+:material-book-open-variant: Reference docs: [Wikipedia, Big O notation](https://en.wikipedia.org/wiki/Big_O_notation) (accessed November 2026); [Python Wiki, TimeComplexity](https://wiki.python.org/moin/TimeComplexity) (accessed November 2026)
+{ .doc-ref }
+
 ### Amdahl's law
 
 **Statement**: the speedup gained by parallelizing is capped by the part of the work that stays sequential.
@@ -975,11 +1072,14 @@ The typical questions:
 - "How do you estimate a feature?", "Why do our projects always overrun?" How I answer: I give a range rather than a date, and I start from the actual durations of past projects rather than a sum of tasks ([Hofstadter's law](#hofstadters-law), [Ninety-ninety rule](#ninety-ninety-rule), [Planning fallacy](#planning-fallacy)).
 - "Should we set a code coverage target?", "Which indicators would you track for a team?" How I answer: I pick indicators that balance each other, and never an individual target ([Goodhart's law](#goodharts-law), [Campbell's law](#campbells-law)).
 - "How do you evolve an API without breaking its clients?", "Should your API accept a slightly malformed request?" How I answer: I assume every visible behaviour is used by someone, I keep error codes stable and I clearly refuse invalid input ([Hyrum's law](#hyrums-law), [Robustness principle](#robustness-principle-postels-law), and [Versioning](api-rest-async.md#versioning)).
+- "What is the complexity of your code?", "Code an LRU cache where get and put are O(1)" How I answer: I give the O(1), O(log n), O(n), O(n²) classes with one example each (dict, B-tree index, list scan, nested loop), then I explain that the LRU combines a hash table, to find the key, and a doubly linked list, to move and evict without scanning ([Algorithmic complexity](#algorithmic-complexity-big-o)).
 - "Why does doubling the servers not double throughput?", "How do you size a connection pool?" How I answer: I look for the share of work that stays sequential and the coordination cost between servers, then I size the pool from throughput and response time ([Amdahl's law](#amdahls-law), [Universal Scalability Law](#universal-scalability-law-usl), [Little's law](#littles-law)).
 - "You find a piece of code nobody understands, do you delete it?" How I answer: I first find out why it is there, then remove it in reversible steps ([Chesterton's fence](#chestertons-fence)).
 - "You quote Brooks or Goodhart: how do you know your decision worked?" How I answer: I give the indicator measured before and after, like the share of deliveries within the range or the throughput per added instance, over a comparable window, with a guard metric, and I tell the internal SLO apart from the SLA promised to the customer ([Measuring success](#measuring-success)).
 
 What makes a good answer: give the law in one sentence, a concrete example, then its limit or its misuse. Quoting the name alone proves nothing.
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
 
 ## What to quote in which situation
 
@@ -1003,6 +1103,7 @@ What makes a good answer: give the law in one sentence, a concrete example, then
 | my project depends on a critical open source library and I want to check it has real active maintainers, without assuming many people have reviewed it | Linus's law and its Heartbleed counterexample |
 | my front end gets heavier with every release and I want a limit checked in CI, like a bundle that must stay under 250 KB | Wirth's law |
 | I am told "that case never happens" and still want time to test errors or cause controlled failures | Murphy's law |
+| my function takes almost three hours on 100,000 orders while it ran in one second on 1,000 (a hundred times the data, ten thousand times the time), because it compares each order with each customer | algorithmic complexity (going from O(n²) to O(n)) |
 | someone wants to fix slowness by adding servers, while part of the work goes through a single lock or a single database | Amdahl's law and the USL |
 | I have to pick the size of a connection pool, or my team has too many tickets open at once and finishes none of them | Little's law |
 | someone wants to delete a rule or a strange piece of code, like a `time.sleep(0.2)`, without knowing why it is there | Chesterton's fence |

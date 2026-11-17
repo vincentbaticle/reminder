@@ -6800,6 +6800,132 @@ window.REMINDER_TERMS = {
    "definition": "Ressource Argo CD qui génère des Applications à partir d'un modèle et d'un générateur : une par cluster, par dossier du dépôt, ou par merge request ouverte.",
    "example": "Un ApplicationSet avec le générateur Pull Request crée l'Application preview-mr-42 à l'ouverture de la MR 42 et la supprime à sa fermeture.",
    "example_is_code": false
+  },
+  "caldav": {
+   "term": "CalDAV",
+   "definition": "Protocole standard d’échange d’agendas entre un serveur et des clients de calendrier (RFC 4791, 2007).",
+   "example": "L’appli de réservation écrit chaque rendez-vous dans l’agenda du prestataire par CalDAV, et il le voit apparaître dans son calendrier habituel.",
+   "example_is_code": false
+  },
+  "exclusion-constraint": {
+   "term": "Contrainte d’exclusion",
+   "definition": "Contrainte PostgreSQL qui interdit que deux lignes remplissent ensemble une condition, par exemple deux plages horaires qui se chevauchent pour le même prestataire.",
+   "example": "ALTER TABLE bookings ADD CONSTRAINT no_overlap\n  EXCLUDE USING gist (provider_id WITH =, slot WITH &&);",
+   "example_is_code": true
+  },
+  "structurizr-dsl": {
+   "term": "Structurizr DSL",
+   "definition": "Langage texte de Simon Brown pour décrire un modèle C4 une seule fois et en générer plusieurs vues.",
+   "example": "workspace {\n  model {\n    user = person \"Client\"\n    app = softwareSystem \"Réservation\"\n    user -> app \"Réserve un créneau\"\n  }\n}",
+   "example_is_code": true
+  },
+  "payment-authorization-capture": {
+   "term": "Autorisation et capture",
+   "definition": "Deux temps d’un paiement par carte : l’autorisation bloque le montant sans le prélever, la capture le prélève vraiment. Annuler une autorisation coûte moins cher qu’un remboursement.",
+   "example": "Je bloque 80 € à la commande (autorisation), je prélève à l’expédition (capture) ; si le stock manque, j’annule l’autorisation au lieu de rembourser.",
+   "example_is_code": false
+  },
+  "p999": {
+   "term": "p99.9",
+   "definition": "Valeur sous laquelle se trouvent 99,9 % des mesures. Pour une latence, c’est la lenteur que subit une requête sur mille.",
+   "example": "p50 = 40 ms, p99 = 180 ms, p99.9 = 450 ms : une requête sur mille attend au moins 450 ms.",
+   "example_is_code": false
+  },
+  "denormalization": {
+   "term": "Dénormalisation",
+   "definition": "Recopier volontairement une information à un second endroit pour lire plus vite, en acceptant de tenir la copie à jour.",
+   "example": "Garder order_items.unit_price_cents au lieu de relire le prix du produit à chaque affichage de commande.",
+   "example_is_code": false
+  },
+  "nemawashi": {
+   "term": "Nemawashi",
+   "definition": "Préparer une décision en parlant à chaque personne concernée avant la réunion, pour que la réunion entérine au lieu de découvrir.",
+   "example": "Chaque tech lead relit la RFC en tête à tête avant la revue commune.",
+   "example_is_code": false
+  },
+  "community-of-practice": {
+   "term": "Communauté de pratique",
+   "definition": "Groupe volontaire de personnes de plusieurs équipes qui partagent une pratique et apprennent ensemble (Lave et Wenger, 1991).",
+   "example": "Un volontaire par équipe se retrouve 45 min toutes les deux semaines pour parler des tests.",
+   "example_is_code": false
+  },
+  "exit-strategy": {
+   "term": "Stratégie de sortie",
+   "definition": "Plan écrit qui dit comment quitter un fournisseur, en combien de temps et pour quel coût.",
+   "example": "Annuaire des employés : sortie estimée à 3 mois, plan relu chaque année.",
+   "example_is_code": false
+  },
+  "solution-architect": {
+   "term": "Architecte de solution",
+   "definition": "Conçoit la réponse à un besoin métier précis en assemblant systèmes existants, produits achetés et développement.",
+   "example": "Choisir entre un prestataire de paiement fractionné et un développement interne.",
+   "example_is_code": false
+  },
+  "ivory-tower-architect": {
+   "term": "Architecte en tour d'ivoire",
+   "definition": "Architecte qui décide sur schéma sans voir le code ni les contraintes des équipes ; ses décisions sont contournées.",
+   "example": "Une règle « tout en événements » envoyée par mail, qu'aucune équipe n'applique.",
+   "example_is_code": false
+  },
+  "glue-work": {
+   "term": "Travail de liaison",
+   "definition": "Tâches qui font tenir le collectif (relances, notes, accueil des nouveaux, coordination), indispensables mais peu visibles (Tanya Reilly, « Being Glue », 2019).",
+   "example": "Relancer chaque semaine les trois équipes dont dépend une migration.",
+   "example_is_code": false
+  },
+  "makers-schedule": {
+   "term": "Emploi du temps du créateur",
+   "definition": "Organisation en longues plages sans interruption, nécessaire pour coder (Paul Graham, 2009).",
+   "example": "Réunions regroupées le matin, après-midi réservés au code.",
+   "example_is_code": false
+  },
+  "brag-document": {
+   "term": "Document de réalisations (brag document)",
+   "definition": "Liste tenue au fil de l'eau de ce que j'ai fait, pour qui, et du chiffre qui le prouve (Julia Evans, 2019).",
+   "example": "Mars : bibliothèque de données de test, échecs CI de 30 % à 4 %.",
+   "example_is_code": false
+  },
+  "behavioral-question": {
+   "term": "Question comportementale",
+   "definition": "Question d'entretien sur ce que j'ai réellement fait dans une situation passée, pour prédire mon comportement futur.",
+   "example": "« Raconte une erreur que tu as faite, et ce que tu en as tiré. »",
+   "example_is_code": false
+  },
+  "noisy-neighbor": {
+   "term": "Voisin bruyant (noisy neighbor)",
+   "definition": "Sur une plateforme partagée, un client qui consomme sans limite une ressource commune (base, processeur, file de travaux) et ralentit tous les autres.",
+   "example": "Un gros client lance un import de 2 millions de factures sur billing-service : la base sature et les 799 autres clients attendent dix secondes chaque page.",
+   "example_is_code": false
+  },
+  "hash-table": {
+   "term": "Table de hachage",
+   "definition": "Structure qui range chaque valeur sous une clé et la retrouve en temps constant, en calculant à partir de la clé l'endroit où elle est rangée.",
+   "example": "prices = {\"sku-42\": 1999}\nprices[\"sku-42\"]",
+   "example_is_code": true
+  },
+  "doubly-linked-list": {
+   "term": "Liste doublement chaînée",
+   "definition": "Liste où chaque élément connaît son voisin d'avant et d'après, ce qui permet de le retirer ou de le déplacer en changeant quelques liens, sans parcourir la liste.",
+   "example": "# collections.OrderedDict s'appuie dessus\n[tête] <-> a <-> b <-> c <-> [queue]",
+   "example_is_code": true
+  },
+  "whole-team-approach": {
+   "term": "Approche d'équipe entière",
+   "definition": "La qualité est la responsabilité de toute l'équipe, pas d'une personne ni d'une étape ; le testeur apporte une expertise et aide les autres à tester.",
+   "example": "Les développeurs écrivent les tests de leurs critères d'acceptation, le QA anime l'exploratoire et relit leurs tests.",
+   "example_is_code": false
+  },
+  "xfail": {
+   "term": "xfail (pytest)",
+   "definition": "Marqueur pytest qui déclare qu'un test peut échouer ; avec strict=False, il tourne toujours, son résultat (XFAIL ou XPASS) reste dans le rapport, mais il ne fait pas échouer la suite.",
+   "example": "@pytest.mark.xfail(reason=\"quarantine\", strict=False)",
+   "example_is_code": true
+  },
+  "conventional-comments": {
+   "term": "Conventional Comments",
+   "definition": "Format de commentaire de revue qui commence par une étiquette (issue, suggestion, question, nitpick, praise) et une décoration (blocking) ou (non-blocking).",
+   "example": "issue (blocking): user_id vient de l'URL, injection SQL.",
+   "example_is_code": false
   }
  },
  "en": {
@@ -13599,6 +13725,132 @@ window.REMINDER_TERMS = {
    "term": "ApplicationSet (Argo CD)",
    "definition": "Argo CD resource that generates Applications from a template and a generator: one per cluster, per repository folder, or per open merge request.",
    "example": "An ApplicationSet with the Pull Request generator creates the preview-mr-42 Application when MR 42 opens and deletes it when it closes.",
+   "example_is_code": false
+  },
+  "caldav": {
+   "term": "CalDAV",
+   "definition": "Standard protocol for exchanging calendars between a server and calendar clients (RFC 4791, 2007).",
+   "example": "The booking app writes each appointment to the provider's calendar over CalDAV, and it shows up in their usual calendar app.",
+   "example_is_code": false
+  },
+  "exclusion-constraint": {
+   "term": "Exclusion constraint",
+   "definition": "PostgreSQL constraint that forbids two rows from meeting a condition together, for example two overlapping time slots for the same provider.",
+   "example": "ALTER TABLE bookings ADD CONSTRAINT no_overlap\n  EXCLUDE USING gist (provider_id WITH =, slot WITH &&);",
+   "example_is_code": true
+  },
+  "structurizr-dsl": {
+   "term": "Structurizr DSL",
+   "definition": "Text language by Simon Brown to describe a C4 model once and generate several views from it.",
+   "example": "workspace {\n  model {\n    user = person \"Customer\"\n    app = softwareSystem \"Booking\"\n    user -> app \"Books a slot\"\n  }\n}",
+   "example_is_code": true
+  },
+  "payment-authorization-capture": {
+   "term": "Authorization and capture",
+   "definition": "The two steps of a card payment: authorization holds the amount without taking it, capture actually takes it. Voiding an authorization costs less than a refund.",
+   "example": "I hold 80 EUR at order time (authorization) and take it at shipping (capture); if stock is missing, I void the authorization instead of refunding.",
+   "example_is_code": false
+  },
+  "p999": {
+   "term": "p99.9",
+   "definition": "Value below which 99.9% of measurements fall. For latency, it is the slowness one request in a thousand suffers.",
+   "example": "p50 = 40 ms, p99 = 180 ms, p99.9 = 450 ms: one request in a thousand waits at least 450 ms.",
+   "example_is_code": false
+  },
+  "denormalization": {
+   "term": "Denormalization",
+   "definition": "Copying a piece of information to a second place on purpose to read faster, accepting to keep the copy up to date.",
+   "example": "Keeping order_items.unit_price_cents instead of reading the product price again each time an order is shown.",
+   "example_is_code": false
+  },
+  "nemawashi": {
+   "term": "Nemawashi",
+   "definition": "Preparing a decision by talking to each person involved before the meeting, so the meeting confirms instead of discovering.",
+   "example": "Each tech lead reviews the RFC one to one before the joint review.",
+   "example_is_code": false
+  },
+  "community-of-practice": {
+   "term": "Community of practice",
+   "definition": "Voluntary group of people from several teams who share a practice and learn together (Lave and Wenger, 1991).",
+   "example": "One volunteer per team meets for 45 min every two weeks about testing.",
+   "example_is_code": false
+  },
+  "exit-strategy": {
+   "term": "Exit strategy",
+   "definition": "Written plan saying how to leave a provider, how long it takes and what it costs.",
+   "example": "Employee directory: exit estimated at 3 months, plan reviewed every year.",
+   "example_is_code": false
+  },
+  "solution-architect": {
+   "term": "Solution architect",
+   "definition": "Designs the answer to a specific business need by putting together existing systems, bought products and development.",
+   "example": "Choosing between a split-payment provider and in-house development.",
+   "example_is_code": false
+  },
+  "ivory-tower-architect": {
+   "term": "Ivory-tower architect",
+   "definition": "Architect who decides on diagrams without seeing the code or the teams' constraints; their decisions get bypassed.",
+   "example": "An \"everything as events\" rule sent by email that no team applies.",
+   "example_is_code": false
+  },
+  "glue-work": {
+   "term": "Glue work",
+   "definition": "Tasks that hold the group together (chasing, notes, onboarding, coordination), essential but not very visible (Tanya Reilly, \"Being Glue\", 2019).",
+   "example": "Chasing every week the three teams a migration depends on.",
+   "example_is_code": false
+  },
+  "makers-schedule": {
+   "term": "Maker's schedule",
+   "definition": "Organizing the day in long uninterrupted blocks, needed to code (Paul Graham, 2009).",
+   "example": "Meetings grouped in the morning, afternoons kept for code.",
+   "example_is_code": false
+  },
+  "brag-document": {
+   "term": "Brag document",
+   "definition": "Running list of what I did, for whom, and the figure that proves it (Julia Evans, 2019).",
+   "example": "March: test data library, CI failures from 30% to 4%.",
+   "example_is_code": false
+  },
+  "behavioral-question": {
+   "term": "Behavioural question",
+   "definition": "Interview question about what I actually did in a past situation, to predict my future behaviour.",
+   "example": "\"Tell me about a mistake you made and what you learned.\"",
+   "example_is_code": false
+  },
+  "noisy-neighbor": {
+   "term": "Noisy neighbor",
+   "definition": "On a shared platform, a customer that consumes a common resource (database, CPU, job queue) without limit and slows down everyone else.",
+   "example": "A large customer starts an import of 2 million invoices on billing-service: the database saturates and the 799 other customers wait ten seconds for every page.",
+   "example_is_code": false
+  },
+  "hash-table": {
+   "term": "Hash table",
+   "definition": "Structure that stores each value under a key and finds it in constant time, by computing from the key where it is stored.",
+   "example": "prices = {\"sku-42\": 1999}\nprices[\"sku-42\"]",
+   "example_is_code": true
+  },
+  "doubly-linked-list": {
+   "term": "Doubly linked list",
+   "definition": "List where each item knows its previous and next neighbour, so it can be removed or moved by changing a few links, without scanning the list.",
+   "example": "# Python's collections.OrderedDict relies on it\n[head] <-> a <-> b <-> c <-> [tail]",
+   "example_is_code": true
+  },
+  "whole-team-approach": {
+   "term": "Whole team approach",
+   "definition": "Quality is the whole team's responsibility, not one person's or one step's; the tester brings expertise and helps the others test.",
+   "example": "Developers write the tests for their acceptance criteria, the QA runs exploratory sessions and reviews their tests.",
+   "example_is_code": false
+  },
+  "xfail": {
+   "term": "xfail (pytest)",
+   "definition": "A pytest marker declaring that a test may fail; with strict=False it still runs, its result (XFAIL or XPASS) stays in the report, but it does not fail the suite.",
+   "example": "@pytest.mark.xfail(reason=\"quarantine\", strict=False)",
+   "example_is_code": true
+  },
+  "conventional-comments": {
+   "term": "Conventional Comments",
+   "definition": "A review comment format that starts with a label (issue, suggestion, question, nitpick, praise) and a (blocking) or (non-blocking) decoration.",
+   "example": "issue (blocking): user_id comes from the URL, SQL injection.",
    "example_is_code": false
   }
  }

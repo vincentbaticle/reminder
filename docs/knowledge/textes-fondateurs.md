@@ -881,6 +881,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : citer l'auteur et l'année, résumer l'idée en une phrase et dire ce qu'elle change dans le travail réel, sans réciter le texte.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+
 ## Quoi lire dans quelle situation
 
 | Je veux... | Je lis... |

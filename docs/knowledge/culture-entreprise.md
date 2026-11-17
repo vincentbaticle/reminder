@@ -304,6 +304,57 @@ Avec InnerSource
 :material-book-open-variant: Doc de référence : [InnerSource Commons](https://innersourcecommons.org/) (consultée en novembre 2026)
 { .doc-ref }
 
+### Influence sans autorité et communautés de pratique
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Je veux que cinq équipes adoptent un format commun pour les réponses d'erreur de leurs API, mais aucune ne dépend de moi : je ne peux rien imposer, et un ordre venu d'en haut serait contourné dès la première livraison pressée. L'**influence sans autorité** consiste à faire changer une pratique par l'échange, la preuve et l'écrit, plutôt que par la hiérarchie. Allan Cohen et David Bradford (« Influence Without Authority », 1990) la décrivent comme un échange : je cherche ce qui compte pour l'autre équipe (moins d'incidents, moins d'astreinte, de la reconnaissance, moins de tickets support) et je propose quelque chose qui lui rapporte dans cette « monnaie »-là, pas dans la mienne.
+
+!!! noob "As noob"
+    Pour lancer un compost commun dans un immeuble, je ne commence pas par une affiche « obligatoire dès lundi ». Je demande d'abord aux voisins ce qui les gêne (les poubelles qui débordent), je lance le bac avec les deux voisins motivés, puis les autres suivent quand ils voient que ça marche et que ça ne sent pas mauvais. La phrase à retenir : **sans pouvoir d'imposer, je convaincs par ce que l'autre y gagne et par un premier succès visible, pas par un règlement.**
+
+Trois idées connues, à combiner :
+
+| Idée | Ce qu'elle dit | Ce que je fais |
+|---|---|---|
+| l'échange (Cohen et Bradford, 1990) | chacun coopère quand il y gagne quelque chose qui compte pour lui | avant de proposer, je demande à team-web ce qui lui coûte le plus ; ici, des tickets support sur des messages d'erreur illisibles |
+| la diffusion de l'innovation (Everett Rogers, « Diffusion of Innovations », 1962) | une nouveauté passe des innovateurs (environ 2,5 %) aux <span class="term" data-term="early-adopters">adopteurs précoces</span> (13,5 %), puis à la majorité, qui copie ceux qu'elle voit réussir | je commence par l'équipe volontaire, jamais par la plus réticente |
+| le <span class="term" data-term="nemawashi">nemawashi</span> (pratique japonaise, reprise dans le système de production de Toyota) | préparer la décision en parlant à chacun avant la réunion, pour que la réunion entérine au lieu de découvrir | je fais relire ma RFC en tête à tête par chaque tech lead avant la revue commune |
+
+Une <span class="term" data-term="community-of-practice">communauté de pratique</span> (Jean Lave et Etienne Wenger, « Situated Learning », 1991) prolonge ce travail dans la durée : des personnes de plusieurs équipes qui partagent un métier ou une pratique (les tests, l'accessibilité, les API) se retrouvent régulièrement, sur la base du volontariat, pour apprendre les unes des autres. Les guildes du modèle Spotify (2012) en sont une version. Chaque membre devient un <span class="term" data-term="champion">relais</span> dans son équipe : la pratique circule sans passer par moi.
+
+**Quand** : je dois faire changer une pratique dans des équipes qui ne dépendent pas de moi (un standard, un outil, une convention), ou une compétence est éparpillée entre plusieurs équipes. Pas pour une règle de sécurité ou de conformité non négociable : là, la décision revient à qui en a l'autorité, et l'influence sert seulement à l'expliquer. **Pourquoi** : une pratique adoptée par conviction survit à mon départ ; une pratique imposée est contournée dès que personne ne regarde. Le coût : c'est plus lent qu'un ordre, et je dois accepter de modifier ma proposition. **Comment** :
+
+1. Je comprends les objections avant de convaincre : quel problème la pratique résout, ce qu'elle coûte à chaque équipe.
+2. Je prouve avec une équipe volontaire, en mode non bloquant d'abord, et je publie les résultats, coûts et faux positifs compris.
+3. J'écris la proposition (une RFC) et je la prépare en tête à tête avant la réunion de décision.
+4. Je m'appuie sur une communauté de pratique et des relais dans chaque équipe, avec une exception possible mais visible et datée.
+5. Je mesure l'<span class="term" data-term="adoption">adoption</span> réelle, pas le nombre de personnes présentes à la présentation.
+
+À éviter : imposer un quality gate commun par une annonce. Les équipes qui n'en voient pas l'intérêt le désactivent, et le standard meurt en silence.
+
+``` { .text .ex-bad title="À éviter" }
+semaine 1   j'annonce dans le canal général : « dès lundi, le quality gate bloque toutes les MR »
+semaine 2   deux équipes le désactivent dans leur pipeline, une troisième pose une exception sans date
+semaine 6   le gate ne bloque plus nulle part, et ma prochaine proposition partira avec un handicap
+```
+
+Bien : le même gate, porté par l'échange, une équipe volontaire et une décision préparée.
+
+``` { .text .ex-good title="Recommandé" }
+semaine 1   je demande à chaque équipe ce qui lui coûte en revue : deux citent les failles de sécurité
+semaine 2   team-web, volontaire, essaie le gate en mode informatif, sans bloquer
+semaine 4   je publie ses chiffres, faux positifs compris, et je retire deux règles trop bruyantes
+semaine 5   chaque tech lead relit la RFC en tête à tête avant la revue commune (nemawashi)
+semaine 8   le gate bloque sur les règles fiables ; exception possible, avec un label et une date de fin
+(durées d'exemple)
+```
+
+**Risques.** une communauté de pratique sans animateur ni temps accordé par les managers s'éteint en quelques mois : je demande que la participation compte comme du travail et je fais tourner l'animation. Elle n'est pas un organe de décision : si elle se met à voter des règles pour toutes les équipes, elle redevient une autorité, sans en avoir la légitimité. Elle peut aussi devenir un club de convaincus qui parlent entre eux : je mesure combien d'équipes y sont représentées. Enfin, le nemawashi mal fait ressemble à des accords de couloir : j'écris dans la RFC chaque objection reçue en tête à tête et la réponse apportée.
+
+:material-book-open-variant: Doc de référence : [Etienne et Beverly Wenger-Trayner, Introduction to communities of practice](https://www.wenger-trayner.com/introduction-to-communities-of-practice/) (consultée en novembre 2026) ; [Wikipédia, Diffusion of innovations](https://en.wikipedia.org/wiki/Diffusion_of_innovations) (consultée en novembre 2026)
+{ .doc-ref }
+
 ### Équipes à deux pizzas
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
@@ -320,6 +371,7 @@ L'<span class="term" data-term="two-pizza-team">équipe à deux pizzas</span> es
 | reprendre le modèle Spotify (squads, tribes, chapters) parce qu'il a l'air de marcher ailleurs | lire d'abord ses critiques, garder l'idée (autonomie, communautés), pas les noms |
 | mon équipe a grossi jusqu'à douze personnes et chaque décision demande maintenant une réunion avec tout le monde | la scinder autour de deux flux distincts |
 | une autre équipe attend depuis trois sprints que team-core ajoute un champ dans sa bibliothèque partagée, et finit par la copier | l'[InnerSource](#innersource) : elle propose la MR, team-core relit |
+| je veux qu'un format commun d'erreurs d'API soit adopté par cinq équipes qui ne dépendent pas de moi, sans passer par un ordre de la direction | l'[influence sans autorité](#influence-sans-autorite-et-communautes-de-pratique) : une équipe volontaire, une RFC préparée en tête à tête, une communauté de pratique |
 
 :material-book-open-variant: Doc de référence : [AWS Whitepaper, Two-pizza teams](https://docs.aws.amazon.com/whitepapers/latest/introduction-devops-aws/two-pizza-teams.html) (consultée en novembre 2026)
 { .doc-ref }
@@ -1032,6 +1084,55 @@ Chiffres d'exemple. Le poste le plus oublié est presque toujours le temps humai
 :material-book-open-variant: Doc de référence : [Wikipédia, Total cost of ownership](https://en.wikipedia.org/wiki/Total_cost_of_ownership) (consultée en novembre 2026)
 { .doc-ref }
 
+### L'enfermement chez un fournisseur, un coût à chiffrer
+
+<a class="pill pill-scope pill-scope-system" href="../architecture/#carte-des-echelles">Échelle · Système</a> <a class="pill pill-scope pill-scope-infra" href="../architecture/#carte-des-echelles">Échelle · Infrastructure</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+L'équipe de orders-service veut héberger elle-même sa base PostgreSQL sur un cluster Kubernetes, au lieu de prendre la base PostgreSQL managée de son fournisseur cloud, « pour ne pas être enfermée ». L'**enfermement** (lock-in, ou <span class="term" data-term="vendor-lock-in">verrouillage fournisseur</span>) est la situation où quitter un fournisseur coûte cher, parce que le code, les données ou les compétences dépendent de ses services propres. Gregor Hohpe (« Don't get locked up into avoiding lock-in », martinfowler.com, 2019) rappelle deux choses : l'enfermement a plusieurs formes (fournisseur, produit, version, architecture, compétences, contrat), et la portabilité a elle aussi un prix, payé tout de suite, pour un départ qui n'arrivera peut-être jamais.
+
+!!! noob "As noob"
+    Je peux louer un appartement meublé ou vide. Le meublé me fait gagner des semaines au départ, mais si je déménage, je repars sans meubles. Acheter mes propres meubles « au cas où je déménage » coûte tout de suite, même si je reste dix ans. La phrase à retenir : **l'enfermement n'est pas un mal absolu, c'est un coût futur et incertain à comparer au coût immédiat de la portabilité.**
+
+Je chiffre donc l'enfermement comme un risque : **coût attendu = probabilité de devoir partir × <span class="term" data-term="switching-cost">coût de bascule</span>**, et je le compare au surcoût immédiat de l'option portable, calculé comme un [coût total de possession](#cout-total-de-possession).
+
+``` { .text .ex-illus title="Illustration" }
+option A : PostgreSQL managé
+  probabilité de changer de fournisseur dans les 3 ans   10 %
+  coût de bascule : export, import, tests, 2 personnes 2 semaines   8 000 €
+  coût attendu de l'enfermement : 10 % × 8 000 €   800 €
+
+option B : PostgreSQL hébergé soi-même sur Kubernetes, « portable »
+  surcoût d'exploitation : sauvegardes, montées de version, astreinte
+  0,3 personne pendant 3 ans   72 000 €
+
+conclusion : la portabilité coûte 90 fois l'enfermement qu'elle évite
+(chiffres d'exemple)
+```
+
+Deux coûts s'oublient souvent dans le coût de bascule. Les <span class="term" data-term="egress-fees">frais de sortie</span> (egress) : le fournisseur facture les données qui quittent son réseau, et partir avec plusieurs dizaines de téraoctets peut coûter cher (plusieurs grands fournisseurs ont annoncé en 2024 des sorties gratuites pour les clients qui migrent, sous conditions, à vérifier). Et les compétences : une équipe formée à un outil propriétaire doit réapprendre.
+
+Je réserve donc l'effort de portabilité aux composants où la sortie est probable ou très coûteuse, et je l'écris dans une grille :
+
+| Composant | Option retenue | Enfermement | Coût de bascule estimé | Décision |
+|---|---|---|---|---|
+| base de données | PostgreSQL managé | faible : moteur standard | 2 semaines | accepté |
+| file de messages | file propriétaire du fournisseur | moyen : API propre | 4 semaines | accepté, accès isolé derrière une interface `MessagePublisher` |
+| identité des employés | annuaire du fournisseur | fort : tous les accès en dépendent | 3 mois | <span class="term" data-term="exit-strategy">stratégie de sortie</span> écrite, relue chaque année |
+| traces et métriques | OpenTelemetry vers l'outil du fournisseur | faible : format standard | changer la destination du collecteur | accepté |
+
+Durées d'exemple. **Quand** : avant d'adopter un <span class="term" data-term="managed-service">service managé</span> propriétaire, ou quand quelqu'un propose de tout héberger soi-même « pour rester portable ». **Pourquoi** : sans chiffre, le débat oppose deux peurs ; avec un chiffre, il oppose deux coûts. **Comment** : pour chaque composant, j'estime la probabilité de partir, le coût de bascule et le surcoût de la portabilité ; je préfère les services managés bâtis sur un standard ouvert (PostgreSQL, Kubernetes, OpenTelemetry) ; je garde toujours les données dans un format exportable.
+
+**Risques.** sous-estimer la probabilité de partir : une hausse de prix, un rachat ou une nouvelle règle (le règlement européen DORA, applicable depuis janvier 2025, impose aux entités financières une stratégie de sortie pour leurs prestataires informatiques critiques) change le calcul ; je relis la grille chaque année. À l'inverse, isoler chaque service derrière une abstraction « au cas où » ajoute du code à maintenir et me prive des fonctions qui faisaient l'intérêt du service : le plus petit dénominateur commun de trois clouds est un mauvais cloud.
+
+| Je veux... | J'utilise... |
+|---|---|
+| décider si l'équipe prend la base managée du fournisseur ou l'héberge elle-même pour rester portable | la probabilité de partir × le coût de bascule, comparés au TCO de l'option portable |
+| savoir sur quels composants l'effort de portabilité vaut vraiment la peine, comme une file de messages propriétaire | une grille d'enfermement par composant |
+| rassurer la direction, ou un régulateur, sur un fournisseur dont tout dépend, comme l'annuaire des employés | une stratégie de sortie écrite et relue chaque année |
+
+:material-book-open-variant: Doc de référence : [Gregor Hohpe, Don't get locked up into avoiding lock-in](https://martinfowler.com/articles/oss-lockin.html) (2019)
+{ .doc-ref }
+
 ### Retour sur investissement
 
 Le <span class="term" data-term="roi">ROI</span> se calcule ainsi : (gain - coût) / coût. Le **délai de récupération** (payback) dit en combien de temps l'investissement est remboursé.
@@ -1254,6 +1355,180 @@ Tanya Reilly complète avec « The Staff Engineer's Path » (2022) : vision d'en
 :material-book-open-variant: Doc de référence : [Will Larson, Staff archetypes](https://staffeng.com/guides/staff-archetypes/) (2021)
 { .doc-ref }
 
+### Architecte logiciel, de solution, d'entreprise
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a> <a class="pill pill-scope pill-scope-system" href="../architecture/#carte-des-echelles">Échelle · Système</a> <a class="pill pill-scope pill-scope-enterprise" href="../architecture/#carte-des-echelles">Échelle · Entreprise</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Une offre d'emploi dit « architecte », une autre « Staff Engineer », une troisième « tech lead », et je ne sais pas si c'est le même métier. La différence tient moins au titre qu'à ce dont la personne répond, sur quelle portée et sur quel horizon de temps. Trois métiers d'architecte coexistent : l'architecte logiciel conçoit l'intérieur d'un système, l'<span class="term" data-term="solution-architect">architecte de solution</span> conçoit la réponse à un besoin métier en assemblant plusieurs systèmes, et l'architecte d'entreprise aligne l'ensemble des systèmes sur la stratégie (l'<span class="term" data-term="enterprise-architecture">architecture d'entreprise</span>).
+
+| Rôle | Question à laquelle il répond | Portée | Horizon | Livrable principal |
+|---|---|---|---|---|
+| tech lead | comment mon équipe conçoit et livre ce sujet ? | une équipe | le sprint, le trimestre | du code, des revues, le découpage du travail |
+| Staff Engineer | quel problème technique transverse faut-il régler, et comment ? | plusieurs équipes | le trimestre, l'année | des prototypes, des RFC, du code sur les parties à risque |
+| architecte logiciel | comment ce système est-il construit à l'intérieur ? | un système, plusieurs équipes | plusieurs mois à quelques années | le découpage, les règles, des ADR |
+| architecte de solution | comment répondre à ce besoin métier précis ? | un projet, plusieurs systèmes | la durée du projet | un dossier de solution : construire ou acheter, coût, délais, contrats |
+| architecte d'entreprise | de quels systèmes l'organisation a-t-elle besoin, et lesquels sont en double ? | toute l'organisation | plusieurs années | une <span class="term" data-term="capability-map">carte des capacités</span>, des règles communes |
+
+Dans beaucoup d'entreprises, ces casquettes se recouvrent : un Staff Engineer peut tenir l'archétype « architecte » de Larson, et un architecte logiciel peut coder. En entretien, je demande ce que le poste attend vraiment. Martin Fowler (« Who Needs an Architect? », IEEE Software, 2003) reprend la formule de Ralph Johnson : l'architecture, ce sont « les choses importantes, quelles qu'elles soient ».
+
+Le même projet, vu aux trois niveaux : une boutique en ligne veut proposer le paiement en trois fois.
+
+``` { .text .ex-illus title="Illustration" }
+entreprise  avons-nous déjà une capacité « financement du client » ailleurs, dans une autre
+            activité ou un outil acheté ? sinon, est-ce une capacité à construire ou à acheter ?
+solution    prestataire de paiement fractionné branché par API, ou développement interne ?
+            délai, coût par transaction, crédit à la consommation encadré, dépendance au prestataire
+logiciel    le prestataire choisi, comment l'intégrer dans orders-service sans que le reste du code
+            dépende de son API ? un adaptateur unique, des tests de contrat, des délais d'attente
+```
+
+Le piège du métier est l'<span class="term" data-term="ivory-tower-architect">architecte en tour d'ivoire</span> : il dessine des schémas sans voir le code ni les contraintes des équipes, ses décisions arrivent inapplicables et les équipes les contournent. Gregor Hohpe (« The Software Architect Elevator », 2020) propose l'image inverse : l'architecte prend l'ascenseur entre la direction (le dernier étage, où se décident la stratégie et le budget) et la salle des machines (le code), et il est utile parce qu'il s'arrête aux deux bouts.
+
+**Risques.** un architecte qui décide seul retire la conception aux tech leads, qui cessent de réfléchir ou contournent ses règles : je décide avec eux, j'écris la décision dans un ADR et je laisse la conception locale aux équipes. Un architecte d'entreprise sans architecte logiciel derrière produit une cible qui reste un schéma. Confondre les rôles en recrutement donne un « architecte » qui attend des équipes à diriger, ou un Staff qui attend un domaine à dessiner : je fais écrire ce dont le poste répond.
+
+:material-book-open-variant: Doc de référence : [Martin Fowler, Who Needs an Architect?](https://martinfowler.com/ieeeSoftware/whoNeedsArchitect.pdf) (IEEE Software, 2003) ; [Gregor Hohpe, The Architect Elevator](https://architectelevator.com/) (consultée en novembre 2026)
+{ .doc-ref }
+
+### Les 90 premiers jours dans un nouveau rôle
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+J'arrive comme Staff Engineer sur une plateforme de paiement. Dès la première semaine, trois équipes me demandent de l'aide, chacune sur un sujet différent, et j'ai envie de proposer tout de suite la refonte de la CI que j'ai faite ailleurs. Michael Watkins (« The First 90 Days », 2003, édition augmentée en 2013) montre que les premiers mois décident de la suite : je dois comprendre avant d'agir, et obtenir tôt une <span class="term" data-term="quick-win">victoire rapide</span> pour gagner la confiance qui me permettra de porter les chantiers longs.
+
+Son modèle **STARS** rappelle que la bonne stratégie dépend de la situation trouvée en arrivant :
+
+| Situation (STARS) | Ce que je trouve | Ce que je fais d'abord |
+|---|---|---|
+| démarrage (start-up) | une équipe ou un produit à construire | poser les bases : outils, règles, premiers recrutements |
+| redressement (turnaround) | un système en crise, comme des pannes chaque semaine | décider vite, stabiliser, couper ce qui ne sert pas |
+| croissance accélérée (accelerated growth) | une équipe qui double en un an | écrire les pratiques pour que les nouveaux les suivent |
+| réalignement (realignment) | une situation qui se dégrade sans que personne ne le voie | rendre le problème visible, chiffres à l'appui |
+| maintien du succès (sustaining success) | une équipe qui marche bien | ne rien casser, comprendre pourquoi ça marche avant de changer |
+
+Je découpe les trois mois en trois phases, chacune avec un livrable :
+
+| Période | Objectif | Livrable | Victoire visible |
+|---|---|---|---|
+| jours 1 à 30 | comprendre : entretiens avec les mêmes questions pour tous (« qu'est-ce qui te ralentit le plus ? », « qu'est-ce qu'il ne faut surtout pas casser ? »), lecture des derniers postmortems | un diagnostic court, envoyé aux équipes avec la question « qu'est-ce que j'ai mal compris ? » | un tableau de bord des tests instables par équipe |
+| jours 31 à 60 | prouver : un ou deux problèmes transverses, une mesure de départ, une expérience avec une <span class="term" data-term="pilot-team">équipe pilote</span> | un plan priorisé, avec hypothèses et responsables | le test instable qui bloque un pipeline sur cinq est stabilisé |
+| jours 61 à 90 | donner une direction : résultats comparés à la mesure de départ | une feuille de route sur six mois, validée par les tech leads | premier ADR accepté sur le sujet prioritaire |
+
+Pour les demandes qui arrivent dès la première semaine, je ne dis pas oui à chacune : je les note toutes dans une même liste, je les regroupe par thème, et je réponds « c'est noté, je reviens vers toi après le diagnostic ». Souvent, trois demandes différentes sont le même problème vu de trois équipes.
+
+À éviter : arriver avec la solution. La refonte proposée en semaine deux ne répond pas aux vrais problèmes, et les équipes retiennent que je n'écoute pas.
+
+``` { .text .ex-bad title="À éviter" }
+semaine 1   je dis oui aux trois demandes reçues, une par équipe
+semaine 2   je propose de réécrire toute la CI comme dans mon ancien poste
+semaine 6   les trois demandes sont à moitié faites, la refonte est rejetée
+```
+
+Bien : comprendre, prouver sur un petit périmètre, puis proposer.
+
+``` { .text .ex-good title="Recommandé" }
+semaine 1   je note les trois demandes dans une liste commune et je les regroupe : deux parlent des tests instables
+semaine 4   diagnostic relu par les équipes, tableau de bord des tests instables publié
+semaine 8   l'équipe pilote stabilise ses tests, échecs au hasard divisés par deux (exemple)
+semaine 12  feuille de route validée par les tech leads, aucune refonte lancée avant le jour 60
+```
+
+**Risques.** trop écouter fait passer trois mois sans rien livrer, et l'on me croit inutile : la victoire rapide du premier mois sert justement à montrer que j'agis. Une victoire rapide mal choisie (un outil que personne n'a demandé) produit l'effet inverse : je la prends dans ce que les équipes m'ont dit pendant les entretiens. Enfin, se tromper de situation STARS est coûteux : appliquer un redressement à une équipe qui marche casse ce qui fonctionnait.
+
+| Je veux... | J'utilise... |
+|---|---|
+| savoir par où commencer en arrivant sur un poste où tout le monde me demande déjà de l'aide | la liste unique des demandes, regroupées par thème, et des entretiens avec les mêmes questions |
+| choisir ma stratégie selon l'état de l'équipe, en crise ou au contraire en pleine réussite | le modèle STARS de Watkins |
+| gagner la confiance des équipes avant de porter un chantier de plusieurs mois | une victoire rapide prise dans ce qu'elles m'ont dit, puis une équipe pilote |
+
+:material-book-open-variant: Doc de référence : [Genesis Advisers, The First 90 Days](https://www.genesisadvisers.com/the-first-90-days) (consultée en novembre 2026) ; [Wikipédia, Michael D. Watkins](https://en.wikipedia.org/wiki/Michael_D._Watkins) (consultée en novembre 2026)
+{ .doc-ref }
+
+### Répartir son temps et montrer son impact
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Comme Staff Engineer, on m'appelle en réunion, sur un incident, sur une revue de conception. Si la livraison du 15 dépend du code que je dois écrire, une seule journée prise par une urgence ailleurs retarde toute l'équipe. Je garde donc mes tâches de code hors du <span class="term" data-term="critical-path">chemin critique</span> des équipes, un conseil que l'on retrouve chez Will Larson (« Staff Engineer », 2021) : je code ce qui n'est pas urgent pour une équipe mais aide plusieurs équipes (un prototype qui tranche une question d'architecture, un outil interne, une correction partagée), et je relis ou j'accompagne ce qui est sur le chemin critique.
+
+| Tâche | Une livraison en dépend ? | Qui la code |
+|---|---|---|
+| l'endpoint `POST /refunds` attendu pour la livraison du 15 | oui | l'équipe A ; je relis la conception et la MR |
+| le correctif qui bloque la mise en production | oui | un développeur de l'équipe B, en binôme avec moi |
+| le script de migration des anciennes factures | non | moi |
+| l'outil interne qui génère des données de test | non | moi |
+
+Deux autres textes aident à répartir ce temps. Tanya Reilly (« Being Glue », 2019) nomme le <span class="term" data-term="glue-work">travail de liaison</span> : animer les réunions, relancer les dépendances, accueillir les nouveaux, tenir la documentation. Il est indispensable, mais invisible dans les promotions s'il n'est ni choisi ni reconnu : je le fais exprès, je le dis à mon manager, et je ne le laisse pas manger tout mon temps. Paul Graham (« Maker's schedule, manager's schedule », 2009) explique qu'une seule réunion au milieu d'un après-midi casse une demi-journée de code : je regroupe mes réunions et je protège des plages longues, selon l'<span class="term" data-term="makers-schedule">emploi du temps du créateur</span>. Une répartition d'exemple : 40 % conception et revues, 30 % code hors chemin critique, 30 % accompagnement, à ajuster chaque trimestre avec mon manager.
+
+Montrer l'<span class="term" data-term="staff-impact">impact Staff</span> demande ensuite un récit en quatre temps : la **base** (la situation chiffrée avant), la **décision** (ce que j'ai proposé et fait accepter), l'**adoption** (combien d'équipes l'utilisent sans moi), le **<span class="term" data-term="measured-result">résultat mesuré</span>** (le même chiffre après), en séparant ce qui est mesuré de ce qui est seulement espéré.
+
+À éviter : compter son activité. Le recruteur ou le comité de promotion ne peut rien en conclure sur l'effet produit.
+
+``` { .text .ex-bad title="À éviter" }
+cette année, j'ai écrit 40 000 lignes de code, animé 30 réunions et rédigé 12 documents
+```
+
+Bien : la même année, racontée comme un effet sur plusieurs équipes.
+
+``` { .text .ex-good title="Recommandé" }
+base       30 % des pipelines de 6 équipes échouaient pour des raisons sans lien avec le code
+décision   RFC relue par les 6 tech leads : une bibliothèque commune de données de test
+adoption   5 équipes sur 6 l'utilisent, maintenue par deux relais sans moi
+résultat   30 % d'échecs devenus 4 % en 4 mois, lus dans le tableau de bord de la CI
+(chiffres d'exemple : je cite les miens)
+```
+
+Pour ne pas oublier ces chiffres le jour de l'entretien annuel, je tiens un <span class="term" data-term="brag-document">document de réalisations</span> (brag document, Julia Evans, 2019) : chaque mois, j'y note ce que j'ai fait, pour qui, et le chiffre qui le prouve, travail de liaison compris.
+
+**Risques.** rester trop loin du code me fait perdre la crédibilité et la compréhension des vraies difficultés : je garde une part de code, même petite. À l'inverse, prendre les tâches du chemin critique « parce que je vais plus vite » fait de moi un goulot et prive l'équipe d'apprentissage. Un brag document qui ne liste que des activités reproduit le mauvais exemple ci-dessus : chaque ligne finit par un effet.
+
+:material-book-open-variant: Doc de référence : [Tanya Reilly, Being Glue](https://noidea.dog/glue) (2019) ; [Paul Graham, Maker's Schedule, Manager's Schedule](https://paulgraham.com/makersschedule.html) (2009) ; [Julia Evans, Get your work recognized: write a brag document](https://jvns.ca/blog/brag-documents/) (2019)
+{ .doc-ref }
+
+### Raconter une expérience avec la méthode STAR
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+« Raconte une erreur que tu as faite », « parle-moi d'un désaccord » : ce sont des <span class="term" data-term="behavioral-question">questions comportementales</span>. Le recruteur part de ce que j'ai réellement fait pour prédire ce que je ferai. La <span class="term" data-term="star-method">méthode STAR</span> (technique d'entretien attribuée à la société DDI, années 1970, à vérifier) structure la réponse en quatre temps : la **Situation** en deux phrases, la **Tâche** qui m'incombait, l'**Action** que j'ai menée, le **Résultat** obtenu, chiffré si possible.
+
+Les règles qui font la différence :
+
+- je dis « j'ai », pas « on a » : le recruteur veut savoir ce que j'ai fait, moi ;
+- je passe peu de temps sur la situation, l'essentiel sur l'action et le résultat ;
+- je finis sur ce qui a changé ensuite, pour moi et pour l'équipe ;
+- je tiens en deux minutes, et je prépare quatre ou cinq histoires vraies (une erreur, un désaccord, un impact, une influence) qui servent pour la plupart des questions.
+
+À éviter : une réponse floue, collective, sans résultat. Le recruteur ne sait ni ce que j'ai fait, ni si j'ai appris quelque chose.
+
+``` { .text .ex-bad title="À éviter" }
+« Une fois, on a eu un souci avec un script en production. C'était compliqué,
+  mais on a réussi à corriger. Depuis, on fait plus attention. »
+```
+
+Bien : une vraie erreur, racontée avec STAR, qui finit sur un changement durable.
+
+``` { .text .ex-good title="Recommandé" }
+Situation  40 commandes d'un client étaient bloquées après un bug.
+Tâche      je devais corriger leur statut en production.
+Action     j'ai lancé un script SQL testé sur une base presque vide ; une parenthèse mal
+           placée dans le WHERE a modifié 12 000 commandes. J'ai vu le nombre de lignes,
+           prévenu l'équipe tout de suite, et nous avons restauré les statuts en une heure.
+Résultat   depuis, tout script de production tourne dans une transaction, avec un comptage
+           avant de valider ; j'ai proposé ce modèle à l'équipe, qui l'a adopté.
+(chiffres d'exemple : je raconte ma propre histoire)
+```
+
+À la question « quel est ton plus grand défaut ? », le faux défaut (« je suis trop perfectionniste ») échoue : il esquive la question, le recruteur l'a entendu cent fois, et il conclut que je ne sais pas reconnaître mes faiblesses. Je donne un vrai défaut, sans gravité pour le poste, et ce que je fais concrètement pour le compenser : « j'ai tendance à dire oui à toutes les demandes ; je les note maintenant dans une liste et je les priorise avec mon manager chaque semaine ».
+
+**Risques.** une histoire inventée ou trop répétée se voit aux questions de relance (« qu'aurais-tu fait autrement ? ») : je ne raconte que du vécu, et si je n'ai pas vécu la situation, je le dis et je présente mon raisonnement comme une hypothèse. Une erreur choisie trop grave pour le poste inquiète au lieu de rassurer : je choisis un impact réel mais maîtrisé.
+
+| Je veux... | J'utilise... |
+|---|---|
+| répondre à « raconte une erreur » ou « parle-moi d'un désaccord » sans m'égarer dans le contexte | la méthode STAR, en deux minutes, en disant « je » |
+| prouver un impact au-delà de mon équipe, devant un comité de promotion ou un recruteur | base, décision, adoption, résultat mesuré, nourris par mon brag document |
+| répondre à « quel est ton plus grand défaut ? » sans sonner faux | un vrai défaut, sans gravité pour le poste, et ce que je fais pour le compenser |
+
+:material-book-open-variant: Doc de référence : [Wikipédia, Situation, task, action, result](https://en.wikipedia.org/wiki/Situation,_task,_action,_result) (consultée en novembre 2026)
+{ .doc-ref }
+
 !!! maturity "Mesurer la maturité"
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
@@ -1305,13 +1580,22 @@ Les questions typiques :
 - « Comment organiserais-tu les équipes autour d'une plateforme ? », « Que penses-tu du modèle Spotify ? » Pour répondre : je découpe d'après la charge cognitive avec Team Topologies, et je rappelle que l'article Spotify décrivait un instantané, pas un modèle à copier ([Team Topologies](#team-topologies), [Le modèle Spotify](#le-modele-spotify-et-ses-limites)).
 - « Quelle différence entre un KPI et un OKR ? », « Comment évites-tu qu'un indicateur soit gonflé artificiellement ? » Pour répondre : je présente le KPI comme un thermomètre permanent et l'OKR comme un changement voulu sur une période, et je donne à chaque objectif sa contre-mesure ([KPI ou OKR](#kpi-ou-okr), [Goodhart](#eviter-le-piege-de-goodhart)).
 - « Comment prends-tu une décision technique importante en équipe ? », « Que fais-tu quand tu n'es pas d'accord avec une décision ? » Pour répondre : je classe la décision en type 1 ou type 2, je passe par une RFC pour les décisions lourdes, et j'écris mon objection avant de m'engager ([Type 1 et type 2](#decisions-de-type-1-et-de-type-2), [RFC](#rfc-et-documents-de-conception), [Désaccord et engagement](#desaccord-et-engagement)).
-- « Parle-moi d'un désaccord avec un collègue », « Raconte un échec » Pour répondre : je raconte une histoire vécue avec la méthode STAR (la situation, la tâche qui m'incombait, l'action que j'ai menée, le résultat obtenu), puis ce que j'en ai appris et ce que je fais autrement depuis ([Désaccord et engagement](#desaccord-et-engagement)).
+- « Parle-moi d'un désaccord avec un collègue », « Raconte un échec » Pour répondre : je raconte une histoire vécue avec la méthode STAR (la situation, la tâche qui m'incombait, l'action que j'ai menée, le résultat obtenu), puis ce que j'en ai appris et ce que je fais autrement depuis ([Désaccord et engagement](#desaccord-et-engagement), [La méthode STAR](#raconter-une-experience-avec-la-methode-star)).
 - « Notre équipe livre lentement, comment trouves-tu pourquoi ? » Pour répondre : je cartographie le flux de valeur pour voir où le travail attend, je cherche la contrainte, puis je limite le travail en cours ([Cartographie du flux de valeur](#cartographie-du-flux-de-valeur), [Loi de Little](#loi-de-little-et-limites-de-wip)).
 - « Comment convaincs-tu ta direction de financer une refonte ? » Pour répondre : je donne la conclusion d'abord, le coût du retard, l'option « ne rien faire » et le type de décision ([Compromis en termes métier](#presenter-un-compromis-technique-en-termes-metier), [Coût du retard](#cout-du-retard)).
 - « Comment estimes-tu et découpes-tu une fonctionnalité ? », « Une équipe bloque sur ta bibliothèque partagée, que fais-tu ? » Pour répondre : des questions avant le chiffre, des tranches verticales, des fourchettes, un spike, l'Example Mapping ; puis l'InnerSource avec un `CONTRIBUTING.md` et un délai de relecture tenu ([Estimer et découper](#estimer-et-decouper-une-fonctionnalite), [InnerSource](#innersource)).
 - « Comment sais-tu qu'une pratique d'équipe, comme les limites de WIP ou les postmortems, a vraiment marché ? » Pour répondre : je donne une base avant, la même mesure un trimestre après, une métrique garde-fou, et une cible interne (un SLO) plutôt qu'une promesse contractuelle ([Mesurer le succès](#mesurer-le-succes)).
+- « Comment fais-tu adopter un standard par des équipes qui ne dépendent pas de toi ? » Pour répondre : je cherche ce que chaque équipe y gagne, je prouve avec une équipe volontaire en mode non bloquant, je prépare la RFC en tête à tête (nemawashi), puis je m'appuie sur une communauté de pratique et je mesure l'adoption ([Influence sans autorité](#influence-sans-autorite-et-communautes-de-pratique)).
+- « Faut-il éviter l'enfermement chez un fournisseur cloud ? » Pour répondre : je le traite comme un coût, probabilité de partir × coût de bascule, comparé au coût immédiat de la portabilité, et je réserve l'effort aux composants où la sortie est probable ([L'enfermement, un coût à chiffrer](#lenfermement-chez-un-fournisseur-un-cout-a-chiffrer)).
+- « Qu'est-ce qui distingue un architecte d'un tech lead ou d'un Staff Engineer ? », « Architecte logiciel, de solution, d'entreprise : quelles différences ? » Pour répondre : je compare ce dont chacun répond, sa portée et son horizon, puis je montre un même projet vu aux trois niveaux ([Les trois architectes](#architecte-logiciel-de-solution-dentreprise)).
+- « Que ferais-tu pendant tes trois premiers mois ? » Pour répondre : comprendre, prouver, donner une direction, chaque phase avec un livrable, une victoire rapide visible dès le premier mois, et les demandes reçues regroupées plutôt qu'acceptées une à une ([Les 90 premiers jours](#les-90-premiers-jours-dans-un-nouveau-role)).
+- « Comment répartis-tu ton temps entre code, conception et accompagnement ? », « Comment démontres-tu ton impact au niveau Staff ? » Pour répondre : je code hors du chemin critique des équipes, je choisis mon travail de liaison, puis je raconte l'impact en base, décision, adoption et résultat mesuré ([Répartir son temps](#repartir-son-temps-et-montrer-son-impact)).
+- « Quel est ton plus grand défaut ? » Pour répondre : un vrai défaut, sans gravité pour le poste, et ce que je fais pour le compenser, jamais « je suis trop perfectionniste » ([La méthode STAR](#raconter-une-experience-avec-la-methode-star)).
+
 
 Ce qui fait une bonne réponse : nommer le cadre, l'illustrer par une situation vécue ou réaliste, puis dire sa limite, comme le modèle Spotify copié sans son contexte.
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
 
 ## Quoi utiliser dans quelle situation
 
@@ -1331,6 +1615,8 @@ Ce qui fait une bonne réponse : nommer le cadre, l'illustrer par une situation 
 | on me présente un plan stratégique fait de slogans, sans diagnostic ni action concrète | le noyau de Rumelt : diagnostic, politique, actions |
 | le product owner veut une date pour une fonctionnalité de plusieurs semaines, et personne ne sait encore comment fusionner deux paniers | tranches verticales, fourchettes, spike, Example Mapping |
 | plusieurs équipes dépendent de la bibliothèque d'une seule équipe, qui n'arrive plus à suivre les demandes | InnerSource, trusted committers |
+| une équipe veut tout héberger elle-même « pour ne pas être enfermée » chez son fournisseur cloud | probabilité de partir × coût de bascule, comparé au TCO de l'option portable |
+| j'arrive sur un nouveau poste et trois équipes me demandent de l'aide dès la première semaine | les 90 premiers jours : comprendre, prouver, donner une direction |
 
 ## Sources
 
@@ -1379,3 +1665,12 @@ Ce qui fait une bonne réponse : nommer le cadre, l'illustrer par une situation 
 - [Charity Majors, « The Engineer/Manager Pendulum » (2017)](https://charity.wtf/2017/05/11/the-engineer-manager-pendulum/)
 - [Will Larson, « Staff Engineer: Leadership beyond the management track » (2021)](https://staffeng.com/book)
 - Tanya Reilly, « The Staff Engineer's Path » (2022)
+- Allan Cohen et David Bradford, « Influence Without Authority » (1990)
+- Everett Rogers, « Diffusion of Innovations » (1962)
+- Jean Lave et Etienne Wenger, « Situated Learning: Legitimate Peripheral Participation » (1991)
+- [Gregor Hohpe, « Don't get locked up into avoiding lock-in », martinfowler.com (2019)](https://martinfowler.com/articles/oss-lockin.html)
+- [Martin Fowler, « Who Needs an Architect? », IEEE Software (2003)](https://martinfowler.com/ieeeSoftware/whoNeedsArchitect.pdf)
+- Michael Watkins, « The First 90 Days » (2003, édition augmentée en 2013)
+- [Tanya Reilly, « Being Glue » (2019)](https://noidea.dog/glue)
+- [Paul Graham, « Maker's Schedule, Manager's Schedule » (2009)](https://paulgraham.com/makersschedule.html)
+- [Julia Evans, « Get your work recognized: write a brag document » (2019)](https://jvns.ca/blog/brag-documents/)

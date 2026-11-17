@@ -1120,6 +1120,8 @@ The typical questions:
 
 What makes a good answer: a lived (or realistic) example with the bug a test case caught or let through, then the limit of the technique I mention. An "it depends" followed by the criteria beats a recited rule.
 
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
+
 ## What to use in which situation
 
 | Situation | I use |

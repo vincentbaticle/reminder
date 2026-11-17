@@ -1120,6 +1120,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : un exemple vécu (ou réaliste) avec le bug qu'un cas de test a attrapé ou laissé passer, puis la limite de la technique citée. Un « ça dépend » suivi des critères vaut mieux qu'une règle récitée.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
+
 ## Quoi utiliser dans quelle situation
 
 | Situation | J'utilise |

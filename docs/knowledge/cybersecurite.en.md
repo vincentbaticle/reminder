@@ -536,6 +536,8 @@ Typical questions:
 
 What makes a good answer: talking about the framework before the technique, and ending each vulnerability with how I make sure it does not come back.
 
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md).
+
 ## What to use in which situation
 
 | Situation | I use |

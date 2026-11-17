@@ -1556,6 +1556,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : nommer le problème avant le pattern, montrer un exemple concret, puis dire **quand je ne l'utiliserais pas**. C'est ce qui montre que je choisis un pattern au lieu de le réciter.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Software Engineer](../entretiens/software-engineer/questions.md).
+
 ## Quel pattern pour quel besoin
 
 | Je veux... | J'utilise... |

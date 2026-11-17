@@ -522,11 +522,102 @@ Rule: before any `UPDATE` or `DELETE`, run the same `WHERE` in a `SELECT COUNT(*
 
     **I measure**: the share of production data changes made through a reviewed script, read by comparing the MR tool with the database audit log; the number of human accounts with a write right, read in the `GRANT` statements.
 
+## Modeling a table
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a> <a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a>
+
+Before writing `CREATE TABLE`, I start from the business: which things I store (customers, orders, items), how they relate (a customer places several orders), and which rules must never be broken (an order always has a customer, an amount is never negative). Two decisions follow: where each piece of information lives, and which rules the database enforces itself.
+
+### Normal forms, in plain words
+<span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+<span class="term" data-term="db-normalization">Normalization</span> stores each fact in a single place, to avoid copies that end up diverging. Edgar F. Codd laid down the relational model in 1970, then the second and third normal forms in 1971. In simple words:
+
+| Normal form | What it asks | Example of a violation |
+|---|---|---|
+| 1st (1NF) | one value per cell, no list in a column | `orders.skus = 'A12,B7,C3'`: the items cannot be counted or joined properly |
+| 2nd (2NF) | every column depends on the whole key, not on part of it | in `order_items (order_id, sku, quantity, product_name)`, the product name depends only on `sku` |
+| 3rd (3NF) | every column depends on the key, not on another column | `orders.customer_email` depends on the customer, not on the order |
+
+``` { .sql .ex-bad title="Avoid" }
+-- Avoid: the customer's name is copied into every order
+CREATE TABLE orders (
+    id            bigint PRIMARY KEY,
+    customer_name text,
+    total_cents   bigint
+);
+```
+If ada changes her name, her old orders keep the old one: the database holds two truths, and the "orders per customer" report counts two customers instead of one.
+
+``` { .sql .ex-good title="Recommended" }
+-- Good: the name lives in customers, the order points to the customer
+CREATE TABLE customers (
+    id    bigint PRIMARY KEY,
+    email text   NOT NULL UNIQUE,
+    name  text   NOT NULL
+);
+
+CREATE TABLE orders (
+    id          bigint PRIMARY KEY,
+    customer_id bigint NOT NULL REFERENCES customers (id),
+    total_cents bigint NOT NULL CHECK (total_cents >= 0)
+);
+```
+
+**When**: by default, for any data that gets modified. **Why**: a change happens in one place, so no inconsistency is possible. **The cost**: more joins when reading.
+
+:material-book-open-variant: Reference docs: [Wikipedia, Database normalization](https://en.wikipedia.org/wiki/Database_normalization) (accessed November 2026)
+{ .doc-ref }
+
+### Constraints: the database keeps the rules
+<span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+The application code already checks that the e-mail is unique and the amount positive. But the code has bugs, a fix-up script skips the check, a second application writes to the same database, and two simultaneous requests both pass the check (see [Race condition](#race-condition-and-lost-update)). A <span class="term" data-term="db-constraint">constraint</span> declared in the schema rejects the faulty write wherever it comes from.
+
+| Constraint | What it rejects, even if the code has a bug |
+|---|---|
+| `PRIMARY KEY` | two rows with the same id |
+| `NOT NULL` | an order without a customer or without an amount |
+| `UNIQUE` on `email` | two accounts with the same e-mail, even created in the same millisecond |
+| `CHECK (total_cents >= 0)` | a negative amount |
+| `FOREIGN KEY` (`REFERENCES customers`) | an order for a customer who does not exist, or deleting a customer who has orders |
+
+The code keeps its check to return a clear message to the user; the constraint is the safety net. On the API side, I translate the database error (SQLSTATE `23505` for uniqueness, `23503` for a foreign key on PostgreSQL) into a `409` rather than a `500`.
+
+**Risks.** Adding a constraint to a large existing table reads all of it and can block writes: I go through `NOT VALID` then `VALIDATE CONSTRAINT` (see [Indexes and constraints without blocking](#indexes-and-constraints-without-blocking)). And existing rows that already break the rule make the validation fail: I count and fix them first.
+
+:material-book-open-variant: Reference docs: [PostgreSQL, Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html) (version 18, 2025)
+{ .doc-ref }
+
+### When to denormalize
+<span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+Denormalizing means copying a piece of information on purpose to read faster. I do it only for a measured need, and I know who keeps the copy up to date.
+
+| Situation | Do I denormalize? |
+|---|---|
+| the order must keep the price paid, even if the product price changes the next day | yes: `order_items.unit_price_cents` is a historical fact, not a copy |
+| the customer list shows their number of orders, and `COUNT(*)` on every display is measured as too slow | yes, with a counter kept in the same transaction as the insert, or a materialized view |
+| I just want to avoid a join on `customers` that takes 2 ms | no: the join is indexed and the gain is not worth the risk of divergence |
+| a data warehouse for analysis, loaded every night | yes: analysis tables are made to be read, not modified |
+
+**Risks.** A copy nobody updates diverges silently: I name the source of truth, I update the copy in the same transaction, and a check query compares both from time to time.
+
+!!! maturity "Measuring maturity"
+    | Level | What I see in the team |
+    |---|---|
+    | N1 | tables have a primary key, and someone thinks of `NOT NULL` and foreign keys at creation |
+    | N2 | every business rule that must always hold (uniqueness, positive amount, link to the parent) has its constraint, checked in migration review |
+    | N3 | the database rejects faulty writes by itself, the API translates them into `409`, and a migration linter flags a column without `NOT NULL` or a foreign key without an index |
+    | N4 | the team tracks the number of inconsistent rows found by check queries and adds a constraint for every inconsistency that comes back |
+
+    **I measure**: the number of orphan or duplicate rows found by the check queries each week; the share of tables with declared foreign keys, read in `information_schema.table_constraints`.
+
 ## Concurrent writes
 
 <a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a> <a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a>
 
-My application runs on several instances, so two requests can change the same row in the same millisecond: two transfers from the same account, two customers booking the last seat of a concert. A transaction alone is not always enough: depending on the isolation level, both can read the same value before either of them writes. This section gives the four tools, from the simplest to the heaviest: the atomic `UPDATE`, the pessimistic lock, the optimistic lock, the isolation level.
+My application runs on several instances, so two requests can change the same row in the same millisecond: two transfers from the same account, two customers booking the last seat of a concert. A transaction alone is not always enough: depending on the isolation level, both can read the same value before either of them writes. This section gives the four tools, from the simplest to the heaviest: the atomic `UPDATE`, the pessimistic lock, the optimistic lock, the isolation level, plus the exclusion constraint for slots that must not overlap.
 
 ### Race condition and lost update
 <a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
@@ -660,9 +751,67 @@ ada read version 7. grace saves first: the row moves to version 8. When ada save
 | to read several rows, apply a business rule, then change them, like a transfer between two accounts | `SELECT ... FOR UPDATE`, rows locked by increasing id |
 | several workers to share a job table without ever taking the same job twice | `FOR UPDATE SKIP LOCKED` |
 | someone editing a page for five minutes not to overwrite the change a colleague made in the meantime | an optimistic lock: `version` column, conflict returned as `409` |
+| to prevent two bookings of the same provider on overlapping slots, like 10:00 to 11:00 and 10:30 to 11:30 | a PostgreSQL exclusion constraint (see [Exclusion constraint](#exclusion-constraint-no-overlapping-slots)) |
 | to protect a rule that spans several rows, like "at least one doctor on call" | `SERIALIZABLE` with a retry (see [Isolation levels](#isolation-levels)) |
 
 :material-book-open-variant: Reference docs: [Martin Fowler, Optimistic Offline Lock](https://martinfowler.com/eaaCatalog/optimisticOfflineLock.html) (Patterns of Enterprise Application Architecture, 2002)
+{ .doc-ref }
+
+### Exclusion constraint: no overlapping slots
+<a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+My application books slots with a provider: ada takes 10:00 to 11:00, grace asks for 10:30 to 11:30 at the same moment. A unique constraint is useless here: the two slots are different, they **overlap**. The reflex "I check that no booking overlaps, then I insert" is the read, decide, write pattern of the [race condition](#race-condition-and-lost-update): both requests check at the same time, see nothing, and both insert. And no row exists yet to lock with `FOR UPDATE`.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: check then insert, two simultaneous requests see no overlap and both insert
+overlap = db.query_one(
+    "SELECT 1 FROM bookings WHERE provider_id = %s AND status <> 'cancelled' "
+    "AND starts_at < %s AND ends_at > %s",
+    provider_id, ends_at, starts_at,
+)
+if overlap is None:
+    db.execute("INSERT INTO bookings (provider_id, starts_at, ends_at, status) VALUES (%s, %s, %s, 'confirmed')",
+               provider_id, starts_at, ends_at)
+```
+
+An <span class="term" data-term="exclusion-constraint">exclusion constraint</span> (PostgreSQL, since version 9.0, 2010) generalizes uniqueness: it rejects two rows that **together** meet a condition, here "same provider **and** overlapping ranges". It relies on a GiST index; the `btree_gist` extension lets it also hold the equality on `provider_id`.
+
+``` { .sql .ex-good title="Recommended" }
+-- Good: the database rejects two active bookings that overlap for the same provider
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+CREATE TABLE bookings (
+    id          bigint    PRIMARY KEY,
+    provider_id bigint    NOT NULL,
+    during      tstzrange NOT NULL,
+    status      text      NOT NULL,
+    EXCLUDE USING gist (provider_id WITH =, during WITH &&) WHERE (status <> 'cancelled')
+);
+```
+
+``` { .sql .ex-ref title="Reference" }
+-- Example: the second booking overlaps the first one and is rejected
+INSERT INTO bookings VALUES (1, 7, '[2026-11-20 10:00, 2026-11-20 11:00)', 'confirmed');
+INSERT INTO bookings VALUES (2, 7, '[2026-11-20 10:30, 2026-11-20 11:30)', 'confirmed');
+-- ERROR:  conflicting key value violates exclusion constraint "bookings_provider_id_during_excl"
+```
+
+What to understand in the declaration:
+
+- `tstzrange` is a range of timestamps with time zone. `[` includes the bound, `)` excludes it: 10:00 to 11:00 and 11:00 to 12:00 do not overlap, two appointments can follow each other.
+- `&&` means "overlap"; `=` on `provider_id` limits the rule to the same provider.
+- `WHERE (status <> 'cancelled')`: a cancelled booking frees the slot.
+
+In the code, I insert directly and catch the SQLSTATE `23P01` error (`exclusion_violation`) to answer `409` with "slot already taken". As with the atomic `UPDATE`, I prove it with a test that fires 20 simultaneous bookings of the same slot and counts exactly one booking.
+
+!!! noob "As noob"
+    A paper diary where each appointment is a pencil line across the day: the receptionist refuses to draw one that covers an existing line for the same doctor. Two receptionists on the phone at the same time cannot cheat, because the diary itself refuses. The line to remember: **for "no overlap", I declare the rule in the table, I do not check it before inserting.**
+
+**When**: bookings of rooms, providers, vehicles, price or contract periods that must not overlap. **Not**: on MySQL, which has no equivalent: I then lock the provider's row with `SELECT ... FOR UPDATE` before checking and inserting, or I cut time into fixed slots with a unique constraint on `(provider_id, slot_start)`. **Why**: the rule holds even with ten API instances, without any lock in the code.
+
+**Risks.** Adding the constraint to an existing table builds the index and fails if overlaps already exist: I find and fix them first, and I measure the lock duration on a copy of the table (an exclusion constraint cannot be added as `NOT VALID`, to check on my version). A GiST index is slower to update than a B-tree: on a table receiving thousands of inserts per second, I measure first.
+
+:material-book-open-variant: Reference docs: [PostgreSQL, Constraints, Exclusion Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION) (version 18, 2025); [PostgreSQL, Range Types](https://www.postgresql.org/docs/current/rangetypes.html) (version 18, 2025); [PostgreSQL, btree_gist](https://www.postgresql.org/docs/current/btree-gist.html) (version 18, 2025)
 { .doc-ref }
 
 ### Isolation levels
@@ -876,6 +1025,62 @@ SELECT id FROM customers WHERE LOWER(email) = 'ada@example.com';
 ```
 
 :material-book-open-variant: Reference docs: [Markus Winand, Anatomy of an SQL Index](https://use-the-index-luke.com/sql/anatomy) (accessed November 2026); [PostgreSQL, Index Types](https://www.postgresql.org/docs/current/indexes-types.html) (version 18, 2025)
+{ .doc-ref }
+
+### Composite index: column order and covering index
+<span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+My "my orders" page filters on a customer and sorts by date: `WHERE customer_id = 123 ORDER BY created_at DESC LIMIT 50`. An index on `customer_id` alone finds the customer's orders, but the database then has to sort all of them to keep the 50 most recent. A <span class="term" data-term="composite-index">composite index</span> holds several columns, sorted in the order I declare them: first by customer, then, inside each customer, by date. The database jumps to customer 123, reads their orders already sorted by date, and stops at 50.
+
+**The ordering rule** (Markus Winand, "SQL Performance Explained", 2012): columns compared with **equality** first, then the **range** column (`>=`, `BETWEEN`) or the **sort** column. A composite index also serves queries that use only its leading columns: `(customer_id, created_at)` serves `WHERE customer_id = 123`, but not `WHERE created_at >= '2026-01-01'` alone.
+
+``` { .sql .ex-bad title="Avoid" }
+-- Avoid: the range first, the database walks through every order of the year, all customers together, to keep customer 123's
+CREATE INDEX idx_orders_created_customer ON orders (created_at, customer_id);
+SELECT id, created_at, status FROM orders
+WHERE customer_id = 123 AND created_at >= '2026-01-01';
+```
+
+``` { .sql .ex-good title="Recommended" }
+-- Good: equality first, the database jumps to customer 123 then reads only their slice of dates
+CREATE INDEX idx_orders_customer_created ON orders (customer_id, created_at);
+SELECT id, created_at, status FROM orders
+WHERE customer_id = 123 AND created_at >= '2026-01-01';
+```
+
+I check it with `EXPLAIN` before and after. On MySQL, the `Extra` column says whether the database sorts the rows itself (simplified outputs, example numbers):
+
+``` { .text .ex-ref title="Reference · before, index on customer_id alone" }
+EXPLAIN SELECT id, created_at, status FROM orders WHERE customer_id = 123 ORDER BY created_at DESC LIMIT 50;
+
+type: ref    key: idx_orders_customer            rows: 3200    Extra: Using filesort
+```
+``` { .text .ex-ref title="Reference · after, index (customer_id, created_at)" }
+type: ref    key: idx_orders_customer_created    rows: 3200    Extra: Backward index scan
+```
+`Using filesort` is gone: the database reads the index in order (backwards here, hence `Backward index scan` on MySQL 8, which is expected) and stops after 50 rows, even though the `rows` estimate does not change. On PostgreSQL, the `Sort` step disappears from the plan (see [the loop](#making-a-query-fast-the-loop)).
+
+**The covering index.** If every column the query reads is in the index, the database does not even need to read the table: that is a <span class="term" data-term="covering-index">covering index</span>. In InnoDB (MySQL), every secondary index already holds the primary key `id`, so `(customer_id, created_at, status)` covers `SELECT id, created_at, status`, and `EXPLAIN` shows `Using index`. PostgreSQL (since version 11, 2018) adds columns carried without sorting them with `INCLUDE`, and the plan shows `Index Only Scan`:
+
+``` { .sql .ex-ref title="Reference" }
+-- Example: PostgreSQL covering index, status is carried in the index without being used for sorting
+CREATE INDEX CONCURRENTLY idx_orders_customer_created_cov
+    ON orders (customer_id, created_at DESC) INCLUDE (status);
+```
+
+!!! noob "As noob"
+    A phone book is sorted by last name, then by first name. Finding every "Martin" with a first name from A to C is fast; finding every first name "Ada", whatever the last name, means reading the whole book. And if the book already gives the phone number, I do not need to knock on the person's door: that is the covering index. The line to remember: **equality first, range or sort next, and I check with `EXPLAIN`.**
+
+| I want... | I use... |
+|---|---|
+| to show a customer's last 50 orders, like the "my orders" page | an index `(customer_id, created_at)` |
+| to filter on a customer and a status, then on a period, like "customer 123's paid orders in 2026" | both equalities first: `(customer_id, status, created_at)` |
+| to skip reading the table for a very frequent query that reads few columns | a covering index: the columns read added at the end of the index, or `INCLUDE` on PostgreSQL |
+| to search by date only, across all orders, like a monthly report | a separate index on `created_at`: `(customer_id, created_at)` does not serve it |
+
+**Risks.** Every index slows down every `INSERT` and every `UPDATE` of the columns it holds, and takes space: I do not create one index per query. An index `(customer_id)` becomes redundant next to `(customer_id, created_at)`, so I drop it after checking that no plan uses it alone. A covering index that is too wide grows fast. On PostgreSQL, an `Index Only Scan` still reads the table for the pages `VACUUM` has not yet marked visible: `Heap Fetches` in the plan says how many.
+
+:material-book-open-variant: Reference docs: [Markus Winand, Concatenated Indexes](https://use-the-index-luke.com/sql/where-clause/the-equals-operator/concatenated-keys) (accessed November 2026); [Markus Winand, Index-Only Scan](https://use-the-index-luke.com/sql/clustering/index-only-scan-covering-index) (accessed November 2026); [PostgreSQL, Multicolumn Indexes](https://www.postgresql.org/docs/current/indexes-multicolumn.html) (version 18, 2025); [PostgreSQL, Index-Only Scans and Covering Indexes](https://www.postgresql.org/docs/current/indexes-index-only-scans.html) (version 18, 2025)
 { .doc-ref }
 
 ### Making a query fast: the loop
@@ -1903,12 +2108,17 @@ The typical questions:
 - "What is the difference between INNER JOIN and LEFT JOIN?", "How do you find customers who never ordered?" How I answer: I give the number of rows returned on a small example, then the `LEFT JOIN ... IS NULL` pattern ([Joining tables](#joining-tables), [Finding what is missing](#finding-what-is-missing-left-join-is-null)).
 - "WHERE or HAVING?", "How do you find duplicates?" How I answer: I recall that `WHERE` filters rows before grouping and `HAVING` filters groups after, with `GROUP BY ... HAVING COUNT(*) > 1` ([HAVING: filtering after grouping](#having-filtering-after-grouping)).
 - "How do you find the second largest amount, or the last three orders of each customer?" How I answer: I use a window function, `ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC)`, then keep the ranks I want in an outer query, because a `WHERE` cannot filter on the rank directly ([Window functions](#window-functions)).
+- "How do you model a table?", "Why put constraints in the database if the code already checks?", "When do you denormalize?" How I answer: I start from the entities and business rules, I normalize by default (each fact in one place), I set `NOT NULL`, `UNIQUE`, `CHECK` and foreign keys because the constraint holds even when the code has a bug, and I denormalize only for a measured need ([Modeling a table](#modeling-a-table)).
+- "In which order do you put the columns of a composite index?", "What is a covering index?" How I answer: equality first, then range or sort, with `(customer_id, created_at)` for "a customer's last 50 orders"; I show `Using filesort` disappearing in `EXPLAIN`, then the covering index that skips reading the table (`INCLUDE` on PostgreSQL) ([Composite index](#composite-index-column-order-and-covering-index)).
 - "A page is slow because of the database, what do you do?", "What is an index, and when is it useless?", "What is the N+1 problem?" How I answer: I walk through measure, read the plan with `EXPLAIN ANALYZE`, change one thing, measure again ([Performance](#performance), [The N+1 problem](#the-n1-problem)), and [GraphQL server-side pitfalls](api-rest-async.md#server-side-pitfalls).
 - "How do you check a test's effect in the database?", "What is a transaction, what does ACID mean?" How I answer: I show the `BEGIN ... ROLLBACK` and the typical QA queries ([What a transaction guarantees (ACID)](#what-a-transaction-guarantees-acid), [SQL for QA](#sql-for-qa)).
 - "Two people book the last seat at the same time, what happens?", "Optimistic or pessimistic lock?", "What is PostgreSQL's default isolation level?" How I answer: I show the read, decide, write pattern and its timeline, then the atomic `UPDATE ... WHERE seats_left > 0`; I pick the pessimistic lock when conflicts are frequent and the optimistic one when they are rare; I name `READ COMMITTED` for PostgreSQL and `REPEATABLE READ` for MySQL, and the write skew only `SERIALIZABLE` prevents ([Concurrent writes](#concurrent-writes), [Isolation levels](#isolation-levels)).
+- "How do you prevent two bookings of the same slot?" How I answer: I show why "check then insert" lets two simultaneous requests through, then the exclusion constraint `EXCLUDE USING gist (provider_id WITH =, during WITH &&)` with `btree_gist` and a `tstzrange` range, and the `23P01` error translated into a `409` ([Exclusion constraint](#exclusion-constraint-no-overlapping-slots)).
 - "ORM or hand-written SQL?", "Active Record or Data Mapper?" How I answer: the ORM for everyday work, parameterized SQL for aggregations and critical queries, with a team rule; then the difference between an object that saves itself and a session that saves an object unaware of the database ([ORM: accessing the database from code](#orm-accessing-the-database-from-code), [Lazy or eager loading](#lazy-or-eager-loading)).
 - "How do you protect against SQL injection?" How I answer: I show the concatenated query, the `' OR '1'='1` input, then the parameterized query ([Security: SQL injection](#security-sql-injection)).
 - "Your database is saturated, what do you do?", "How do you rename a column without downtime?" How I answer: I climb the ladder from cheapest to most expensive, then walk through expand / contract ([Scaling a database](#scaling-a-database), [Zero-downtime schema migrations](#zero-downtime-schema-migrations)).
 - "How do you know a database optimization really worked?" How I answer: I give a baseline before (p95 and queries per call over seven days), the same measurement after on comparable traffic, the cost of writes as a guard metric, then I tell the internal SLO apart from the SLA promised to the customer ([Measuring success](#measuring-success)).
 
 What makes a good answer: writing the query on a small dataset, saying how many rows it returns, then naming the trap that would skew it (`NULL`, multiplication, time zone).
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).

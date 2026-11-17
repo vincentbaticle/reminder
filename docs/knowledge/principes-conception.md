@@ -361,6 +361,77 @@ classDiagram
 :material-book-open-variant: Doc de référence : [Robert C. Martin, « The Open Closed Principle »](https://blog.cleancoder.com/uncle-bob/2014/05/12/TheOpenClosedPrinciple.html) (2014)
 { .doc-ref }
 
+#### Points d'extension par plugins
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Mon équipe maintient `devctl`, une <span class="term" data-term="cli">CLI</span> interne utilisée par toutes les équipes. Chaque semaine, une équipe demande d'y ajouter une sous-commande qui ne sert qu'à elle, comme `seed-orders` pour remplir la base de test de team-core. Si j'accepte, le cœur de `devctl` grossit, sa configuration atteint 80 options dont la moitié ne concernent qu'une équipe, et chaque version relivrée pour l'une casse un script de CI chez l'autre. L'ouvert/fermé appliqué à un outil partagé s'appelle un <span class="term" data-term="extension-point">point d'extension</span> : un endroit prévu où une équipe branche son propre code, dans son propre paquet, sans modifier le cœur.
+
+En Python, le mécanisme standard est celui des **entry points** : un paquet déclare dans ses métadonnées « je fournis tel objet dans tel groupe », et le cœur liste au démarrage tout ce qui est installé dans ce groupe avec `importlib.metadata.entry_points`. C'est ainsi que pytest trouve ses plugins (groupe `pytest11`). Java a l'équivalent avec `ServiceLoader`.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : chaque besoin d'équipe entre dans le cœur, qui est relivré à toutes les équipes à chaque demande
+@cli.command()
+def seed_orders() -> None: ...
+
+
+@cli.command()
+def rotate_billing_keys() -> None: ...
+```
+
+``` { .python .ex-good title="Recommandé" }
+from importlib.metadata import entry_points
+
+import click
+
+PLUGIN_GROUP = "devctl.commands"
+
+
+# Bien : le cœur ne connaît aucune équipe, il ajoute chaque sous-commande déclarée dans le groupe
+@click.group()
+def cli() -> None:
+    """Outils de développement partagés."""
+
+
+def load_plugins() -> None:
+    for entry in entry_points(group=PLUGIN_GROUP):
+        cli.add_command(entry.load(), name=entry.name)
+
+
+load_plugins()
+```
+
+Le plugin de team-core vit dans son propre paquet et déclare sa sous-commande dans son `pyproject.toml` :
+
+``` { .toml .ex-ref title="Référence · pyproject.toml du paquet team-core-devctl" }
+# Exemple : la sous-commande seed-orders pointe vers la fonction seed_orders du module seed
+[project.entry-points."devctl.commands"]
+seed-orders = "team_core_devctl.seed:seed_orders"
+```
+
+Après `pip install team-core-devctl`, la commande `devctl seed-orders` existe. Le cœur n'a pas changé, n'a pas été relivré, et les autres équipes ne voient pas cette commande tant qu'elles n'installent pas le plugin.
+
+**La sortie pour les scripts est un contrat.** Une CLI a deux publics : un humain qui lit un tableau aligné, et des scripts de CI qui extraient une valeur. Si un script découpe la sortie lisible, ajouter une colonne au tableau le casse. Je sépare donc les deux avec une option `--output json`, et je traite ce JSON comme un <span class="term" data-term="api-contract">contrat d'API</span>.
+
+``` { .bash .ex-bad title="À éviter" }
+# À éviter : le script lit la 3e colonne du tableau, une colonne ajoutée pour les humains le casse sans prévenir
+devctl status | awk 'NR > 1 { print $3 }'
+```
+
+``` { .bash .ex-good title="Recommandé" }
+# Bien : le script lit un champ nommé de la sortie JSON, que la CLI s'engage à garder
+devctl status --output json | jq -r '.services[].version'
+```
+
+Ajouter un champ au JSON est une version mineure ; retirer ou renommer un champ est une <span class="term" data-term="breaking-change">rupture de compatibilité</span>, donc une version majeure au sens du <span class="term" data-term="semantic-versioning">versionnage sémantique</span>. Une option retirée affiche d'abord un avertissement pendant deux versions mineures (exemple de <span class="term" data-term="deprecation">politique de dépréciation</span>).
+
+**Quand** : un outil ou un SDK partagé par plusieurs équipes reçoit des demandes propres à une seule d'entre elles, ou l'équipe qui le maintient devient le passage obligé de chaque besoin. **Quand ne pas** : une CLI utilisée par une seule équipe, ou deux sous-commandes stables : un système de plugins est alors plus lourd que le code qu'il évite. **Pourquoi** : le cœur reste petit, testé et rarement relivré ; les équipes avancent sans attendre ; les plugins les plus installés montrent ce qui mérite d'entrer dans le cœur. **Comment** : je définis le groupe d'entry points et ce que le cœur passe aux plugins, je documente la sortie JSON comme un contrat, et je mesure avant et après le nombre de demandes de modification du cœur et le nombre de scripts de CI cassés par version.
+
+**Risques.** Ce que le cœur passe aux plugins devient lui-même une API publique : si je change la signature attendue, tous les plugins cassent à la mise à jour. Je la versionne comme le reste. Un plugin qui plante au chargement ne doit pas faire tomber toute la CLI : j'attrape l'erreur de chargement, j'affiche le nom du plugin fautif et je continue sans lui. Enfin, tout paquet installé peut ajouter une commande : je n'installe les plugins que depuis le registre de l'entreprise, jamais par un nom qui pourrait exister aussi sur PyPI (voir la [confusion de dépendances](gestionnaires-paquets.md#securiser-linstallation)).
+
+:material-book-open-variant: Doc de référence : [Python Packaging Authority, Entry points specification](https://packaging.python.org/en/latest/specifications/entry-points/) (consultée en novembre 2026) ; [Command Line Interface Guidelines](https://clig.dev/) (2020)
+{ .doc-ref }
+
 ### L : substitution de Liskov
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
@@ -1205,6 +1276,148 @@ J'en ai surtout besoin quand plusieurs équipes dépendent du même code : une b
 
 Les principes ci-dessus disent comment découper. Ceux de cette partie disent comment écrire chaque fonction et chaque frontière : où placer les vérifications, quelle taille donner à une interface, quoi promettre à l'appelant et quoi faire quand quelque chose échoue.
 
+### Nommer selon l'intention
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Je relis une fonction `process(data)` qui contient `tmp`, `flag2` et le nombre `0.15`. Pour comprendre ce qu'elle fait, je dois dérouler le code dans ma tête : `tmp` est un sous-total, `flag2` dit si c'est la première commande du client, `0.15` est le taux de remise de bienvenue. Un nom qui dit l'**intention** (le rôle métier de la valeur) m'aurait épargné ce travail. Un nom qui dit le **type** (`order_dict`, `str_list`) ou l'**implémentation** (`get_from_redis`) répète ce que le code ou l'éditeur montrent déjà, et devient faux le jour où l'implémentation change. Robert C. Martin en fait le premier conseil de « Clean Code » (2008) : des noms qui révèlent l'intention.
+
+| Avant | Ce que le nom dit | Après |
+|---|---|---|
+| `tmp` | rien | `subtotal` |
+| `flag2` | « un booléen, le deuxième » | `is_first_order` |
+| `data`, `order_dict` | le type | `order` |
+| `get_from_redis(user_id)` | l'implémentation, qui changera | `find_customer(customer_id)` |
+| `0.15` | un nombre | `WELCOME_DISCOUNT_RATE` |
+| `process()` | « fait quelque chose » | `order_total()` |
+
+Le `0.15` est un <span class="term" data-term="magic-number">nombre magique</span> : une constante nommée lui donne un sens, et un seul endroit à changer le jour où le marketing passe la remise à 20 %.
+
+=== "PHP"
+
+    ``` { .php .ex-bad title="À éviter" }
+    <?php
+
+    // À éviter : tmp, flag2 et 0.15 obligent le relecteur à deviner la règle
+    function process(array $data): int
+    {
+        $tmp = 0;
+        foreach ($data['items'] as $i) {
+            $tmp += $i['p'] * $i['q'];
+        }
+        $flag2 = $data['c']['orders'] === 0;
+        if ($flag2) {
+            $tmp = (int) round($tmp * (1 - 0.15));
+        }
+
+        return $tmp;
+    }
+    ```
+
+    ``` { .php .ex-good title="Recommandé" }
+    <?php
+
+    const WELCOME_DISCOUNT_RATE = 0.15;
+
+    // Bien : chaque nom dit son rôle métier, la fonction se lit comme la règle
+    function orderTotal(Order $order): int
+    {
+        $subtotal = 0;
+        foreach ($order->lines as $line) {
+            $subtotal += $line->unitPriceCents * $line->quantity;
+        }
+        $isFirstOrder = $order->customer->pastOrders === 0;
+        if ($isFirstOrder) {
+            return (int) round($subtotal * (1 - WELCOME_DISCOUNT_RATE));
+        }
+
+        return $subtotal;
+    }
+    ```
+
+=== "Python"
+
+    ``` { .python .ex-bad title="À éviter" }
+    # À éviter : tmp, flag2 et 0.15 obligent le relecteur à deviner la règle
+    def process(data: dict) -> int:
+        tmp = sum(i["p"] * i["q"] for i in data["items"])
+        flag2 = data["c"]["orders"] == 0
+        if flag2:
+            tmp = round(tmp * (1 - 0.15))
+        return tmp
+    ```
+
+    ``` { .python .ex-good title="Recommandé" }
+    WELCOME_DISCOUNT_RATE = 0.15
+
+
+    # Bien : chaque nom dit son rôle métier, la fonction se lit comme la règle
+    def order_total(order: Order) -> int:
+        subtotal = sum(line.unit_price_cents * line.quantity for line in order.lines)
+        is_first_order = order.customer.past_orders == 0
+        if is_first_order:
+            return round(subtotal * (1 - WELCOME_DISCOUNT_RATE))
+        return subtotal
+    ```
+
+=== "Java"
+
+    ``` { .java .ex-bad title="À éviter" }
+    // À éviter : tmp, flag2 et 0.15 obligent le relecteur à deviner la règle
+    static long process(Map<String, Object> data) {
+        long tmp = 0;
+        for (Map<String, Integer> i : (List<Map<String, Integer>>) data.get("items")) {
+            tmp += (long) i.get("p") * i.get("q");
+        }
+        boolean flag2 = (int) data.get("orders") == 0;
+        if (flag2) {
+            tmp = Math.round(tmp * (1 - 0.15));
+        }
+        return tmp;
+    }
+    ```
+
+    ``` { .java .ex-good title="Recommandé" }
+    static final double WELCOME_DISCOUNT_RATE = 0.15;
+
+    // Bien : chaque nom dit son rôle métier, la fonction se lit comme la règle
+    static long orderTotal(Order order) {
+        long subtotal = order.lines().stream()
+            .mapToLong(line -> line.unitPriceCents() * line.quantity())
+            .sum();
+        boolean isFirstOrder = order.customer().pastOrders() == 0;
+        if (isFirstOrder) {
+            return Math.round(subtotal * (1 - WELCOME_DISCOUNT_RATE));
+        }
+        return subtotal;
+    }
+    ```
+
+Le comportement est le même, le même test passe avant et après. Ce qui a changé : je lis « total de la commande, remise de bienvenue sur la première commande » sans rien déchiffrer.
+
+**Les commentaires, seulement pour le « pourquoi ».** Un commentaire qui répète le code (`# applique la remise`) vieillit mal : le jour où le code change, il ment. Je garde les commentaires pour une décision qu'aucun nom ne peut porter, comme une règle métier surprenante.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : le commentaire paraphrase le code, il n'apprend rien au lecteur
+# vérifie si le client n'a pas de commande
+is_first_order = order.customer.past_orders == 0
+```
+
+``` { .python .ex-good title="Recommandé" }
+# Bien : le commentaire dit pourquoi, ce que le code seul ne peut pas dire
+# past_orders compte aussi les commandes annulées : sinon un client annule et recommande pour toucher la remise une seconde fois
+is_first_order = order.customer.past_orders == 0
+```
+
+**Le test du relecteur.** Si un collègue doit me poser une question en <span class="term" data-term="code-review">revue de code</span> pour comprendre un nom ou une fonction, le code n'est pas encore assez clair. Je renomme dans la MR plutôt que de répondre dans le fil de discussion : la réponse au fil disparaît, le nom reste pour le lecteur suivant.
+
+**Quand** : à chaque nom que j'écris, et surtout quand je touche une fonction dont je n'ai compris les noms qu'en lisant le corps. **Quand ne pas** : un indice de boucle de trois lignes (`i`) ou une variable de compréhension courte se lisent très bien ; un nom long n'est pas meilleur par principe. **Pourquoi** : la plupart du temps passé sur du code est de la lecture ; un bon nom réduit le temps de revue, l'arrivée d'un nouveau dans l'équipe et les bugs de compréhension. **Comment** : je nomme d'après ce que la valeur représente pour le métier, je remplace les nombres par des constantes, je fais un commit de renommage séparé, sans changement de comportement, pour que la revue reste simple.
+
+**Risques.** Renommer un élément public (une fonction d'une bibliothèque, un champ d'API, une option de CLI) casse ceux qui l'utilisent : je renomme librement ce qui est interne, et pour le public je garde l'ancien nom comme alias déprécié pendant un temps annoncé. Mélanger des renommages et un changement de comportement dans le même commit noie la vraie modification dans le bruit : la revue laisse passer le bug. Enfin, un nom trop long (`customer_with_at_least_one_paid_order_this_year`) signale souvent une notion métier qui mérite son propre nom (`active_customer`), défini une seule fois.
+
+:material-book-open-variant: Doc de référence : [Martin Fowler, « TwoHardThings »](https://martinfowler.com/bliki/TwoHardThings.html) (consultée en novembre 2026) ; Robert C. Martin, « Clean Code », chapitre 2 « Meaningful Names » (2008)
+{ .doc-ref }
+
 ### Clauses de garde
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
@@ -1775,8 +1988,10 @@ Les questions typiques :
 - « Quand une duplication vaut-elle mieux qu'une abstraction ? », « Composition ou héritage ? » Pour répondre : je garde la duplication tant que les deux codes représentent des règles différentes ou que je n'ai pas trois exemples, et je préfère la composition, qui se change et se teste séparément, à l'héritage qui lie l'enfant à tout le parent ([DRY, WET et AHA](#dry-wet-et-aha), [YAGNI et règle de trois](#yagni-et-regle-de-trois), [Composition plutôt qu'héritage](#composition-plutot-quheritage)).
 - « Faut-il imposer des principes de conception à plusieurs équipes ? », « Comment rendre un code maintenable ? », « Quand créer une bibliothèque partagée ? » Pour répondre : je partage les principes comme un vocabulaire de revue, avec la liste STUPID, plutôt que comme une règle imposée, je vise une forte cohésion et un faible couplage, et je crée une bibliothèque partagée seulement quand plusieurs équipes ont vraiment besoin du même code ([STUPID](#stupid-les-six-odeurs-a-eviter), [Séparation des préoccupations, cohésion et couplage](#separation-des-preoccupations-cohesion-et-couplage), [Principes des composants](#principes-des-composants)).
 - « Comment concevoir une bibliothèque, un SDK ou une CLI interne qui évolue sans casser ses utilisateurs ? » Pour répondre : je publie chaque version avec un numéro et un changelog, je garde des dépendances sans cycle et tournées vers plus stable que moi, et je pars du principe que tout comportement visible finira par être utilisé ([Principes des composants](#principes-des-composants), [Principe de moindre surprise](#principe-de-moindre-surprise), et [Loi de Hyrum](lois-et-principes.md#loi-de-hyrum)).
+- « Chaque équipe veut sa sous-commande dans notre CLI interne : que fais-tu ? » Pour répondre : j'applique l'ouvert/fermé à l'échelle de l'outil, avec un point d'extension par plugins (entry points en Python) pour que le cœur ne change plus, et je traite la sortie `--output json` comme un contrat versionné ([Points d'extension par plugins](#points-dextension-par-plugins)).
 - « Appliques-tu SOLID et DRY au code de test ? », « DRY ou DAMP dans les tests ? » Pour répondre : j'applique SOLID aux outils de test, comme un faux qui n'implémente que ce que le test appelle, mais dans le corps d'un test je préfère DAMP (des phrases descriptives, quitte à répéter), car un test doit se lire seul sans remonter trois helpers ([I : ségrégation des interfaces](#i-segregation-des-interfaces), [Pièges à éviter](#pieges-a-eviter)).
 
+- « Qu'est-ce qu'un code lisible ? », « Comment choisis-tu tes noms ? » Pour répondre : je nomme selon l'intention métier, pas le type ni l'implémentation (`flag2` devient `is_first_order`), je remplace les nombres magiques par des constantes, je ne commente que le « pourquoi », et je donne le test du relecteur : s'il doit me poser une question pour comprendre, je renomme ([Nommer selon l'intention](#nommer-selon-lintention)).
 - « Comment gères-tu les erreurs ? », « Exceptions ou type résultat ? » Pour répondre : je sépare les erreurs métier attendues, traitées comme un résultat normal, des pannes, que je laisse remonter jusqu'à la frontière où je les journalise une fois ; j'échoue tôt sur une entrée invalide et je n'avale jamais une exception ([Gestion des erreurs](#gestion-des-erreurs), [Conception par contrat](#conception-par-contrat)).
 - « Comment modifies-tu un code legacy sans tests ? », « Quand refactores-tu ? » Pour répondre : je cherche un point de test, je crée un seam minimal, je fige le comportement par des tests de caractérisation, puis je fais pousser la nouvelle logique dans une fonction testée ; je refactore au moment où je dois changer le code, par petits pas et en commits séparés ([Modifier du code legacy](#modifier-du-code-legacy), [Refactoring en petits pas](#refactoring-en-petits-pas)).
 - « Comment parles-tu de dette technique au Product Owner ? » Pour répondre : je chiffre ce qu'elle coûte en délais et en bugs, je ne cite que la dette des zones souvent modifiées (les points chauds) et je propose un remboursement par tranches dans les fonctionnalités prévues ([Dette technique](#dette-technique)).
@@ -1784,12 +1999,15 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : nommer le principe, donner un exemple vécu (ou réaliste), puis dire **quand il ne s'applique pas**. C'est cette dernière partie qui distingue une réponse apprise d'une réponse d'expérience.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
+
 ## Quel principe pour quel besoin
 
 | Je veux... | J'utilise... |
 |---|---|
 | qu'une demande du marketing sur la facture, comme afficher les montants sans centimes, ne puisse pas changer le total que le comptable facture, parce que les deux passent par la même méthode d'arrondi | responsabilité unique |
 | ajouter un mode de livraison, comme le retrait en point relais, sans rouvrir la fonction de calcul qui marche déjà | ouvert/fermé (souvent via Strategy) |
+| laisser chaque équipe ajouter sa propre sous-commande à la CLI interne, comme `seed-orders` pour team-core, sans relivrer le cœur à toutes les équipes | points d'extension par plugins (ouvert/fermé) |
 | être sûr qu'un code qui reçoit un `OrderRepository` ne plante pas quand on lui passe une sous-classe, comme un dépôt d'archives en lecture seule | substitution de Liskov |
 | que mon faux pour les tests n'ait pas à implémenter quinze méthodes alors que le test n'en appelle qu'une | ségrégation des interfaces |
 | tester la règle « passer une commande » sans lancer de base de données ni appeler le réseau | inversion des dépendances, avec injection |
@@ -1803,6 +2021,7 @@ Ce qui fait une bonne réponse : nommer le principe, donner un exemple vécu (ou
 | découper une bibliothèque partagée entre plusieurs équipes, ou un monorepo, sans que chaque changement oblige tout le monde à suivre | principes des composants (CCP, ADP, SDP) |
 | un critère moins dogmatique que SOLID, pour juger un code sans cocher une liste | CUPID |
 | que les utilisateurs de mon API ou de ma CLI ne se fassent pas piéger, comme un `--dry-run` qui écrit quand même | moindre surprise |
+| comprendre une fonction en revue sans deviner ce que contiennent `tmp`, `flag2` ou `0.15` | nommer selon l'intention |
 | lire une fonction dont le vrai calcul est caché sous trois niveaux de `if` | clauses de garde |
 | éviter que chaque appelant de mon dépôt doive enchaîner connexion, transaction et commit dans le bon ordre | module profond |
 | dire clairement qui doit vérifier qu'un montant de retrait est positif : l'appelant ou la méthode | conception par contrat |

@@ -890,6 +890,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : une histoire vécue (ou réaliste) racontée dans l'ordre détection, atténuation, résolution, analyse, qui finit par ce que l'équipe a changé ensuite. Je parle du système qui a permis l'erreur, jamais d'un coupable.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+
 ## Quoi utiliser dans quelle situation
 
 | Je veux... | J'utilise... |

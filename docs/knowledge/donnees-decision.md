@@ -964,6 +964,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : partir de la décision à prendre et de ce que coûte un chiffre faux, avant de citer un outil.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md).
+
 ## Quoi utiliser dans quelle situation
 
 | Situation | J'utilise |

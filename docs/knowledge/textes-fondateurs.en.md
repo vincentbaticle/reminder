@@ -871,6 +871,8 @@ The typical questions:
 
 What makes a good answer: quote the author and the year, sum up the idea in one sentence and say what it changes in real work, without reciting the text.
 
+The questions by role, with more detailed answers and worked exercises: [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+
 ## What to read in which situation
 
 | I want... | I read... |

@@ -416,12 +416,74 @@ The second command runs the tests of `@shop/ui` and of everything that depends o
 :material-book-open-variant: Reference docs: [pnpm, Workspace](https://pnpm.io/workspaces) (accessed November 2026); [uv, Workspaces](https://docs.astral.sh/uv/concepts/projects/workspaces/) (accessed November 2026)
 { .doc-ref }
 
+### Monorepo or several repositories: how to decide
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <a class="pill pill-scope pill-scope-system" href="../architecture/#map-of-scales">Scale · System</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+*Turborepo: competes with Nx; complements pnpm*<br>
+*Nx: competes with Turborepo, partly competes with Bazel; complements pnpm*<br>
+*Bazel: competes with Pants, partly competes with Nx*<br>
+*Pants: competes with Bazel*
+{ .tool-rel }
+
+My organization has 40 JavaScript repositories, including a component library used by ten applications. Each fix to the library means publishing a version, then opening a merge request in each of the ten applications: a fixed button takes a week to reach production. Another team has three Python services that share almost nothing, and sees none of these problems. So the "monorepo or several repositories" question (a **polyrepo**: one repository per project or per service) is not settled on principle: I compare the cost of coordinating across repositories with the tooling cost of a monorepo.
+
+| I want... | I choose... |
+|---|---|
+| I want my services, like `orders-service` and `billing-service`, to evolve at their own pace, and a merge request almost never touches both at once | several repositories: simple, autonomous, no special tooling |
+| my component library and the JavaScript applications that use it change together, and each fix takes ten merge requests | a monorepo with pnpm workspaces, then Nx or Turborepo when CI gets slow |
+| I have several languages (Java, Python, Go), hundreds of developers and builds longer than an hour | a monorepo with Bazel or Pants, and a team to maintain them |
+| part of the code must be readable by only a few people, like a payment module under audit, or code under another license | separate repositories, because a forge sets read access per repository |
+
+**Who reviews what.** In a monorepo, every team writes to the same repository, and I need to know who must review a merge request. A <span class="term" data-term="codeowners">CODEOWNERS</span> file maps each folder to an owning team: the forge automatically requests its review when a merge request touches that folder. If a single team owns everything, it reviews every merge request in the repository and becomes the queue of the whole organization.
+
+``` { .text .ex-bad title="Avoid" }
+# Avoid: a single line for the whole repository, team-core must review every merge request, even the back office ones
+*    @team-core
+```
+
+``` { .text .ex-good title="Recommended · .gitlab/CODEOWNERS" }
+# Good: each folder has its owning team, the last matching line wins
+*                 @team-devx
+/packages/ui/     @team-design-system
+/apps/web/        @team-core
+/apps/admin/      @team-ops
+```
+
+A merge request that changes `packages/ui/` therefore requests a review from `@team-design-system`, and from it alone. For that review to block the merge, the protected branch must require code owner approval (a GitLab setting, depending on the edition: to check; GitHub has the same branch rule).
+
+**Rebuilding only what changed.** A monorepo build tool computes the <span class="term" data-term="build-graph">project graph</span> (who depends on whom), then runs only the tasks of the touched projects and of those that depend on them. It adds a <span class="term" data-term="remote-build-cache">remote build cache</span>: the result of each task is stored under a fingerprint of its inputs (sources, lockfile, tool versions), and a machine that finds the same fingerprint downloads the result instead of redoing the work.
+
+``` { .text .ex-illus title="Illustration" }
+merge request from ada, which only touches apps/admin
+  packages/ui   build  fingerprint 7f3a already in the remote cache: result downloaded, 2 s
+  apps/web      test   does not depend on apps/admin: not run
+  apps/admin    build  new fingerprint: run, 40 s, result sent to the cache
+  apps/admin    test   run, 90 s
+duration: a little over 2 min, instead of 14 min when everything is rebuilt (example figures)
+```
+
+``` { .text .ex-ref title="Reference" }
+$ turbo run test --filter="...[origin/main]"
+```
+
+This command runs the tests of the packages changed since `main` and of everything that depends on them (syntax to check in the documentation of the version in use). Nx does the same with `nx affected -t test`.
+
+This cache is only safe if the build is **hermetic**: a <span class="term" data-term="hermetic-build">hermetic build</span> depends only on its declared inputs, never on what is installed on the machine. Otherwise, a result built on a laptop with Node 18 is reused in CI, which runs Node 22, and the bug only shows up in production. Bazel and Pants enforce this discipline: each folder declares its sources, dependencies and tools in a `BUILD` file, and the build refuses anything undeclared. Nx and Turborepo are more lenient: they hash the files and variables I point them to, and it is up to me not to forget any.
+
+**When**: a monorepo as soon as changes that cross several projects are frequent; Bazel or Pants only with several languages, large volumes and people to maintain them. No monorepo for unrelated projects, nor to separate read access. **Why**: a cross-cutting change goes through a single merge request tested in one go, and each library exists in only one version; the price is serious tooling. **How**: I do not move 40 repositories at once. I first group the library and two pilot applications, keeping the Git history, I write the `CODEOWNERS` on day one, then I add filtering and the remote cache when CI gets slow. I measure the delay between a library change and its arrival in production, and the CI duration, before and after.
+
+**Risks.** Bazel and Pants are expensive to keep up: `BUILD` files to write and keep right in every folder, weaker editor integration, a cache server to host, and often a small dedicated team for a few hundred developers (order of magnitude, to check against published accounts). Without that team, the tool degrades and everyone works around it. A remote cache open for writing to every laptop can also receive a wrong result, built on a misconfigured or compromised machine, then serve it to the whole CI: I let only CI write to the cache, laptops only read. Finally, a monorepo without `CODEOWNERS` dilutes responsibility: nobody feels they own the folder that breaks.
+
+:material-book-open-variant: Reference docs: [Bazel, Hermeticity](https://bazel.build/basics/hermeticity) (accessed November 2026); [GitLab, Code Owners](https://docs.gitlab.com/user/project/codeowners/) (accessed November 2026); [Rachel Potvin and Josh Levenberg, "Why Google Stores Billions of Lines of Code in a Single Repository"](https://research.google/pubs/why-google-stores-billions-of-lines-of-code-in-a-single-repository/) (Communications of the ACM, 2016)
+{ .doc-ref }
+
 !!! maturity "Measuring maturity"
     | Level | What I see in the team |
     |---|---|
     | N1 | packages in the repository reference each other through relative paths or published versions, and each folder has its own lockfile |
-    | N2 | a declared workspace, a single lockfile, internal packages linked with `workspace:*` |
-    | N3 | CI tests only the touched packages and those that depend on them, computed by the tool |
+    | N2 | a declared workspace, a single lockfile, internal packages linked with `workspace:*`, and a `CODEOWNERS` that gives each folder an owning team |
+    | N3 | CI tests only the touched packages and those that depend on them, computed by the tool, with a remote cache fed by CI only |
     | N4 | the team tracks the median CI duration of a merge request and the number of packages rebuilt per merge request, and adjusts the split accordingly |
 
     **I measure**: the median merge request pipeline duration; the average number of packages tested per merge request.
@@ -635,10 +697,13 @@ Typical questions:
 - "What do `^` and `~` mean? And SemVer?" How to answer: major, minor, patch, then the ranges, with the 0.x trap ([Versions and ranges](#versions-and-ranges)).
 - "Two dependencies want two incompatible versions of the same library: what happens?" How to answer: the diamond, the different answers of npm, pip and Maven, and `overrides` as a temporary valve ([Resolution and conflicts](#resolution-and-conflicts)).
 - "Why pnpm rather than npm?", "Why uv?" How to answer: disk, speed, and for pnpm the refusal of undeclared imports; for uv, a single tool for Python, the environment and the lockfile ([Tools by language](#tools-by-language)).
+- "Monorepo or several repositories? With which build tool?" How to answer: I start from the cost of coordinating across repositories (a library fix that takes ten merge requests), give the decision table, then the tooling it requires: `CODEOWNERS`, CI limited to touched projects, a remote cache fed by CI only, and Bazel or Pants only with a team to keep them up ([Monorepo or several repositories](#monorepo-or-several-repositories-how-to-decide)).
 - "How do you protect your CI against a booby-trapped package?", "What is dependency confusion?" How to answer: single registry, lockfile with hashes, blocked scripts, minimum delay, provenance and SBOM ([Securing installation](#securing-installation)).
 - "How do you keep dependencies up to date without spending your life on it?" How to answer: bot, CI, automerge of green patches, planned majors, and the majors-behind indicator ([Updating dependencies](#updating-dependencies)).
 
 What makes a good answer: linking each setting to the incident it prevents ("`npm ci`, because a pipeline must not break without a code change").
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
 
 ## What to use in which situation
 

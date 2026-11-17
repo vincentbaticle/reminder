@@ -361,6 +361,77 @@ classDiagram
 :material-book-open-variant: Reference docs: [Robert C. Martin, "The Open Closed Principle"](https://blog.cleancoder.com/uncle-bob/2014/05/12/TheOpenClosedPrinciple.html) (2014)
 { .doc-ref }
 
+#### Extension points through plugins
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+My team maintains `devctl`, an internal <span class="term" data-term="cli">CLI</span> used by every team. Each week, a team asks to add a subcommand that only serves them, like `seed-orders` to fill team-core's test database. If I accept, the core of `devctl` grows, its configuration reaches 80 options of which half concern a single team, and each release shipped for one team breaks a CI script for another. Open/closed applied to a shared tool is called an <span class="term" data-term="extension-point">extension point</span>: a planned place where a team plugs its own code, in its own package, without changing the core.
+
+In Python, the standard mechanism is **entry points**: a package declares in its metadata "I provide this object in this group", and at startup the core lists everything installed in that group with `importlib.metadata.entry_points`. This is how pytest finds its plugins (group `pytest11`). Java has the equivalent with `ServiceLoader`.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: every team need goes into the core, which is shipped again to every team on each request
+@cli.command()
+def seed_orders() -> None: ...
+
+
+@cli.command()
+def rotate_billing_keys() -> None: ...
+```
+
+``` { .python .ex-good title="Recommended" }
+from importlib.metadata import entry_points
+
+import click
+
+PLUGIN_GROUP = "devctl.commands"
+
+
+# Good: the core knows no team, it adds each subcommand declared in the group
+@click.group()
+def cli() -> None:
+    """Shared development tools."""
+
+
+def load_plugins() -> None:
+    for entry in entry_points(group=PLUGIN_GROUP):
+        cli.add_command(entry.load(), name=entry.name)
+
+
+load_plugins()
+```
+
+team-core's plugin lives in its own package and declares its subcommand in its `pyproject.toml`:
+
+``` { .toml .ex-ref title="Reference · pyproject.toml of the team-core-devctl package" }
+# Example: the seed-orders subcommand points to the seed_orders function of the seed module
+[project.entry-points."devctl.commands"]
+seed-orders = "team_core_devctl.seed:seed_orders"
+```
+
+After `pip install team-core-devctl`, the `devctl seed-orders` command exists. The core has not changed, has not been shipped again, and the other teams do not see this command as long as they do not install the plugin.
+
+**Output for scripts is a contract.** A CLI has two audiences: a human reading an aligned table, and CI scripts extracting a value. If a script slices the readable output, adding a column to the table breaks it. So I separate the two with an `--output json` option, and I treat that JSON as an <span class="term" data-term="api-contract">API contract</span>.
+
+``` { .bash .ex-bad title="Avoid" }
+# Avoid: the script reads the 3rd column of the table, a column added for humans breaks it silently
+devctl status | awk 'NR > 1 { print $3 }'
+```
+
+``` { .bash .ex-good title="Recommended" }
+# Good: the script reads a named field of the JSON output, which the CLI commits to keep
+devctl status --output json | jq -r '.services[].version'
+```
+
+Adding a field to the JSON is a minor version; removing or renaming a field is a <span class="term" data-term="breaking-change">breaking change</span>, so a major version under <span class="term" data-term="semantic-versioning">semantic versioning</span>. A removed option first prints a warning for two minor versions (example of a <span class="term" data-term="deprecation">deprecation policy</span>).
+
+**When**: a tool or SDK shared by several teams receives requests specific to one of them, or the team that maintains it becomes the mandatory path for every need. **When not**: a CLI used by a single team, or two stable subcommands: a plugin system is then heavier than the code it avoids. **Why**: the core stays small, tested and rarely shipped; teams move without waiting; the most installed plugins show what deserves to enter the core. **How**: I define the entry point group and what the core passes to plugins, I document the JSON output as a contract, and I measure before and after the number of core change requests and the number of CI scripts broken per release.
+
+**Risks.** What the core passes to plugins becomes a public API itself: if I change the expected signature, every plugin breaks on upgrade. I version it like the rest. A plugin that crashes at load time must not bring down the whole CLI: I catch the load error, print the name of the faulty plugin and carry on without it. Finally, any installed package can add a command: I install plugins only from the company registry, never under a name that could also exist on PyPI (see [dependency confusion](gestionnaires-paquets.md#securing-installation)).
+
+:material-book-open-variant: Reference docs: [Python Packaging Authority, Entry points specification](https://packaging.python.org/en/latest/specifications/entry-points/) (accessed November 2026); [Command Line Interface Guidelines](https://clig.dev/) (2020)
+{ .doc-ref }
+
 ### L: Liskov substitution
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
@@ -1205,6 +1276,148 @@ I need them most when several teams depend on the same code: a shared library, a
 
 The principles above say how to split code. The ones in this part say how to write each function and each boundary: where to put the checks, how big an interface should be, what to promise the caller and what to do when something fails.
 
+### Naming by intent
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+I review a `process(data)` function that holds `tmp`, `flag2` and the number `0.15`. To understand what it does, I have to run the code in my head: `tmp` is a subtotal, `flag2` says whether this is the customer's first order, `0.15` is the welcome discount rate. A name that states the **intent** (the business role of the value) would have saved me that work. A name that states the **type** (`order_dict`, `str_list`) or the **implementation** (`get_from_redis`) repeats what the code or the editor already show, and becomes wrong the day the implementation changes. Robert C. Martin makes it the first advice of "Clean Code" (2008): intention-revealing names.
+
+| Before | What the name says | After |
+|---|---|---|
+| `tmp` | nothing | `subtotal` |
+| `flag2` | "a boolean, the second one" | `is_first_order` |
+| `data`, `order_dict` | the type | `order` |
+| `get_from_redis(user_id)` | the implementation, which will change | `find_customer(customer_id)` |
+| `0.15` | a number | `WELCOME_DISCOUNT_RATE` |
+| `process()` | "does something" | `order_total()` |
+
+The `0.15` is a <span class="term" data-term="magic-number">magic number</span>: a named constant gives it a meaning, and a single place to change the day marketing raises the discount to 20%.
+
+=== "PHP"
+
+    ``` { .php .ex-bad title="Avoid" }
+    <?php
+
+    // Avoid: tmp, flag2 and 0.15 force the reviewer to guess the rule
+    function process(array $data): int
+    {
+        $tmp = 0;
+        foreach ($data['items'] as $i) {
+            $tmp += $i['p'] * $i['q'];
+        }
+        $flag2 = $data['c']['orders'] === 0;
+        if ($flag2) {
+            $tmp = (int) round($tmp * (1 - 0.15));
+        }
+
+        return $tmp;
+    }
+    ```
+
+    ``` { .php .ex-good title="Recommended" }
+    <?php
+
+    const WELCOME_DISCOUNT_RATE = 0.15;
+
+    // Good: each name states its business role, the function reads like the rule
+    function orderTotal(Order $order): int
+    {
+        $subtotal = 0;
+        foreach ($order->lines as $line) {
+            $subtotal += $line->unitPriceCents * $line->quantity;
+        }
+        $isFirstOrder = $order->customer->pastOrders === 0;
+        if ($isFirstOrder) {
+            return (int) round($subtotal * (1 - WELCOME_DISCOUNT_RATE));
+        }
+
+        return $subtotal;
+    }
+    ```
+
+=== "Python"
+
+    ``` { .python .ex-bad title="Avoid" }
+    # Avoid: tmp, flag2 and 0.15 force the reviewer to guess the rule
+    def process(data: dict) -> int:
+        tmp = sum(i["p"] * i["q"] for i in data["items"])
+        flag2 = data["c"]["orders"] == 0
+        if flag2:
+            tmp = round(tmp * (1 - 0.15))
+        return tmp
+    ```
+
+    ``` { .python .ex-good title="Recommended" }
+    WELCOME_DISCOUNT_RATE = 0.15
+
+
+    # Good: each name states its business role, the function reads like the rule
+    def order_total(order: Order) -> int:
+        subtotal = sum(line.unit_price_cents * line.quantity for line in order.lines)
+        is_first_order = order.customer.past_orders == 0
+        if is_first_order:
+            return round(subtotal * (1 - WELCOME_DISCOUNT_RATE))
+        return subtotal
+    ```
+
+=== "Java"
+
+    ``` { .java .ex-bad title="Avoid" }
+    // Avoid: tmp, flag2 and 0.15 force the reviewer to guess the rule
+    static long process(Map<String, Object> data) {
+        long tmp = 0;
+        for (Map<String, Integer> i : (List<Map<String, Integer>>) data.get("items")) {
+            tmp += (long) i.get("p") * i.get("q");
+        }
+        boolean flag2 = (int) data.get("orders") == 0;
+        if (flag2) {
+            tmp = Math.round(tmp * (1 - 0.15));
+        }
+        return tmp;
+    }
+    ```
+
+    ``` { .java .ex-good title="Recommended" }
+    static final double WELCOME_DISCOUNT_RATE = 0.15;
+
+    // Good: each name states its business role, the function reads like the rule
+    static long orderTotal(Order order) {
+        long subtotal = order.lines().stream()
+            .mapToLong(line -> line.unitPriceCents() * line.quantity())
+            .sum();
+        boolean isFirstOrder = order.customer().pastOrders() == 0;
+        if (isFirstOrder) {
+            return Math.round(subtotal * (1 - WELCOME_DISCOUNT_RATE));
+        }
+        return subtotal;
+    }
+    ```
+
+The behaviour is the same, the same test passes before and after. What changed: I read "order total, welcome discount on the first order" without decoding anything.
+
+**Comments only for the "why".** A comment that repeats the code (`# apply the discount`) ages badly: the day the code changes, it lies. I keep comments for a decision no name can carry, like a surprising business rule.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: the comment paraphrases the code, it teaches the reader nothing
+# check whether the customer has no order
+is_first_order = order.customer.past_orders == 0
+```
+
+``` { .python .ex-good title="Recommended" }
+# Good: the comment says why, which the code alone cannot say
+# past_orders also counts cancelled orders: otherwise a customer cancels and reorders to get the discount a second time
+is_first_order = order.customer.past_orders == 0
+```
+
+**The reviewer test.** If a colleague has to ask me a question in <span class="term" data-term="code-review">code review</span> to understand a name or a function, the code is not clear enough yet. I rename in the merge request rather than answer in the thread: the thread answer disappears, the name stays for the next reader.
+
+**When**: for every name I write, and especially when I touch a function whose names I only understood by reading its body. **When not**: a three-line loop index (`i`) or a short comprehension variable reads fine; a long name is not better on principle. **Why**: most of the time spent on code is reading; a good name cuts review time, onboarding time and comprehension bugs. **How**: I name after what the value means for the business, I replace numbers with constants, and I make a separate renaming commit, with no behaviour change, so the review stays simple.
+
+**Risks.** Renaming something public (a library function, an API field, a CLI option) breaks those who use it: I rename internal things freely, and for public ones I keep the old name as a deprecated alias for an announced period. Mixing renames and a behaviour change in the same commit drowns the real change in noise: the review lets the bug through. Finally, a name that is too long (`customer_with_at_least_one_paid_order_this_year`) often signals a business notion that deserves its own name (`active_customer`), defined once.
+
+:material-book-open-variant: Reference docs: [Martin Fowler, "TwoHardThings"](https://martinfowler.com/bliki/TwoHardThings.html) (accessed November 2026); Robert C. Martin, "Clean Code", chapter 2 "Meaningful Names" (2008)
+{ .doc-ref }
+
 ### Guard clauses
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
@@ -1775,8 +1988,10 @@ Typical questions:
 - "When is duplication better than an abstraction?", "Composition or inheritance?" How I answer: I keep the duplication as long as the two pieces of code represent different rules or I do not have three examples, and I prefer composition, which can be changed and tested separately, to inheritance, which ties the child to the whole parent ([DRY, WET and AHA](#dry-wet-and-aha), [YAGNI and rule of three](#yagni-and-rule-of-three), [Composition over inheritance](#composition-over-inheritance)).
 - "Should design principles be imposed on several teams?", "How do you make code maintainable?", "When should you create a shared library?" How I answer: I share principles as a review vocabulary, with the STUPID list, rather than as an imposed rule, I aim for high cohesion and low coupling, and I create a shared library only when several teams really need the same code ([STUPID](#stupid-the-six-smells-to-avoid), [Separation of concerns, cohesion and coupling](#separation-of-concerns-cohesion-and-coupling), [Component principles](#component-principles)).
 - "How do you design an internal library, SDK or CLI that evolves without breaking its users?" How I answer: I publish each release with a version number and a changelog, I keep dependencies free of cycles and pointing to something more stable than me, and I assume every visible behaviour will end up being used ([Component principles](#component-principles), [Principle of least astonishment](#principle-of-least-astonishment), and [Hyrum's law](lois-et-principes.md#hyrums-law)).
+- "Every team wants its own subcommand in our internal CLI: what do you do?" How I answer: I apply open/closed at the scale of the tool, with a plugin extension point (entry points in Python) so that the core stops changing, and I treat the `--output json` output as a versioned contract ([Extension points through plugins](#extension-points-through-plugins)).
 - "Do you apply SOLID and DRY to test code?", "DRY or DAMP in tests?" How I answer: I apply SOLID to test tooling, like a fake that implements only what the test calls, but in the body of a test I prefer DAMP (descriptive phrases, even if they repeat), because a test must read on its own without climbing through three helpers ([I: interface segregation](#i-interface-segregation), [Pitfalls to avoid](#pitfalls-to-avoid)).
 
+- "What is readable code?", "How do you choose your names?" How I answer: I name by business intent, not by type or implementation (`flag2` becomes `is_first_order`), I replace magic numbers with constants, I only comment the "why", and I give the reviewer test: if they have to ask me a question to understand, I rename ([Naming by intent](#naming-by-intent)).
 - "How do you handle errors?", "Exceptions or a result type?" How I answer: I separate expected business errors, handled as a normal result, from outages, which I let bubble up to the boundary where I log them once; I fail early on invalid input and never swallow an exception ([Error handling](#error-handling), [Design by contract](#design-by-contract)).
 - "How do you change legacy code without tests?", "When do you refactor?" How I answer: I look for a test point, create a minimal seam, pin the behaviour with characterization tests, then sprout the new logic in a tested function; I refactor when I have to change the code, in small steps and separate commits ([Changing legacy code](#changing-legacy-code), [Refactoring in small steps](#refactoring-in-small-steps)).
 - "How do you talk about technical debt with the Product Owner?" How I answer: I put a figure on what it costs in delays and bugs, I only mention the debt of often-changed areas (the hotspots) and I propose paying it back in instalments within planned features ([Technical debt](#technical-debt)).
@@ -1784,12 +1999,15 @@ Typical questions:
 
 What makes a good answer: name the principle, give a lived (or realistic) example, then say **when it does not apply**. That last part is what sets an experienced answer apart from a learned one.
 
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
+
 ## Which principle for which need
 
 | I want... | I use... |
 |---|---|
 | a marketing request on the invoice, like showing amounts without cents, to be unable to change the total the accountant bills, because both go through the same rounding method | single responsibility |
 | to add a shipping mode, like pickup at a relay point, without reopening the cost function that already works | open/closed (often via Strategy) |
+| to let each team add its own subcommand to the internal CLI, like `seed-orders` for team-core, without shipping the core again to every team | extension points through plugins (open/closed) |
 | to be sure code receiving an `OrderRepository` does not crash when given a subclass, like a read-only archive repository | Liskov substitution |
 | my test fake not to implement fifteen methods when the test calls only one | interface segregation |
 | to test the "place an order" rule without starting a database or calling the network | dependency inversion, with injection |
@@ -1803,6 +2021,7 @@ What makes a good answer: name the principle, give a lived (or realistic) exampl
 | to split a library shared by several teams, or a monorepo, without every change forcing everyone to follow | component principles (CCP, ADP, SDP) |
 | a less dogmatic criterion than SOLID, to judge code without ticking a list | CUPID |
 | the users of my API or CLI not to get trapped, like by a `--dry-run` that still writes | least astonishment |
+| to understand a function in review without guessing what `tmp`, `flag2` or `0.15` hold | naming by intent |
 | to read a function whose real computation hides under three levels of `if` | guard clauses |
 | to spare every caller of my repository from chaining connection, transaction and commit in the right order | deep module |
 | to say clearly who must check that a withdrawal amount is positive: the caller or the method | design by contract |

@@ -72,6 +72,8 @@ plugins:
             Qualité et outils: Quality and tools
             IA: AI
             Divers: Miscellaneous
+            Entretiens: Interviews
+            Exercices en direct: Live exercises
             Veille technique par métier: Tech watch by role
             Qualité et tests: Quality and testing
             API REST et asynchrone: REST and async APIs
@@ -162,6 +164,22 @@ nav:
           - Textes fondateurs: knowledge/textes-fondateurs.md
           - Lois et principes éponymes: knowledge/lois-et-principes.md
           - Culture d'entreprise et organisation: knowledge/culture-entreprise.md
+  - Entretiens:
+      - Staff Engineer:
+          - Questions: entretiens/staff-engineer/questions.md
+          - Exercices en direct: entretiens/staff-engineer/exercices.md
+      - DevX Engineer:
+          - Questions: entretiens/devx-engineer/questions.md
+          - Exercices en direct: entretiens/devx-engineer/exercices.md
+      - QA Engineer:
+          - Questions: entretiens/qa-engineer/questions.md
+          - Exercices en direct: entretiens/qa-engineer/exercices.md
+      - Software Engineer:
+          - Questions: entretiens/software-engineer/questions.md
+          - Exercices en direct: entretiens/software-engineer/exercices.md
+      - Software Architect:
+          - Questions: entretiens/software-architect/questions.md
+          - Exercices en direct: entretiens/software-architect/exercices.md
   - Divers:
       - Expressions courantes (multilingue): knowledge/expressions.md
       - Veille technique par métier: knowledge/veille.md

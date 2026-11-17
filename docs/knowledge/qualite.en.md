@@ -692,6 +692,47 @@ The numbering is not an order: the four quadrants run in parallel. Their most us
 :material-book-open-variant: Reference docs: [Lisa Crispin, Using the Agile Testing Quadrants](https://lisacrispin.com/2011/11/08/using-the-agile-testing-quadrants/) (2011)
 { .doc-ref }
 
+### The QA role in an agile team
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+My team has six developers and one QA. The QA tests every story at the end of the sprint, often works evenings, and the developers say "checking is the QA's job". The warning sign is there: **the developers ship for the QA**. They stop testing themselves since someone will do it afterwards, the QA becomes a bottleneck, and bugs are found when there is the least time left to fix them.
+
+The <span class="term" data-term="whole-team-approach">whole team approach</span> (Lisa Crispin and Janet Gregory, "Agile Testing", 2009) answers this problem: quality belongs to the whole team, not to one person or one step. The QA is not the last safety net; they bring expertise (risks, test case design, exploratory testing, tooling) and a user's view of the whole product, which nobody else has time for.
+
+!!! noob "As noob"
+    In a restaurant kitchen, the head chef does not taste every plate on its way out: each cook tastes what they prepare, and the chef teaches the others to taste, checks the risky dishes and invents the recipes. Limit: a QA has no line authority over the developers, they convince by example. The takeaway: **the QA raises the quality of the whole team, they do not test in its place.**
+
+**When.** The signals: stories piling up "waiting for test", bugs found mostly on the last day of the sprint, a QA who is the only one who knows the test framework. **How.** I propose three changes at the <span class="term" data-term="retrospective">retrospective</span>, then do <span class="term" data-term="quality-coaching">quality coaching</span> day to day: I review the developers' tests, suggest the missing cases, and run paired exploratory sessions.
+
+1. Test requirements go into the <span class="term" data-term="definition-of-done">definition of done</span>, so they apply to the whole team, not only to the QA.
+2. Testing happens during the sprint, not after: a <span class="term" data-term="three-amigos">three amigos</span> session before the code, a paired exploratory session as soon as the story works.
+3. A rotation: every sprint, one developer explores another one's story.
+
+``` { .text .ex-illus title="Illustration · the team's definition of done" }
+A story is done when:
+- every acceptance criterion has at least one green automated test, written by the developer;
+- a 30 min exploratory session took place, with a three-line debrief;
+- no major bug is open on the story.
+```
+
+Who does what on a story:
+
+| Activity | PO | Developer | QA |
+|---|---|---|---|
+| examples and acceptance criteria | writes, decides | suggests the technical cases | suggests the edge and error cases |
+| unit and API tests of the story | | writes | reviews, suggests cases |
+| E2E of the critical journey | | writes or completes | designs, reviews, maintains the framework |
+| exploratory testing | joins the debrief | in a pair | runs the session |
+| done decision | accepts | | checks the definition of done |
+
+I measure before and after: the number of stories blocked waiting for test and the escaped defects per sprint. The time I free up goes to tooling and to the cross-cutting tests no story covers.
+
+**Risks.** "The whole team is responsible" can turn into "nobody is responsible": nobody maintains the test framework any more, and [flaky tests](#flaky-test) pile up. I keep a named owner for the tooling and for each cross-cutting test. The other way round, a QA who only coaches loses touch with the product: I keep exploration time for myself every sprint.
+
+:material-book-open-variant: Reference docs: [Lisa Crispin and Janet Gregory, Agile Testing](https://agiletester.ca/) (accessed November 2026); [Scrum Guide, Definition of Done](https://scrumguides.org/scrum-guide.html) (2020 version)
+{ .doc-ref }
+
 ### Shift-left and shift-right: when to test
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
@@ -930,6 +971,60 @@ tests/
 :material-book-open-variant: Reference docs: [Martin Fowler, UnitTest](https://martinfowler.com/bliki/UnitTest.html) (2014); [Martin Fowler, IntegrationTest](https://martinfowler.com/bliki/IntegrationTest.html) (2018)
 { .doc-ref }
 
+### Choosing what to automate
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+My team runs a manual campaign of 200 cases by hand before every monthly release, over three days, and I am asked to "automate everything" (example figures). I do not start with case number 1: an automated test is code that someone will have to maintain, so I pick the ones that bring more than they cost. That is the <span class="term" data-term="roi">return on investment</span> of a test: what it saves (repeated runs, <span class="term" data-term="regression">regressions</span> avoided) compared with what it costs (writing, maintenance, run time).
+
+**When.** When building a suite, when a manual campaign blocks releases, or when the automated suite becomes slow and expensive to maintain. **Why.** Brian Marick, in "When Should a Test Be Automated?" (1998), asks three questions: will the test be run often, will it still find bugs once automated, and will its maintenance cost stay reasonable when the product changes? I turn them into a four-criteria grid:
+
+| Criterion | 1: unfavourable | 3: favourable |
+|---|---|---|
+| run frequency | once a year | on every MR or every release |
+| risk if it breaks | a visual annoyance | money, security, lost data |
+| stability of the feature | the screen changes every sprint | the rule no longer moves |
+| automation cost, counted backwards | a 3-D Secure window, a real email, hardware | a pure function or an API route |
+
+**How.** I score each case from 1 to 3 per criterion, for a total from 4 to 12. From 9 up, I automate, and I pick **the lowest level** that covers the risk: a calculation checked through the UI becomes a parametrised unit test, not an E2E test ([The rule](#the-rule)). Below 9, I keep the case manual and review its score when the feature settles.
+
+``` { .text .ex-illus title="Illustration · five scored cases (frequency, risk, stability, cost)" }
+case                                         F  R  S  C  total  decision
+successful card payment                      3  3  3  2   11    automated E2E
+shipping fees, 30 country and weight combos  3  3  3  3   12    parametrised unit test
+a customer cannot see another one's order    3  3  3  3   12    API test
+dashboard redone every sprint                3  1  1  1    6    manual, exploratory charter
+yearly accounting export                     1  2  2  1    6    manual, written procedure
+```
+
+What I do not automate, I write down, with the reason and when I will revisit the choice. A written list turns an oversight into a decision, and the next QA knows why the dashboard has no E2E test:
+
+``` { .text .ex-illus title="Illustration · tests/MANUAL.md" }
+Tests kept manual (list reviewed every quarter)
+- dashboard: redone every sprint, a 60 min exploratory charter per release;
+  revisit when the design is frozen
+- yearly accounting export: one run a year, procedure written in the wiki;
+  revisit if it becomes monthly
+- old browser (0.2% of visitors): not tested, risk accepted by the PO;
+  revisit if the share goes above 1%
+```
+
+The dashboard becomes an <span class="term" data-term="test-charter">exploratory charter</span>: its likely defect (an unreadable figure, a misleading chart) needs a human judgement no script carries.
+
+A test becomes **debt** when it costs more than it brings: an E2E test that breaks on every screen redesign, repaired twice a month, and that has never found a single bug. I delete it or move it down a level, like any dead code.
+
+| I want... | I use... |
+|---|---|
+| to choose what to automate in a manual campaign of 200 cases, with two weeks ahead of me | the frequency, risk, stability, cost grid, starting with the highest totals |
+| to automate a case that checks a calculation through the UI, like the shipping fees shown in the cart | a parametrised unit test, at the lowest level |
+| to cover a screen that still changes every sprint and needs judgement, like the readability of a dashboard | an exploratory charter, reviewed when the screen settles |
+| to cover a case that runs once a year, like a yearly accounting export | a written manual procedure |
+
+**Risks.** Automating in the campaign's order gives a slow, brittle suite that replays risk-free checks: the team spends its time maintaining it instead of exploring. The other way round, a grid applied once and never reviewed keeps manual some screens that settled long ago. I review the scores every quarter, and I measure the campaign duration and the bugs found at every release. Finally, I automate checks, not a tester's judgement: James Bach and Michael Bolton ("Testing and Checking Refined", 2013) call "checks" what a machine can decide on its own.
+
+:material-book-open-variant: Reference docs: [Brian Marick, "When Should a Test Be Automated?"](http://www.exampler.com/testing-com/writings/automate.pdf) (1998)
+{ .doc-ref }
+
 !!! maturity "Measuring maturity"
     | Level | What I see in the team |
     |---|---|
@@ -1156,6 +1251,73 @@ partial metadata               my-api applies the planned default values
 ```
 
 :material-book-open-variant: Reference docs: [Microcks, Documentation](https://microcks.io/documentation/) (accessed November 2026); [Stoplight Prism](https://github.com/stoplightio/prism) (accessed November 2026)
+{ .doc-ref }
+
+### Simulating a third party that fails or is slow
+
+<a class="pill pill-scope pill-scope-system" href="../architecture/#map-of-scales">Scale · System</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+My service calls a payment provider, and its sandbox cannot, on demand, return a 500, drop the connection or take 35 seconds to answer. Yet these are the cases that break in production: a timeout followed by a retry charges the customer twice, a badly handled decline empties their cart. <span class="term" data-term="service-virtualization">Service virtualization</span> replaces the third party with a fake HTTP server I configure: depending on the request, it returns a success, an error, a truncated response, or nothing for as long as I choose.
+
+*WireMock: competes with MockServer, Mountebank, partly competes with Microcks and Prism; complements Testcontainers*
+{ .tool-rel }
+
+**Why not Prism or Microcks?** They answer what the contract describes, and that is their strength: I check that I speak the right format. But an OpenAPI contract rarely describes a 35 s delay, a dropped connection or a half-written JSON body. WireMock (open source project, 2011, to check) simulates the failure behaviour the contract does not carry. The two complement each other:
+
+| I want... | I use... |
+|---|---|
+| to check that my service sends and reads the right format, like the required fields of `/balance` at `bank-partner` | a [contract-driven mock](#contract-driven-mock) (Prism, Microcks) |
+| to check that my service survives a partner that is slow, cut off, or returns a truncated response | service virtualization (WireMock) |
+| to know that the real partner changed its format | a [test of the real partner](#detecting-that-the-partner-has-changed), off the blocking path |
+
+**How.** I pick the fake server's response from a piece of the request, here the card number, so each test triggers its case with no extra setup. Example numbers, to align with the ones the provider documents:
+
+| Card number | Fake service response | What I check in my-api |
+|---|---|---|
+| `4242424242424242` | `200`, payment accepted | the happy path |
+| `4000000000000002` | `402`, payment declined | "payment declined" message, cart kept |
+| `4000000000000119` | `200`, but after 35 s | my-api cuts off at its timeout, answers `504`, and does not charge twice on retry |
+| `4000000000000341` | connection dropped | explicit `502`, nothing recorded as paid |
+| `4000000000000500` | `200` with no `transaction_id` | the order goes to "to check", not "paid" |
+
+The WireMock mapping for the slow case, as the documentation describes it:
+
+``` { .json .ex-ref title="Reference · mappings/payment-slow.json" }
+{
+  "request": {
+    "method": "POST",
+    "url": "/v1/payments",
+    "bodyPatterns": [{ "matchesJsonPath": "$[?(@.card_number == '4000000000000119')]" }]
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 35000,
+    "jsonBody": { "status": "accepted", "transaction_id": "tx-119" }
+  }
+}
+```
+
+For the dropped connection, the response becomes `{ "fault": "CONNECTION_RESET_BY_PEER" }`; WireMock also offers `EMPTY_RESPONSE` and `MALFORMED_RESPONSE_CHUNK`.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: only success is tested, the timeout and the double charge are never tried
+def test_checkout(client):
+    response = client.post("/checkout", json={"card_number": "4242424242424242"})
+    assert response.status_code == 201
+```
+
+``` { .python .ex-good title="Recommended" }
+# Good: the fake provider answers too late, my-api gives up and sent only one payment
+def test_checkout_timeout_does_not_charge_twice(client, payment_stub):
+    response = client.post("/checkout", json={"card_number": "4000000000000119"})
+    assert response.status_code == 504
+    assert payment_stub.count("POST", "/v1/payments") == 1
+```
+`payment_stub` is a fixture that starts WireMock (in a throwaway container) and reads its admin API (`/__admin/requests/count`). In tests, I lower my-api's timeout to 1 s and the fake service's delay to 3 s: same case, faster suite.
+
+**Risks.** The fake server's error responses are hand-written, so they lie like any mock: if the real provider returns `{"error": {"code": "card_declined"}}` and my fake `{"status": "declined"}`, my decline handling is tested against fiction. I copy error bodies from the provider's documentation or from captured real responses, and keep a nightly test against the real sandbox. Real 35 s delays slow the whole suite down: I shrink them in the test configuration.
+
+:material-book-open-variant: Reference docs: [WireMock, Simulating Faults](https://wiremock.org/docs/simulating-faults/) (accessed November 2026)
 { .doc-ref }
 
 ### Detecting that the partner has changed
@@ -1439,6 +1601,64 @@ $ git diff origin/main...HEAD -- '*.yml' | grep -n "allow_failure"
 
 **Risks.** A gate that is never bypassed blocks the whole team when the gate itself is wrong: a flaky test or a broken tool holds back every MR, and the urge to switch everything to `allow_failure` comes back. I fix or quarantine only the faulty test, in a separate MR, with a ticket and a return date. Example: Karim's license scan goes down one morning; I wait for the service to come back and, if the outage lasts, I remove that one job with a dated ticket, not the whole stage.
 
+### Time-limited waivers and risk acceptance
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+Sometimes the gate is right and I still have to ship: a billing fix must go out before the monthly close, and new code coverage is at 64% for an 80% threshold. Or the scanner flags a vulnerability in a dependency whose vulnerable function my code never calls. Disabling the check or silently closing the alert hides the decision: in six months nobody will know why the alert is ignored, and the exception will outlive the code it covered.
+
+A <span class="term" data-term="waiver">waiver</span> makes the decision visible: a written exception, with the reason, a follow-up owner, the person who accepts the risk, and **an expiry date**, stored in the gate or scanner configuration, next to the code. ISO 31000 (2018 revision) counts the decision to retain a risk among the possible treatments, provided it is taken knowingly: that is an <span class="term" data-term="accepted-risk">accepted risk</span>, signed by someone with the authority to do so, not by the developer in a hurry to merge. A waiver with no expiry date becomes a hidden rule.
+
+``` { .text .ex-bad title="Avoid · .trivyignore" }
+# Avoid: the alert disappears forever, with no reason, no owner, no date
+CVE-2026-0001
+```
+
+``` { .yaml .ex-good title="Recommended · .trivyignore.yaml" }
+# Good: the proof, who accepts the risk, who follows up, and a date; on that date the alert comes back on its own
+vulnerabilities:
+  - id: CVE-2026-0001
+    statement: >
+      vulnerable function never called by orders-service (analysis of 2026-11-10);
+      risk accepted by grace, followed up by ada, ticket 882
+    expired_at: 2026-12-31
+```
+Example CVE number and dates. Once `expired_at` has passed, Trivy no longer applies the entry, so the alert comes back without anyone having to think about it.
+
+*Trivy: partly competes with Snyk; complements Renovate*
+{ .tool-rel }
+
+For a quality gate that has no such field, the same record lives in the repository, and a CI job applies it only while the date has not passed:
+
+``` { .text .ex-illus title="Illustration · waivers/WAIVER-031.yml" }
+id: WAIVER-031
+check: quality gate, new code coverage (threshold 80%, value 64%)
+reason: billing fix to ship before the 31/10 close; the added code is covered by an E2E test
+risk accepted by: grace (billing product owner)
+follow-up owner: ada
+action: unit tests for InvoiceRounding, ticket 882
+expires on: 2026-11-14
+```
+
+The process rules:
+
+- no owner and no expiry date, no waiver;
+- on expiry, the check becomes blocking again by itself;
+- renewing is a new signed decision, not a date quietly changed;
+- the list of open waivers is reviewed every week.
+
+| Situation | I do |
+|---|---|
+| the gate blocks my MR on an old function it does not touch, because it checks all the code | I fix the gate setting (new code only), no waiver |
+| the scanner flags a vulnerability in a function my code never calls, with proof | a dated entry in the scanner configuration |
+| an urgent fix must ship with coverage below the threshold, and the added code is covered another way | a dated waiver, accepted by the product owner, with the ticket for the missing tests |
+| the vulnerability is exploitable and severe, like an injection on a public route | no waiver: I fix it or apply a mitigation before shipping |
+
+**Risks.** Waivers pile up and the gate becomes decorative: I count open waivers and their age, and a rule that needs one every month may be badly set, so that is the rule I discuss. The other way round, a process that is too heavy (a committee, a week of waiting) pushes teams to bypass it: a record in the repository, reviewed in the MR, is enough.
+
+:material-book-open-variant: Reference docs: [Trivy, Filtering](https://trivy.dev/docs/latest/configuration/filtering/) (accessed November 2026); [ISO 31000:2018, Risk management, Guidelines](https://www.iso.org/standard/65694.html) (2018)
+{ .doc-ref }
+
 ### Local identical to CI
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
@@ -1679,6 +1899,139 @@ Lessons:
 :material-book-open-variant: Reference docs: [Playwright, Sharding](https://playwright.dev/docs/test-sharding) (accessed November 2026)
 { .doc-ref }
 
+### Structuring a maintainable E2E suite
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+My suite of 150 Playwright tests takes 45 minutes, every test logs in through the form, and a design change breaks 60 tests at once because the selectors look like `div.col-md-6 > button.btn-primary` (example figures). **When**: as soon as the suite goes past a few dozen tests, or a screen redesign breaks unrelated tests. **Why**: a slow suite is no longer run on every MR, and a suite I repair in sixty places ends up disabled. **How**: three changes, in this order, then a before and after measurement.
+
+**1. Log in only once.** A `setup` project logs in before all the others and saves cookies and local storage in a session file (<span class="term" data-term="storage-state">storageState</span>). Every test starts already logged in.
+
+``` { .typescript .ex-bad title="Avoid" }
+// Avoid: every test goes through the form again, about ten seconds lost per test
+test.beforeEach(async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill("ada@example.test");
+  await page.getByLabel("Password").fill(process.env.ADA_PASSWORD!);
+  await page.getByRole("button", { name: "Sign in" }).click();
+});
+```
+
+``` { .typescript .ex-good title="Recommended · auth.setup.ts" }
+import { test as setup, expect } from "@playwright/test";
+
+const authFile = "playwright/.auth/ada.json";
+
+// Good: a single login, the session is saved for every test
+setup("log in as ada", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill("ada@example.test");
+  await page.getByLabel("Password").fill(process.env.ADA_PASSWORD!);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await page.context().storageState({ path: authFile });
+});
+```
+
+``` { .typescript .ex-good title="Recommended · playwright.config.ts" }
+import { defineConfig } from "@playwright/test";
+
+// Good: the setup project runs first, the tests reuse its session
+export default defineConfig({
+  projects: [
+    { name: "setup", testMatch: /.*\.setup\.ts/ },
+    {
+      name: "chromium",
+      dependencies: ["setup"],
+      use: { storageState: "playwright/.auth/ada.json" },
+    },
+  ],
+});
+```
+
+A `setup` project rather than a `globalSetup`: if the login fails, I get a trace and a report like for any other test.
+
+**2. Composed Page Objects, not a BasePage.** A <span class="term" data-term="page-object">Page Object</span> hides a page's <span class="term" data-term="selector">selectors</span> behind business actions: when a button label changes, I fix a single file. I target by role and accessible label (`getByRole`, `getByLabel`), and a `data-testid` only where no label exists. I <span class="term" data-term="composition-over-inheritance">compose</span> components (table, menu, dialog) instead of making everything inherit from a `BasePage`.
+
+``` { .typescript .ex-bad title="Avoid" }
+// Avoid: everything inherits from a giant BasePage, and the assertion is hidden in the page
+class BasePage {
+  constructor(protected page: Page) {}
+  async openMenu(item: string) {}
+  async sortTable(column: string) {}
+  async downloadCsv() {}
+}
+
+class OrdersPage extends BasePage {
+  async verifyOrderIsCorrect() {
+    await expect(this.page.locator("tr.order-row")).toHaveCount(1);
+  }
+}
+```
+Six months later, the `BasePage` is 900 lines long, every page inherits methods it does not have, and a red test says "verifyOrderIsCorrect" without saying what was expected.
+
+``` { .typescript .ex-good title="Recommended · pages/orders-page.ts" }
+import type { Locator, Page } from "@playwright/test";
+
+// Good: a reusable component, given only to the pages that have a table
+export class DataTable {
+  constructor(private readonly root: Locator) {}
+
+  rowsWith(text: string) {
+    return this.root.getByRole("row").filter({ hasText: text });
+  }
+}
+
+// Good: the page composes its components and exposes actions, with no assertion
+export class OrdersPage {
+  readonly table: DataTable;
+
+  constructor(private readonly page: Page) {
+    this.table = new DataTable(page.getByRole("table", { name: "Orders" }));
+  }
+
+  async goto() {
+    await this.page.goto("/orders");
+  }
+}
+```
+
+**3. Data through the API, in a fixture.** Instead of creating an order by clicking through five screens, a <span class="term" data-term="test-fixture">fixture</span> writes it through the API, opens the page, then cleans up after the test. Every test has its own data, so tests run in parallel and in any order.
+
+``` { .typescript .ex-good title="Recommended · fixtures.ts" }
+import { test as base } from "@playwright/test";
+import { OrdersPage } from "./pages/orders-page";
+
+// Good: the fixture creates the order through the API, hands over the ready page, then deletes the order
+export const test = base.extend<{ ordersPage: OrdersPage }>({
+  ordersPage: async ({ page, request }, use) => {
+    const response = await request.post("/api/test/orders", { data: { sku: "MUG-BLUE", quantity: 2 } });
+    const { id } = await response.json();
+    const ordersPage = new OrdersPage(page);
+    await ordersPage.goto();
+    await use(ordersPage);
+    await request.delete(`/api/test/orders/${id}`);
+  },
+});
+```
+
+``` { .typescript .ex-good title="Recommended · orders.spec.ts" }
+import { expect } from "@playwright/test";
+import { test } from "./fixtures";
+
+// Good: the test fits on one line and the assertion stays visible in the test
+test("a created order shows up in the list", async ({ ordersPage }) => {
+  await expect(ordersPage.table.rowsWith("MUG-BLUE")).toHaveCount(1);
+});
+```
+
+**Measuring before and after.** I note the suite duration and the number of tests broken by the last screen redesign, then take the same measure at the next redesign: for example 45 min and 60 broken tests before, 18 min and 4 broken tests, fixed in 2 files, after [Take with caution: example figures, the gain depends mostly on login and data creation time].
+
+**Risks.** The session file holds a token: `playwright/.auth/` goes into `.gitignore`, otherwise the token lands in the Git history. A session shared by tests that change the same account (preferences, cart) creates interference in parallel: one account per worker for those tests. The `/api/test/orders` route must exist only on test environments. And without review, the components grow back into a `BasePage`: I keep the assertions in the tests.
+
+:material-book-open-variant: Reference docs: [Playwright, Authentication](https://playwright.dev/docs/auth) (accessed November 2026); [Playwright, Fixtures](https://playwright.dev/docs/test-fixtures) (accessed November 2026); [Martin Fowler, "PageObject"](https://martinfowler.com/bliki/PageObject.html) (2013)
+{ .doc-ref }
+
 ### Causes of flakiness that are not test bugs
 | Symptom                                               | Real cause                               | Fix                                      |
 |-------------------------------------------------------|------------------------------------------|------------------------------------------|
@@ -1716,9 +2069,74 @@ flowchart TD
   F --> R[back on the blocking path]
 ```
 
-**Risks.** Quarantine becomes a graveyard: tests set aside with no deadline never come back, and the real bug they reported reaches production. I set a deadline and track the number of quarantined tests. Doing nothing costs more: the team learns to rerun until green.
+#### Quarantining without blocking
 
-:material-book-open-variant: Reference docs: [Martin Fowler, Eradicating Non-Determinism in Tests](https://martinfowler.com/articles/nonDeterminism.html) (2011); [Playwright, Retries](https://playwright.dev/docs/test-retries) (accessed November 2026)
+Before quarantining a test, I check that it really is flaky: it failed **and** passed on the **same commit**. It is the only definition that does not confuse flakiness with a real regression, since a regression fails every time on the guilty commit. The history of the CI's <span class="term" data-term="junit-xml">JUnit XML</span> reports gives that list ([Keeping the history](#keeping-the-history)).
+
+Then I take the test off the blocking path **without stopping it from running**. With pytest, the difference is one word: the <span class="term" data-term="xfail">xfail</span> marker instead of `skip`.
+
+| Marker | Does the test run? | Does it block the MR? | What I lose |
+|---|---|---|---|
+| `skip` | no | no | everything: no more failure rate, and any real bug becomes invisible |
+| `xfail` with `strict=False` | yes | no | nothing: the report shows `XFAIL` or `XPASS`, I keep measuring |
+| `xfail` with `strict=True` | yes | yes, if it passes | the wrong tool: a flaky test that passes would fail the suite |
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: skip no longer runs the test, its failure rate and the bug it reports disappear
+@pytest.mark.skip(reason="flaky")
+def test_cancel_after_payment(client):
+    ...
+```
+
+The quarantine list lives in a file in the repository, one line per test, with ticket, owning team and deadline:
+
+``` { .text .ex-illus title="Illustration · tests/quarantine.txt" }
+tests/test_orders.py::test_cancel_after_payment | ticket 123 | team-core | 2026-12-15
+tests/test_invoices.py::test_pdf_export        | ticket 131 | team-billing | 2026-12-20
+```
+
+``` { .python .ex-good title="Recommended · tests/conftest.py" }
+"""Pytest hooks shared by the whole test suite."""
+
+from datetime import date
+from pathlib import Path
+
+import pytest
+
+QUARANTINE_FILE = Path(__file__).parent / "quarantine.txt"
+MAX_QUARANTINED = 10
+
+
+# Good: a line with no ticket, owner or date makes the reading fail, so the suite fails
+def load_quarantine() -> dict[str, date]:
+    """Return each quarantined test id with its deadline."""
+    if not QUARANTINE_FILE.exists():
+        return {}
+    entries = {}
+    for line in QUARANTINE_FILE.read_text().splitlines():
+        if line.strip():
+            node_id, _ticket, _owner, deadline = (part.strip() for part in line.split("|"))
+            entries[node_id] = date.fromisoformat(deadline)
+    return entries
+
+
+# Good: the test runs and stays in the report, but no longer blocks, until its deadline
+def pytest_collection_modifyitems(config, items):
+    """Mark quarantined tests as non-blocking until their deadline."""
+    quarantine = load_quarantine()
+    if len(quarantine) > MAX_QUARANTINED:
+        raise pytest.UsageError(f"{len(quarantine)} quarantined tests, cap {MAX_QUARANTINED}")
+    for item in items:
+        deadline = quarantine.get(item.nodeid)
+        if deadline and deadline >= date.today():
+            item.add_marker(pytest.mark.xfail(reason=f"quarantined until {deadline}", strict=False))
+```
+
+Three rules fit in this hook: once the deadline has passed, the test blocks again on its own, with nobody having to act; beyond 10 tests (example cap), the suite refuses to start, which keeps the pressure to repair; and the line added to the file goes through review like any code. In an organisation with many repositories, this hook goes into the shared CI template so every team gets it for free.
+
+**Risks.** Quarantine becomes a graveyard: tests set aside with no deadline never come back, and the real bug they reported reaches production. I set a deadline, after which the test blocks again on its own, a cap per repository, and I track the number of quarantined tests. Doing nothing costs more: the team learns to rerun until green.
+
+:material-book-open-variant: Reference docs: [Martin Fowler, Eradicating Non-Determinism in Tests](https://martinfowler.com/articles/nonDeterminism.html) (2011); [Playwright, Retries](https://playwright.dev/docs/test-retries) (accessed November 2026); [pytest, Skip and xfail](https://docs.pytest.org/en/stable/how-to/skipping.html) (accessed November 2026)
 { .doc-ref }
 
 ### Diagnostic tools: what they really show
@@ -2005,6 +2423,72 @@ When I apply feedback, I resolve the discussion. No need to reply "thanks, done"
 :material-book-open-variant: Reference docs: [GitLab, Suggest changes](https://docs.gitlab.com/user/project/merge_requests/reviews/suggestions/) (accessed November 2026)
 { .doc-ref }
 
+### Preparing my MR and receiving a review
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
+
+A good review starts before the first comment: the author is the one who makes it easy or impossible. A 900-line MR that adds a feature, renames files and changes the lint configuration will not be reviewed, it will be skimmed. A SmartBear study at Cisco (2006) sees review effectiveness drop beyond 200 to 400 lines at once [Take with caution: study run by a review tool vendor, in a single company].
+
+**Before asking for a review**, I do three things:
+
+1. **a short MR, a single change**: in the example, three MRs (the renaming, reviewed in two minutes; the lint configuration, which is a team discussion; the feature alone);
+2. **a description that says why and how to test**, and where to look first;
+3. **a <span class="term" data-term="self-review">self-review</span> of the diff** in the MR tool, as a reviewer would see it: a debug `print`, commented-out code, a case without a test jump out there, not in the editor.
+
+A "Fix bug" description forces the reviewer to guess the intent, so they judge the code without knowing what it should do. Instead, the recommended description:
+
+``` { .markdown .ex-good title="Recommended · MR description" }
+## Why
+Loyal customers (more than 10 orders) get a 15% discount.
+
+## What changes
+- new function `is_loyal_customer` (pure logic);
+- `order_total` applies the discount; no migration, no API change.
+
+## How to test
+1. `pytest tests/test_pricing.py`
+2. locally: a customer with 11 orders places an order, the discount shows in the summary.
+
+## Look at first
+Rounding to the cent (line 34): I chose banker's rounding.
+```
+
+**When the comments arrive**, I answer every one: applying the suggestion and resolving the discussion counts as an answer ([Style](#style)), and if I do not apply it, I say why. If the reviewer did not understand a function, the next reader will not either: I clarify the code (a name, a split) rather than explain in a comment that will disappear. When we disagree, I argue with a fact (a test, a measurement, the style guide); **after two exchanges without converging, I switch to a live talk**, then write the decision in the thread for later readers. Gerald Weinberg called this egoless programming ("The Psychology of Computer Programming", 1971): I am not my code.
+
+**When I am the reviewer**, I label every comment so the author knows what to fix before merging and what they can leave. <span class="term" data-term="conventional-comments">Conventional Comments</span> (Paul Slaughter, conventionalcomments.org, publication date not given) offer a format: a label (`issue`, `suggestion`, `question`, `nitpick`, `praise`), then a `(blocking)` or `(non-blocking)` decoration. My [blocker and major](#iterating-down-to-zero-blockers) levels become `(blocking)`, minor and detail become `(non-blocking)` or <span class="term" data-term="nit">nitpick</span>.
+
+``` { .text .ex-bad title="Avoid" }
+not great, this query
+rename calc
+a test is missing
+```
+Without labels, the author does not know which one blocks, and "not great" says neither the risk nor the fix.
+
+``` { .text .ex-good title="Recommended" }
+issue (blocking): the query is built with an f-string and `user_id` comes from the URL,
+so SQL injection. Suggestion: db.execute("SELECT ... WHERE id = %s", (user_id,))
+
+suggestion (non-blocking): `calc` could be called `order_total_cents`, the unit would read without opening the code.
+
+question (non-blocking): what happens if `items` is empty? I see no test for that case.
+
+praise: the parametrised rounding test is very clear, I will reuse it.
+```
+
+**Delivering a heavy review to a junior.** The first MR of someone who joined last month has three blockers: an SQL injection, a password hashed with MD5, database credentials written in the code. Fifteen written comments with no context read like a failed exam. I go and see them or call them, start with what is done well, then explain the three blockers by their concrete risk, with a link to learn from. I offer to fix the first one together, in <span class="term" data-term="pair-programming">pair programming</span>, then let them do the other two alone. The suggestions can wait for another MR. Finally, I look for why it happened: if an example is missing from the team guide or an automated analysis from the CI, the next person will make the same mistake.
+
+| Situation | I do |
+|---|---|
+| my MR is 900 lines long and mixes a feature, a renaming and the lint configuration | three MRs, the simplest first |
+| the reviewer does not understand what one of my functions does | I clarify the code, not a long comment |
+| two exchanges about a style choice without converging, like a loop versus a `reduce` | a live talk, the style guide decides, the decision is written in the thread |
+| I review the first MR of someone who joined recently, with three blockers | talk it through live, start with what works, fix the first point together |
+
+**Risks.** Labels applied mechanically still drown the author: thirty `nitpick` comments are still thirty comments, so I group them into one or leave them to the linter. A live talk that leaves no trace loses the decision: I summarise it in the thread. And splitting too finely scatters one coherent change across five MRs, none of which can be understood alone: one change that makes sense on its own per MR.
+
+:material-book-open-variant: Reference docs: [Google Engineering Practices, The CL author's guide](https://google.github.io/eng-practices/review/developer/) (accessed November 2026); [Conventional Comments](https://conventionalcomments.org/) (accessed November 2026)
+{ .doc-ref }
+
 !!! maturity "Measuring maturity"
     | Level | What I see in the team |
     |---|---|
@@ -2150,8 +2634,17 @@ The typical questions:
 - "How do you design a performance test?" How I answer: a quantified question, the right test type, a ramp-up and a plateau, think times, thresholds on the p95, and I check the load generator and coordinated omission ([Performance test](#performance-test)).
 - "Which quality indicators do you track?" How I answer: I start from a question with GQM, then escaped defects and DDP, never an individual target ([Choosing indicators with GQM](#choosing-indicators-with-gqm)).
 - "How do you know your test strategy works?", "What is the difference between an SLO and an SLA?" How I answer: a baseline before, the same measure after over a fixed window, and a guard metric; then an SLI per solution, an internal SLO stricter than the SLA promised to the customer, and no SLA for an internal practice ([Measuring success](#measuring-success), [Measuring quality](#measuring-quality)).
+- "How do you choose what to automate?", "Should we automate 100% of the tests?" How I answer: I score each case on frequency, risk, stability and cost, automate at the lowest level, and write down the list of what stays manual ([Choosing what to automate](#choosing-what-to-automate)).
+- "How do you structure a Playwright E2E suite so it stays maintainable?" How I answer: a single login through a setup project and storageState, composed Page Objects rather than a BasePage, data created through the API in fixtures, and a before and after measurement ([Structuring a maintainable E2E suite](#structuring-a-maintainable-e2e-suite)).
+- "How do you test your service when a partner goes down or answers slowly?" How I answer: a configurable fake HTTP server (WireMock) that returns a 500, a delay or a partial response, the difference with a mock drawn from the contract, and a nightly test against the real one ([Simulating a third party that fails or is slow](#simulating-a-third-party-that-fails-or-is-slow)).
+- "What is the role of a QA in a team where developers test too?" How I answer: the whole team approach, quality coaching, test requirements in the definition of done, and the warning sign "the developers ship for the QA" ([The QA role in an agile team](#the-qa-role-in-an-agile-team)).
+- "How do you quarantine a test without losing the signal?" How I answer: flaky means a failure and a success on the same commit, then a non-strict `xfail` rather than `skip`, a quarantine file with ticket and deadline read by a hook, and a cap per repository ([Quarantining without blocking](#quarantining-without-blocking)).
+- "A quality check blocks an important release: what do you do?" How I answer: I first check that the alert really concerns my MR, then, if the risk is acceptable, a written waiver with an owner, a person who accepts the risk and an expiry date, never a disabled check ([Time-limited waivers and risk acceptance](#time-limited-waivers-and-risk-acceptance)).
+- "How do you prepare your MR, and how do you react to review comments?", "How do you deliver a heavy review to a junior?" How I answer: a short MR, a description that says why and how to test, a self-review; an answer to every comment and a live talk after two exchanges; comments labelled blocking or not; and for a junior, live, starting with what works ([Preparing my MR and receiving a review](#preparing-my-mr-and-receiving-a-review)).
 
 What makes a good answer: a lived (or realistic) example with the bug the test caught or let through, then the limit of the tool I mention. An "it depends" followed by the criteria beats a recited rule.
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
 
 ## What to use in which situation
 
@@ -2178,3 +2671,6 @@ What makes a good answer: a lived (or realistic) example with the bug the test c
 | I write the tests of a service that computes and saves, and I do not want a refactoring to break them when the behaviour does not change | Detroit school: real neighbours, fake for the database |
 | I design a flow from the outside in while its classes do not exist yet, or I must check that an email is really sent | London school: mocks on the roles I own |
 | I want to know whether the site will hold a campaign that multiplies traffic by five | k6 load test: ramp-up, plateau, thresholds |
+| I have to choose what to automate in a manual campaign of 200 cases, with two weeks ahead of me | frequency, risk, stability, cost grid, at the lowest level |
+| my service calls a payment provider, and I want to check that it survives a 500, a 35 s delay or a dropped connection | service virtualization (WireMock) |
+| an urgent fix must ship while the gate blocks, and the remaining risk is known and limited | dated waiver, accepted by the right person |

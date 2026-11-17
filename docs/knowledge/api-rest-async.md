@@ -1467,6 +1467,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : partir d'un cas concret (un paiement rejoué, une commande annulée traitée avant sa création), nommer le mécanisme qui le règle, puis dire ce qu'il coûte.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+
 ## Choisir
 
 | Situation                                                            | Synchrone (REST)   | Asynchrone (événements) |

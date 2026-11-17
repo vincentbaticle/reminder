@@ -1006,3 +1006,5 @@ The typical questions:
 - "How do you know your observability really helps?" How to answer: I compare detection time and the share of incidents reported by customers before and after, with storage cost and useless pages as guard metrics ([Measuring success](#measuring-success)).
 
 What makes a good answer: follow the order of a real investigation with example figures (a latency spike at 10:10, a trace, a log), and say what each choice costs: storage, collector memory, alerts that wake people for nothing.
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).

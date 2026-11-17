@@ -855,6 +855,8 @@ The typical questions:
 
 What makes a good answer: linking speed and stability. Each practice speeds up delivery only if a safety net makes it safe (reliable tests, rollback, measurement), and naming that net shows I have already set it up.
 
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+
 ## What to use in which situation
 
 | Situation | I use |

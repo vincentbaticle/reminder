@@ -1467,6 +1467,8 @@ The typical questions:
 
 What makes a good answer: start from a concrete case (a replayed payment, a cancelled order processed before its creation), name the mechanism that fixes it, then say what it costs.
 
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+
 ## Choosing
 
 | Situation                                                            | Synchronous (REST) | Asynchronous (events)   |

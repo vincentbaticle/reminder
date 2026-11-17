@@ -811,6 +811,8 @@ The typical questions:
 
 What makes a good answer: it says what the command does to the history, and so whom it can hurt: everything that rewrites (rebase, reset, force push) is safe on a branch that is mine alone, and dangerous as soon as it is shared.
 
+The questions by role, with more detailed answers and worked exercises: [Software Engineer](../entretiens/software-engineer/questions.md).
+
 ## Quick cheat sheet
 
 <a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a>

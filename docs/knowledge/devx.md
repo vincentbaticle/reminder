@@ -127,6 +127,66 @@ Une seconde gagnée dans la boucle interne compte beaucoup plus qu'elle n'en a l
 
     **Je mesure** : la médiane et le p90 de la durée de la CI (lus dans l'outil de CI) et le délai entre l'ouverture d'une MR et sa première revue (lu dans l'outil de MR).
 
+## Trouver les frictions en observant
+
+<a class="pill pill-scope pill-scope-enterprise" href="../architecture/#carte-des-echelles">Échelle · Entreprise</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Les développeurs me disent que « tout est lent », mais les tableaux de bord montrent une CI de 12 minutes, qui paraît raisonnable. Si je me contente de l'enquête ou des chiffres, j'optimise ce qui se voit, pas ce qui coûte. Beaucoup de <span class="term" data-term="process-friction">frictions</span> sont devenues invisibles pour ceux qui les vivent : chercher le bon dépôt, récupérer un `.env` chez un collègue, relancer un job rouge. Personne ne pense à les signaler, « c'est normal ».
+
+Deux méthodes d'observation viennent de la recherche utilisateur. Le **shadowing** : je suis un développeur pendant qu'il travaille, sans intervenir, et je note ce qu'il fait. La **contextual inquiry** (enquête en contexte, Hugh Beyer et Karen Holtzblatt, « Contextual Design », 1998) : j'observe la personne dans son vrai contexte de travail et je lui demande, au fil de l'eau, pourquoi elle fait ce qu'elle fait, comme un apprenti avec son maître.
+
+**Quand** : avant de choisir un chantier DevX, quand les plaintes sont vagues, ou quand les chiffres des outils ne collent pas avec le ressenti. Pas pour vérifier une friction déjà mesurée, comme une CI qui dure 40 minutes : là, je la traite. **Pourquoi** : sans observation, je classe les frictions par bruit, pas par coût, et je rate celles qu'on ne signale plus. Le coût : une à deux heures par séance, plus le temps de la personne observée. **Comment**, en croisant trois sources :
+
+| Source | Ce qu'elle me donne | Ce qu'elle rate |
+|---|---|---|
+| entretiens ou courte enquête | ce que les développeurs ressentent, avec leurs mots | ce qu'ils ne remarquent plus |
+| observation d'une tâche réelle (shadowing, enquête en contexte) | les gestes, les attentes et les contournements réels | la fréquence : je ne vois qu'une séance |
+| données des outils (CI, forge, tickets) | la fréquence et la durée, sur des centaines de cas | ce qui se passe hors des outils : chercher, demander, attendre une réponse |
+
+1. Je demande une **tâche réelle**, pas une démonstration : corriger un vrai bug de bout en bout, du ticket à la MR. Une démonstration saute justement les détours.
+2. Je tiens un **journal brut horodaté**, sans commentaire ni jugement, pendant l'heure d'observation.
+3. Après coup, j'extrais chaque friction et je la **chiffre** : durée, fréquence, nombre de personnes touchées. Une petite gêne vécue vingt fois par jour par cent personnes pèse plus qu'un gros problème vécu une fois par an.
+4. Je vérifie la fréquence dans les données des outils, puis je montre le résultat aux équipes observées pour qu'elles le corrigent ou le valident.
+
+``` { .text .ex-illus title="Illustration · journal brut d'une séance avec ada (fictive)" }
+10:02  ouvre le ticket, cherche le service concerné dans le wiki (2 pages obsolètes)
+10:09  demande sur le chat quel dépôt contient le service, réponse à 10:21
+10:24  make test échoue : variable DATABASE_URL manquante, copie un .env d'un collègue
+10:31  tests verts, pousse la MR
+10:44  CI rouge sur un test sans rapport, relance le job
+10:56  CI verte, demande une revue sur le chat
+```
+
+| Friction observée | Durée | Fréquence | Personnes touchées | Coût par mois (exemple) | Signalée par ada ? |
+|---|---|---|---|---|---|
+| trouver le bon dépôt | 19 min | chaque nouveau sujet, environ 4 par mois | 40 | environ 50 h | non, « c'est normal » |
+| `.env` à récupérer à la main | 7 min | chaque nouveau dépôt, environ 2 par mois | 40 | environ 9 h | non |
+| test instable en CI | 12 min | 1 MR sur 4, environ 10 par mois et par personne | 40 | environ 80 h | oui |
+
+Chiffres d'exemple. Sur trois frictions, une seule serait remontée dans une enquête, et la deuxième en coût n'aurait été vue par personne. Pour relier ces frictions au délai total d'un changement, je fais ensuite une <span class="term" data-term="value-stream-mapping">cartographie du flux de valeur</span> avec deux ou trois développeurs : souvent, c'est l'attente de revue ou une validation manuelle, pas la CI, qui pèse le plus.
+
+**Risques.** Une personne observée change sa façon de travailler, et un développeur senior ne montre pas les blocages d'un arrivant : j'observe plusieurs profils, dont un nouvel arrivant. Un journal partagé avec le nom de la personne devient une évaluation individuelle : je ne publie que les frictions, jamais qui a mis combien de temps ([Mesurer sans surveiller](#mesurer-sans-surveiller)). Trois séances ne font pas une fréquence : je la vérifie dans les données des outils avant de lancer un chantier.
+
+| Je veux... | J'utilise... |
+|---|---|
+| savoir ce qui agace le plus les équipes, avec leurs propres mots | entretiens ou courte enquête |
+| voir les détours que personne ne signale plus, comme chercher un dépôt ou copier un `.env` | une séance d'observation sur une tâche réelle, avec journal horodaté |
+| savoir combien de fois par mois une friction arrive vraiment | les données de la CI, de la forge et des tickets |
+| comprendre où part le temps entre le ticket et la mise en production | une cartographie du flux de valeur |
+
+:material-book-open-variant: Doc de référence : [Nielsen Norman Group, « Contextual Inquiry: Inspire Design by Observing and Interviewing Users in Their Context »](https://www.nngroup.com/articles/contextual-inquiry/) (2020)
+{ .doc-ref }
+
+!!! maturity "Mesurer la maturité"
+    | Niveau | Ce que j'observe dans l'équipe |
+    |---|---|
+    | N1 | les chantiers DevX se choisissent d'après les plaintes les plus bruyantes, sans observation |
+    | N2 | chaque trimestre, quelques séances d'observation sur des tâches réelles, avec un journal horodaté, croisées avec une enquête |
+    | N3 | chaque friction relevée est chiffrée (durée, fréquence, personnes touchées) et sa fréquence vérifiée dans les données des outils avant d'entrer dans la feuille de route |
+    | N4 | l'équipe choisit ses chantiers d'après le coût mensuel estimé des frictions, et refait la mesure après chaque chantier |
+
+    **Je mesure** : le nombre de frictions relevées par observation et absentes de l'enquête, lu dans le compte rendu des séances ; la part des chantiers lancés qui partent d'une friction chiffrée, lue dans la feuille de route.
+
 ## Mettre un projet en route en une commande
 
 <a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
@@ -540,6 +600,69 @@ spec:
 :material-book-open-variant: Doc de référence : [GitLab, Review Apps](https://docs.gitlab.com/ci/review_apps/) (consultée en novembre 2026) ; [Argo CD, Pull Request Generator](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Pull-Request/) (consultée en novembre 2026) ; [GitLab, Environments](https://docs.gitlab.com/ci/environments/) (consultée en novembre 2026)
 { .doc-ref }
 
+### Quel environnement pour quel test
+
+<a class="pill pill-scope pill-scope-system" href="../architecture/#carte-des-echelles">Échelle · Système</a> <a class="pill pill-scope pill-scope-infra" href="../architecture/#carte-des-echelles">Échelle · Infrastructure</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Quatre équipes partagent un seul environnement de recette. Mes tests de bout en bout échouent un matin sur trois : une autre équipe y a déployé une version instable de son service, ou le bac à sable du prestataire de paiement ne répond plus. Personne ne lit plus les échecs, puisque « c'est encore l'environnement ». La règle que je me fixe : **un échec de test doit vouloir dire que le code a un problème**, pas que quelqu'un a cassé l'environnement.
+
+Un <span class="term" data-term="shared-environment">environnement partagé</span> sert à plusieurs équipes ou plusieurs suites en même temps. Une <span class="term" data-term="throwaway-database">base jetable</span> est créée pour une exécution de tests puis supprimée. Un <span class="term" data-term="ephemeral-environment">environnement éphémère</span> est créé pour une MR puis détruit, comme l'environnement de prévisualisation [ci-dessus](#environnement-de-previsualisation-par-merge-request). La <span class="term" data-term="service-virtualization">virtualisation de service</span> remplace un service externe que je ne contrôle pas par un faux qui répond comme lui, y compris en erreur ou en retard.
+
+*Testcontainers : complémentaire de pytest*<br>
+*WireMock : concurrent de MockServer, Mountebank ; complémentaire de Testcontainers*
+{ .tool-rel }
+
+**Quand** : dès que des tests échouent pour une raison qui ne vient pas du code testé, ou que deux équipes se marchent dessus sur la même recette. **Pourquoi** : chaque test va sur l'environnement le moins cher qui peut prouver ce qu'il vérifie ; les échecs redeviennent lisibles. Le coût : des conteneurs à lancer en CI, des faux services à maintenir, et une pré-production qu'il faut quand même exploiter. **Comment** :
+
+1. Je mesure d'abord : sur un mois, combien d'échecs viennent de l'environnement (déploiement d'une autre équipe, tiers indisponible, donnée modifiée) et combien du code.
+2. Je range chaque famille de tests dans le tableau ci-dessous, en commençant par la moins chère.
+3. Je remplace les services tiers par un faux service, et je garde un seul test de nuit contre le vrai bac à sable, pour voir si le prestataire change quelque chose.
+4. Je donne à la pré-production un responsable et des règles d'usage écrites.
+
+| Situation | Environnement | Ce qu'il prouve | Coût |
+|---|---|---|---|
+| je vérifie un calcul de remise dans `orders-service`, sans base ni réseau | aucun : le processus de test seul | la logique du code | quasi nul, quelques millisecondes |
+| je vérifie que mes requêtes SQL et mes migrations marchent sur le vrai moteur, pas sur SQLite | une base jetable, lancée par Testcontainers dans la même version que la production | le code et sa base, sans interférence | un conteneur par session de tests, quelques secondes |
+| je teste les réponses « refusé » et « délai dépassé » du prestataire de paiement, que son bac à sable ne sait pas produire à la demande | un faux service HTTP (virtualisation de service) | mon traitement des erreurs du tiers | des fichiers de réponses à tenir à jour quand le contrat change |
+| mon product owner veut cliquer dans l'écran d'une MR avant la fusion | un environnement éphémère par MR | la fonction de bout en bout, avant la fusion | des ressources de cluster par MR, plafonnées |
+| je vérifie que mon service et ceux des autres équipes se parlent encore, après fusion | l'environnement d'intégration partagé, déployé seulement par la CI | la compatibilité entre services | les conflits entre équipes, qu'il faut rendre visibles |
+| je lance un test de charge ou une recette finale avant une mise en production | la pré-production, proche de la production, avec un responsable et des règles d'usage | le comportement à l'échelle, avec la vraie configuration | cher, donc réservé et peu de tests |
+
+À éviter : un test d'intégration branché sur la base de la recette partagée. Une autre équipe vide la table `orders` pour sa propre démonstration pendant que mon test tourne, et mon test échoue sans que mon code ait changé.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : la base partagée de recette, que d'autres équipes modifient pendant mes tests
+DATABASE_URL = "postgresql://qa:qa@recette.example.com:5432/orders"
+```
+
+``` { .python .ex-good title="Recommandé" }
+import pytest
+from testcontainers.postgres import PostgresContainer
+
+
+# Bien : une base Postgres jetable, même version que la production, détruite à la fin de la session
+@pytest.fixture(scope="session")
+def database_url():
+    """Démarre un Postgres dans un conteneur et renvoie son adresse de connexion."""
+    with PostgresContainer("postgres:16") as postgres:
+        yield postgres.get_connection_url()
+```
+
+Pour la pré-production, les règles d'usage tiennent en quelques lignes, affichées sur la page de l'environnement :
+
+``` { .text .ex-illus title="Illustration · règles d'usage de la pré-production" }
+responsable        team-core (grace), canal #preprod
+déploiement        seulement par la CI, depuis main ; jamais à la main
+tableau            qui a déployé quelle version, et quand, visible par tous
+tests de charge    réservés dans l'agenda partagé, le mardi et le jeudi après-midi
+données            jeu fictif rechargé chaque nuit ; jamais de copie de la production
+```
+
+**Risques.** Des faux services qui ne suivent plus le vrai prestataire donnent des tests verts sur un contrat périmé ; le test de nuit contre le vrai bac à sable, ou des tests de contrat, me le signalent. Tout basculer vers des bases jetables fait oublier la compatibilité entre services : je garde quelques tests sur l'intégration partagée. Une pré-production sans responsable redevient la recette que tout le monde casse.
+
+:material-book-open-variant: Doc de référence : [Testcontainers, documentation](https://testcontainers.com/) (consultée en novembre 2026) ; [WireMock, documentation](https://wiremock.org/) (consultée en novembre 2026) ; [Adam Wiggins, « The Twelve-Factor App », facteur X « Dev/prod parity »](https://12factor.net/dev-prod-parity) (2011)
+{ .doc-ref }
+
 !!! maturity "Mesurer la maturité"
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
@@ -909,6 +1032,173 @@ Courbe d'exemple : 3 équipes au mois 2, 7 au mois 4, 15 au mois 6. Le passage d
 :material-book-open-variant: Doc de référence : [Wikipédia, Diffusion of innovations](https://en.wikipedia.org/wiki/Diffusion_of_innovations) (consultée en novembre 2026) ; [Wikipédia, Crossing the Chasm](https://en.wikipedia.org/wiki/Crossing_the_Chasm) (consultée en novembre 2026)
 { .doc-ref }
 
+### Télémétrie d'usage d'un outil interne ou d'une CLI
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Ma CLI interne `devx` a cinq sous-commandes (créer un environnement, lancer les tests, ouvrir le tableau de bord d'un service...). Je ne sais pas lesquelles servent, lesquelles sont lentes, ni lesquelles échouent : je l'apprends quand quelqu'un se plaint dans le canal d'aide. La <span class="term" data-term="usage-telemetry">télémétrie d'usage</span> fait envoyer par l'outil, à chaque exécution, un petit événement qui décrit l'usage de l'outil, pas la personne qui s'en sert.
+
+**Quand** : un outil interne utilisé par plusieurs équipes, dont je dois décider quoi corriger, quoi améliorer et quoi retirer. Pas pour un script utilisé par trois personnes : je leur demande. **Pourquoi** : sans données, je priorise d'après les plaintes, et je n'ose jamais retirer une commande, faute de savoir si quelqu'un s'en sert. Le coût : un point de collecte à exploiter, une page à tenir à jour, et la confiance des développeurs à ne pas perdre. **Comment**, les règles avant le code :
+
+| Je collecte | Je ne collecte jamais | Pourquoi |
+|---|---|---|
+| la commande lancée, comme `env-create` | les arguments et les chemins | ils peuvent contenir des noms de projets clients ou des secrets |
+| la durée et le code de sortie | le nom, l'e-mail, le nom de la machine | je mesure l'outil, pas les personnes |
+| la version de la CLI et le système | le contenu des fichiers ou des variables d'environnement | rien de tout ça n'aide à prioriser |
+| l'équipe, lue dans la configuration | l'identifiant de la personne | l'équipe suffit à prioriser, pas à identifier quelqu'un |
+
+S'y ajoutent trois règles : un <span class="term" data-term="opt-out">opt-out</span> simple et documenté (`DEVX_TELEMETRY=0`, et je respecte aussi la convention `DO_NOT_TRACK=1`, à vérifier) ; l'envoi ne fait jamais échouer ni ralentir la commande ; une page « ce que collecte la CLI » publiée avant le premier envoi, avec l'exemple exact d'un événement. Des outils publics font de même : Homebrew (`HOMEBREW_NO_ANALYTICS`) ou la CLI .NET (`DOTNET_CLI_TELEMETRY_OPTOUT`).
+
+À éviter : envoyer l'utilisateur et toute la ligne de commande, sans délai d'attente. `sys.argv` contient un jour un jeton passé en option, et un serveur de collecte lent fait attendre chaque commande.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : nom et arguments envoyés, aucun délai, une panne du serveur fait échouer la commande
+def report(command: str) -> None:
+    requests.post(TELEMETRY_URL, json={"user": getpass.getuser(), "argv": sys.argv})
+```
+
+``` { .python .ex-good title="Recommandé" }
+"""Télémétrie d'usage anonyme, avec opt-out, pour la CLI interne devx."""
+
+import functools
+import json
+import logging
+import os
+import platform
+import time
+import urllib.request
+from collections.abc import Callable
+from typing import Any
+
+TELEMETRY_URL = "https://telemetry.example.com/v1/events"
+TELEMETRY_TIMEOUT_SECONDS = 0.5
+CLI_VERSION = "1.8.0"
+
+logger = logging.getLogger(__name__)
+
+
+# Bien : l'opt-out se lit à chaque exécution, et DO_NOT_TRACK est respecté
+def telemetry_enabled() -> bool:
+    """Renvoie False si la personne a refusé la télémétrie."""
+    return os.environ.get("DEVX_TELEMETRY", "1") != "0" and os.environ.get("DO_NOT_TRACK") != "1"
+
+
+# Bien : un envoi qui n'échoue jamais et n'attend pas plus d'une demi-seconde
+def send_event(event: dict[str, Any]) -> None:
+    """Envoie un événement, sans jamais lever d'erreur."""
+    request = urllib.request.Request(
+        TELEMETRY_URL,
+        data=json.dumps(event).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        urllib.request.urlopen(request, timeout=TELEMETRY_TIMEOUT_SECONDS).close()
+    except OSError as error:
+        logger.debug("télémétrie non envoyée : %s", error)
+
+
+# Bien : commande, durée, code de sortie, version, système et équipe, rien d'autre
+def tracked(command_name: str, team: str) -> Callable:
+    """Décore une commande de la CLI pour envoyer sa durée et son code de sortie."""
+
+    def decorator(func: Callable[..., int]) -> Callable[..., int]:
+        """Enveloppe la fonction de la commande."""
+
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> int:
+            """Lance la commande, puis envoie l'événement si la télémétrie est active."""
+            start = time.monotonic()
+            exit_code = 1
+            try:
+                exit_code = func(*args, **kwargs)
+                return exit_code
+            finally:
+                if telemetry_enabled():
+                    send_event({
+                        "command": command_name,
+                        "exit_code": exit_code,
+                        "duration_ms": round((time.monotonic() - start) * 1000),
+                        "cli_version": CLI_VERSION,
+                        "os": platform.system(),
+                        "team": team,
+                    })
+
+        return wrapper
+
+    return decorator
+```
+
+Une demi-seconde reste perceptible si le serveur est lent. La version plus robuste écrit l'événement dans un fichier local et l'envoie au lancement suivant, ou depuis un processus séparé.
+
+La requête qui sert à décider, sur 30 jours, quelle commande corriger et laquelle retirer :
+
+``` { .sql .ex-ref title="Référence" }
+-- Exemple : exécutions, équipes, p95 et taux d'échec par commande sur 30 jours
+SELECT
+    command,
+    COUNT(*) AS runs,
+    COUNT(DISTINCT team) AS teams,
+    PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration_ms) / 1000 AS p95_seconds,
+    ROUND(100.0 * COUNT(*) FILTER (WHERE exit_code <> 0) / COUNT(*), 1) AS failure_pct
+FROM cli_events
+WHERE received_at >= NOW() - INTERVAL '30 days'
+GROUP BY command
+ORDER BY runs DESC;
+```
+
+| Commande | Exécutions | Équipes | p95 | Échecs | Décision (exemple) |
+|---|---|---|---|---|---|
+| `test` | 9 400 | 18 | 42 s | 3 % | rien à faire |
+| `env-create` | 610 | 7 | 6 min | 21 % | chantier prioritaire : lente et fragile |
+| `dashboard` | 35 | 2 | 1 s | 0 % | candidate au retrait, après avoir parlé aux deux équipes |
+
+Syntaxe PostgreSQL. Chiffres d'exemple.
+
+**Risques.** Une télémétrie découverte après coup détruit la confiance, et les développeurs désactivent tout : je publie la page et je fais valider le dispositif par la sécurité et la protection des données avant le premier envoi, même sans donnée personnelle. L'équipe est une donnée personnelle de fait quand elle ne compte qu'une ou deux personnes : je n'affiche pas les équipes de moins de cinq personnes. Les personnes qui ont fait l'opt-out, ou qui travaillent hors ligne, n'apparaissent pas : les chiffres sont un minimum, pas un recensement, et je ne retire jamais une commande sur la seule foi d'un chiffre bas.
+
+:material-book-open-variant: Doc de référence : [Homebrew, « Anonymous Analytics »](https://docs.brew.sh/Analytics) (consultée en novembre 2026) ; [Microsoft, « .NET SDK and .NET CLI telemetry »](https://learn.microsoft.com/en-us/dotnet/core/tools/telemetry) (consultée en novembre 2026) ; [Console Do Not Track](https://consoledonottrack.com/) (date de publication non indiquée, à vérifier)
+{ .doc-ref }
+
+### Prouver la valeur d'un outil par un pilote
+
+<a class="pill pill-scope pill-scope-enterprise" href="../architecture/#carte-des-echelles">Échelle · Entreprise</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Je propose un nouvel outil de tests de contrat entre `orders-service` et `billing-service`. Si je l'installe partout d'un coup, je ne saurai jamais s'il a servi : les régressions peuvent baisser simplement parce que le trimestre était calme. Un <span class="term" data-term="pilot">pilote</span> essaie l'outil sur un petit périmètre avant de le proposer à tout le monde ; le <span class="term" data-term="comparison-group">groupe de comparaison</span> est une équipe semblable qui ne change rien, mesurée de la même façon, pour séparer l'effet de l'outil de ce qui aurait changé de toute façon.
+
+La démarche suit la boucle **Build, Measure, Learn** d'Eric Ries (« The Lean Startup », 2011) : une hypothèse, l'expérience la plus petite qui peut la vérifier, puis une décision.
+
+**Quand** : avant de généraliser un outil ou un standard qui coûte du temps à chaque équipe, ou quand la direction demande « est-ce que ça vaut le coup ? ». Pas pour un changement bon marché et réversible, comme une option de lint : je l'essaie et je reviens en arrière si besoin. **Pourquoi** : je décide sur un résultat observé, pas sur l'enthousiasme de l'équipe qui a choisi l'outil ; et je repère tôt les difficultés d'adoption. Le coût : quelques semaines de plus avant de généraliser. **Comment** :
+
+1. J'écris l'**hypothèse**, mesurable : « l'outil divise par deux les régressions d'intégration détectées en staging ».
+2. Je choisis une équipe pilote sur un <span class="term" data-term="representative-scope">périmètre représentatif</span> (taille, technologies et rythme de livraison proches de la moyenne), pas l'équipe la plus enthousiaste.
+3. Je choisis le groupe de comparaison, et je fixe les mesures **avant** de commencer, coûts compris (heures de maintenance par semaine).
+4. J'écris les critères d'arrêt ou d'ajustement à l'avance : par exemple, j'arrête si la maintenance dépasse 4 h par semaine, j'ajuste si le gain est inférieur à 30 %.
+5. Je décide : généraliser, ajuster et refaire un pilote, ou abandonner.
+
+``` { .text .ex-illus title="Illustration · pilote de 8 semaines avant, 8 semaines après" }
+mesure                                    A avant  A après  B avant  B après
+régressions d'intégration en staging          9        3        8        7
+temps moyen de diagnostic d'une rupture      3 h      1 h      3 h      3 h
+maintenance des tests (h par semaine)          2        3        2        2
+
+A : équipe pilote (orders), adopte l'outil
+B : groupe de comparaison (catalog), ne change rien
+```
+
+Lecture : l'équipe A passe de 9 à 3 régressions, l'équipe B reste stable (de 8 à 7), donc la baisse ne vient pas d'une période calme pour tout le monde. Coût honnête : une heure de maintenance de plus par semaine, sous le seuil d'arrêt. Décision : étendre à deux autres équipes, puis mesurer à nouveau. Chiffres d'exemple ; sur si peu d'équipes, c'est un indice, pas une preuve statistique.
+
+**Risques.** L'équipe pilote, volontaire et suivie de près, travaille mieux simplement parce qu'on la regarde : je compare à une équipe elle aussi suivie, et je regarde si l'effet tient après le pilote. Un pilote sans critères d'arrêt fixés avant ne s'arrête jamais, car chacun trouve une raison de continuer. Choisir comme pilote la seule équipe qui adore l'outil donne un résultat que la majorité ne retrouvera pas.
+
+| Je veux... | J'utilise... |
+|---|---|
+| savoir si un outil qui coûte du temps à chaque équipe vaut sa généralisation | un pilote avec un groupe de comparaison, mesures et critères fixés avant |
+| essayer une option de lint que je peux retirer en une ligne | un essai direct, sans pilote |
+| savoir si une équipe garde l'outil une fois le pilote fini | la rétention trois mois après, par la télémétrie d'usage |
+
+:material-book-open-variant: Doc de référence : [Eric Ries, « The Lean Startup », principes](https://theleanstartup.com/principles) (2011)
+{ .doc-ref }
+
 !!! maturity "Mesurer la maturité"
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
@@ -1174,6 +1464,85 @@ Exemple de parcours. Chaque blocage noté devient un ticket, et le nouvel arriva
 | je veux qu'un nouvel arrivant contribue vite à du vrai code, par exemple une petite correction fusionnée dès sa première semaine | une étiquette « premier ticket » sur de petites tâches réelles |
 | j'ai amélioré l'onboarding et je veux savoir si les arrivants suivants vont vraiment plus vite | le délai jusqu'au premier changement, arrivée après arrivée |
 
+### Apprendre un code ou une bibliothèque inconnus
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Je rejoins team-core. Mon premier ticket : ajouter un champ `currency` à l'événement « commande créée » publié par `orders-service`. Le dépôt compte 400 fichiers, et le service utilise une bibliothèque que je n'ai jamais touchée. Lire tous les fichiers ou toute la documentation me prendrait une semaine sans répondre à ma question.
+
+**Quand** : en arrivant sur un projet, ou avant d'utiliser une bibliothèque tierce pour la première fois. **Pourquoi** : partir d'un objectif concret me rend utile vite, et ce que je vérifie par un test est compris, pas supposé. Le coût : quelques heures de tests qui ne testent pas mon code. **Comment**, deux techniques :
+
+1. **Suivre une fonctionnalité de bout en bout.** Je pars d'un <span class="term" data-term="entry-point">point d'entrée</span> (la route HTTP `POST /orders`, un consommateur de messages, une commande), je pose un point d'arrêt et je suis la requête avec un débogueur jusqu'à la base, puis jusqu'à la publication de l'événement. Je lis aussi les tests existants : ils décrivent souvent mieux le comportement attendu que la documentation.
+2. **Écrire des <span class="term" data-term="learning-test">tests d'apprentissage</span>.** Pour une bibliothèque tierce, j'écris de petits tests qui vérifient ce que j'ai compris de son comportement. James Grenning décrit la technique dans le chapitre « Boundaries » qu'il a écrit pour « Clean Code » (Robert C. Martin, 2008), section « Learning Tests Are Better Than Free ». Je les garde dans la suite : si une mise à jour change ce comportement, la CI me le dit avant la production.
+
+``` { .console .ex-ref title="Référence" }
+$ uv run pytest tests/api/test_orders.py::test_create_order --trace
+> tests/api/test_orders.py(12)test_create_order()
+(Pdb) b orders/events.py:41
+(Pdb) c
+> orders/events.py(41)publish_order_created()
+(Pdb) p payload
+{'order_id': 'ord_42', 'total': 1990, 'customer_id': 'cus_7'}
+```
+
+`--trace` arrête pytest au début du test, `b` pose un point d'arrêt dans le code qui publie l'événement, `p` affiche une variable. Je vois en une minute ce que l'événement contient vraiment. Chemins et contenu d'exemple.
+
+À éviter : supposer le comportement d'une bibliothèque d'après son nom, ou d'après une autre bibliothèque. Je crois que `httpx` n'a pas de délai d'attente, comme `requests` ; en réalité il abandonne au bout de 5 secondes par défaut, et mes appels lents à un partenaire échouent en production.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : aucun délai précisé, en supposant le même comportement que requests
+response = httpx.get("https://partner.example.com/v1/rates")
+```
+
+``` { .python .ex-good title="Recommandé" }
+"""Tests d'apprentissage sur httpx et pydantic : ils fixent ce que j'ai compris."""
+
+import httpx
+import pydantic
+import pytest
+
+
+# Bien : vérifie le délai par défaut, et prévient si une mise à jour le change
+def test_httpx_client_has_a_five_second_default_timeout():
+    """httpx abandonne au bout de 5 s quand rien n'est configuré."""
+    assert httpx.Client().timeout == httpx.Timeout(5.0)
+
+
+class Order(pydantic.BaseModel):
+    """Modèle minimal pour apprendre les conversions de pydantic."""
+
+    quantity: int
+
+
+# Bien : vérifie qu'une quantité envoyée en texte est convertie
+def test_pydantic_converts_a_numeric_string_to_int():
+    """Une chaîne « 3 » devient l'entier 3."""
+    assert Order(quantity="3").quantity == 3
+
+
+# Bien : vérifie qu'une quantité décimale est refusée, pas arrondie en silence
+def test_pydantic_rejects_a_decimal_string_for_int():
+    """Une chaîne « 2.5 » lève une erreur de validation."""
+    with pytest.raises(pydantic.ValidationError):
+        Order(quantity="2.5")
+```
+
+Tests vérifiés avec httpx 0.28 et pydantic 2 en novembre 2026. Ces tests ne testent pas mon code : ils fixent ce que j'ai compris des bibliothèques. Le jour où Renovate propose une version qui change l'un de ces comportements, la MR de mise à jour passe au rouge, au lieu d'un bug découvert en production.
+
+Je note au fil de l'eau ce qui m'a surpris, et je le transforme en amélioration de la documentation du projet, comme un paragraphe « comment tester un événement en local » : c'est exactement ce que le prochain arrivant cherchera. Je pose mes questions après avoir cherché un temps raisonnable, pas après trois jours bloqué.
+
+**Risques.** Des tests d'apprentissage sur des détails sans importance ralentissent la suite et cassent à chaque mise à jour : je ne garde que ceux qui portent sur un comportement dont mon code dépend. Suivre une seule fonctionnalité donne une vue étroite : je la complète par le schéma d'architecture du service, s'il existe, ou je le dessine.
+
+| Je veux... | J'utilise... |
+|---|---|
+| comprendre comment une requête traverse un service que je ne connais pas | un point d'arrêt au point d'entrée et le débogueur jusqu'à la base |
+| savoir comment le code doit se comporter, sans documentation à jour | les tests existants du dépôt |
+| vérifier ce que fait une bibliothèque tierce dans le cas qui m'intéresse | un test d'apprentissage, gardé dans la suite |
+| être prévenu si une mise à jour de dépendance change un comportement dont je dépends | les mêmes tests d'apprentissage, lancés sur la MR de Renovate |
+
+:material-book-open-variant: Doc de référence : [Python, pdb : le débogueur Python](https://docs.python.org/3/library/pdb.html) (Python 3, consultée en novembre 2026) ; Robert C. Martin, « Clean Code », chapitre 8 « Boundaries » par James Grenning (2008)
+{ .doc-ref }
+
 !!! maturity "Mesurer la maturité"
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
@@ -1316,6 +1685,75 @@ flowchart LR
 Un dépôt sans changement est sauté ; le label commun alimente le tableau de campagne. Options d'ast-grep et de glab à vérifier dans leur documentation. Au-delà de quelques dizaines de dépôts, des outils dédiés font la même boucle avec suivi et reprise sur erreur (multi-gitter, Sourcegraph Batch Changes ; à vérifier).
 
 :material-book-open-variant: Doc de référence : [ast-grep, documentation](https://ast-grep.github.io/) (consultée en novembre 2026) ; [LibCST, documentation](https://libcst.readthedocs.io/) (consultée en novembre 2026)
+{ .doc-ref }
+
+### Geler les nouveaux usages d'un module déprécié
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026 avec ruff 0.17">Valable · 11/2026</span>
+
+Je retire `legacy_config` de 57 dépôts. Pendant que les MR du codemod se fusionnent, une équipe crée un nouveau service en copiant un ancien, et l'import revient : la liste à migrer grandit au lieu de baisser. Avant de migrer, je **gèle** : plus aucun nouvel usage n'est accepté, les usages existants continuent de marcher jusqu'à leur migration.
+
+**Quand** : dès que le remplaçant est prêt et que le calendrier est annoncé, et avant d'ouvrir les MR de migration. Pas avant l'annonce : une CI qui casse sans explication braque les équipes. **Pourquoi** : sans gel, la migration ne finit jamais ; avec, le nombre d'usages ne fait que baisser, et le tableau de campagne devient fiable. Le coût : une ligne de configuration par dépôt (ou dans la configuration ruff partagée) et une passe pour marquer l'existant. **Comment**, en trois mécanismes :
+
+1. Un `DeprecationWarning` dans la bibliothèque, dès l'annonce : chaque import affiche le message et le lien du guide de migration.
+2. La règle `banned-api` de ruff (code `TID251`) : tout import du module fait échouer le lint de la MR.
+3. `ruff check --select TID251 --add-noqa .`, lancé une seule fois : il ajoute `# noqa: TID251` sur chaque ligne existante. Seuls les nouveaux usages bloquent, et chaque `noqa` restant devient un usage à migrer, visible par une recherche de code.
+
+À éviter : un avertissement sans `stacklevel`. Python l'attribue à la ligne de la bibliothèque qui appelle `warnings.warn`, pas au code de l'équipe qui importe : le message pointe vers `legacy_config/__init__.py`, et personne ne sait quel fichier corriger.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : l'avertissement pointe vers la bibliothèque elle-même, pas vers le code qui l'importe
+warnings.warn("legacy_config est dépréciée", DeprecationWarning)
+```
+
+``` { .python .ex-good title="Recommandé" }
+# legacy_config/__init__.py
+import warnings
+
+# Bien : stacklevel=2 attribue l'avertissement au fichier qui importe, avec la date et le guide
+warnings.warn(
+    "legacy_config est dépréciée et sera retirée le 30 avril. "
+    "Guide de migration : https://docs.example.com/migrate-config",
+    DeprecationWarning,
+    stacklevel=2,
+)
+```
+
+Python masque les `DeprecationWarning` par défaut, sauf dans le code lancé directement (`__main__`) ; pytest les affiche dans son résumé. Pour qu'elles se voient en CI, je lance les tests avec `-W error::DeprecationWarning` dans les dépôts déjà migrés.
+
+``` { .toml .ex-ref title="Référence · pyproject.toml" }
+# Exemple : tout import de legacy_config devient une erreur de lint
+[tool.ruff.lint]
+extend-select = ["TID251"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"legacy_config".msg = "retirée le 30 avril, remplacer par team_config"
+```
+
+``` { .console .ex-ref title="Référence" }
+$ ruff check --select TID251 --add-noqa .
+Added 41 noqa directives.
+
+$ ruff check --output-format=concise .
+src/orders/refunds.py:3:8: TID251 `legacy_config` is banned: retirée le 30 avril, remplacer par team_config
+Found 1 error.
+```
+
+Sortie vérifiée avec ruff 0.17 ; le nombre de directives est un exemple. `--select TID251` évite que `--add-noqa` marque aussi les autres erreurs du dépôt.
+
+Le gel est la troisième des cinq étapes du calendrier de retrait :
+
+| Étape | Quand (exemple) | Action | Mesure |
+|---|---|---|---|
+| annonce | mois 0 | page de migration, date de fin, `DeprecationWarning` à l'import | chaque équipe propriétaire a lu l'annonce |
+| codemod | mois 1 | MR automatiques pour les fonctions courantes ([exemple](#exemple-de-codemod-changer-un-import-dans-48-depots)) | MR ouvertes, CI verte |
+| gel par le lint | mois 2 | `banned-api` et `--add-noqa` dans chaque dépôt | zéro nouvel usage, nombre de `noqa` en baisse |
+| accompagnement | mois 3 à 5 | binôme avec les équipes restantes, cas atypiques | dépôts restants |
+| archivage | mois 6 | dépôt archivé, paquet retiré du registre interne | zéro dépôt restant |
+
+**Risques.** Activer le gel sans `--add-noqa` met d'un coup 57 CI au rouge, et les équipes désactivent la règle ; je marque l'existant dans la même MR que la règle. Un `noqa` ajouté à la main sur un nouvel import contourne le gel : je compte les `noqa: TID251` dans le tableau de campagne, et ce nombre ne doit jamais monter. La règle ne voit que les imports Python : un appel par `importlib` ou un script shell lui échappe, d'où l'inventaire préalable.
+
+:material-book-open-variant: Doc de référence : [Ruff, règle banned-api (TID251)](https://docs.astral.sh/ruff/rules/banned-api/) (consultée en novembre 2026) ; [Python, module warnings](https://docs.python.org/3/library/warnings.html) (Python 3, consultée en novembre 2026)
 { .doc-ref }
 
 !!! maturity "Mesurer la maturité"
@@ -1485,8 +1923,16 @@ Les questions typiques :
 - « Le product owner attend le staging pour valider les écrans, que proposes-tu ? » Pour répondre : un environnement par MR pour le front seulement, branché sur l'intégration, avec données fictives, durée de vie et plafond de coût ([Environnement de prévisualisation](#environnement-de-previsualisation-par-merge-request)).
 - « Comment fais-tu évoluer une CLI interne sans casser ses utilisateurs ? », « Ton outil n'est utilisé que par trois équipes sur vingt, que fais-tu ? » Pour répondre : SemVer comme contrat, dépréciation avant retrait, puis Rogers et Moore, le coût de bascule et le témoignage de pairs ([SemVer](#semver-le-contrat-dune-bibliotheque-dune-cli-ou-dun-composant-interne), [Faire adopter un outil](#faire-adopter-un-outil-sans-limposer)).
 - « Comment sais-tu que ton chantier DevX a servi ? » Pour répondre : une mesure de départ, la même mesure après sur la même durée, une métrique garde-fou comme le taux d'échec, et un SLO interne par solution plutôt qu'un SLA, puisqu'il n'y a pas de client externe ([Mesurer le succès](#mesurer-le-succes)).
+- « Comment gères-tu les environnements de test ? », « Nos tests de bout en bout échouent à cause de la recette partagée, que fais-tu ? » Pour répondre : je veux qu'un échec veuille dire que le code a un problème ; je mesure la part des échecs dus à l'environnement, puis je place chaque test sur l'environnement le moins cher qui le prouve : base jetable, faux service pour les tiers, environnement éphémère par MR, pré-production avec un responsable et des règles d'usage ([Quel environnement pour quel test](#quel-environnement-pour-quel-test)).
+- « Comment trouves-tu les vrais points de friction des développeurs ? » Pour répondre : je croise enquête, observation d'une tâche réelle avec un journal horodaté et données des outils, puis je chiffre chaque friction par fréquence, durée et personnes touchées ([Trouver les frictions en observant](#trouver-les-frictions-en-observant)).
+- « Comment sais-tu quelles commandes de ta CLI interne servent, sans surveiller les développeurs ? » Pour répondre : commande, durée, code de sortie, version et équipe, jamais de nom ni d'arguments, un opt-out documenté, un envoi qui ne bloque jamais, puis la requête qui dit quoi corriger et quoi retirer ([Télémétrie d'usage](#telemetrie-dusage-dun-outil-interne-ou-dune-cli)).
+- « Comment démontres-tu la valeur d'un outil avant de le généraliser ? » Pour répondre : une hypothèse mesurable, un pilote représentatif, un groupe de comparaison, des critères d'arrêt fixés avant, dans l'esprit Build, Measure, Learn ([Prouver la valeur d'un outil](#prouver-la-valeur-dun-outil-par-un-pilote)).
+- « Pendant que tu retires une bibliothèque, de nouveaux services l'importent encore, que fais-tu ? » Pour répondre : un `DeprecationWarning` avec `stacklevel=2`, la règle `banned-api` de ruff, `--add-noqa` pour l'existant, dans un calendrier en cinq étapes ([Geler les nouveaux usages](#geler-les-nouveaux-usages-dun-module-deprecie)).
+- « Comment apprends-tu un code ou une bibliothèque que tu ne connais pas ? » Pour répondre : je suis une fonctionnalité du point d'entrée jusqu'à la base avec un débogueur, et j'écris des tests d'apprentissage qui me préviendront si une mise à jour change le comportement ([Apprendre un code inconnu](#apprendre-un-code-ou-une-bibliotheque-inconnus)).
 
 Ce qui fait une bonne réponse : partir d'une attente mesurée (des secondes, des minutes, des jours) avant de proposer un outil, et dire ce que je refuserais de mesurer.
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
 
 ## Quoi utiliser dans quelle situation
 
@@ -1517,8 +1963,11 @@ Ce qui fait une bonne réponse : partir d'une attente mesurée (des secondes, de
 - Mihaly Csikszentmihalyi, « Flow: The Psychology of Optimal Experience » (1990)
 - Geoffrey Moore, « Crossing the Chasm » (1991)
 - [Jakob Nielsen, « Response Times: The 3 Important Limits » (1993)](https://www.nngroup.com/articles/response-times-3-important-limits/)
+- Hugh Beyer et Karen Holtzblatt, « Contextual Design » (1998)
 - [Martin Fowler, « Continuous Integration » (2000, révisé en 2024)](https://martinfowler.com/articles/continuousIntegration.html)
+- Robert C. Martin, « Clean Code » (2008), chapitre « Boundaries » par James Grenning
 - [Adam Wiggins, « The Twelve-Factor App » (2011)](https://12factor.net/)
+- [Eric Ries, « The Lean Startup » (2011)](https://theleanstartup.com/principles)
 - [Tom Preston-Werner, « Semantic Versioning 2.0.0 » (2013)](https://semver.org/spec/v2.0.0.html)
 - [GitHub, « Scripts to Rule Them All » (2015)](https://github.com/github/scripts-to-rule-them-all)
 - Betsy Beyer et al., « Site Reliability Engineering » (Google, 2016), chapitre « Eliminating Toil »

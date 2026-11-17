@@ -692,6 +692,47 @@ La numérotation n'est pas un ordre : les quatre quadrants se font en parallèle
 :material-book-open-variant: Doc de référence : [Lisa Crispin, Using the Agile Testing Quadrants](https://lisacrispin.com/2011/11/08/using-the-agile-testing-quadrants/) (2011)
 { .doc-ref }
 
+### Le rôle du QA dans une équipe agile
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Mon équipe compte six développeurs et un QA. Le QA teste toutes les stories en fin de sprint, travaille souvent le soir, et les développeurs disent « c'est au QA de vérifier ». Le signal d'alarme est là : **les développeurs livrent pour le QA**. Ils arrêtent de tester eux-mêmes puisque quelqu'un le fera après, le QA devient un goulot d'étranglement, et les bugs sont trouvés au moment où il reste le moins de temps pour les corriger.
+
+L'<span class="term" data-term="whole-team-approach">approche d'équipe entière</span> (Whole Team Approach, Lisa Crispin et Janet Gregory, « Agile Testing », 2009) répond à ce problème : la qualité appartient à toute l'équipe, pas à une personne ni à une étape. Le QA n'est pas le dernier filet ; il apporte une expertise (risques, conception de cas de test, test exploratoire, outillage) et un regard d'utilisateur sur le produit entier, que personne d'autre n'a le temps d'avoir.
+
+!!! noob "As noob"
+    Dans la cuisine d'un restaurant, le chef ne goûte pas toutes les assiettes à la sortie : chaque cuisinier goûte ce qu'il prépare, et le chef apprend aux autres à goûter, vérifie les plats à risque et invente les recettes. Limite : un QA n'a pas d'autorité hiérarchique sur les développeurs, il convainc par l'exemple. La phrase à retenir : **le QA fait progresser la qualité de toute l'équipe, il ne teste pas à sa place.**
+
+**Quand.** Les signaux : des stories qui s'empilent « en attente de test », des bugs trouvés surtout le dernier jour du sprint, un QA seul à connaître le framework de test. **Comment.** Je propose trois changements à la <span class="term" data-term="retrospective">rétrospective</span>, puis je fais du <span class="term" data-term="quality-coaching">coaching qualité</span> au quotidien : je relis les tests des développeurs, je propose les cas manquants, j'anime des sessions exploratoires en binôme.
+
+1. Les exigences de test entrent dans la <span class="term" data-term="definition-of-done">définition de terminé</span>, donc elles s'appliquent à toute l'équipe, pas au seul QA.
+2. Le test se fait pendant le sprint, pas après : une séance <span class="term" data-term="three-amigos">three amigos</span> avant le code, une session exploratoire en binôme dès que la story fonctionne.
+3. Une rotation : chaque sprint, un développeur explore la story d'un autre.
+
+``` { .text .ex-illus title="Illustration · définition de terminé de l'équipe" }
+Une story est terminée quand :
+- chaque critère d'acceptation a au moins un test automatisé vert, écrit par le développeur ;
+- une session exploratoire de 30 min a eu lieu, avec un compte rendu de trois lignes ;
+- aucun bug majeur n'est ouvert sur la story.
+```
+
+Qui fait quoi sur une story :
+
+| Activité | PO | Développeur | QA |
+|---|---|---|---|
+| exemples et critères d'acceptation | rédige, tranche | propose les cas techniques | propose les cas limites et d'erreur |
+| tests unitaires et d'API de la story | | écrit | relit, propose des cas |
+| E2E du parcours critique | | écrit ou complète | conçoit, relit, maintient le framework |
+| test exploratoire | participe au débrief | en binôme | anime la session |
+| décision de terminé | accepte | | vérifie la définition de terminé |
+
+Je mesure avant et après : le nombre de stories bloquées en attente de test et les défauts échappés par sprint. Le temps que je libère va à l'outillage et aux tests transverses qu'aucune story ne couvre.
+
+**Risques.** « Toute l'équipe est responsable » peut devenir « personne n'est responsable » : plus personne ne maintient le framework de test, et les [tests instables](#test-instable-flaky) s'accumulent. Je garde un responsable nommé pour l'outillage et pour chaque test transverse. À l'inverse, un QA qui ne fait plus que du coaching perd le contact avec le produit : je garde du temps d'exploration à moi chaque sprint.
+
+:material-book-open-variant: Doc de référence : [Lisa Crispin et Janet Gregory, Agile Testing](https://agiletester.ca/) (consultée en novembre 2026) ; [Scrum Guide, Definition of Done](https://scrumguides.org/scrum-guide.html) (version de 2020)
+{ .doc-ref }
+
 ### Shift-left et shift-right : quand tester
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
@@ -930,6 +971,60 @@ tests/
 :material-book-open-variant: Doc de référence : [Martin Fowler, UnitTest](https://martinfowler.com/bliki/UnitTest.html) (2014) ; [Martin Fowler, IntegrationTest](https://martinfowler.com/bliki/IntegrationTest.html) (2018)
 { .doc-ref }
 
+### Choisir ce qu'on automatise
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Mon équipe déroule à la main une campagne de 200 cas avant chaque livraison mensuelle, en trois jours, et on me demande de « tout automatiser » (chiffres d'exemple). Je ne commence pas par le cas numéro 1 : un test automatisé est du code que quelqu'un devra maintenir, donc je choisis ceux qui rapportent plus qu'ils ne coûtent. C'est le <span class="term" data-term="roi">retour sur investissement</span> d'un test : ce qu'il fait gagner (exécutions répétées, <span class="term" data-term="regression">régressions</span> évitées) comparé à ce qu'il coûte (écriture, maintenance, temps d'exécution).
+
+**Quand.** Au moment de bâtir une suite, quand une campagne manuelle bloque les livraisons, ou quand la suite automatisée devient lente et chère à maintenir. **Pourquoi.** Brian Marick, dans « When Should a Test Be Automated? » (1998), pose trois questions : le test sera-t-il relancé souvent, trouvera-t-il encore des bugs une fois automatisé, et son coût de maintenance restera-t-il raisonnable quand le produit change ? J'en tire une grille à quatre critères :
+
+| Critère | 1 : défavorable | 3 : favorable |
+|---|---|---|
+| fréquence d'exécution | une fois par an | à chaque MR ou à chaque livraison |
+| risque si ça casse | une gêne visuelle | de l'argent, de la sécurité, des données perdues |
+| stabilité de la fonctionnalité | l'écran change à chaque sprint | la règle ne bouge plus |
+| coût d'automatisation, compté à l'envers | une fenêtre 3-D Secure, un vrai e-mail, du matériel | une fonction pure ou une route d'API |
+
+**Comment.** Je note chaque cas de 1 à 3 par critère, pour un total de 4 à 12. À partir de 9, j'automatise, et je choisis **le niveau le plus bas** qui couvre le risque : un calcul vérifié à travers l'interface devient un test unitaire paramétré, pas un E2E ([La règle](#la-regle)). En dessous de 9, je garde le cas au manuel et je revois sa note quand la fonctionnalité se stabilise.
+
+``` { .text .ex-illus title="Illustration · cinq cas notés (fréquence, risque, stabilité, coût)" }
+cas                                          F  R  S  C  total  décision
+paiement par carte réussi                    3  3  3  2   11    E2E automatisé
+frais de port, 30 combinaisons pays et poids 3  3  3  3   12    unitaire paramétré
+un client ne voit pas la commande d'un autre 3  3  3  3   12    test d'API
+tableau de bord refait à chaque sprint       3  1  1  1    6    manuel, charte exploratoire
+export comptable annuel                      1  2  2  1    6    manuel, procédure écrite
+```
+
+Ce que je n'automatise pas, je l'écris, avec la raison et le moment où je reviendrai sur ce choix. Une liste écrite transforme un oubli en décision, et le prochain QA sait pourquoi le tableau de bord n'a pas de test E2E :
+
+``` { .text .ex-illus title="Illustration · tests/MANUAL.md" }
+Tests gardés au manuel (liste revue chaque trimestre)
+- tableau de bord : refait à chaque sprint, une charte exploratoire de 60 min par livraison ;
+  à revoir quand le design est figé
+- export comptable annuel : une exécution par an, procédure écrite dans le wiki ;
+  à revoir s'il devient mensuel
+- vieux navigateur (0,2 % des visiteurs) : pas testé, risque accepté par le PO ;
+  à revoir si la part dépasse 1 %
+```
+
+Le tableau de bord passe en <span class="term" data-term="test-charter">charte exploratoire</span> : son défaut probable (un chiffre illisible, un graphique trompeur) demande un jugement humain qu'aucun script ne porte.
+
+Un test devient une **dette** quand il coûte plus qu'il ne rapporte : un E2E qui casse à chaque refonte d'écran, réparé deux fois par mois, et qui n'a jamais trouvé un seul bug. Je le supprime ou je le descends d'un niveau, comme n'importe quel code mort.
+
+| Je veux... | J'utilise... |
+|---|---|
+| choisir quoi automatiser dans une campagne manuelle de 200 cas, avec deux semaines devant moi | la grille fréquence, risque, stabilité, coût, en commençant par les plus hauts totaux |
+| automatiser un cas qui vérifie un calcul à travers l'interface, comme les frais de port affichés au panier | un test unitaire paramétré, au niveau le plus bas |
+| couvrir un écran qui change encore à chaque sprint et demande du jugement, comme la lisibilité d'un tableau de bord | une charte exploratoire, revue quand l'écran se stabilise |
+| couvrir un cas qui tourne une fois par an, comme un export comptable annuel | une procédure manuelle écrite |
+
+**Risques.** Automatiser dans l'ordre de la campagne donne une suite lente et fragile, qui rejoue des vérifications sans risque : l'équipe passe son temps à la maintenir au lieu d'explorer. À l'inverse, une grille appliquée une fois et jamais revue laisse au manuel des écrans stabilisés depuis longtemps. Je revois les notes chaque trimestre, et je mesure à chaque livraison la durée de la campagne et les bugs trouvés. Enfin, j'automatise des vérifications, pas le jugement d'un testeur : James Bach et Michael Bolton (« Testing and Checking Refined », 2013) appellent « checks » ce qu'une machine peut décider seule.
+
+:material-book-open-variant: Doc de référence : [Brian Marick, « When Should a Test Be Automated? »](http://www.exampler.com/testing-com/writings/automate.pdf) (1998)
+{ .doc-ref }
+
 !!! maturity "Mesurer la maturité"
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
@@ -1156,6 +1251,73 @@ métadonnées partielles         my-api applique les valeurs par défaut prévue
 ```
 
 :material-book-open-variant: Doc de référence : [Microcks, Documentation](https://microcks.io/documentation/) (consultée en novembre 2026) ; [Stoplight Prism](https://github.com/stoplightio/prism) (consultée en novembre 2026)
+{ .doc-ref }
+
+### Simuler un tiers en erreur ou lent
+
+<a class="pill pill-scope pill-scope-system" href="../architecture/#carte-des-echelles">Échelle · Système</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Mon service appelle un prestataire de paiement, et son bac à sable ne sait pas, à la demande, renvoyer un 500, couper la connexion ou mettre 35 secondes à répondre. Or ce sont ces cas qui cassent en production : un délai dépassé suivi d'un nouvel essai débite deux fois le client, un refus mal géré vide son panier. La <span class="term" data-term="service-virtualization">virtualisation de service</span> remplace le tiers par un faux serveur HTTP que je configure : selon la requête, il répond un succès, une erreur, une réponse tronquée, ou rien pendant le temps que je choisis.
+
+*WireMock : concurrent de MockServer, Mountebank, concurrent en partie de Microcks et Prism ; complémentaire de Testcontainers*
+{ .tool-rel }
+
+**Pourquoi pas Prism ou Microcks ?** Ils répondent ce que le contrat décrit, et c'est leur force : je vérifie que je parle le bon format. Mais un contrat OpenAPI décrit rarement un délai de 35 s, une connexion coupée ou un corps JSON à moitié écrit. WireMock (projet open source, 2011, à vérifier) simule le comportement en panne, que le contrat ne porte pas. Les deux se complètent :
+
+| Je veux... | J'utilise... |
+|---|---|
+| vérifier que mon service envoie et lit le bon format, comme les champs requis de `/balance` chez `bank-partner` | un [mock piloté par contrat](#mock-pilote-par-contrat) (Prism, Microcks) |
+| vérifier que mon service survit à un partenaire lent, coupé ou qui renvoie une réponse tronquée | la virtualisation de service (WireMock) |
+| savoir que le vrai partenaire a changé son format | un [test du vrai partenaire](#detecter-que-le-partenaire-a-change), hors du chemin bloquant |
+
+**Comment.** Je choisis la réponse du faux serveur par une donnée de la requête, ici le numéro de carte, pour que chaque test déclenche son cas sans configuration supplémentaire. Numéros d'exemple, à aligner sur ceux que le prestataire documente :
+
+| Numéro de carte | Réponse du faux service | Ce que je vérifie dans my-api |
+|---|---|---|
+| `4242424242424242` | `200`, paiement accepté | le parcours nominal |
+| `4000000000000002` | `402`, paiement refusé | message « paiement refusé », panier conservé |
+| `4000000000000119` | `200`, mais après 35 s | my-api coupe à son timeout, répond `504`, et ne débite pas deux fois au nouvel essai |
+| `4000000000000341` | connexion coupée | `502` explicite, rien n'est enregistré comme payé |
+| `4000000000000500` | `200` sans `transaction_id` | la commande passe en « à vérifier », pas en « payée » |
+
+Le mapping WireMock du cas lent, tel que la documentation le décrit :
+
+``` { .json .ex-ref title="Référence · mappings/payment-slow.json" }
+{
+  "request": {
+    "method": "POST",
+    "url": "/v1/payments",
+    "bodyPatterns": [{ "matchesJsonPath": "$[?(@.card_number == '4000000000000119')]" }]
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 35000,
+    "jsonBody": { "status": "accepted", "transaction_id": "tx-119" }
+  }
+}
+```
+
+Pour la connexion coupée, la réponse devient `{ "fault": "CONNECTION_RESET_BY_PEER" }` ; WireMock propose aussi `EMPTY_RESPONSE` et `MALFORMED_RESPONSE_CHUNK`.
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : seul le succès est testé, le délai dépassé et le double débit ne sont jamais essayés
+def test_checkout(client):
+    response = client.post("/checkout", json={"card_number": "4242424242424242"})
+    assert response.status_code == 201
+```
+
+``` { .python .ex-good title="Recommandé" }
+# Bien : le faux prestataire répond trop tard, my-api abandonne et n'a envoyé qu'un seul paiement
+def test_checkout_timeout_does_not_charge_twice(client, payment_stub):
+    response = client.post("/checkout", json={"card_number": "4000000000000119"})
+    assert response.status_code == 504
+    assert payment_stub.count("POST", "/v1/payments") == 1
+```
+`payment_stub` est une fixture qui démarre WireMock (dans un conteneur jetable) et lit son API d'administration (`/__admin/requests/count`). En test, je baisse le timeout de my-api à 1 s et le délai du faux service à 3 s : même cas, suite plus rapide.
+
+**Risques.** Les réponses d'erreur du faux serveur sont écrites à la main, donc elles mentent comme tout mock : si le vrai prestataire renvoie `{"error": {"code": "card_declined"}}` et mon faux `{"status": "declined"}`, ma gestion du refus est testée contre une fiction. Je recopie les corps d'erreur depuis la documentation du prestataire ou depuis de vraies réponses capturées, et je garde un test de nuit contre le vrai bac à sable. Des délais réels de 35 s ralentissent toute la suite : je les réduis dans la configuration de test.
+
+:material-book-open-variant: Doc de référence : [WireMock, Simulating Faults](https://wiremock.org/docs/simulating-faults/) (consultée en novembre 2026)
 { .doc-ref }
 
 ### Détecter que le partenaire a changé
@@ -1439,6 +1601,64 @@ $ git diff origin/main...HEAD -- '*.yml' | grep -n "allow_failure"
 
 **Risques.** Un gate qu'on ne contourne jamais bloque toute l'équipe quand c'est lui qui se trompe : un test instable ou un outil en panne retient toutes les MR, et la tentation de tout passer en `allow_failure` revient. Je corrige ou je mets en quarantaine le seul test fautif, dans une MR à part, avec un ticket et une date de retour. Exemple : le scan de licences de Karim tombe en panne une matinée ; j'attends le retour du service et, si la panne dure, je retire ce seul job avec un ticket daté, pas toute l'étape.
 
+### Dérogation datée et acceptation du risque
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#carte-des-echelles">Échelle · Application</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Parfois le gate a raison et je dois quand même livrer : un correctif de facturation doit partir avant la clôture mensuelle, et la couverture du nouveau code est à 64 % pour un seuil de 80 %. Ou le scanner signale une faille dans une dépendance dont mon code n'appelle jamais la fonction vulnérable. Désactiver le contrôle ou fermer l'alerte en silence cache la décision : dans six mois, personne ne saura pourquoi l'alerte est ignorée, et l'exception survivra au code qu'elle couvrait.
+
+Une <span class="term" data-term="waiver">dérogation</span> rend la décision visible : une exception écrite, avec la raison, un responsable du suivi, la personne qui accepte le risque, et **une date d'expiration**, rangée dans la configuration du gate ou du scanner, à côté du code. ISO 31000 (révision de 2018) compte la décision de conserver un risque parmi les traitements possibles, à condition qu'elle soit prise en connaissance de cause : c'est le <span class="term" data-term="accepted-risk">risque accepté</span>, signé par quelqu'un qui en a l'autorité, pas par le développeur pressé de fusionner. Une dérogation sans date d'expiration devient une règle cachée.
+
+``` { .text .ex-bad title="À éviter · .trivyignore" }
+# À éviter : l'alerte disparaît pour toujours, sans raison, sans responsable, sans date
+CVE-2026-0001
+```
+
+``` { .yaml .ex-good title="Recommandé · .trivyignore.yaml" }
+# Bien : la preuve, qui accepte le risque, qui suit, et une date ; à cette date l'alerte revient toute seule
+vulnerabilities:
+  - id: CVE-2026-0001
+    statement: >
+      fonction vulnérable jamais appelée par orders-service (analyse du 2026-11-10) ;
+      risque accepté par grace, suivi par ada, ticket 882
+    expired_at: 2026-12-31
+```
+Numéro de CVE et dates d'exemple. Une fois `expired_at` passé, Trivy ne tient plus compte de l'entrée, donc l'alerte réapparaît sans que personne ait à y penser.
+
+*Trivy : concurrent en partie de Snyk ; complémentaire de Renovate*
+{ .tool-rel }
+
+Pour un quality gate qui n'a pas ce champ, la même fiche vit dans le dépôt, et un job de CI ne l'applique que tant que la date n'est pas passée :
+
+``` { .text .ex-illus title="Illustration · waivers/WAIVER-031.yml" }
+id: WAIVER-031
+contrôle: quality gate, couverture du nouveau code (seuil 80 %, valeur 64 %)
+raison: correctif de facturation à livrer avant la clôture du 31/10 ; le code ajouté est couvert par un E2E
+risque accepté par: grace (responsable produit facturation)
+responsable du suivi: ada
+action: tests unitaires de InvoiceRounding, ticket 882
+expire le: 2026-11-14
+```
+
+Les règles du processus :
+
+- sans responsable ni date d'expiration, pas de dérogation ;
+- à l'expiration, le contrôle redevient bloquant de lui-même ;
+- renouveler, c'est une nouvelle décision signée, pas une date changée en douce ;
+- la liste des dérogations ouvertes est revue chaque semaine.
+
+| Situation | Je fais |
+|---|---|
+| le gate bloque ma MR sur une ancienne fonction qu'elle ne touche pas, parce qu'il contrôle tout le code | je corrige le réglage du gate (nouveau code seulement), pas de dérogation |
+| le scanner signale une faille dans une fonction que mon code n'appelle jamais, preuve à l'appui | une entrée datée dans la configuration du scanner |
+| un correctif urgent doit partir avec une couverture sous le seuil, et le code ajouté est couvert autrement | une dérogation datée, acceptée par le responsable produit, avec le ticket des tests manquants |
+| la faille est exploitable et grave, comme une injection sur une route publique | pas de dérogation : je corrige ou j'applique une mitigation avant de livrer |
+
+**Risques.** Les dérogations s'accumulent et le gate devient décoratif : je compte les dérogations ouvertes et leur âge, et une règle qui en demande une chaque mois est peut-être mal réglée, c'est elle que je discute. À l'inverse, un processus trop lourd (un comité, une semaine d'attente) pousse les équipes à contourner : une fiche dans le dépôt, relue dans la MR, suffit.
+
+:material-book-open-variant: Doc de référence : [Trivy, Filtering](https://trivy.dev/docs/latest/configuration/filtering/) (consultée en novembre 2026) ; [ISO 31000:2018, Risk management, Guidelines](https://www.iso.org/standard/65694.html) (2018)
+{ .doc-ref }
+
 ### Local identique à la CI
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
@@ -1679,6 +1899,139 @@ Leçons :
 :material-book-open-variant: Doc de référence : [Playwright, Sharding](https://playwright.dev/docs/test-sharding) (consultée en novembre 2026)
 { .doc-ref }
 
+### Structurer une suite E2E maintenable
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Ma suite de 150 tests Playwright met 45 minutes, chaque test se connecte par le formulaire, et un changement de design casse 60 tests d'un coup parce que les sélecteurs ressemblent à `div.col-md-6 > button.btn-primary` (chiffres d'exemple). **Quand** : dès que la suite dépasse quelques dizaines de tests, ou qu'une refonte d'écran casse des tests sans rapport. **Pourquoi** : une suite lente n'est plus lancée à chaque MR, et une suite qu'on répare en soixante endroits finit désactivée. **Comment** : trois changements, dans cet ordre, puis une mesure avant et après.
+
+**1. Se connecter une seule fois.** Un projet `setup` se connecte avant tous les autres et enregistre cookies et stockage local dans un fichier de session (<span class="term" data-term="storage-state">storageState</span>). Chaque test démarre déjà connecté.
+
+``` { .typescript .ex-bad title="À éviter" }
+// À éviter : chaque test repasse par le formulaire, une dizaine de secondes perdues par test
+test.beforeEach(async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("E-mail").fill("ada@example.test");
+  await page.getByLabel("Mot de passe").fill(process.env.ADA_PASSWORD!);
+  await page.getByRole("button", { name: "Se connecter" }).click();
+});
+```
+
+``` { .typescript .ex-good title="Recommandé · auth.setup.ts" }
+import { test as setup, expect } from "@playwright/test";
+
+const authFile = "playwright/.auth/ada.json";
+
+// Bien : une seule connexion, la session est enregistrée pour tous les tests
+setup("connexion de ada", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("E-mail").fill("ada@example.test");
+  await page.getByLabel("Mot de passe").fill(process.env.ADA_PASSWORD!);
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await expect(page.getByRole("heading", { name: "Tableau de bord" })).toBeVisible();
+  await page.context().storageState({ path: authFile });
+});
+```
+
+``` { .typescript .ex-good title="Recommandé · playwright.config.ts" }
+import { defineConfig } from "@playwright/test";
+
+// Bien : le projet setup tourne d'abord, les tests réutilisent sa session
+export default defineConfig({
+  projects: [
+    { name: "setup", testMatch: /.*\.setup\.ts/ },
+    {
+      name: "chromium",
+      dependencies: ["setup"],
+      use: { storageState: "playwright/.auth/ada.json" },
+    },
+  ],
+});
+```
+
+Un projet `setup` plutôt qu'un `globalSetup` : si la connexion échoue, j'ai une trace et un rapport comme pour n'importe quel test.
+
+**2. Des Page Objects composés, pas une BasePage.** Un <span class="term" data-term="page-object">Page Object</span> cache les <span class="term" data-term="selector">sélecteurs</span> d'une page derrière des actions métier : quand le libellé d'un bouton change, je corrige un seul fichier. Je cible par rôle et libellé accessible (`getByRole`, `getByLabel`), et un `data-testid` seulement là où aucun libellé n'existe. Je <span class="term" data-term="composition-over-inheritance">compose</span> des composants (tableau, menu, fenêtre de dialogue) au lieu de tout faire hériter d'une `BasePage`.
+
+``` { .typescript .ex-bad title="À éviter" }
+// À éviter : tout hérite d'une BasePage géante, et l'assertion est cachée dans la page
+class BasePage {
+  constructor(protected page: Page) {}
+  async openMenu(item: string) {}
+  async sortTable(column: string) {}
+  async downloadCsv() {}
+}
+
+class OrdersPage extends BasePage {
+  async verifyOrderIsCorrect() {
+    await expect(this.page.locator("tr.order-row")).toHaveCount(1);
+  }
+}
+```
+Six mois plus tard, la `BasePage` fait 900 lignes, chaque page hérite de méthodes qu'elle n'a pas, et un test rouge dit « verifyOrderIsCorrect » sans dire ce qui était attendu.
+
+``` { .typescript .ex-good title="Recommandé · pages/orders-page.ts" }
+import type { Locator, Page } from "@playwright/test";
+
+// Bien : un composant réutilisable, donné seulement aux pages qui ont un tableau
+export class DataTable {
+  constructor(private readonly root: Locator) {}
+
+  rowsWith(text: string) {
+    return this.root.getByRole("row").filter({ hasText: text });
+  }
+}
+
+// Bien : la page compose ses composants et expose des actions, sans assertion
+export class OrdersPage {
+  readonly table: DataTable;
+
+  constructor(private readonly page: Page) {
+    this.table = new DataTable(page.getByRole("table", { name: "Commandes" }));
+  }
+
+  async goto() {
+    await this.page.goto("/orders");
+  }
+}
+```
+
+**3. Les données par l'API, dans une fixture.** Au lieu de créer une commande en cliquant dans cinq écrans, une <span class="term" data-term="test-fixture">fixture</span> l'écrit par l'API, ouvre la page, puis nettoie après le test. Chaque test a ses propres données, donc les tests tournent en parallèle et dans n'importe quel ordre.
+
+``` { .typescript .ex-good title="Recommandé · fixtures.ts" }
+import { test as base } from "@playwright/test";
+import { OrdersPage } from "./pages/orders-page";
+
+// Bien : la fixture crée la commande par l'API, donne la page prête, puis supprime la commande
+export const test = base.extend<{ ordersPage: OrdersPage }>({
+  ordersPage: async ({ page, request }, use) => {
+    const response = await request.post("/api/test/orders", { data: { sku: "MUG-BLUE", quantity: 2 } });
+    const { id } = await response.json();
+    const ordersPage = new OrdersPage(page);
+    await ordersPage.goto();
+    await use(ordersPage);
+    await request.delete(`/api/test/orders/${id}`);
+  },
+});
+```
+
+``` { .typescript .ex-good title="Recommandé · orders.spec.ts" }
+import { expect } from "@playwright/test";
+import { test } from "./fixtures";
+
+// Bien : le test tient en une ligne et l'assertion reste visible dans le test
+test("une commande créée apparaît dans la liste", async ({ ordersPage }) => {
+  await expect(ordersPage.table.rowsWith("MUG-BLUE")).toHaveCount(1);
+});
+```
+
+**Mesurer avant et après.** Je note la durée de la suite et le nombre de tests cassés à la dernière refonte d'écran, puis je refais la même mesure à la refonte suivante : par exemple 45 min et 60 tests cassés avant, 18 min et 4 tests cassés, corrigés dans 2 fichiers, après [À prendre avec précaution : chiffres d'exemple, le gain dépend surtout du temps de connexion et de création des données].
+
+**Risques.** Le fichier de session contient un jeton : `playwright/.auth/` va dans le `.gitignore`, sinon le jeton part dans l'historique Git. Une session partagée par des tests qui modifient le même compte (préférences, panier) crée des interférences en parallèle : un compte par worker pour ces tests-là. La route `/api/test/orders` ne doit exister que sur les environnements de test. Et sans revue, les composants regrossissent en `BasePage` : je garde les assertions dans les tests.
+
+:material-book-open-variant: Doc de référence : [Playwright, Authentication](https://playwright.dev/docs/auth) (consultée en novembre 2026) ; [Playwright, Fixtures](https://playwright.dev/docs/test-fixtures) (consultée en novembre 2026) ; [Martin Fowler, « PageObject »](https://martinfowler.com/bliki/PageObject.html) (2013)
+{ .doc-ref }
+
 ### Causes d'instabilité qui ne sont pas des bugs de test
 | Symptôme                                              | Vraie cause                              | Correction                               |
 |-------------------------------------------------------|------------------------------------------|------------------------------------------|
@@ -1716,9 +2069,74 @@ flowchart TD
   F --> R[retour dans le chemin bloquant]
 ```
 
-**Risques.** La quarantaine devient un cimetière : des tests mis de côté sans date limite ne reviennent jamais, et le vrai bug qu'ils signalaient part en production. J'impose une date limite et je suis le nombre de tests en quarantaine. Ne rien faire coûte plus cher : l'équipe apprend à relancer jusqu'au vert.
+#### Mettre en quarantaine sans bloquer
 
-:material-book-open-variant: Doc de référence : [Martin Fowler, Eradicating Non-Determinism in Tests](https://martinfowler.com/articles/nonDeterminism.html) (2011) ; [Playwright, Retries](https://playwright.dev/docs/test-retries) (consultée en novembre 2026)
+Avant de mettre un test en quarantaine, je vérifie que c'est bien un test instable : il a échoué **et** réussi sur le **même commit**. C'est la seule définition qui ne confond pas instabilité et vraie régression, puisqu'une régression échoue à chaque fois sur le commit fautif. L'historique des rapports <span class="term" data-term="junit-xml">JUnit XML</span> de la CI donne cette liste ([Garder l'historique](#garder-lhistorique)).
+
+Ensuite, je sors le test du chemin bloquant **sans arrêter de le lancer**. Avec pytest, la différence tient en un mot : le marqueur <span class="term" data-term="xfail">xfail</span> au lieu de `skip`.
+
+| Marqueur | Le test tourne ? | Bloque la MR ? | Ce que je perds |
+|---|---|---|---|
+| `skip` | non | non | tout : plus de taux d'échec, et le vrai bug éventuel devient invisible |
+| `xfail` avec `strict=False` | oui | non | rien : le rapport montre `XFAIL` ou `XPASS`, je mesure toujours |
+| `xfail` avec `strict=True` | oui | oui, s'il passe | le mauvais outil : un test instable qui passe ferait échouer la suite |
+
+``` { .python .ex-bad title="À éviter" }
+# À éviter : skip ne lance plus le test, son taux d'échec et le bug qu'il signale disparaissent
+@pytest.mark.skip(reason="flaky")
+def test_cancel_after_payment(client):
+    ...
+```
+
+La liste de quarantaine vit dans un fichier du dépôt, une ligne par test, avec ticket, équipe propriétaire et date limite :
+
+``` { .text .ex-illus title="Illustration · tests/quarantine.txt" }
+tests/test_orders.py::test_cancel_after_payment | ticket 123 | team-core | 2026-12-15
+tests/test_invoices.py::test_pdf_export        | ticket 131 | team-billing | 2026-12-20
+```
+
+``` { .python .ex-good title="Recommandé · tests/conftest.py" }
+"""Pytest hooks shared by the whole test suite."""
+
+from datetime import date
+from pathlib import Path
+
+import pytest
+
+QUARANTINE_FILE = Path(__file__).parent / "quarantine.txt"
+MAX_QUARANTINED = 10
+
+
+# Bien : une ligne sans ticket, propriétaire ou date fait échouer la lecture, donc la suite
+def load_quarantine() -> dict[str, date]:
+    """Return each quarantined test id with its deadline."""
+    if not QUARANTINE_FILE.exists():
+        return {}
+    entries = {}
+    for line in QUARANTINE_FILE.read_text().splitlines():
+        if line.strip():
+            node_id, _ticket, _owner, deadline = (part.strip() for part in line.split("|"))
+            entries[node_id] = date.fromisoformat(deadline)
+    return entries
+
+
+# Bien : le test tourne et reste dans le rapport, mais ne bloque plus, jusqu'à sa date limite
+def pytest_collection_modifyitems(config, items):
+    """Mark quarantined tests as non-blocking until their deadline."""
+    quarantine = load_quarantine()
+    if len(quarantine) > MAX_QUARANTINED:
+        raise pytest.UsageError(f"{len(quarantine)} tests en quarantaine, plafond {MAX_QUARANTINED}")
+    for item in items:
+        deadline = quarantine.get(item.nodeid)
+        if deadline and deadline >= date.today():
+            item.add_marker(pytest.mark.xfail(reason=f"quarantaine jusqu'au {deadline}", strict=False))
+```
+
+Trois règles tiennent dans ce hook : la date limite passée, le test redevient bloquant tout seul, sans que personne ait à agir ; au-delà de 10 tests (plafond d'exemple), la suite refuse de démarrer, ce qui garde la pression de réparation ; et la ligne ajoutée au fichier passe en revue comme n'importe quel code. Dans une organisation de plusieurs dépôts, ce hook se place dans le modèle de CI commun pour que chaque équipe l'ait sans effort.
+
+**Risques.** La quarantaine devient un cimetière : des tests mis de côté sans date limite ne reviennent jamais, et le vrai bug qu'ils signalaient part en production. J'impose une date limite, après laquelle le test bloque de nouveau tout seul, un plafond par dépôt, et je suis le nombre de tests en quarantaine. Ne rien faire coûte plus cher : l'équipe apprend à relancer jusqu'au vert.
+
+:material-book-open-variant: Doc de référence : [Martin Fowler, Eradicating Non-Determinism in Tests](https://martinfowler.com/articles/nonDeterminism.html) (2011) ; [Playwright, Retries](https://playwright.dev/docs/test-retries) (consultée en novembre 2026) ; [pytest, Skip and xfail](https://docs.pytest.org/en/stable/how-to/skipping.html) (consultée en novembre 2026)
 { .doc-ref }
 
 ### Outils de diagnostic : ce qu'ils montrent vraiment
@@ -2005,6 +2423,72 @@ Quand on applique un retour, on résout la discussion. Pas besoin de répondre �
 :material-book-open-variant: Doc de référence : [GitLab, Suggest changes](https://docs.gitlab.com/user/project/merge_requests/reviews/suggestions/) (consultée en novembre 2026)
 { .doc-ref }
 
+### Préparer ma MR et recevoir une revue
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#carte-des-echelles">Échelle · Code</a> <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Une bonne revue commence avant le premier commentaire : c'est l'auteur qui la rend facile ou impossible. Une MR de 900 lignes qui ajoute une fonctionnalité, renomme des fichiers et change la configuration du lint ne sera pas relue, elle sera survolée. Une étude de SmartBear chez Cisco (2006) voit l'efficacité de la relecture chuter au-delà de 200 à 400 lignes d'un coup [À prendre avec précaution : étude menée par un éditeur d'outil de revue, dans une seule entreprise].
+
+**Avant de demander une revue**, je fais trois choses :
+
+1. **une MR courte, un seul changement** : dans l'exemple, trois MR (le renommage, relu en deux minutes ; la configuration du lint, qui est une discussion d'équipe ; la fonctionnalité seule) ;
+2. **une description qui dit pourquoi et comment tester**, et où regarder en priorité ;
+3. **une <span class="term" data-term="self-review">auto-relecture</span> du diff** dans l'outil de MR, comme un relecteur le verrait : un `print` de débogage, du code commenté, un cas sans test sautent aux yeux là, pas dans l'éditeur.
+
+Une description « Fix bug » oblige le relecteur à deviner l'intention, donc il juge le code sans savoir ce qu'il doit faire. À la place, la description recommandée :
+
+``` { .markdown .ex-good title="Recommandé · description de MR" }
+## Pourquoi
+Les clients fidèles (plus de 10 commandes) ont 15 % de remise.
+
+## Ce qui change
+- nouvelle fonction `is_loyal_customer` (logique pure) ;
+- `order_total` applique la remise ; aucune migration, aucun changement d'API.
+
+## Comment tester
+1. `pytest tests/test_pricing.py`
+2. en local : un client avec 11 commandes passe une commande, la remise apparaît au récapitulatif.
+
+## À regarder en priorité
+L'arrondi au centime (ligne 34) : j'ai choisi l'arrondi bancaire.
+```
+
+**Quand les remarques arrivent**, je réponds à chacune : appliquer la suggestion et résoudre la discussion vaut réponse ([Le style](#le-style)), et si je n'applique pas, je dis pourquoi. Si le relecteur n'a pas compris une fonction, le prochain lecteur ne comprendra pas non plus : je clarifie le code (un nom, un découpage) plutôt que d'expliquer dans un commentaire qui disparaîtra. En cas de désaccord, j'argumente avec un fait (un test, une mesure, le guide de style) ; **après deux échanges sans converger, je passe de vive voix**, puis j'écris la décision dans le fil pour les lecteurs suivants. Gerald Weinberg appelait cela la programmation sans ego (« The Psychology of Computer Programming », 1971) : je ne suis pas mon code.
+
+**Quand c'est moi qui relis**, j'étiquette chaque remarque pour que l'auteur sache ce qu'il doit corriger avant la fusion et ce qu'il peut laisser. Les <span class="term" data-term="conventional-comments">Conventional Comments</span> (Paul Slaughter, conventionalcomments.org, date de publication non indiquée) donnent un format : une étiquette (`issue`, `suggestion`, `question`, `nitpick`, `praise`), puis une décoration `(blocking)` ou `(non-blocking)`. Mes niveaux [bloquant et majeur](#iterer-jusqua-zero-bloquant) deviennent `(blocking)`, mineur et détail `(non-blocking)` ou <span class="term" data-term="nit">nitpick</span>.
+
+``` { .text .ex-bad title="À éviter" }
+pas terrible cette requête
+renomme calc
+il manque un test
+```
+Sans étiquette, l'auteur ne sait pas lequel bloque, et « pas terrible » ne dit ni le risque ni le correctif.
+
+``` { .text .ex-good title="Recommandé" }
+issue (blocking): la requête est construite avec une f-string et `user_id` vient de l'URL,
+donc injection SQL. Proposition : db.execute("SELECT ... WHERE id = %s", (user_id,))
+
+suggestion (non-blocking): `calc` pourrait s'appeler `order_total_cents`, l'unité se lirait sans ouvrir le code.
+
+question (non-blocking): que se passe-t-il si `items` est vide ? Je ne vois pas de test pour ce cas.
+
+praise: le test paramétré sur les arrondis est très clair, je le réutiliserai.
+```
+
+**Rendre une revue lourde à un junior.** La première MR d'une personne arrivée le mois dernier a trois bloquants : une injection SQL, un mot de passe haché en MD5, des identifiants de base en dur. Quinze commentaires écrits sans contexte se lisent comme un examen raté. Je passe la voir ou je l'appelle, je commence par ce qui est bien fait, puis j'explique les trois bloquants par leur risque concret, avec un lien pour apprendre. Je propose de corriger le premier ensemble, en <span class="term" data-term="pair-programming">pair programming</span>, puis je la laisse faire les deux autres seule. Les suggestions peuvent attendre une autre MR. Enfin, je cherche pourquoi c'est arrivé : s'il manque un exemple dans le guide de l'équipe ou une analyse automatique en CI, la prochaine personne fera la même erreur.
+
+| Situation | Je fais |
+|---|---|
+| ma MR fait 900 lignes et mélange une fonctionnalité, un renommage et la configuration du lint | trois MR, la plus simple d'abord |
+| le relecteur ne comprend pas ce que fait une de mes fonctions | je clarifie le code, pas un long commentaire |
+| deux échanges sur un choix de style sans converger, comme une boucle contre un `reduce` | de vive voix, le guide de style tranche, la décision est écrite dans le fil |
+| je relis la première MR d'une personne arrivée récemment, avec trois bloquants | en parler de vive voix, commencer par ce qui va, corriger le premier point en binôme |
+
+**Risques.** Des étiquettes posées mécaniquement noient l'auteur quand même : trente `nitpick` restent trente commentaires, donc je les regroupe en un seul ou je les laisse au lint. Une discussion de vive voix sans trace perd la décision : je la résume dans le fil. Et découper trop fin éparpille un changement cohérent dans cinq MR qu'aucune ne permet de comprendre seule : un changement qui a du sens par lui-même par MR.
+
+:material-book-open-variant: Doc de référence : [Google Engineering Practices, The CL author's guide](https://google.github.io/eng-practices/review/developer/) (consultée en novembre 2026) ; [Conventional Comments](https://conventionalcomments.org/) (consultée en novembre 2026)
+{ .doc-ref }
+
 !!! maturity "Mesurer la maturité"
     | Niveau | Ce que j'observe dans l'équipe |
     |---|---|
@@ -2150,8 +2634,17 @@ Les questions typiques :
 - « Comment conçois-tu un test de performance ? » Pour répondre : une question chiffrée, le bon type de test, une montée et un plateau, des temps de réflexion, des seuils sur le p95, et je vérifie le générateur de charge et la coordinated omission ([Test de performance](#test-de-performance)).
 - « Quels indicateurs qualité suis-tu ? » Pour répondre : je pars d'une question avec GQM, puis défauts échappés et DDP, jamais d'objectif individuel ([Choisir ses indicateurs avec GQM](#choisir-ses-indicateurs-avec-gqm)).
 - « Comment sais-tu que ta stratégie de test marche ? », « Quelle différence entre SLO et SLA ? » Pour répondre : une référence avant, la même mesure après sur une fenêtre fixe, et une métrique garde-fou ; puis un SLI par solution, un SLO interne plus strict que le SLA promis au client, et pas de SLA pour une pratique interne ([Mesurer le succès](#mesurer-le-succes), [Mesurer la qualité](#mesurer-la-qualite)).
+- « Comment choisis-tu ce qu'il faut automatiser ? », « Faut-il automatiser 100 % des tests ? » Pour répondre : je note chaque cas sur la fréquence, le risque, la stabilité et le coût, j'automatise au niveau le plus bas, et j'écris la liste de ce qui reste au manuel ([Choisir ce qu'on automatise](#choisir-ce-quon-automatise)).
+- « Comment structures-tu une suite E2E Playwright pour qu'elle reste maintenable ? » Pour répondre : une connexion unique par un projet setup et storageState, des Page Objects composés plutôt qu'une BasePage, des données créées par l'API dans des fixtures, et une mesure avant et après ([Structurer une suite E2E maintenable](#structurer-une-suite-e2e-maintenable)).
+- « Comment testes-tu ton service quand un partenaire tombe en panne ou répond lentement ? » Pour répondre : un faux serveur HTTP configurable (WireMock) qui renvoie 500, un délai ou une réponse partielle, la différence avec un mock tiré du contrat, et un test de nuit contre le vrai ([Simuler un tiers en erreur ou lent](#simuler-un-tiers-en-erreur-ou-lent)).
+- « Quel est le rôle d'un QA dans une équipe où les développeurs testent aussi ? » Pour répondre : l'approche d'équipe entière, le coaching qualité, les exigences de test dans la définition de terminé, et le signal d'alarme « les développeurs livrent pour le QA » ([Le rôle du QA dans une équipe agile](#le-role-du-qa-dans-une-equipe-agile)).
+- « Comment mets-tu un test en quarantaine sans perdre le signal ? » Pour répondre : instable veut dire échec et succès sur le même commit, puis `xfail` non strict plutôt que `skip`, un fichier de quarantaine avec ticket et date limite lu par un hook, et un plafond par dépôt ([Mettre en quarantaine sans bloquer](#mettre-en-quarantaine-sans-bloquer)).
+- « Un contrôle qualité bloque une livraison importante : que fais-tu ? » Pour répondre : je vérifie d'abord que l'alerte concerne bien ma MR, puis, si le risque est acceptable, une dérogation écrite avec responsable, personne qui accepte le risque et date d'expiration, jamais un contrôle désactivé ([Dérogation datée et acceptation du risque](#derogation-datee-et-acceptation-du-risque)).
+- « Comment prépares-tu ta MR, et comment réagis-tu aux remarques ? », « Comment rends-tu une revue lourde à un junior ? » Pour répondre : MR courte, description qui dit pourquoi et comment tester, auto-relecture ; réponse à chaque remarque et passage de vive voix après deux échanges ; remarques étiquetées bloquantes ou non ; et pour un junior, de vive voix, en commençant par ce qui va ([Préparer ma MR et recevoir une revue](#preparer-ma-mr-et-recevoir-une-revue)).
 
 Ce qui fait une bonne réponse : un exemple vécu (ou réaliste) avec le bug que le test a attrapé ou laissé passer, puis la limite de l'outil cité. Un « ça dépend » suivi des critères vaut mieux qu'une règle récitée.
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
 
 ## Quoi utiliser dans quelle situation
 
@@ -2178,3 +2671,6 @@ Ce qui fait une bonne réponse : un exemple vécu (ou réaliste) avec le bug que
 | j'écris les tests d'un service qui calcule et enregistre, et je ne veux pas qu'un refactoring les casse si le comportement ne change pas | école de Detroit : vrais voisins, fake pour la base |
 | je conçois un parcours de l'extérieur vers l'intérieur alors que ses classes n'existent pas encore, ou je dois vérifier qu'un e-mail part bien | école de Londres : mocks sur les rôles que je possède |
 | je veux savoir si le site tiendra une campagne qui multiplie le trafic par cinq | test de charge k6 : montée, plateau, seuils |
+| je dois choisir quoi automatiser dans une campagne manuelle de 200 cas, avec deux semaines devant moi | grille fréquence, risque, stabilité, coût, au niveau le plus bas |
+| mon service appelle un prestataire de paiement, et je veux vérifier qu'il survit à un 500, un délai de 35 s ou une connexion coupée | virtualisation de service (WireMock) |
+| un correctif urgent doit partir alors que le gate bloque, et le risque restant est connu et limité | dérogation datée, acceptée par la bonne personne |

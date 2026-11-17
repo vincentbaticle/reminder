@@ -1006,3 +1006,5 @@ Les questions typiques :
 - « Comment sais-tu que ton observabilité sert vraiment ? » Pour répondre : je compare le délai de détection et la part des incidents signalés par les clients avant et après, avec le coût de stockage et les pages inutiles comme garde-fous ([Mesurer le succès](#mesurer-le-succes)).
 
 Ce qui fait une bonne réponse : suivre l'ordre d'une vraie enquête avec des chiffres d'exemple (un pic de latence à 10:10, une trace, un log), et dire ce que chaque choix coûte : stockage, mémoire du collecteur, alertes qui réveillent pour rien.
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).

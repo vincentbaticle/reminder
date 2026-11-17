@@ -890,6 +890,8 @@ The typical questions:
 
 What makes a good answer: a lived (or realistic) story told in the order detection, mitigation, resolution, analysis, ending with what the team changed afterwards. I talk about the system that allowed the error, never about a culprit.
 
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+
 ## What to use in which situation
 
 | I want... | I use... |

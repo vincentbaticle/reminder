@@ -458,3 +458,5 @@ Je sais que l'autoscaling marche quand la latence reste stable au pic sans que j
 Les questions typiques :
 
 - « Comment fais-tu scaler un worker qui lit une file ? », « HPA, KEDA ou Karpenter ? » Pour répondre : je prends le lag comme signal, pas le CPU, et je montre que chaque outil agit à un étage différent ([Quoi utiliser pour scaler](#quoi-utiliser-pour-scaler)).
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Software Architect](../entretiens/software-architect/questions.md).

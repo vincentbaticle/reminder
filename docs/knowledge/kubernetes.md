@@ -1037,3 +1037,5 @@ Les questions typiques :
 - « Comment prouves-tu qu'un changement de configuration Kubernetes a servi ? » Pour répondre : je compare avant et après les erreurs pendant les déploiements, les redémarrages et la latence au pic, avec le coût du cluster comme garde-fou ([Mesurer le succès](#mesurer-le-succes)).
 
 Ce qui fait une bonne réponse : raconter ce que voit l'utilisateur et ce que fait Kubernetes, étape par étape (le pod retiré du trafic, le conteneur redémarré, le pod en `Pending`), plutôt que réciter des champs YAML.
+
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [DevX Engineer](../entretiens/devx-engineer/questions.md).

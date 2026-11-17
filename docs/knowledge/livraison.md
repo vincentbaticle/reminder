@@ -859,6 +859,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : relier vitesse et stabilité. Chaque pratique accélère la livraison seulement si un filet la rend sûre (tests fiables, retour arrière, mesure), et nommer ce filet montre qu'on l'a déjà mis en place.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+
 ## Quoi utiliser dans quelle situation
 
 | Situation | J'utilise |

@@ -123,13 +123,13 @@ A notion can span two scales: a **retry** is written in code but only makes sens
 | DDD, bounded context | | x | x | | |
 | Conway's law | | | x | | x |
 | CAP, replication, consensus | | | x | x | |
-| saga, outbox, CQRS, event sourcing | | x | x | | |
+| saga, payment authorization and capture, outbox, CQRS, event sourcing | | x | x | | |
 | database type, polyglot persistence | | x | x | | |
 | timeout, retry, circuit breaker | x | | x | | |
 | bulkhead, load shedding | | x | x | x | |
 | rate limiting | x | | x | | |
-| zones and regions, RTO and RPO, recovery, cell-based architecture | | | x | x | |
-| capacity estimation | | | x | x | |
+| zones and regions, RTO and RPO, recovery, cell-based architecture, multi-tenant isolation | | | x | x | |
+| capacity estimation, URL shortener example | | | x | x | |
 | scale cube | | | x | x | |
 | cache: layers, read and write patterns, invalidation | x | x | x | x | |
 | continuous delivery: independent deployment, expand and contract, feature flags | x | x | x | | |
@@ -137,6 +137,7 @@ A notion can span two scales: a **retry** is written in code but only makes sens
 | urbanization, TOGAF, Zachman | | | | | x |
 | C4, arc42, fitness functions | x | x | x | | |
 | quality scenarios, utility tree, ATAM | | x | x | | |
+| waivers from the target architecture | | | x | | x |
 | company tech radar | | | | | x |
 
 The front-end notions (React, web apps on mobile and PWA, micro front ends, design system, rendering strategies, bundlers) carry the same badges on their own page: [Front end and web apps](front-end.md).
@@ -946,6 +947,71 @@ A compensation does not erase the past: a refund is not "never charged", the cus
 :material-book-open-variant: Reference docs: [Chris Richardson, microservices.io, "Saga"](https://microservices.io/patterns/data/saga.html) (accessed November 2026); [Microsoft, "Saga distributed transactions pattern"](https://learn.microsoft.com/en-us/azure/architecture/patterns/saga) (accessed November 2026)
 { .doc-ref }
 
+### Payment authorization and capture
+
+<a class="pill pill-scope pill-scope-system" href="#map-of-scales">Scale · System</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span> <a class="pill pill-nature pill-nature-decide" href="../architecture/#how-to-read-this-page" title="A choice the team or the architects must make, then record in an ADR">Decide</a> <a class="pill pill-topic pill-topic-data" href="../architecture/#how-to-read-this-page" title="About where the data lives and how its copies stay in agreement">Data</a>
+
+In the saga above, `billing-service` charges the customer before shipping. If the warehouse then finds that the item is broken, the compensation is a refund: Lea sees the charge then the refund on her statement, her money comes back several days later, and the payment provider often keeps its fees on the first transaction.
+
+A card payment happens in two steps: the **<span class="term" data-term="payment-authorization-capture">authorization</span>** holds the amount on the customer's account without taking it, the **capture** actually takes it. I split the two in the saga: I authorize at order time, I capture when the parcel leaves. If a step fails in between, the compensation is **voiding the authorization**: nothing was taken, the held amount is released, no refund appears.
+
+```mermaid
+sequenceDiagram
+    participant O as orders-service (orchestrator)
+    participant B as billing-service
+    participant S as stock-service
+    participant X as shipping-service
+    O->>B: authorize 49.90 euros
+    B-->>O: authorized, amount held
+    O->>S: reserve stock
+    S-->>O: reserved
+    O->>X: prepare the parcel
+    X-->>O: item broken, parcel impossible
+    O->>S: compensation: release stock
+    O->>B: compensation: void the authorization
+    O->>O: order cancelled, nothing was taken
+```
+
+| What changes | Charge at order, refund as compensation | Authorize at order, capture when the parcel leaves |
+|---|---|---|
+| what the customer sees | a charge then a refund, two lines on the statement | an amount held, then taken or released |
+| when the money comes back | several days after the refund | at the void, sometimes a few days later depending on the bank |
+| fees | often kept on the first payment | usually lower fees, nothing was taken (to check in the provider's contract) |
+| limit | none | the authorization expires after a few days |
+
+**When.** The delay between order and shipping is short, shipping can still fail (real stock, quality check, suspected fraud), or the final amount may drop (an item is missing, I capture less than the authorization). **Not when** the parcel leaves weeks later, like a pre-order or a made-to-measure item: the authorization will have expired. I then charge when the parcel leaves, or I request a new authorization and tell the customer.
+
+**How.** I place the capture as late as possible, right before the step that can no longer be undone (the parcel handed to the carrier), like any step that is hard to compensate in a saga. A compensation is a refund only if the capture has already happened.
+
+Avoid: the customer is charged at order time, so every shipping failure becomes a visible refund.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: the charge comes first, its compensation is a refund
+STEPS = [
+    Step("charge", action=payment.charge, compensation=payment.refund),
+    Step("reserve_stock", action=stock.reserve, compensation=stock.release),
+    Step("hand_to_carrier", action=shipping.hand_over, compensation=None),
+]
+```
+
+``` { .python .ex-good title="Recommended" }
+# Good: hold at order time, take the money right before the parcel leaves, the compensation is a void
+STEPS = [
+    Step("authorize", action=payment.authorize, compensation=payment.void),
+    Step("reserve_stock", action=stock.reserve, compensation=stock.release),
+    Step("prepare_parcel", action=shipping.prepare, compensation=shipping.cancel),
+    Step("capture", action=payment.capture, compensation=None),
+    Step("hand_to_carrier", action=shipping.hand_over, compensation=None),
+]
+```
+
+`Step` carries the step's name, its action and its compensation, which the orchestrator replays in reverse order on failure; each call keeps its own idempotency key, capture included.
+
+**Risks.** The authorization expires, often after about a week for an online payment [Take with caution: the duration depends on the card network, the type of business and the provider, to check in their documentation]: a late capture fails. I monitor the age of uncaptured authorizations and request a new one before the deadline. An authorization never voided holds the customer's money for days: they call support about a cancelled order "that took 49.90 euros". I make the void safe to replay and I monitor it like any compensation. Finally, the capture can fail even though the authorization succeeded: it is a real saga step, with its failure case, not a formality.
+
+:material-book-open-variant: Reference docs: [Stripe, "Place a hold on a payment method"](https://docs.stripe.com/payments/place-a-hold-on-a-payment-method) (accessed November 2026)
+{ .doc-ref }
+
 ### Outbox
 
 <a class="pill pill-scope pill-scope-app" href="#map-of-scales">Scale · Application</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span> <a class="pill pill-nature pill-nature-decide" href="../architecture/#how-to-read-this-page" title="A choice the team or the architects must make, then record in an ADR">Decide</a> <a class="pill pill-topic pill-topic-data" href="../architecture/#how-to-read-this-page" title="About where the data lives and how its copies stay in agreement">Data</a>
@@ -1029,6 +1095,7 @@ Rewriting the log breaks what makes event sourcing worth it: the auditor can no 
 | I want to... | I use... |
 |---|---|
 | to carry out a business action that touches several services, like an order that reserves stock then charges the customer | saga with compensations |
+| not to refund a customer when shipping fails after the order, like a broken item found at the warehouse | authorization at order time, capture when the parcel leaves, void as compensation |
 | to write the order to the database then publish the event, without losing it if the service crashes in between | outbox |
 | a heavy dashboard, like sales per day, that does not slow down order taking | CQRS with read views |
 | a complete history that is authoritative, like the movements of an account in accounting | event sourcing, only where it is required |
@@ -1389,6 +1456,73 @@ Classification taken from the AWS whitepaper "Disaster Recovery of Workloads on 
 :material-book-open-variant: Reference docs: [AWS, "Reducing the Scope of Impact with Cell-Based Architecture"](https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/reducing-scope-of-impact-with-cell-based-architecture.html) (2023)
 { .doc-ref }
 
+### Multi-tenant isolation and the noisy neighbor
+
+<a class="pill pill-scope pill-scope-system" href="#map-of-scales">Scale · System</a> <a class="pill pill-scope pill-scope-infra" href="#map-of-scales">Scale · Infrastructure</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span> <a class="pill pill-nature pill-nature-decide" href="../architecture/#how-to-read-this-page" title="A choice the team or the architects must make, then record in an ADR">Decide</a>
+
+My billing platform `billing-service` serves 800 business customers (example) on the same servers and the same database: it is a **<span class="term" data-term="multi-tenancy">multi-tenant</span>** platform, each customer is a tenant. On Monday, a large customer starts an import of 2 million invoices: the database saturates, and the 799 others wait ten seconds for every page. That is the **<span class="term" data-term="noisy-neighbor">noisy neighbor</span>**: one tenant consumes a shared resource without limit, and all the others pay for it.
+
+**When.** As soon as several customers share a resource: CPU, database connections, a job queue, an external API quota. The signals: everyone's latency rises when a single customer has a peak; one customer accounts for a large share of the traffic; one customer has special requirements, like a contract that requires its data to stay in a given country.
+
+**Why.** Sharing everything costs the least, separating everything isolates the best. I choose the isolation level customer by customer, not once for the whole platform.
+
+| Isolation level | What is separated | Cost | Good when |
+|---|---|---|---|
+| per-tenant quotas | nothing, but each customer has a ceiling: requests, import size, connections | low | starting point, for every customer |
+| one queue per tenant, served in turn | heavy jobs wait in their own customer's queue | medium | one customer's imports delay the others' |
+| <span class="term" data-term="shuffle-sharding">shuffle sharding</span> | each customer gets a small combination of workers drawn from all of them | medium | many small customers; a request that crashes a worker must not hit all of them |
+| dedicated cell or database | a full copy of the stack for one customer or a group | high | one customer weighs a lot, or its contract requires separation |
+
+**How.**
+
+1. I measure per tenant: every metric and every log carries the `tenant_id`, otherwise I cannot tell who the noisy neighbor is.
+2. I set quotas for everyone; beyond them, I answer `429` or I queue, never a shared saturation.
+3. I separate heavy jobs (imports, exports) from interactive requests, and I serve the customers' queues in turn.
+4. I move a customer into its own cell only on a criterion written in advance: it exceeds a share of the traffic (for example 10%), it has already caused an incident, or its contract requires it.
+
+Avoid: a single queue for every import. The large customer's 2 million rows keep all the workers busy for an hour, and a small customer's 50-row import waits behind it.
+
+``` { .python .ex-bad title="Avoid" }
+from queue import Queue
+
+import_queue: Queue[tuple[str, str]] = Queue()
+
+
+# Avoid: first come, first served, whatever the customer
+def submit_import(tenant_id: str, rows: int, file_id: str) -> None:
+    import_queue.put((tenant_id, file_id))
+```
+
+``` { .python .ex-good title="Recommended" }
+from collections import OrderedDict, deque
+
+# Example: row ceiling per import, one queue per tenant
+MAX_ROWS_PER_IMPORT = 100_000
+queues: OrderedDict[str, deque[str]] = OrderedDict()
+
+
+# Good: an import that is too large is refused with a clear message, the others go to their customer's queue
+def submit_import(tenant_id: str, rows: int, file_id: str) -> None:
+    if rows > MAX_ROWS_PER_IMPORT:
+        raise QuotaExceeded(f"{tenant_id}: {rows} rows, limit {MAX_ROWS_PER_IMPORT}")
+    queues.setdefault(tenant_id, deque()).append(file_id)
+
+
+# Good: each worker moves on to the next customer, not to the next file
+def next_job() -> tuple[str, str] | None:
+    for _ in range(len(queues)):
+        tenant_id, pending = next(iter(queues.items()))
+        queues.move_to_end(tenant_id)
+        if pending:
+            return tenant_id, pending.popleft()
+    return None
+```
+
+**Risks.** Isolating too early multiplies what has to be run: 800 dedicated databases means 800 migrations for every schema change. Isolating nothing lets one customer bring all the others down. A badly tuned quota blocks a legitimate customer in the middle of its month-end closing: I announce it, I return the limit and what remains in the response headers, and I plan a temporary raise on request. Finally, in a shared database where one query forgets to filter on `tenant_id`, one customer sees another's invoices: I test data isolation separately, with a test that tries to read the neighbor's data.
+
+:material-book-open-variant: Reference docs: [Microsoft, "Noisy Neighbor antipattern"](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/noisy-neighbor/noisy-neighbor) (accessed November 2026); [Colm MacCárthaigh, "Workload isolation using shuffle-sharding", Amazon Builders' Library](https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/) (2019)
+{ .doc-ref }
+
 | I want to... | I use... |
 |---|---|
 | to find the single piece whose failure stops everything, like a database without a replica or the only person who knows how to deploy | the list of SPOFs, dependency by dependency |
@@ -1396,6 +1530,7 @@ Classification taken from the AWS whitepaper "Disaster Recovery of Workloads on 
 | the service to keep running when a whole data center fails, for example on a power cut | three zones, replicas and a load balancer |
 | to restart in another region when a whole cloud region becomes unreachable | pilot light or warm standby depending on the RTO |
 | a bad deployment to hit only part of the customers, not all of them at once | cell-based architecture, deploying cell by cell |
+| a large customer starting a massive import not to slow down the 799 others on my platform | per-tenant quotas, one queue per customer served in turn, a dedicated cell beyond a written threshold |
 | losing a zone not to depend on autoscaling, which may itself suffer during the failure | static stability: spare capacity provisioned in advance |
 
 !!! maturity "Measuring maturity"
@@ -1487,12 +1622,114 @@ That is also why a short timeout protects: it caps duration, so the number of st
 
 When load grows, the database is often the first limit. A bigger machine (vertical), read replicas, splitting data across several machines (horizontal): these choices have their own trade-offs, detailed in [Scaling a database](sql.md#scaling-a-database).
 
+### Example: a URL shortener
+
+<a class="pill pill-scope pill-scope-system" href="#map-of-scales">Scale · System</a> <a class="pill pill-scope pill-scope-infra" href="#map-of-scales">Scale · Infrastructure</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span> <a class="pill pill-nature pill-nature-decide" href="../architecture/#how-to-read-this-page" title="A choice the team or the architects must make, then record in an ADR">Decide</a> <a class="pill pill-topic pill-topic-data" href="../architecture/#how-to-read-this-page" title="About where the data lives and how its copies stay in agreement">Data</a>
+
+I am asked, in an interview or for a real project, for a service that turns a long URL into a short link (`https://sho.rt/aZ3k9Qx`) and redirects anyone who opens that link. Links are created by logged-in users, and the product wants to count clicks. It is the most classic design exercise (a chapter of Alex Xu, "System Design Interview", volume 1, 2020), because it fits in thirty minutes and forces me to put numbers on it before choosing.
+
+**1. I clarify.** How many links created, how many clicks, how long I keep them, custom aliases, real-time statistics or a few minutes behind? The redirect is the critical path: fast and available. Statistics can lag.
+
+**2. I put numbers on it**, with assumptions stated as such:
+
+``` { .text .ex-illus title="Illustration" }
+writes      100,000,000 links per month / (30 × 86,400 s)   ≈ 40 per second
+reads       100 clicks per created link: read/write ratio of 100 to 1
+            40 × 100                                       ≈ 4,000 per second, ≈ 12,000 at peak (× 3)
+links       100,000,000 × 12 months × 5 years              = 6 billion
+storage     6 billion × 500 bytes                          ≈ 3 TB
+codes       62 to the power of 7                           ≈ 3.5 trillion (3.5 × 10^12)
+```
+
+What I conclude out loud: 100 reads per write is a read system; 40 writes per second and 3 TB fit in a well-indexed relational database; the real topic is the latency and availability of the redirect.
+
+**3. I generate the short code.** **<span class="term" data-term="base62">Base62</span>** encoding uses digits, lowercase and uppercase letters: 62 characters. With 7 characters, 3.5 trillion codes for 6 billion links: the space stays less than 0.2% full.
+
+| Method | Problem |
+|---|---|
+| the first 7 characters of a hash of the URL | two URLs can produce the same code: collisions to detect and resolve |
+| a counter encoded in base62 | no duplicates, but codes can be guessed: `g8`, `g9`, `ga`... a script lists every link |
+| 7 random characters, with a uniqueness constraint | codes cannot be guessed; a rare collision is solved by drawing again |
+
+Avoid: the counter encoded as is. A bot walks through the codes one by one and reads every link, including those shared privately.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: two links created one after the other get neighboring codes
+def new_code(next_id: int) -> str:
+    return encode_base62(next_id)
+```
+
+``` { .python .ex-good title="Recommended" }
+import secrets
+
+# Example: 7 characters in base62, 5 attempts at most
+ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+CODE_LENGTH = 7
+MAX_ATTEMPTS = 5
+
+
+# Good: a random draw, the database's uniqueness constraint settles collisions
+def create_link(db, long_url: str, owner_id: int) -> str:
+    for _ in range(MAX_ATTEMPTS):
+        code = "".join(secrets.choice(ALPHABET) for _ in range(CODE_LENGTH))
+        inserted = db.execute(
+            "INSERT INTO links (code, long_url, owner_id) VALUES (%s, %s, %s) "
+            "ON CONFLICT (code) DO NOTHING",
+            (code, long_url, owner_id),
+        ).rowcount
+        if inserted == 1:
+            return code
+    raise RuntimeError("could not allocate a unique code")
+```
+
+**4. I choose the redirect.** An HTTP **<span class="term" data-term="http-redirect">redirect</span>** tells the browser to go elsewhere, and its code changes everything (RFC 9110, 2022):
+
+| Code | What the browser does | Good when |
+|---|---|---|
+| `301` (permanent) | caches it and no longer goes through my service | I want the least load possible and I do not count clicks |
+| `302` (temporary) | goes through my service on every click | I want to count clicks, or to be able to change or block the destination |
+
+The product wants statistics: I pick `302`.
+
+**5. I protect the read path.**
+
+```mermaid
+flowchart LR
+    U["Browser"] --> LB["Load balancer"]
+    LB --> API["link-service, stateless, N instances"]
+    API -- "GET code" --> C["Redis, cache-aside"]
+    API -- "cache miss" --> R["PostgreSQL replica"]
+    API -- "creation" --> P["PostgreSQL primary"]
+    P -. "replication" .-> R
+    API -- "click event" --> Q["Message queue"]
+    Q --> W["click aggregation"]
+```
+
+- A **<span class="term" data-term="cache-aside">cache-aside</span>** cache in front of the database: 10 million hot links × 500 bytes make 5 GB, one Redis instance is enough (assumption to check against real clicks). A link almost never changes, so no complicated invalidation.
+- A short negative cache for codes that do not exist, otherwise a bot trying random codes hits the database directly.
+- The creator who opens their link right after creating it reads from the primary, otherwise replication lag returns a `404`.
+- Clicks go to a queue and are counted separately: if the queue slows down, the redirect does not.
+
+**6. I finish with the service's own risks.**
+
+| Risk | What happens | What I do |
+|---|---|---|
+| abuse | short links hide phishing pages | I check each URL against a list of malicious domains, and I can block a link, which `302` allows |
+| enumeration | a script tries codes to discover private links | random codes, negative cache, a ceiling on `404`s per IP address |
+| mass creation | one account creates millions of links in an hour | a **<span class="term" data-term="rate-limit">rate limit</span>** on creation, per account, see [Rate limiting](#rate-limiting) |
+
+**Risks.** Sharding the database or choosing a NoSQL database "for scale" when 3 TB and 40 writes per second fit in PostgreSQL adds one more technology to run with no gain. If traffic grows tenfold, what breaks first is the cache (memory, connections), then the click queue; the primary database only sees writes. And a published `301` is hard to take back: browsers may keep it for a long time, so I can no longer cut a malicious link for those who already opened it.
+
+:material-book-open-variant: Reference docs: [IETF, RFC 9110 "HTTP Semantics", section 15.4 Redirection 3xx](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.4) (2022)
+{ .doc-ref }
+
 | I want to... | I use... |
 |---|---|
 | to know within minutes whether an option is realistic, before starting a prototype | back-of-the-envelope math with orders of magnitude |
 | to choose how many servers to plan for, while traffic rises sharply in the evening or during sales | peak QPS, not the average, with a margin |
 | to choose the size of a connection pool or the number of workers, knowing that the database can slow down | Little's law with the worst acceptable latency |
 | to check that my calculations hold against real load | a load test, see [Quality and testing](qualite.md) |
+| to practice walking through a whole design, from numbers to risks, on a classic interview case | the URL shortener example, step by step |
 
 !!! maturity "Measuring maturity"
     | Level | What I see in the team |
@@ -2090,6 +2327,57 @@ A structuring decision is recorded in an **<span class="term" data-term="adr">AD
 :material-book-open-variant: Reference docs: [Michael Nygard, "Documenting Architecture Decisions"](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) (2011); [Architectural Decision Records, adr.github.io](https://adr.github.io/) (accessed November 2026)
 { .doc-ref }
 
+#### Superseding an outdated ADR
+
+<a class="pill pill-scope pill-scope-all" href="#map-of-scales">All scales</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span> <a class="pill pill-nature pill-nature-decide" href="../architecture/#how-to-read-this-page" title="A choice the team or the architects must make, then record in an ADR">Decide</a>
+
+A year ago, in ADR 012, my team chose to publish paid orders on a queue rather than call `email-service` directly (the example from [Delivery](livraison.md#design-before-coding)). Since then, `email-service` has been rebuilt and no longer fails: the queue costs us an on-call rotation and a dead letter queue for a gain that is now zero. The temptation is to open ADR 012 and rewrite its decision. The day someone wonders why a queue ever existed, the answer is gone, and the team may make the same mistake in the other direction.
+
+The **superseded** status (described by Michael Nygard in 2011 and kept by the MADR template) handles this: I neither delete nor rewrite the old ADR. I write a new ADR that says which one it replaces and which assumption was wrong, and I change only the status line of the old one to point to the new one. Both stay in the repo, linked both ways.
+
+**When.** The original decision no longer holds: an assumption turned out wrong (the volume, the cost, an outage that no longer happens), or an incident showed its limits. Not to fix a typo or add a link: that I edit in place. If the decision simply has no purpose any more, because the service was removed, the **deprecated** status is enough, with no new ADR.
+
+**Why.** The history keeps the reasoning of the time with its assumptions, so anyone can see which one was wrong. The team also shows that a decision gets corrected from facts, without looking for someone to blame. Cost: one more file, and the discipline of updating the old one's status line.
+
+**How.** Avoid: I rewrite ADR 012 in place. The "queue" decision and its reasons disappear, and the commit messages that cite ADR 012 point to a text that says the opposite.
+
+``` { .markdown .ex-bad title="Avoid" }
+# ADR 012: call email-service directly, with three retries
+
+Status: accepted (2026-03-14, edited on 2027-02-02)
+Decision: orders-service calls email-service directly.
+```
+
+Good: the old ADR changes by one line, the new one says what it replaces and which assumption changed.
+
+``` { .markdown .ex-good title="Recommended · docs/adr/" }
+012-publish-paid-orders-on-a-queue.md
+Status: superseded by ADR 031 (2027-02-02)
+(the rest of the text does not move: it says what was decided on 2026-03-14)
+
+031-back-to-a-direct-call-to-email-service.md
+# ADR 031: back to a direct call to email-service
+Status: accepted (2027-02-02)
+Supersedes: ADR 012
+Context: ADR 012 assumed 2 to 3 email-service outages per month;
+  since its rebuild, none in six months (example). The queue costs an on-call rotation.
+Decision: orders-service calls email-service with a 2 s timeout and three retries;
+  an email that was not sent goes to a retry table.
+Consequences: one less queue to run; if email-service becomes unstable again,
+  a new ADR will supersede this one.
+```
+
+| I want to... | I use... |
+|---|---|
+| to change a decision because an assumption was wrong, like the expected number of outages | a new ADR, the old one marked "superseded by" |
+| to retire a decision that has no purpose any more, like one about a removed service | the "deprecated" status, with no new ADR |
+| to fix a typo or add a link in an ADR | an edit in place |
+
+**Risks.** A superseded ADR without a back link: a reader finds the old one through a search, believes it is in force and applies it. I change the status line in the same merge request as the new ADR, and a CI check can verify that every "Supersedes: ADR n" has its "superseded by" on the other side. Conversely, three ADRs that supersede each other within six months show decisions taken before the facts were in: I then review how the team decides, not only the latest ADR.
+
+:material-book-open-variant: Reference docs: [MADR, "Markdown Architectural Decision Records"](https://adr.github.io/madr/) (version 4.0.0, 2024); [Michael Nygard, "Documenting Architecture Decisions"](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) (2011)
+{ .doc-ref }
+
 ### Quality scenarios, utility tree and ATAM
 
 <a class="pill pill-scope pill-scope-app" href="#map-of-scales">Scale · Application</a> <a class="pill pill-scope pill-scope-system" href="#map-of-scales">Scale · System</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span> <a class="pill pill-nature pill-nature-decide" href="../architecture/#how-to-read-this-page" title="A choice the team or the architects must make, then record in an ADR">Decide</a>
@@ -2154,6 +2442,79 @@ forbidden_modules = my_api.billing.storage
 **Risks.** A brittle check that fails at random ends up disabled, and the rule disappears with it. Too many rules block legitimate changes and push people to work around them. I start with two or three rules that protect a decision written in an ADR, and I remove those that no longer serve.
 
 :material-book-open-variant: Reference docs: [Thoughtworks Technology Radar, "Architectural fitness function"](https://www.thoughtworks.com/radar/techniques/architectural-fitness-function) (accessed November 2026)
+{ .doc-ref }
+
+### Waivers and the target architecture
+
+<a class="pill pill-scope pill-scope-system" href="#map-of-scales">Scale · System</a> <a class="pill pill-scope pill-scope-enterprise" href="#map-of-scales">Scale · Enterprise</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span> <a class="pill pill-nature pill-nature-decide" href="../architecture/#how-to-read-this-page" title="A choice the team or the architects must make, then record in an ADR">Decide</a>
+
+The **target architecture** says where the system must go, for example: "no module reads another's internal storage, they go through its API or its events". Six months later, team-core's `reports` module still reads `billing`'s tables directly to show invoice status. If I block, team-core works around me silently and I lose sight of it; if I let it go, each deviation invites the next, and the target becomes just a diagram.
+
+A written **<span class="term" data-term="waiver">waiver</span>** gets out of this dilemma: the deviation is accepted, but named, dated, with its risk, its owner and its exit plan.
+
+**When.** I start by asking the team why it deviates. The answer tells me what to do:
+
+| What I find | What I do |
+|---|---|
+| the team does not know the target or how to follow it | I explain, with a working example and the golden path |
+| the target has a gap: the event `reports` needs does not exist | I fix the target with the owning team, here `billing` publishes the missing event |
+| the target is right, but following it now costs too much | a written, dated waiver, with the accepted risk |
+| the deviation touches security, personal data or reliability | I block, and I help fix it fast |
+
+**Why.** The deviation becomes visible and tracked instead of being discovered during an incident; the target improves with the gaps teams report; and I only block where a mistake is expensive, which keeps the weight of each refusal. Cost: a list to maintain and deadlines to chase.
+
+**How.** A team that wants to deviate asks the people affected for advice, then writes its decision, as in Andrew Harmel-Law's <span class="term" data-term="advice-process">advice process</span> (2021). The waiver lives in the repo, next to the [fitness function](#fitness-functions) it bypasses, and a ratchet test guarantees that the list can only shrink.
+
+Avoid: the exception is added to the contract with no date or owner. A year later, nobody knows why it exists, and the next one gets added the same way.
+
+``` { .ini .ex-bad title="Avoid" }
+# Avoid: an exception with no date, no owner and no exit plan
+[importlinter:contract:no-foreign-storage]
+name = no module reads another's storage
+type = forbidden
+source_modules = my_api.reports
+forbidden_modules = my_api.billing.storage
+ignore_imports =
+    my_api.reports.invoices -> my_api.billing.storage
+```
+
+Good: the same exception points to a written waiver (the `ignore_imports` line stays in the contract, with the `W-007` identifier as a comment).
+
+``` { .yaml .ex-good title="Recommended · architecture/waivers.yaml" }
+# Good: an owner, a written risk, a plan and an end date
+- id: W-007
+  rule: no-foreign-storage
+  import: my_api.reports.invoices -> my_api.billing.storage
+  owner: team-core
+  risk: a column rename in billing breaks the invoice screen without warning
+  plan: billing publishes InvoiceStatusChanged, reports keeps its own copy
+  expires: 2027-03-31
+```
+
+``` { .python .ex-good title="Recommended" }
+import datetime
+
+import yaml
+
+# Example: the number of waivers on the day the rule entered CI
+MAX_WAIVERS = 3
+
+
+# Good: the list can only shrink, and an expired waiver fails CI
+def test_waivers_only_shrink_and_expire() -> None:
+    with open("architecture/waivers.yaml", encoding="utf-8") as file:
+        waivers = yaml.safe_load(file)
+    assert len(waivers) <= MAX_WAIVERS, "adding a waiver requires raising MAX_WAIVERS in review"
+    today = datetime.date.today()
+    expired = [waiver["id"] for waiver in waivers if waiver["expires"] < today]
+    assert not expired, f"expired waivers: {expired}"
+```
+
+When a waiver is closed, I lower `MAX_WAIVERS` in the same merge request: that is the ratchet, the ceiling never goes back up silently.
+
+**Risks.** A waiver without a date becomes permanent, and the list ends up describing the real architecture better than the target does. Too many blocks, and teams stop asking: the architect who always says no gets bypassed and no longer sees anything. The ratchet can also get in the way of an emergency: I keep a door open, raising the ceiling in a merge request reviewed by an architect, with the waiver written. And when a waiver reaches its end date without its plan done, I talk to the leads of both teams with the concrete risk, not with authority.
+
+:material-book-open-variant: Reference docs: [Andrew Harmel-Law, "Scaling the Practice of Architecture, Conversationally", martinfowler.com](https://martinfowler.com/articles/scaling-architecture-conversationally.html) (2021)
 { .doc-ref }
 
 ### Company tech radar
@@ -2269,6 +2630,7 @@ Pitfalls:
 | to write a complete architecture document without starting from a blank page | arc42 template, useful sections only |
 | the team to still know a year from now why it picked one option over another | ADR in the repo |
 | the code not to quietly contradict the architecture, like `orders` importing `billing`'s internals | fitness functions in CI |
+| a team that deviates from the target architecture for a good reason to do it in the open, and not forever | a written, dated waiver, a list that can only shrink |
 | every new team to know which broker or database to pick, without a meeting, while the platform cannot support everything | company tech radar, kept by the architects |
 
 !!! maturity "Measuring maturity"
@@ -2320,21 +2682,28 @@ The typical questions:
 - "Monolith or microservices for a new product?", "What is a distributed monolith?" How I answer: I start from the number of teams and how stable the business boundaries are ([Which style to choose](#which-style-to-choose)).
 - "Explain the CAP theorem", "Strong or eventual consistency for a bank balance, and for a like counter?" How I answer: I recall that the choice only arises during a network partition, then compare the two cases ([CAP and PACELC](#cap-and-pacelc)), and [The CAP theorem](textes-fondateurs.md#brewer-2000-then-gilbert-and-lynch-2002-the-cap-theorem).
 - "How do you keep data consistent across two services without a distributed transaction?", "How do you publish an event without losing it once the database has written?" How I answer: I describe a saga with its compensations, then the outbox ([Orchestrated or choreographed saga](#orchestrated-or-choreographed-saga), [Outbox](#outbox)).
+- "In an order saga, when do you charge the customer?" How I answer: I authorize at order time, I capture right before the parcel leaves, and a failure in between voids the authorization instead of refunding; I mention authorization expiry as the limit ([Payment authorization and capture](#payment-authorization-and-capture)).
 - "A service you depend on becomes slow, what do you do?", "How do you stop a retry from charging twice?" How I answer: I stack timeout, retry with jitter, circuit breaker and idempotency ([Resilience](#resilience), [Idempotency](#idempotency)).
 - "How do you approach a system design exercise?" How I answer: I first clarify the needs and the orders of magnitude, propose the simplest design that meets them, then look for its bottlenecks and the way it fails ([Estimating capacity](#estimating-capacity), [Resilience](#resilience)).
 - "How many servers for one million daily active users?" How I answer: I walk through the back-of-the-envelope calculation, from average QPS to peak, then Little's law ([Average and peak QPS](#average-and-peak-qps), [Little's law](#littles-law)).
+- "Design a URL shortener." How I answer: I clarify, I compute the read/write ratio and the storage, I generate random 7-character base62 codes, I pick `302` to count clicks, I put a cache on the read path and I finish with abuse, enumeration and rate limiting ([Example: a URL shortener](#example-a-url-shortener)).
 - "How do you ship several times a day without downtime?", "How do you rename a column in production?" How I answer: I talk about independent deployment, compatible contracts, expand and contract and feature flags, then point to the pipeline practices ([Designing for continuous delivery](#designing-for-continuous-delivery)).
 - "What is Conway's law, and what do you do with it?" How I answer: I describe the front-end, back-end and database teams producing three coupled layers, then the inverse maneuver ([Conway's law](#conways-law)).
 - "How do you choose a database?" How I answer: I start from the access patterns, I take a relational database by default and I add another family only for a pattern it serves badly, quoting innovation tokens ([Choosing the type of database](#choosing-the-type-of-database)).
 - "Where do you put a cache, and how do you keep a popular key that expires from bringing down the database?" How I answer: I measure first, I reason in layers, cache-aside by default with a TTL decided by the business, then <span class="term" data-term="request-coalescing">request coalescing</span>, jitter and stale-while-revalidate against the stampede ([Scaling out](#scaling-out)).
 - "Design a rate limiter for an API open to partners." How I answer: I compare fixed window, sliding window and token bucket, I share the counter in Redis across instances and I return `429` with `Retry-After` ([Rate limiting](#rate-limiting)).
+- "A large customer slows down everyone else on your platform, what do you do?" How I answer: I measure per tenant, I set quotas for everyone, I serve the customers' queues in turn and I move a customer into its own cell only on a written criterion ([Multi-tenant isolation and the noisy neighbor](#multi-tenant-isolation-and-the-noisy-neighbor)).
 - "The business wants a 'fast and reliable' system, what do you do?" How I answer: I turn each adjective into a six-part scenario, I sort them into a utility tree and I have the numbers validated ([Quality scenarios, utility tree and ATAM](#quality-scenarios-utility-tree-and-atam)).
 - "Full rewrite or progressive redesign?" How I answer: progressive redesign by default, with the decision grid, then the strangler fig step by step with its rollback ([Modernizing an existing system](#modernizing-an-existing-system)).
 - "How do you document an architecture decision?" How I answer: I show an ADR and the C4 views I draw ([ADR](#adr), [C4 model](#c4-model)).
+- "An architecture recommendation you championed turns out wrong, what do you do?" How I answer: I look for the assumption that was wrong, I write a new ADR that supersedes the old one and I mark the old one "superseded by", without deleting or rewriting it ([Superseding an outdated ADR](#superseding-an-outdated-adr)).
+- "What do you do if teams do not follow the target architecture?" How I answer: I ask why, I fix the target if it has a gap, I write a dated waiver if it costs too much to follow right now, and I only block on security, data and reliability ([Waivers and the target architecture](#waivers-and-the-target-architecture)).
 - "How do you frame technology choices across several teams?", "Who decides that a tool is adopted?" How I answer: I describe a company radar kept by architects with a mandate, written criteria per ring, proposals open to every team and a review at a fixed pace, then I link it to ADRs and golden paths ([Company tech radar](#company-tech-radar)).
 - "How do you know your new architecture works?", "What is the difference between an SLO and an SLA?" How I answer: I record a baseline before, the same measure after over a window of the same length and a guard metric, then I give an SLI, an internal SLO and a looser SLA with a penalty ([Measuring success](#measuring-success)).
 
 What makes a good answer: it names the trade-off, what the choice brings, what it costs, and in which situation I would do the opposite. A style or pattern presented without its cost sounds like a learned answer.
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
 
 ## What to use in which situation
 

@@ -127,6 +127,66 @@ A second saved in the inner loop counts much more than it seems: 2 minutes of wa
 
     **I measure**: the median and p90 of the CI duration (read in the CI tool) and the delay between opening a merge request and its first review (read in the merge request tool).
 
+## Finding frictions by observation
+
+<a class="pill pill-scope pill-scope-enterprise" href="../architecture/#map-of-scales">Scale · Enterprise</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+Developers tell me "everything is slow", but the dashboards show a 12-minute CI, which looks reasonable. If I only rely on the survey or on the numbers, I optimise what is visible, not what is costly. Many <span class="term" data-term="process-friction">frictions</span> have become invisible to the people who live with them: finding the right repository, getting a `.env` from a colleague, rerunning a red job. Nobody thinks of reporting them, "that's normal".
+
+Two observation methods come from user research. **Shadowing**: I follow a developer while they work, without stepping in, and I write down what they do. **Contextual inquiry** (Hugh Beyer and Karen Holtzblatt, "Contextual Design", 1998): I watch the person in their real work context and ask them, as we go, why they do what they do, like an apprentice with a master.
+
+**When**: before choosing a DevX initiative, when complaints are vague, or when the tool numbers do not match how people feel. Not to confirm a friction already measured, like a CI that takes 40 minutes: then I just fix it. **Why**: without observation, I rank frictions by noise, not by cost, and I miss the ones nobody reports any more. The cost: one to two hours per session, plus the observed person's time. **How**, by crossing three sources:
+
+| Source | What it gives me | What it misses |
+|---|---|---|
+| interviews or a short survey | what developers feel, in their own words | what they no longer notice |
+| observation of a real task (shadowing, contextual inquiry) | the actual moves, waits and workarounds | frequency: I only see one session |
+| tool data (CI, forge, tickets) | frequency and duration, over hundreds of cases | what happens outside the tools: searching, asking, waiting for an answer |
+
+1. I ask for a **real task**, not a demo: fixing a real bug end to end, from the ticket to the MR. A demo skips precisely the detours.
+2. I keep a **raw timestamped log**, with no comment or judgement, during the hour of observation.
+3. Afterwards, I extract each friction and **score** it: duration, frequency, number of people affected. A small annoyance hit twenty times a day by a hundred people weighs more than a big problem hit once a year.
+4. I check the frequency in the tool data, then I show the result to the observed teams so they correct or confirm it.
+
+``` { .text .ex-illus title="Illustration · raw log of a session with ada (fictitious)" }
+10:02  opens the ticket, looks for the service in the wiki (2 outdated pages)
+10:09  asks on chat which repository holds the service, answer at 10:21
+10:24  make test fails: DATABASE_URL variable missing, copies a colleague's .env
+10:31  tests green, pushes the MR
+10:44  CI red on an unrelated test, reruns the job
+10:56  CI green, asks for a review on chat
+```
+
+| Observed friction | Duration | Frequency | People affected | Cost per month (example) | Reported by ada? |
+|---|---|---|---|---|---|
+| finding the right repository | 19 min | every new topic, about 4 a month | 40 | about 50 h | no, "that's normal" |
+| `.env` fetched by hand | 7 min | every new repository, about 2 a month | 40 | about 9 h | no |
+| flaky test in CI | 12 min | 1 MR in 4, about 10 a month per person | 40 | about 80 h | yes |
+
+Example numbers. Out of three frictions, only one would have come up in a survey, and the second most costly would have been seen by no one. To link these frictions to the total lead time of a change, I then draw a <span class="term" data-term="value-stream-mapping">value stream map</span> with two or three developers: often, review wait time or a manual approval weighs most, not CI.
+
+**Risks.** An observed person changes how they work, and a senior developer does not show a newcomer's blockers: I observe several profiles, including a newcomer. A log shared with the person's name becomes an individual assessment: I only publish the frictions, never who took how long ([Measuring without monitoring people](#measuring-without-monitoring-people)). Three sessions do not make a frequency: I check it in the tool data before starting an initiative.
+
+| I want... | I use... |
+|---|---|
+| to know what annoys teams most, in their own words | interviews or a short survey |
+| to see the detours nobody reports any more, like searching for a repository or copying a `.env` | an observation session on a real task, with a timestamped log |
+| to know how many times a month a friction really happens | CI, forge and ticket data |
+| to understand where time goes between the ticket and production | a value stream map |
+
+:material-book-open-variant: Reference docs: [Nielsen Norman Group, "Contextual Inquiry: Inspire Design by Observing and Interviewing Users in Their Context"](https://www.nngroup.com/articles/contextual-inquiry/) (2020)
+{ .doc-ref }
+
+!!! maturity "Measuring maturity"
+    | Level | What I see in the team |
+    |---|---|
+    | N1 | DevX initiatives are chosen from the loudest complaints, with no observation |
+    | N2 | every quarter, a few observation sessions on real tasks, with a timestamped log, crossed with a survey |
+    | N3 | each friction found is scored (duration, frequency, people affected) and its frequency checked in tool data before it enters the roadmap |
+    | N4 | the team picks its initiatives from the estimated monthly cost of frictions, and measures again after each initiative |
+
+    **I measure**: the number of frictions found by observation and missing from the survey, read in the session notes; the share of initiatives started from a scored friction, read in the roadmap.
+
 ## Setting up a project in one command
 
 <a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
@@ -540,6 +600,69 @@ spec:
 :material-book-open-variant: Reference docs: [GitLab, Review Apps](https://docs.gitlab.com/ci/review_apps/) (accessed November 2026); [Argo CD, Pull Request Generator](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Pull-Request/) (accessed November 2026); [GitLab, Environments](https://docs.gitlab.com/ci/environments/) (accessed November 2026)
 { .doc-ref }
 
+### Which environment for which test
+
+<a class="pill pill-scope pill-scope-system" href="../architecture/#map-of-scales">Scale · System</a> <a class="pill pill-scope pill-scope-infra" href="../architecture/#map-of-scales">Scale · Infrastructure</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+Four teams share a single acceptance environment. My end-to-end tests fail one morning out of three: another team deployed an unstable version of its service there, or the payment provider's sandbox stopped answering. Nobody reads the failures any more, since "it's the environment again". The rule I set myself: **a test failure must mean the code has a problem**, not that someone broke the environment.
+
+A <span class="term" data-term="shared-environment">shared environment</span> serves several teams or several suites at the same time. A <span class="term" data-term="throwaway-database">throwaway database</span> is created for one test run, then deleted. An <span class="term" data-term="ephemeral-environment">ephemeral environment</span> is created for an MR, then destroyed, like the preview environment [above](#preview-environment-per-merge-request). <span class="term" data-term="service-virtualization">Service virtualization</span> replaces an external service I do not control with a fake that answers like it, errors and delays included.
+
+*Testcontainers: complements pytest*<br>
+*WireMock: competes with MockServer, Mountebank; complements Testcontainers*
+{ .tool-rel }
+
+**When**: as soon as tests fail for a reason that does not come from the code under test, or two teams step on each other in the same acceptance environment. **Why**: each test goes to the cheapest environment that can prove what it checks; failures become readable again. The cost: containers to start in CI, fake services to maintain, and a pre-production environment that still has to be run. **How**:
+
+1. I measure first: over a month, how many failures come from the environment (another team's deployment, unavailable third party, modified data) and how many from the code.
+2. I place each family of tests in the table below, starting with the cheapest.
+3. I replace third-party services with a fake service, and I keep a single nightly test against the real sandbox, to see whether the provider changes something.
+4. I give the pre-production environment an owner and written usage rules.
+
+| Situation | Environment | What it proves | Cost |
+|---|---|---|---|
+| I check a discount calculation in `orders-service`, with no database or network | none: the test process alone | the logic of the code | almost nothing, a few milliseconds |
+| I check that my SQL queries and migrations work on the real engine, not on SQLite | a throwaway database, started by Testcontainers in the same version as production | the code and its database, with no interference | one container per test session, a few seconds |
+| I test the "declined" and "timed out" answers of the payment provider, which its sandbox cannot produce on demand | a fake HTTP service (service virtualization) | my handling of the third party's errors | response files to keep up to date when the contract changes |
+| my product owner wants to click through an MR's screen before the merge | an ephemeral environment per MR | the feature end to end, before the merge | cluster resources per MR, capped |
+| I check that my service and the other teams' services still talk to each other, after the merge | the shared integration environment, deployed only by CI | compatibility between services | conflicts between teams, which must be made visible |
+| I run a load test or a final acceptance check before a production release | pre-production, close to production, with an owner and usage rules | behaviour at scale, with the real configuration | expensive, so booked and kept to few tests |
+
+Avoid: an integration test wired to the shared acceptance database. Another team empties the `orders` table for its own demo while my test runs, and my test fails although my code did not change.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: the shared acceptance database, which other teams modify while my tests run
+DATABASE_URL = "postgresql://qa:qa@recette.example.com:5432/orders"
+```
+
+``` { .python .ex-good title="Recommended" }
+import pytest
+from testcontainers.postgres import PostgresContainer
+
+
+# Good: a throwaway Postgres database, same version as production, destroyed at the end of the session
+@pytest.fixture(scope="session")
+def database_url():
+    """Start Postgres in a container and return its connection URL."""
+    with PostgresContainer("postgres:16") as postgres:
+        yield postgres.get_connection_url()
+```
+
+For pre-production, the usage rules fit in a few lines, shown on the environment's page:
+
+``` { .text .ex-illus title="Illustration · pre-production usage rules" }
+owner              team-core (grace), channel #preprod
+deployment         only through CI, from main; never by hand
+board              who deployed which version, and when, visible to everyone
+load tests         booked in the shared calendar, Tuesday and Thursday afternoons
+data               fictitious set reloaded every night; never a copy of production
+```
+
+**Risks.** Fake services that no longer follow the real provider give green tests on an outdated contract; the nightly test against the real sandbox, or contract tests, warn me. Moving everything to throwaway databases makes me forget compatibility between services: I keep a few tests on the shared integration environment. A pre-production environment without an owner turns back into the acceptance environment everyone breaks.
+
+:material-book-open-variant: Reference docs: [Testcontainers, documentation](https://testcontainers.com/) (accessed November 2026); [WireMock, documentation](https://wiremock.org/) (accessed November 2026); [Adam Wiggins, "The Twelve-Factor App", factor X "Dev/prod parity"](https://12factor.net/dev-prod-parity) (2011)
+{ .doc-ref }
+
 !!! maturity "Measuring maturity"
     | Level | What I see in the team |
     |---|---|
@@ -909,6 +1032,173 @@ Example curve: 3 teams in month 2, 7 in month 4, 15 in month 6. Going from 7 to 
 :material-book-open-variant: Reference docs: [Wikipedia, Diffusion of innovations](https://en.wikipedia.org/wiki/Diffusion_of_innovations) (accessed November 2026); [Wikipedia, Crossing the Chasm](https://en.wikipedia.org/wiki/Crossing_the_Chasm) (accessed November 2026)
 { .doc-ref }
 
+### Usage telemetry for an internal tool or CLI
+
+<a class="pill pill-scope pill-scope-app" href="../architecture/#map-of-scales">Scale · Application</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+My internal CLI `devx` has five subcommands (create an environment, run the tests, open a service's dashboard...). I do not know which ones are used, which are slow, or which fail: I find out when someone complains in the help channel. <span class="term" data-term="usage-telemetry">Usage telemetry</span> makes the tool send, on each run, a small event that describes how the tool is used, not the person using it.
+
+**When**: an internal tool used by several teams, where I must decide what to fix, what to improve and what to retire. Not for a script used by three people: I just ask them. **Why**: without data, I prioritise from complaints, and I never dare retire a command, since I do not know whether someone relies on it. The cost: a collection endpoint to run, a page to keep up to date, and developers' trust not to lose. **How**, rules before code:
+
+| I collect | I never collect | Why |
+|---|---|---|
+| the command run, like `env-create` | arguments and paths | they can contain customer project names or secrets |
+| duration and exit code | name, email, machine name | I measure the tool, not people |
+| CLI version and operating system | file contents or environment variables | none of that helps prioritise |
+| the team, read from the configuration | the person's identifier | the team is enough to prioritise, not to identify someone |
+
+Three more rules: a simple, documented <span class="term" data-term="opt-out">opt-out</span> (`DEVX_TELEMETRY=0`, and I also honour the `DO_NOT_TRACK=1` convention, to check); sending never makes the command fail or slow down; a "what the CLI collects" page published before the first event is sent, with the exact example of an event. Public tools do the same: Homebrew (`HOMEBREW_NO_ANALYTICS`) or the .NET CLI (`DOTNET_CLI_TELEMETRY_OPTOUT`).
+
+Avoid: sending the user and the whole command line, with no timeout. Some day `sys.argv` contains a token passed as an option, and a slow collection server makes every command wait.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: name and arguments sent, no timeout, a server outage makes the command fail
+def report(command: str) -> None:
+    requests.post(TELEMETRY_URL, json={"user": getpass.getuser(), "argv": sys.argv})
+```
+
+``` { .python .ex-good title="Recommended" }
+"""Anonymous, opt-out usage telemetry for the devx internal CLI."""
+
+import functools
+import json
+import logging
+import os
+import platform
+import time
+import urllib.request
+from collections.abc import Callable
+from typing import Any
+
+TELEMETRY_URL = "https://telemetry.example.com/v1/events"
+TELEMETRY_TIMEOUT_SECONDS = 0.5
+CLI_VERSION = "1.8.0"
+
+logger = logging.getLogger(__name__)
+
+
+# Good: the opt-out is read on every run, and DO_NOT_TRACK is honoured
+def telemetry_enabled() -> bool:
+    """Return False when the person opted out of telemetry."""
+    return os.environ.get("DEVX_TELEMETRY", "1") != "0" and os.environ.get("DO_NOT_TRACK") != "1"
+
+
+# Good: a send that never fails and never waits more than half a second
+def send_event(event: dict[str, Any]) -> None:
+    """Send one event, never raising an error."""
+    request = urllib.request.Request(
+        TELEMETRY_URL,
+        data=json.dumps(event).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        urllib.request.urlopen(request, timeout=TELEMETRY_TIMEOUT_SECONDS).close()
+    except OSError as error:
+        logger.debug("telemetry not sent: %s", error)
+
+
+# Good: command, duration, exit code, version, system and team, nothing else
+def tracked(command_name: str, team: str) -> Callable:
+    """Decorate a CLI command to report its duration and exit code."""
+
+    def decorator(func: Callable[..., int]) -> Callable[..., int]:
+        """Wrap the command function."""
+
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> int:
+            """Run the command, then report it if telemetry is enabled."""
+            start = time.monotonic()
+            exit_code = 1
+            try:
+                exit_code = func(*args, **kwargs)
+                return exit_code
+            finally:
+                if telemetry_enabled():
+                    send_event({
+                        "command": command_name,
+                        "exit_code": exit_code,
+                        "duration_ms": round((time.monotonic() - start) * 1000),
+                        "cli_version": CLI_VERSION,
+                        "os": platform.system(),
+                        "team": team,
+                    })
+
+        return wrapper
+
+    return decorator
+```
+
+Half a second is still noticeable when the server is slow. The sturdier version writes the event to a local file and sends it on the next run, or from a separate process.
+
+The query used to decide, over 30 days, which command to fix and which to retire:
+
+``` { .sql .ex-ref title="Reference" }
+-- Example: runs, teams, p95 and failure rate per command over 30 days
+SELECT
+    command,
+    COUNT(*) AS runs,
+    COUNT(DISTINCT team) AS teams,
+    PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration_ms) / 1000 AS p95_seconds,
+    ROUND(100.0 * COUNT(*) FILTER (WHERE exit_code <> 0) / COUNT(*), 1) AS failure_pct
+FROM cli_events
+WHERE received_at >= NOW() - INTERVAL '30 days'
+GROUP BY command
+ORDER BY runs DESC;
+```
+
+| Command | Runs | Teams | p95 | Failures | Decision (example) |
+|---|---|---|---|---|---|
+| `test` | 9,400 | 18 | 42 s | 3 % | nothing to do |
+| `env-create` | 610 | 7 | 6 min | 21 % | top priority: slow and fragile |
+| `dashboard` | 35 | 2 | 1 s | 0 % | candidate for retirement, after talking to both teams |
+
+PostgreSQL syntax. Example numbers.
+
+**Risks.** Telemetry discovered after the fact destroys trust, and developers switch everything off: I publish the page and have security and data protection approve the setup before the first event is sent, even with no personal data. The team is de facto personal data when it has only one or two people: I do not display teams of fewer than five people. People who opted out, or who work offline, do not show up: the numbers are a minimum, not a census, and I never retire a command on the sole basis of a low number.
+
+:material-book-open-variant: Reference docs: [Homebrew, "Anonymous Analytics"](https://docs.brew.sh/Analytics) (accessed November 2026); [Microsoft, ".NET SDK and .NET CLI telemetry"](https://learn.microsoft.com/en-us/dotnet/core/tools/telemetry) (accessed November 2026); [Console Do Not Track](https://consoledonottrack.com/) (publication date not stated, to check)
+{ .doc-ref }
+
+### Proving a tool's value with a pilot
+
+<a class="pill pill-scope pill-scope-enterprise" href="../architecture/#map-of-scales">Scale · Enterprise</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+I propose a new contract testing tool between `orders-service` and `billing-service`. If I install it everywhere at once, I will never know whether it helped: regressions may drop simply because the quarter was quiet. A <span class="term" data-term="pilot">pilot</span> tries the tool on a small scope before offering it to everyone; the <span class="term" data-term="comparison-group">comparison group</span> is a similar team that changes nothing, measured the same way, to separate the tool's effect from what would have changed anyway.
+
+The approach follows Eric Ries's **Build, Measure, Learn** loop ("The Lean Startup", 2011): a hypothesis, the smallest experiment that can test it, then a decision.
+
+**When**: before rolling out a tool or a standard that costs every team time, or when management asks "is it worth it?". Not for a cheap, reversible change, like a lint option: I try it and roll back if needed. **Why**: I decide on an observed result, not on the enthusiasm of the team that chose the tool; and I spot adoption difficulties early. The cost: a few more weeks before rolling out. **How**:
+
+1. I write the **hypothesis**, measurable: "the tool halves the integration regressions caught in staging".
+2. I pick a pilot team on a <span class="term" data-term="representative-scope">representative scope</span> (size, technologies and delivery pace close to the average), not the most enthusiastic team.
+3. I pick the comparison group, and I set the measures **before** starting, costs included (maintenance hours per week).
+4. I write the stop or adjust criteria in advance: for instance, I stop if maintenance exceeds 4 h a week, I adjust if the gain is below 30 %.
+5. I decide: roll out, adjust and run another pilot, or drop it.
+
+``` { .text .ex-illus title="Illustration · pilot, 8 weeks before, 8 weeks after" }
+measure                                   A before  A after  B before  B after
+integration regressions in staging            9        3        8         7
+average time to diagnose a break             3 h      1 h      3 h       3 h
+test maintenance (h per week)                  2        3        2         2
+
+A: pilot team (orders), adopts the tool
+B: comparison group (catalog), changes nothing
+```
+
+Reading: team A goes from 9 to 3 regressions, team B stays stable (from 8 to 7), so the drop does not come from a quiet period for everyone. Honest cost: one more hour of maintenance a week, below the stop threshold. Decision: extend to two more teams, then measure again. Example numbers; with so few teams, this is a hint, not statistical proof.
+
+**Risks.** The pilot team, volunteering and closely followed, works better simply because it is watched: I compare it with a team that is followed too, and I check whether the effect holds after the pilot. A pilot without stop criteria set beforehand never stops, since everyone finds a reason to go on. Picking as pilot the one team that loves the tool gives a result the majority will not reproduce.
+
+| I want... | I use... |
+|---|---|
+| to know whether a tool that costs every team time is worth rolling out | a pilot with a comparison group, measures and criteria set beforehand |
+| to try a lint option I can remove in one line | a direct trial, no pilot |
+| to know whether a team keeps the tool once the pilot is over | retention three months later, through usage telemetry |
+
+:material-book-open-variant: Reference docs: [Eric Ries, "The Lean Startup", principles](https://theleanstartup.com/principles) (2011)
+{ .doc-ref }
+
 !!! maturity "Measuring maturity"
     | Level | What I see in the team |
     |---|---|
@@ -1174,6 +1464,85 @@ Example path. Each blocker noted becomes a ticket, and the newcomer fixes the do
 | I want a newcomer to contribute to real code quickly, for example a small fix merged in their first week | a "first ticket" label on small real tasks |
 | I improved onboarding and want to know whether the next newcomers really get up to speed faster | time to first change, arrival after arrival |
 
+### Learning an unknown codebase or library
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+I join team-core. My first ticket: add a `currency` field to the "order created" event published by `orders-service`. The repository has 400 files, and the service uses a library I have never touched. Reading every file or the whole documentation would take me a week without answering my question.
+
+**When**: when I arrive on a project, or before using a third-party library for the first time. **Why**: starting from a concrete goal makes me useful quickly, and what I check with a test is understood, not assumed. The cost: a few hours of tests that do not test my code. **How**, with two techniques:
+
+1. **Follow one feature end to end.** I start from an <span class="term" data-term="entry-point">entry point</span> (the `POST /orders` HTTP route, a message consumer, a command), I set a breakpoint and follow the request with a debugger down to the database, then to the publication of the event. I also read the existing tests: they often describe the expected behaviour better than the documentation.
+2. **Write <span class="term" data-term="learning-test">learning tests</span>.** For a third-party library, I write small tests that check what I understood of its behaviour. James Grenning describes the technique in the "Boundaries" chapter he wrote for "Clean Code" (Robert C. Martin, 2008), section "Learning Tests Are Better Than Free". I keep them in the suite: if an upgrade changes that behaviour, CI tells me before production does.
+
+``` { .console .ex-ref title="Reference" }
+$ uv run pytest tests/api/test_orders.py::test_create_order --trace
+> tests/api/test_orders.py(12)test_create_order()
+(Pdb) b orders/events.py:41
+(Pdb) c
+> orders/events.py(41)publish_order_created()
+(Pdb) p payload
+{'order_id': 'ord_42', 'total': 1990, 'customer_id': 'cus_7'}
+```
+
+`--trace` stops pytest at the start of the test, `b` sets a breakpoint in the code that publishes the event, `p` prints a variable. In one minute I see what the event really contains. Example paths and content.
+
+Avoid: assuming a library's behaviour from its name, or from another library. I assume `httpx` has no timeout, like `requests`; in fact it gives up after 5 seconds by default, and my slow calls to a partner fail in production.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: no timeout set, assuming the same behaviour as requests
+response = httpx.get("https://partner.example.com/v1/rates")
+```
+
+``` { .python .ex-good title="Recommended" }
+"""Learning tests on httpx and pydantic: they pin down what I understood."""
+
+import httpx
+import pydantic
+import pytest
+
+
+# Good: checks the default timeout, and warns if an upgrade changes it
+def test_httpx_client_has_a_five_second_default_timeout():
+    """httpx gives up after 5 s when nothing is configured."""
+    assert httpx.Client().timeout == httpx.Timeout(5.0)
+
+
+class Order(pydantic.BaseModel):
+    """Minimal model to learn pydantic conversions."""
+
+    quantity: int
+
+
+# Good: checks that a quantity sent as text is converted
+def test_pydantic_converts_a_numeric_string_to_int():
+    """The string "3" becomes the integer 3."""
+    assert Order(quantity="3").quantity == 3
+
+
+# Good: checks that a decimal quantity is refused, not silently rounded
+def test_pydantic_rejects_a_decimal_string_for_int():
+    """The string "2.5" raises a validation error."""
+    with pytest.raises(pydantic.ValidationError):
+        Order(quantity="2.5")
+```
+
+Tests checked with httpx 0.28 and pydantic 2 in November 2026. These tests do not test my code: they pin down what I understood of the libraries. The day Renovate proposes a version that changes one of these behaviours, the upgrade MR turns red, instead of a bug found in production.
+
+I write down as I go what surprised me, and I turn it into an improvement of the project's documentation, like a "how to test an event locally" paragraph: exactly what the next newcomer will look for. I ask my questions after searching for a reasonable time, not after three days stuck.
+
+**Risks.** Learning tests on unimportant details slow the suite down and break at every upgrade: I only keep those about a behaviour my code depends on. Following a single feature gives a narrow view: I complete it with the service's architecture diagram, if there is one, or I draw it.
+
+| I want... | I use... |
+|---|---|
+| to understand how a request goes through a service I do not know | a breakpoint at the entry point and the debugger down to the database |
+| to know how the code should behave, with no up-to-date documentation | the repository's existing tests |
+| to check what a third-party library does in the case I care about | a learning test, kept in the suite |
+| to be warned when a dependency upgrade changes a behaviour I depend on | the same learning tests, run on the Renovate MR |
+
+:material-book-open-variant: Reference docs: [Python, pdb: the Python debugger](https://docs.python.org/3/library/pdb.html) (Python 3, accessed November 2026); Robert C. Martin, "Clean Code", chapter 8 "Boundaries" by James Grenning (2008)
+{ .doc-ref }
+
 !!! maturity "Measuring maturity"
     | Level | What I see in the team |
     |---|---|
@@ -1316,6 +1685,75 @@ flowchart LR
 A repository with no change is skipped; the shared label feeds the campaign table. ast-grep and glab options to check in their documentation. Beyond a few dozen repositories, dedicated tools run the same loop with tracking and retry on error (multi-gitter, Sourcegraph Batch Changes; to check).
 
 :material-book-open-variant: Reference docs: [ast-grep, documentation](https://ast-grep.github.io/) (accessed November 2026); [LibCST, documentation](https://libcst.readthedocs.io/) (accessed November 2026)
+{ .doc-ref }
+
+### Freezing new usages of a deprecated module
+
+<a class="pill pill-scope pill-scope-code" href="../architecture/#map-of-scales">Scale · Code</a> <span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026 with ruff 0.17">Current · 11/2026</span>
+
+I am removing `legacy_config` from 57 repositories. While the codemod MRs get merged, a team creates a new service by copying an old one, and the import comes back: the list to migrate grows instead of shrinking. Before migrating, I **freeze**: no new usage is accepted any more, existing usages keep working until they are migrated.
+
+**When**: as soon as the replacement is ready and the calendar is announced, and before opening the migration MRs. Not before the announcement: a CI that breaks with no explanation puts teams on the defensive. **Why**: without a freeze, the migration never ends; with it, the number of usages only goes down, and the campaign board becomes reliable. The cost: one configuration line per repository (or in the shared ruff configuration) and one pass to mark what already exists. **How**, with three mechanisms:
+
+1. A `DeprecationWarning` in the library, from the announcement on: each import shows the message and the link to the migration guide.
+2. ruff's `banned-api` rule (code `TID251`): any import of the module makes the MR's lint fail.
+3. `ruff check --select TID251 --add-noqa .`, run once: it adds `# noqa: TID251` on each existing line. Only new usages block, and each remaining `noqa` becomes a usage to migrate, visible through a code search.
+
+Avoid: a warning without `stacklevel`. Python attributes it to the library line that calls `warnings.warn`, not to the importing team's code: the message points at `legacy_config/__init__.py`, and nobody knows which file to fix.
+
+``` { .python .ex-bad title="Avoid" }
+# Avoid: the warning points at the library itself, not at the code that imports it
+warnings.warn("legacy_config is deprecated", DeprecationWarning)
+```
+
+``` { .python .ex-good title="Recommended" }
+# legacy_config/__init__.py
+import warnings
+
+# Good: stacklevel=2 attributes the warning to the importing file, with the date and the guide
+warnings.warn(
+    "legacy_config is deprecated and will be removed on April 30. "
+    "Migration guide: https://docs.example.com/migrate-config",
+    DeprecationWarning,
+    stacklevel=2,
+)
+```
+
+Python hides `DeprecationWarning` by default, except in code run directly (`__main__`); pytest shows them in its summary. To make them visible in CI, I run the tests with `-W error::DeprecationWarning` in repositories already migrated.
+
+``` { .toml .ex-ref title="Reference · pyproject.toml" }
+# Example: any import of legacy_config becomes a lint error
+[tool.ruff.lint]
+extend-select = ["TID251"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"legacy_config".msg = "removed on April 30, replace with team_config"
+```
+
+``` { .console .ex-ref title="Reference" }
+$ ruff check --select TID251 --add-noqa .
+Added 41 noqa directives.
+
+$ ruff check --output-format=concise .
+src/orders/refunds.py:3:8: TID251 `legacy_config` is banned: removed on April 30, replace with team_config
+Found 1 error.
+```
+
+Output checked with ruff 0.17; the number of directives is an example. `--select TID251` stops `--add-noqa` from also marking the repository's other errors.
+
+The freeze is the third of the five steps of the removal calendar:
+
+| Step | When (example) | Action | Measure |
+|---|---|---|---|
+| announce | month 0 | migration page, end date, `DeprecationWarning` on import | each owning team has read the announcement |
+| codemod | month 1 | automatic MRs for the common functions ([example](#codemod-example-changing-an-import-in-48-repositories)) | MRs opened, CI green |
+| lint freeze | month 2 | `banned-api` and `--add-noqa` in each repository | zero new usage, number of `noqa` going down |
+| support | months 3 to 5 | pairing with the remaining teams, unusual cases | remaining repositories |
+| archive | month 6 | repository archived, package removed from the internal registry | zero remaining repository |
+
+**Risks.** Turning on the freeze without `--add-noqa` turns 57 CIs red at once, and teams disable the rule; I mark existing usages in the same MR as the rule. A `noqa` added by hand on a new import bypasses the freeze: I count the `noqa: TID251` in the campaign board, and that number must never go up. The rule only sees Python imports: a call through `importlib` or a shell script escapes it, hence the inventory first.
+
+:material-book-open-variant: Reference docs: [Ruff, banned-api rule (TID251)](https://docs.astral.sh/ruff/rules/banned-api/) (accessed November 2026); [Python, warnings module](https://docs.python.org/3/library/warnings.html) (Python 3, accessed November 2026)
 { .doc-ref }
 
 !!! maturity "Measuring maturity"
@@ -1485,8 +1923,16 @@ The typical questions:
 - "The product owner waits for staging to validate screens, what do you suggest?" How I answer: one environment per MR for the front end only, wired to integration, with fictitious data, a time to live and a cost cap ([Preview environment](#preview-environment-per-merge-request)).
 - "How do you evolve an internal CLI without breaking its users?", "Your tool is used by only three teams out of twenty, what do you do?" How I answer: SemVer as a contract, deprecation before removal, then Rogers and Moore, the switching cost and peer testimony ([SemVer](#semver-the-contract-of-an-internal-library-cli-or-component), [Getting a tool adopted](#getting-a-tool-adopted-without-imposing-it)).
 - "How do you know your DevX initiative paid off?" How to answer: a baseline, the same measure afterwards over the same period, a guard metric such as failure rate, and an internal SLO per solution rather than an SLA, since there is no external customer ([Measuring success](#measuring-success)).
+- "How do you manage test environments?", "Our end-to-end tests fail because of the shared acceptance environment, what do you do?" How I answer: I want a failure to mean the code has a problem; I measure the share of failures caused by the environment, then I put each test on the cheapest environment that proves it: throwaway database, fake service for third parties, ephemeral environment per MR, pre-production with an owner and usage rules ([Which environment for which test](#which-environment-for-which-test)).
+- "How do you find developers' real friction points?" How I answer: I cross a survey, observation of a real task with a timestamped log, and tool data, then I score each friction by frequency, duration and people affected ([Finding frictions by observation](#finding-frictions-by-observation)).
+- "How do you know which commands of your internal CLI are used, without monitoring developers?" How I answer: command, duration, exit code, version and team, never names or arguments, a documented opt-out, sending that never blocks, then the query that says what to fix and what to retire ([Usage telemetry](#usage-telemetry-for-an-internal-tool-or-cli)).
+- "How do you prove a tool's value before rolling it out?" How I answer: a measurable hypothesis, a representative pilot, a comparison group, stop criteria set beforehand, in the Build, Measure, Learn spirit ([Proving a tool's value](#proving-a-tools-value-with-a-pilot)).
+- "While you retire a library, new services still import it, what do you do?" How I answer: a `DeprecationWarning` with `stacklevel=2`, ruff's `banned-api` rule, `--add-noqa` for existing usages, within a five-step calendar ([Freezing new usages](#freezing-new-usages-of-a-deprecated-module)).
+- "How do you learn a codebase or a library you do not know?" How I answer: I follow one feature from the entry point to the database with a debugger, and I write learning tests that will warn me if an upgrade changes the behaviour ([Learning an unknown codebase](#learning-an-unknown-codebase-or-library)).
 
 What makes a good answer: start from a measured wait (seconds, minutes, days) before suggesting a tool, and say what I would refuse to measure.
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
 
 ## What to use in which situation
 
@@ -1517,8 +1963,11 @@ What makes a good answer: start from a measured wait (seconds, minutes, days) be
 - Mihaly Csikszentmihalyi, "Flow: The Psychology of Optimal Experience" (1990)
 - Geoffrey Moore, "Crossing the Chasm" (1991)
 - [Jakob Nielsen, "Response Times: The 3 Important Limits" (1993)](https://www.nngroup.com/articles/response-times-3-important-limits/)
+- Hugh Beyer and Karen Holtzblatt, "Contextual Design" (1998)
 - [Martin Fowler, "Continuous Integration" (2000, revised in 2024)](https://martinfowler.com/articles/continuousIntegration.html)
+- Robert C. Martin, "Clean Code" (2008), chapter "Boundaries" by James Grenning
 - [Adam Wiggins, "The Twelve-Factor App" (2011)](https://12factor.net/)
+- [Eric Ries, "The Lean Startup" (2011)](https://theleanstartup.com/principles)
 - [Tom Preston-Werner, "Semantic Versioning 2.0.0" (2013)](https://semver.org/spec/v2.0.0.html)
 - [GitHub, "Scripts to Rule Them All" (2015)](https://github.com/github/scripts-to-rule-them-all)
 - Betsy Beyer et al., "Site Reliability Engineering" (Google, 2016), chapter "Eliminating Toil"

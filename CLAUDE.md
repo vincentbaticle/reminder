@@ -104,6 +104,14 @@ Personal cheat sheets published as a MkDocs Material site, in French (default) a
 
 - An example must describe something a developer would recognise as really happening, with the cause-and-effect mechanism stated (which code is shared, which call fails, what the user sees). No far-fetched link such as "changing the logo breaks the VAT calculation" without the shared code that makes it happen.
 
+## Rule: interview pages
+
+- `docs/entretiens/<role>/` holds one folder per role (`staff-engineer`, `devx-engineer`, `qa-engineer`, `software-engineer`, `software-architect`) with `questions.md` (pivot page) and `exercices.md` (live exercises with worked answers), each with its `.en.md`. Nav group `Entretiens` (English `Interviews`), home group `### Entretiens` / `### Interviews`, README group `## Entretiens`.
+- The pivot page `questions.md` lists, theme by theme, the questions asked for the role (quoted as the interviewer says them), each with a short first-person answer outline (3 to 6 lines) and links to the Knowledge sections that hold the full answer. It gathers the questions of the `## Ce qu'on demande en entretien` sections of every Knowledge page relevant to the role. A notion an answer needs but no Knowledge page explains is added to the right Knowledge page, not written at length in the pivot page.
+- The exercise page `exercices.md` keeps each exercise complete (statement, questions to ask, worked answer, code, oral phrasing), and links each notion to its Knowledge section.
+- Both pages keep the disclaimer, the audience box, hover terms, the code block kinds and verdict comments, `## Mesurer le succès` and `## Pièges à éviter`. They skip scale badges, status pills, maturity boxes and the `## Ce qu'on demande en entretien` section (the whole page is about that). Questions quoted from the interviewer may say "tu"; everything else stays in the first person.
+- Links from these pages to Knowledge use relative paths: `../../knowledge/qualite.md#anchor`. Each Knowledge page whose interview section matches a role links back to that role's pivot page.
+
 ## Rule: typography
 
 No em dash, no en dash and no Unicode arrow anywhere (pages, commits, README). Use a colon, a comma, parentheses or words. Box-drawing characters in trees and diagrams are fine.

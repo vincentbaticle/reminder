@@ -762,3 +762,5 @@ The typical questions:
 - "How do you know that rolling out an AI assistant or an LLM gateway really worked?" How I answer: I give a baseline before, the same measure a quarter later, a guard metric such as the change failure rate, and I separate the internal target (SLO) from the contractual promise (SLA) ([Measuring success](#measuring-success)).
 
 What makes a good answer: separate **what is measured or required by a text** from what is opinion, date the rules and figures, since they change fast, and say where the line is (tools measured, not people judged).
+
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).

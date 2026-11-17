@@ -1240,6 +1240,8 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : nommer le mécanisme, donner un exemple concret, puis dire **ce que le modèle ne garantit pas et quel mécanisme déterministe le couvre** (test, hook, permission). C'est ce qui distingue une réponse d'utilisateur enthousiaste d'une réponse d'ingénieur.
 
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md).
+
 ## Quoi utiliser dans quelle situation
 
 | Situation                                                                 | J'utilise          |

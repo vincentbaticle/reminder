@@ -467,7 +467,7 @@ For each role, the questions asked with an answer outline and links to the Knowl
 
     The most common French expressions, their meaning and their real English equivalent, with an example. Bilingual page.
 
-    *:material-calendar-check: Updated on 2026-11-15*
+    *:material-calendar-check: Updated on 2026-11-19*
 
     [:octicons-arrow-right-24: Open](knowledge/expressions.md)
 
@@ -475,7 +475,7 @@ For each role, the questions asked with an answer outline and links to the Knowl
 
     ---
 
-    Why, when and how to keep up, and the sources to follow for architects, DevX and platform, QA and developers.
+    Why, when and how to keep up, and the sources to follow for architects, DevX and platform, QA, developers, workplace and product managers.
 
     *:material-calendar-check: Updated on 2026-11-19*
 

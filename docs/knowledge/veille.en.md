@@ -4,10 +4,10 @@
     These notes are personal cheat sheets, not a source of truth. They reflect my own understanding and choices: their content remains subjective, despite the quotes and references it contains. It may be incomplete, simplified, inaccurate or outdated. Always check the official documentation before applying it. This content is provided as is, without any warranty: you use it at your own risk.
 
 !!! audience "Who and what for"
-    - **Roles**: developer, QA engineer, architect, platform or DevX engineer, tech lead.
+    - **Roles**: developer, QA engineer, architect, platform or DevX engineer, workplace engineer, product manager.
     - **Uses**: I prepare an interview where I am asked "how do you keep up to date?"; I look for three reliable sources for my role without subscribing to thirty; my team has to pick a test tool and I want to know whether it is mature enough; I want a slot and a method that fit in a busy week.
 
-Tech watch means keeping up with what changes in my job (tools, practices, ideas) without spending my days on it. This page says why, when and how to do it, then lists the most quoted sources for four roles: architect, DevX and platform, QA, developer.
+Tech watch means keeping up with what changes in my job (tools, practices, ideas) without spending my days on it. This page says why, when and how to do it, then lists the most quoted sources for six roles: architect, DevX and platform, QA, developer, workplace and internal IT, product manager.
 
 !!! noob "As noob"
     Tech watch is like checking the weather before a hike: a few regular minutes are enough not to be caught by the storm, without becoming a meteorologist. I do not try to know everything, only to see coming what will affect my work. The takeaway: **useful tech watch is short, regular and aimed at my next decisions.**
@@ -137,6 +137,30 @@ Traps:
 | [Devoxx France](https://www.devoxx.fr/) (since 2012) | conference, online videos | the year's talks, mostly in French |
 | [GitHub Changelog](https://github.blog/changelog/) (creation date not stated) | changelog | changes to the most used development and CI tools |
 
+## Workplace and internal IT
+
+| Source | Format | Why follow it |
+|---|---|---|
+| [Apple Platform Deployment](https://support.apple.com/guide/deployment/welcome/web) (accessed November 2026) | documentation | what changes in Mac, iPhone and iPad enrollment and management with each macOS and iOS release |
+| [Apple security releases](https://support.apple.com/en-us/100100) (accessed November 2026) | list of fixes | which vulnerabilities each update fixes, to decide how urgently to roll it out to the fleet |
+| [MacAdmins Foundation](https://macadmins.org/) (creation date to check) | community, Slack, conferences | the Apple admins community: field reports on MDMs, scripts, release-day issues |
+| [CISA Known Exploited Vulnerabilities catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) (since 2021) | catalog | the vulnerabilities really exploited: what to patch on laptops first |
+| [CERT-FR](https://www.cert.ssi.gouv.fr/) (ANSSI, creation date to check) | alerts and advisories, in French | security alerts to act on, with the affected versions |
+| [SANS Internet Storm Center](https://isc.sans.edu/) (since 2001, to check) | daily diary, podcast | a short summary of the day's threats, useful for support and endpoint security |
+| [Krebs on Security](https://krebsonsecurity.com/) (Brian Krebs, since 2009) | investigative blog | how attacks really happen (phishing, account takeover), material for colleague awareness sessions |
+
+## Product manager
+
+| Source | Format | Why follow it |
+|---|---|---|
+| [SVPG](https://www.svpg.com/articles/) (Marty Cagan, creation date to check) | in-depth articles | empowered product teams, discovery, the product manager's role; part of the vocabulary in [Product management](product-management.md) comes from here |
+| [Product Talk](https://www.producttalk.org/) (Teresa Torres, creation date to check) | blog, courses | continuous discovery: talking to users every week, opportunity solution tree |
+| [Lenny's Newsletter](https://www.lennysnewsletter.com/) (Lenny Rachitsky, since 2019, to check) | newsletter, podcast | growth, retention, PM careers, with numbers from real companies; partly paid |
+| [Mind the Product](https://www.mindtheproduct.com/) (creation date to check) | community, articles, conferences | the largest product community, recorded talks free to watch |
+| [Nielsen Norman Group](https://www.nngroup.com/articles/) (founded in 1998) | research articles | usability and user research, studies with numbers and methods for testing with users |
+| [The Beautiful Mess](https://cutlefish.substack.com/) (John Cutler, creation date to check) | newsletter | product organization, prioritization, what gets stuck between product and engineering |
+| [The Scrum Guide](https://scrumguides.org/scrum-guide.html) (November 2020 revision) | official guide | the reference text when a discussion about events or roles goes off track; details in [Agile](agilite.md) |
+
 ## Measuring success
 
 I know my tech watch works when it changes decisions, not when I read a lot. Before changing my method, I write down a baseline: for example, over the last three months, how many topics I tried and how many team choices quoted a source. I take the same measure three months later. The guard metric is the time spent: if the watch goes beyond the planned slot (1 hour a week in my example), it eats into the work instead of helping it.
@@ -176,6 +200,8 @@ The typical questions:
 - "How do you decide a tool is mature enough to adopt?" How I answer: I look at the project's age, its maintainers, who runs it in production, and the Technology Radar ring ([Pitfalls to avoid](#pitfalls-to-avoid)).
 - "Tell me about a time your tech watch changed a decision in your team" How I answer: I tell a lived story, with what I tried, what I shared and what the team decided ([Why, when and how](#why-when-and-how)).
 - "How do you know your tech watch is useful?" How I answer: I give an indicator (trials run, sourced tool choices), a baseline before, the same measure three months later, and the time spent as a guard metric ([Measuring success](#measuring-success)).
+- "How do you follow the vulnerabilities that affect employee laptops?" How I answer: I name a source of actually exploited vulnerabilities and an alert source, and I say how they decide how urgent a rollout is ([Workplace and internal IT](#workplace-and-internal-it)).
+- "Which product authors do you read, and what did you change thanks to them?" How I answer: I name two sources and one practice I tried, like one user interview a week ([Product manager](#product-manager)).
 - "How do you stay up to date on test tools?" How I answer: I read the tool's release notes and a testing newsletter, and I follow a community like Ministry of Testing ([QA](#qa)).
 
 What makes a good answer: show a regular habit rather than a list of names, with a method, two or three sources really read, and an example of something tried then shared.
@@ -193,3 +219,5 @@ The questions by role, with more detailed answers and worked exercises: [Staff E
 | I must convince my management to change the way we deliver, and I need numbers rather than a feeling | DORA reports |
 | I already write Playwright tests and want to grow in how I think about testing, not in the tool | Ministry of Testing, DevelopSense, Satisfice |
 | I prefer to follow the news in French, as a podcast or a video | Les Cast Codeurs, Devoxx France |
+| I manage the company's laptops and a macOS update fixes a vulnerability: I must decide whether to push it today or next week | Apple security releases, CISA KEV catalog, CERT-FR |
+| I am a product manager and want to get better at discovery, like learning to interview users without leading their answers | Product Talk, SVPG, Nielsen Norman Group |

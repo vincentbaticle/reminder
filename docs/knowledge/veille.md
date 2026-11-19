@@ -4,10 +4,10 @@
     Ces notes sont des pense-bêtes personnels, pas une source de vérité. Elles reflètent ma compréhension et mes choix : leur contenu reste subjectif, malgré les citations et les références qu'il contient. Il peut être incomplet, simplifié, inexact ou dépassé. Vérifiez toujours dans la documentation officielle avant de l'appliquer. Ce contenu est fourni tel quel, sans aucune garantie : son utilisation se fait sous votre seule responsabilité.
 
 !!! audience "Pour qui, pour quoi"
-    - **Métiers** : développeur, QA, architecte, ingénieur plateforme ou DevX, tech lead.
+    - **Métiers** : développeur, QA, architecte, ingénieur plateforme ou DevX, ingénieur workplace, product manager.
     - **Usages** : je prépare un entretien où l'on me demande « comment fais-tu ta veille ? » ; je cherche trois sources fiables pour mon métier sans m'abonner à trente ; mon équipe doit choisir un outil de test et je veux savoir s'il est assez mûr ; je veux un créneau et une méthode qui tiennent dans une semaine chargée.
 
-Faire de la veille, c'est suivre ce qui change dans mon métier (outils, pratiques, idées) sans y passer mes journées. Cette page dit pourquoi, quand et comment la faire, puis liste les sources les plus citées pour quatre métiers : architecte, DevX et plateforme, QA, développeur.
+Faire de la veille, c'est suivre ce qui change dans mon métier (outils, pratiques, idées) sans y passer mes journées. Cette page dit pourquoi, quand et comment la faire, puis liste les sources les plus citées pour six métiers : architecte, DevX et plateforme, QA, développeur, workplace et IT interne, product manager.
 
 !!! noob "As noob"
     La veille, c'est comme regarder la météo avant une randonnée : quelques minutes régulières suffisent pour ne pas être surpris par l'orage, sans devenir météorologue. Je ne cherche pas à tout savoir, seulement à voir venir ce qui va toucher mon travail. La phrase à retenir : **une veille utile est courte, régulière et tournée vers mes prochaines décisions.**
@@ -137,6 +137,30 @@ Pièges :
 | [Devoxx France](https://www.devoxx.fr/) (depuis 2012) | conférence, vidéos en ligne | les conférences de l'année, en français pour la plupart |
 | [GitHub Changelog](https://github.blog/changelog/) (date de création non indiquée) | journal des nouveautés | évolutions des outils de développement et de CI les plus utilisés |
 
+## Workplace et IT interne
+
+| Source | Format | Pourquoi la suivre |
+|---|---|---|
+| [Apple Platform Deployment](https://support.apple.com/guide/deployment/welcome/web) (consultée en novembre 2026) | documentation | ce qui change dans l'inscription et la gestion des Mac, iPhone et iPad à chaque version de macOS et iOS |
+| [Notes de sécurité Apple](https://support.apple.com/en-us/100100) (consultée en novembre 2026) | liste des correctifs | savoir quelles failles chaque mise à jour corrige, pour décider de l'urgence du déploiement sur le parc |
+| [MacAdmins Foundation](https://macadmins.org/) (date de création à vérifier) | communauté, Slack, conférences | la communauté des administrateurs Apple : retours d'expérience sur les MDM, scripts, problèmes du jour de sortie |
+| [CISA, catalogue Known Exploited Vulnerabilities](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) (depuis 2021) | catalogue | les failles réellement exploitées : ce qui doit être corrigé sur les postes en priorité |
+| [CERT-FR](https://www.cert.ssi.gouv.fr/) (ANSSI, date de création à vérifier) | alertes et avis, en français | les alertes de sécurité à traiter, avec les versions concernées |
+| [SANS Internet Storm Center](https://isc.sans.edu/) (depuis 2001, à vérifier) | journal quotidien, podcast | un résumé court des menaces du jour, utile pour le support et la sécurité des postes |
+| [Krebs on Security](https://krebsonsecurity.com/) (Brian Krebs, depuis 2009) | blog d'enquête | comment les attaques se passent vraiment (hameçonnage, vol de comptes), de quoi nourrir la sensibilisation des collègues |
+
+## Product manager
+
+| Source | Format | Pourquoi la suivre |
+|---|---|---|
+| [SVPG](https://www.svpg.com/articles/) (Marty Cagan, date de création à vérifier) | articles de fond | équipes produit autonomes, discovery, rôle du product manager ; le vocabulaire de [Product management](product-management.md) vient en partie d'ici |
+| [Product Talk](https://www.producttalk.org/) (Teresa Torres, date de création à vérifier) | blog, cours | discovery continue : parler aux utilisateurs chaque semaine, arbre des opportunités |
+| [Lenny's Newsletter](https://www.lennysnewsletter.com/) (Lenny Rachitsky, depuis 2019, à vérifier) | newsletter, podcast | croissance, rétention, carrière de PM, avec des chiffres d'entreprises réelles ; payante en partie |
+| [Mind the Product](https://www.mindtheproduct.com/) (date de création à vérifier) | communauté, articles, conférences | la communauté produit la plus large, conférences filmées en accès libre |
+| [Nielsen Norman Group](https://www.nngroup.com/articles/) (fondé en 1998) | articles de recherche | ergonomie et recherche utilisateur, études chiffrées et méthodes de test avec des utilisateurs |
+| [The Beautiful Mess](https://cutlefish.substack.com/) (John Cutler, date de création à vérifier) | newsletter | organisation produit, priorisation, ce qui coince entre produit et ingénierie |
+| [The Scrum Guide](https://scrumguides.org/scrum-guide.html) (révision de novembre 2020) | guide officiel | le texte de référence quand une discussion sur les rituels ou les rôles dérape ; détail dans [Agilité](agilite.md) |
+
 ## Mesurer le succès
 
 Je sais que ma veille marche quand elle change des décisions, pas quand je lis beaucoup. Avant de changer ma méthode, je note une base : par exemple, sur les trois derniers mois, combien de sujets j'ai essayés et combien de choix d'équipe citaient une source. Je reprends la même mesure trois mois plus tard. La métrique garde-fou est le temps passé : si la veille dépasse le créneau prévu (1 h par semaine dans mon exemple), elle grignote le travail au lieu de l'aider.
@@ -176,6 +200,8 @@ Les questions typiques :
 - « Comment décides-tu qu'un outil est assez mûr pour l'adopter ? » Pour répondre : je regarde l'âge du projet, ses mainteneurs, qui l'utilise en production, et l'anneau du Technology Radar ([Pièges à éviter](#pieges-a-eviter)).
 - « Raconte une fois où ta veille a changé une décision dans ton équipe » Pour répondre : je raconte une histoire vécue, avec ce que j'ai essayé, ce que j'ai partagé et ce que l'équipe a décidé ([Pourquoi, quand et comment](#pourquoi-quand-et-comment)).
 - « Comment sais-tu que ta veille sert à quelque chose ? » Pour répondre : je donne un indicateur (essais menés, choix d'outils sourcés), une base avant, la même mesure trois mois après, et le temps passé comme garde-fou ([Mesurer le succès](#mesurer-le-succes)).
+- « Comment suis-tu les failles qui touchent les postes de travail ? » Pour répondre : je cite une source de failles réellement exploitées et une source d'alertes, et je dis comment elles décident de l'urgence d'un déploiement ([Workplace et IT interne](#workplace-et-it-interne)).
+- « Quels auteurs produit lis-tu, et qu'as-tu changé grâce à eux ? » Pour répondre : je cite deux sources et une pratique que j'ai essayée, comme un entretien utilisateur par semaine ([Product manager](#product-manager)).
 - « Comment restes-tu à jour sur les outils de test ? » Pour répondre : je lis les notes de version de l'outil, une newsletter de test, et je suis une communauté comme Ministry of Testing ([QA](#qa)).
 
 Ce qui fait une bonne réponse : montrer une habitude régulière plutôt qu'une liste de noms, avec une méthode, deux ou trois sources vraiment lues, et un exemple de chose essayée puis partagée.
@@ -193,3 +219,5 @@ Les questions par métier, avec des réponses plus détaillées et des exercices
 | je dois convaincre ma direction de changer la façon de livrer, et il me faut des chiffres plutôt qu'une impression | rapports DORA |
 | je sais déjà écrire des tests Playwright et je veux progresser sur la façon de penser le test, pas sur l'outil | Ministry of Testing, DevelopSense, Satisfice |
 | je préfère suivre l'actualité en français, en podcast ou en vidéo | Les Cast Codeurs, Devoxx France |
+| je gère les postes de l'entreprise et une mise à jour de macOS corrige une faille : je dois décider si je la pousse aujourd'hui ou la semaine prochaine | notes de sécurité Apple, catalogue CISA KEV, CERT-FR |
+| je suis product manager et je veux progresser sur la discovery, comme apprendre à interviewer des utilisateurs sans orienter leurs réponses | Product Talk, SVPG, Nielsen Norman Group |

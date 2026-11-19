@@ -69,7 +69,7 @@ Pour chaque métier, les questions avec une piste de réponse et des liens vers 
 ## Divers
 
 - [Expressions courantes (multilingue)](docs/knowledge/expressions.md) : expressions françaises courantes et leur équivalent anglais (page bilingue unique)
-- [Veille technique par métier](docs/knowledge/veille.md) : pourquoi, quand et comment faire sa veille, sources pour architecte, DevX, QA et développeur
+- [Veille technique par métier](docs/knowledge/veille.md) : pourquoi, quand et comment faire sa veille, sources pour architecte, DevX, QA, développeur, workplace et product manager
 
 ## Lancer le site en local
 

@@ -467,7 +467,7 @@ Pour chaque métier, les questions posées avec une piste de réponse et des lie
 
     Les expressions françaises les plus courantes, leur sens et leur vrai équivalent anglais, avec un exemple. Page bilingue.
 
-    *:material-calendar-check: Mis à jour le 15/11/2026*
+    *:material-calendar-check: Mis à jour le 19/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/expressions.md)
 
@@ -475,7 +475,7 @@ Pour chaque métier, les questions posées avec une piste de réponse et des lie
 
     ---
 
-    Pourquoi, quand et comment faire sa veille, et les sources à suivre pour l'architecte, la DevX et la plateforme, la QA et le développeur.
+    Pourquoi, quand et comment faire sa veille, et les sources à suivre pour l'architecte, la DevX et la plateforme, la QA, le développeur, le workplace et le product manager.
 
     *:material-calendar-check: Mis à jour le 19/11/2026*
 

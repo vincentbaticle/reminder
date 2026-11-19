@@ -12,7 +12,7 @@
 !!! info "Page bilingue"
     Cette page est la même dans toutes les langues : elle montre le français et l'anglais côte à côte, le bouton de langue est donc désactivé ici. *This page is the same in every language: it shows French and English side by side, so the language switcher is disabled here.*
 
-Les expressions françaises les plus courantes, avec leur sens, l'équivalent qu'un anglophone dirait vraiment (pas une traduction mot à mot), et un exemple dans les deux langues. Deux sections couvrent aussi le monde du travail : les [expressions d'entreprise](#expressions-dentreprise) entendues en réunion et dans les mails, et les [expressions techniques](#expressions-techniques) des équipes de développement, de QA et d'exploitation.
+Les expressions françaises les plus courantes, avec leur sens, l'équivalent qu'un anglophone dirait vraiment (pas une traduction mot à mot), et un exemple dans les deux langues. Quatre sections couvrent aussi le monde du travail : les [expressions d'entreprise](#expressions-dentreprise) entendues en réunion et dans les mails, les [expressions techniques](#expressions-techniques) des équipes de développement, de QA et d'exploitation, les [expressions agiles et produit](#expressions-agiles-et-produit) des équipes Scrum, Kanban et des product managers, et les [expressions du support informatique](#expressions-du-support-informatique).
 
 Comment lire les tableaux :
 
@@ -237,6 +237,41 @@ Ce que disent vraiment les équipes de développement, de QA et d'exploitation, 
 | Yak shaving | enchaîner des tâches annexes avant de pouvoir faire la vraie tâche | yak shaving | Pour corriger le bug, j'ai dû monter de version Node, puis le linter... du yak shaving. *To fix the bug I had to upgrade Node, then the linter... pure yak shaving.* |
 | Bikeshedding | passer des heures sur un détail facile en négligeant le sujet important | bikeshedding | Une heure sur le nom de la variable, c'est du bikeshedding. *An hour on the variable name is bikeshedding.* |
 | Mettre un coup de pied dans la fourmilière | provoquer un changement en dérangeant des habitudes installées | to stir up a hornet's nest, to shake things up | En proposant de supprimer l'ancien service, elle a mis un coup de pied dans la fourmilière. *By suggesting we drop the old service, she stirred up a hornet's nest.* |
+
+## Expressions agiles et produit
+
+Le vocabulaire des équipes Scrum ou Kanban et des product managers. Beaucoup de mots restent en anglais même en français : la colonne Sens dit ce qu'ils recouvrent. Le détail des pratiques est dans [Agilité](agilite.md) et [Product management](product-management.md).
+
+| Expression | Sens | En anglais | Exemple |
+|---|---|---|---|
+| Faire le daily | tenir le court point quotidien de l'équipe (anglicisme, on dit aussi « le point du matin ») | to have the stand-up, the daily stand-up, the daily scrum | On fait le daily à 9 h 30, dix minutes maximum. *We have the stand-up at 9:30, ten minutes max.* |
+| Mettre au backlog | noter une demande pour plus tard, souvent sans date (parfois une façon polie de dire non) | to add it to the backlog, to park it | Bonne idée, mais je la mets au backlog pour l'instant. *Good idea, but I'm parking it in the backlog for now.* |
+| Embarquer dans le sprint | ajouter un élément au travail prévu pour l'itération en cours | to pull into the sprint, to bring into the sprint | On peut embarquer le correctif dans ce sprint, il est petit. *We can pull the fix into this sprint, it's small.* |
+| Déborder sur le sprint suivant | ne pas finir à temps et reporter le reste à l'itération d'après | to spill over, to carry over to the next sprint | La migration déborde sur le sprint suivant. *The migration is spilling over into the next sprint.* |
+| Chiffrer une story | estimer l'effort d'un élément du backlog, souvent en points | to size, to estimate, to point a story | On chiffre les trois stories avant la planification. *Let's size the three stories before planning.* |
+| Découper une story | diviser un gros besoin en morceaux livrables séparément | to slice a story, to split a story | La story est trop grosse, on la découpe par type de paiement. *The story is too big, let's slice it by payment type.* |
+| Fini-fini | vraiment terminé : codé, testé, relu et livré, pas seulement « le code est écrit » | done done | C'est fini, ou fini-fini ? *Is it done, or done done?* |
+| Faire la rétro | tenir la réunion où l'équipe regarde comment elle a travaillé et choisit quoi changer | to run the retro, to hold a retrospective | On fait la rétro jeudi, chacun apporte un point. *We're running the retro on Thursday, everyone brings one point.* |
+| Hors périmètre, pas dans le scope | ne fait pas partie de ce qui a été convenu (« scope » est un anglicisme très courant) | out of scope | L'export PDF est hors périmètre pour cette version. *The PDF export is out of scope for this release.* |
+| Un MVP | la plus petite version d'un produit qui permet d'apprendre quelque chose des vrais utilisateurs | an MVP, a minimum viable product | On sort un MVP avec un seul moyen de paiement. *We're shipping an MVP with a single payment method.* |
+| Faire de la discovery | chercher ce qui vaut la peine d'être construit avant de le construire : entretiens, prototypes, tests | to do discovery, to validate the problem | On fait deux semaines de discovery avant de s'engager. *We're doing two weeks of discovery before committing.* |
+| Une usine à features | une équipe jugée sur le nombre de fonctionnalités livrées plutôt que sur leur effet (critique) | a feature factory | On livre beaucoup, mais personne ne mesure l'usage : on est une usine à features. *We ship a lot, but nobody measures usage: we're a feature factory.* |
+| Faire bouger les lignes | avoir un effet visible sur un résultat | to move the needle | Ce changement de bouton ne fera pas bouger les lignes. *This button change won't move the needle.* |
+| Manger sa propre cuisine | utiliser soi-même en interne le produit que l'on vend | to eat your own dog food, dogfooding | L'équipe utilise l'appli en interne depuis un mois : on mange notre propre cuisine. *The team has been using the app internally for a month: we're dogfooding it.* |
+| Pivoter | changer de direction produit après avoir appris que la première ne marche pas | to pivot | Personne ne payait pour l'abonnement, on a pivoté vers l'achat à l'unité. *Nobody paid for the subscription, so we pivoted to one-off purchases.* |
+
+## Expressions du support informatique
+
+Ce qui se dit entre une équipe IT interne (support, workplace) et les collègues qu'elle aide. Le détail du métier est dans [Workplace](workplace.md).
+
+| Expression | Sens | En anglais | Exemple |
+|---|---|---|---|
+| Ouvrir un ticket | déclarer une demande ou un problème dans l'outil de support, pour qu'il soit suivi | to raise a ticket, to file a ticket, to log a ticket (UK) | Ouvre un ticket, sinon ta demande se perd dans les messages. *Raise a ticket, otherwise your request gets lost in chat.* |
+| Tu as essayé d'éteindre et de rallumer ? | la première question du support, souvent ironique | have you tried turning it off and on again? | Le Wi-Fi ne marche plus ? Tu as essayé d'éteindre et de rallumer ? *Wi-Fi's down? Have you tried turning it off and on again?* |
+| Le problème est entre la chaise et le clavier | l'erreur vient de l'utilisateur, pas de la machine (blague de support, à ne jamais dire à l'utilisateur) | PEBKAC (problem exists between keyboard and chair), user error | Encore un PEBKAC : la souris n'était pas branchée. *Another PEBKAC: the mouse wasn't plugged in.* |
+| Réinitialiser son mot de passe | remplacer un mot de passe oublié ou bloqué par un nouveau | to reset one's password | Je réinitialise ton mot de passe, tu le changeras à la connexion. *I'm resetting your password, you'll change it when you log in.* |
+| Masteriser un poste | installer un ordinateur à partir d'une configuration type de l'entreprise (on parle aujourd'hui plutôt de « provisionner ») | to image a laptop, to provision a laptop | Ton nouveau poste est masterisé, tu peux le récupérer. *Your new laptop is provisioned, you can pick it up.* |
+| Escalader un ticket | transmettre une demande à un niveau de support plus expert | to escalate a ticket | Je n'arrive pas à le résoudre, j'escalade au niveau 2. *I can't solve it, I'm escalating to tier 2.* |
 
 ## Pièges : les faux amis
 

@@ -746,7 +746,7 @@ Si mon équipe veut livrer plus vite sans travailler plus, elle commence moins d
 
 <span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
 
-La méthode <span class="term" data-term="kanban">Kanban</span> pour le travail intellectuel (David J. Anderson, « Kanban: Successful Evolutionary Change for Your Technology Business », 2010) part de l'existant : visualiser le travail, limiter le travail en cours, gérer le flux, rendre les règles explicites, améliorer par petites touches.
+La méthode <span class="term" data-term="kanban">Kanban</span> pour le travail intellectuel (David J. Anderson, « Kanban: Successful Evolutionary Change for Your Technology Business », 2010) part de l'existant : visualiser le travail, limiter le travail en cours, gérer le flux, rendre les règles explicites, améliorer par petites touches. La conception du tableau, les quatre mesures du flux, les classes de service et la comparaison avec Scrum sont détaillées dans [Agilité, Scrum et Kanban](agilite.md#kanban-en-profondeur).
 
 ``` { .text .ex-illus title="Illustration" }
 À FAIRE     EN COURS (max 3)    EN REVUE (max 2)    FAIT

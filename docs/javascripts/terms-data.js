@@ -7556,6 +7556,96 @@ window.REMINDER_TERMS = {
    "definition": "Un chiffre qui monte presque toujours et flatte l’équipe, sans dire si les utilisateurs reçoivent de la valeur ni guider une décision.",
    "example": "Le nombre total de téléchargements depuis le lancement, qui ne baisse jamais même quand tout le monde désinstalle.",
    "example_is_code": false
+  },
+  "agile-manifesto": {
+   "term": "Manifeste agile",
+   "definition": "Texte écrit en 2001 par dix-sept praticiens : quatre valeurs et douze principes communs aux méthodes agiles.",
+   "example": "« Un logiciel qui fonctionne plutôt qu'une documentation exhaustive » : la démo compte plus que le document de 40 pages.",
+   "example_is_code": false
+  },
+  "scrum": {
+   "term": "Scrum",
+   "definition": "Cadre de travail léger (Schwaber et Sutherland) où une équipe livre un incrément utile à chaque sprint, puis inspecte et s'adapte.",
+   "example": "L'équipe livre toutes les deux semaines, montre le résultat en sprint review et choisit une amélioration en rétrospective.",
+   "example_is_code": false
+  },
+  "sprint": {
+   "term": "Sprint",
+   "definition": "Période de durée fixe, un mois au plus, pendant laquelle l'équipe Scrum vise un objectif et produit un incrément.",
+   "example": "Le sprint du 2 au 13 mars, avec l'objectif « un client peut payer en trois fois ».",
+   "example_is_code": false
+  },
+  "timebox": {
+   "term": "Timebox",
+   "definition": "Durée maximale fixée à l'avance pour une activité : on s'arrête à l'heure, même si ce n'est pas fini.",
+   "example": "Le daily est limité à 15 minutes ; les discussions techniques continuent après, entre les personnes concernées.",
+   "example_is_code": false
+  },
+  "scrum-master": {
+   "term": "Scrum Master",
+   "definition": "Personne qui répond de l'efficacité de l'équipe Scrum : elle aide l'équipe à s'auto-gérer et fait sauter les obstacles.",
+   "example": "Le daily dure 40 minutes : la Scrum Master propose de sortir les discussions techniques et appelle l'équipe qui bloque une mise en production.",
+   "example_is_code": false
+  },
+  "product-backlog": {
+   "term": "Product backlog",
+   "definition": "Liste ordonnée de tout ce qui pourrait améliorer le produit, tenue par le product owner.",
+   "example": "60 éléments ; les 10 premiers sont détaillés, avec leurs critères d'acceptation, prêts pour le prochain sprint.",
+   "example_is_code": false
+  },
+  "sprint-goal": {
+   "term": "Objectif de sprint",
+   "definition": "Phrase qui dit pourquoi le sprint compte. Elle guide les choix quand le périmètre doit bouger pendant le sprint.",
+   "example": "« Un client peut payer en trois fois par carte » : l'export comptable peut glisser, l'appel au prestataire non.",
+   "example_is_code": false
+  },
+  "increment": {
+   "term": "Incrément",
+   "definition": "Morceau de produit terminé et utilisable, conforme à la définition de terminé, qui s'ajoute aux précédents.",
+   "example": "Le paiement en trois fois est en production derrière un feature flag, testé et documenté.",
+   "example_is_code": false
+  },
+  "cycle-time": {
+   "term": "Temps de cycle",
+   "definition": "Temps entre le moment où l'équipe commence un élément et celui où il est fini.",
+   "example": "Ticket commencé lundi, en production jeudi : 4 jours de temps de cycle.",
+   "example_is_code": false
+  },
+  "work-item-age": {
+   "term": "Âge d'un élément",
+   "definition": "Temps écoulé depuis le début d'un élément encore en cours. La seule mesure du flux qui regarde le présent.",
+   "example": "Le ticket 41 est en cours depuis 9 jours alors que 85 % des tickets finissent en 7 : on en parle au daily.",
+   "example_is_code": false
+  },
+  "service-level-expectation": {
+   "term": "Attente de niveau de service (SLE)",
+   "definition": "Prévision, tirée de l'historique, du temps qu'un élément mettra à finir une fois commencé, avec une probabilité.",
+   "example": "« 85 % de nos éléments finissent en 7 jours ou moins », calculé sur les temps de cycle des trois derniers mois.",
+   "example_is_code": false
+  },
+  "story-points": {
+   "term": "Points d'histoire",
+   "definition": "Unité relative de taille propre à une équipe, qui mêle effort, complexité et incertitude, sans être des heures.",
+   "example": "Une story à 5 points paraît deux fois et demie plus grosse que la story de référence à 2 points.",
+   "example_is_code": false
+  },
+  "velocity": {
+   "term": "Vélocité",
+   "definition": "Nombre de points d'histoire qu'une équipe finit par sprint, en moyenne. Sert au planning de l'équipe, pas à mesurer la productivité.",
+   "example": "21, 18 et 24 points sur les trois derniers sprints : l'équipe prend environ 20 points au prochain planning.",
+   "example_is_code": false
+  },
+  "extreme-programming": {
+   "term": "Extreme Programming (XP)",
+   "definition": "Méthode agile de Kent Beck (1999) centrée sur les pratiques d'ingénierie : binôme, TDD, intégration continue, refactoring, petites livraisons.",
+   "example": "Deux développeurs écrivent le test d'abord, à deux sur le même poste, et intègrent dans la branche principale plusieurs fois par jour.",
+   "example_is_code": false
+  },
+  "mob-programming": {
+   "term": "Programmation en groupe (mob)",
+   "definition": "Toute l'équipe travaille sur un seul poste, sur le même problème ; la personne au clavier change toutes les quelques minutes.",
+   "example": "Une demi-journée à cinq sur la migration du prestataire de paiement, clavier qui tourne toutes les 10 minutes.",
+   "example_is_code": false
   }
  },
  "en": {
@@ -15111,6 +15201,96 @@ window.REMINDER_TERMS = {
    "term": "Vanity metric",
    "definition": "A number that almost always goes up and flatters the team, without saying whether users get value or guiding any decision.",
    "example": "Total downloads since launch, which never drop even when everyone uninstalls.",
+   "example_is_code": false
+  },
+  "agile-manifesto": {
+   "term": "Agile Manifesto",
+   "definition": "Text written in 2001 by seventeen practitioners: four values and twelve principles shared by agile methods.",
+   "example": "\"Working software over comprehensive documentation\": the demo matters more than the 40-page document.",
+   "example_is_code": false
+  },
+  "scrum": {
+   "term": "Scrum",
+   "definition": "Lightweight framework (Schwaber and Sutherland) where a team delivers a useful increment every sprint, then inspects and adapts.",
+   "example": "The team delivers every two weeks, shows the result at the sprint review and picks one improvement at the retrospective.",
+   "example_is_code": false
+  },
+  "sprint": {
+   "term": "Sprint",
+   "definition": "Fixed-length period, one month at most, during which the Scrum team pursues a goal and produces an increment.",
+   "example": "The sprint from March 2 to 13, with the goal \"a customer can pay in three instalments\".",
+   "example_is_code": false
+  },
+  "timebox": {
+   "term": "Timebox",
+   "definition": "Maximum duration set in advance for an activity: it stops on time, even if not finished.",
+   "example": "The daily is capped at 15 minutes; technical discussions continue afterwards between the people involved.",
+   "example_is_code": false
+  },
+  "scrum-master": {
+   "term": "Scrum Master",
+   "definition": "Person accountable for the Scrum team's effectiveness: helps the team self-manage and removes impediments.",
+   "example": "The daily lasts 40 minutes: the Scrum Master suggests moving technical talks out and calls the team blocking a release.",
+   "example_is_code": false
+  },
+  "product-backlog": {
+   "term": "Product backlog",
+   "definition": "Ordered list of everything that might improve the product, owned by the product owner.",
+   "example": "60 items; the top 10 are detailed, with acceptance criteria, ready for the next sprint.",
+   "example_is_code": false
+  },
+  "sprint-goal": {
+   "term": "Sprint Goal",
+   "definition": "Sentence saying why the sprint matters. It guides choices when scope must change during the sprint.",
+   "example": "\"A customer can pay in three instalments by card\": the accounting export can slip, the provider call cannot.",
+   "example_is_code": false
+  },
+  "increment": {
+   "term": "Increment",
+   "definition": "Finished, usable piece of product that meets the Definition of Done and adds to the previous ones.",
+   "example": "Paying in three instalments is in production behind a feature flag, tested and documented.",
+   "example_is_code": false
+  },
+  "cycle-time": {
+   "term": "Cycle time",
+   "definition": "Time between the moment the team starts an item and the moment it is finished.",
+   "example": "Ticket started on Monday, in production on Thursday: a cycle time of 4 days.",
+   "example_is_code": false
+  },
+  "work-item-age": {
+   "term": "Work item age",
+   "definition": "Time elapsed since an item still in progress was started. The only flow measure that looks at the present.",
+   "example": "Ticket 41 has been in progress for 9 days while 85% of tickets finish in 7: it is raised at the daily.",
+   "example_is_code": false
+  },
+  "service-level-expectation": {
+   "term": "Service Level Expectation (SLE)",
+   "definition": "Forecast, drawn from history, of how long an item will take to finish once started, with a probability.",
+   "example": "\"85% of our items finish in 7 days or less\", computed from the cycle times of the last three months.",
+   "example_is_code": false
+  },
+  "story-points": {
+   "term": "Story points",
+   "definition": "Relative size unit specific to a team, mixing effort, complexity and uncertainty, not hours.",
+   "example": "A 5-point story looks two and a half times bigger than the 2-point reference story.",
+   "example_is_code": false
+  },
+  "velocity": {
+   "term": "Velocity",
+   "definition": "Number of story points a team finishes per sprint, on average. Used for the team's planning, not to measure productivity.",
+   "example": "21, 18 and 24 points over the last three sprints: the team takes about 20 points at the next planning.",
+   "example_is_code": false
+  },
+  "extreme-programming": {
+   "term": "Extreme Programming (XP)",
+   "definition": "Agile method by Kent Beck (1999) focused on engineering practices: pairing, TDD, continuous integration, refactoring, small releases.",
+   "example": "Two developers write the test first, together at one workstation, and integrate into the main branch several times a day.",
+   "example_is_code": false
+  },
+  "mob-programming": {
+   "term": "Mob programming",
+   "definition": "The whole team works at one workstation on the same problem; the person at the keyboard changes every few minutes.",
+   "example": "Half a day with five people on the payment provider migration, keyboard rotating every 10 minutes.",
    "example_is_code": false
   }
  }

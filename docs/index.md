@@ -367,6 +367,16 @@ hide:
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/product-management.md)
 
+-   :material-sync:{ .lg .middle } **Agilité, Scrum et Kanban**
+
+    ---
+
+    Manifeste agile, Scrum selon le guide 2020 (responsabilités, événements, artefacts et engagements), Kanban en profondeur (tableau, limites de WIP, mesures du flux, classes de service), Scrumban, Extreme Programming, story points et prévision de Monte Carlo, rétrospectives utiles, agilité à l'échelle, qualité dans le sprint, dérives.
+
+    *:material-calendar-check: Mis à jour le 19/11/2026*
+
+    [:octicons-arrow-right-24: Ouvrir](knowledge/agilite.md)
+
 </div>
 
 ## Entretiens
@@ -401,7 +411,7 @@ Pour chaque métier, les questions posées avec une piste de réponse et des lie
 
     Stratégie par les risques, conception de tests, exploratoire, automatisation, API, contrat et performance, CI, accessibilité, go/no-go.
 
-    *:material-calendar-check: Mis à jour le 17/11/2026*
+    *:material-calendar-check: Mis à jour le 19/11/2026*
 
     [:octicons-arrow-right-24: Questions](entretiens/qa-engineer/questions.md) · [:octicons-arrow-right-24: Exercices](entretiens/qa-engineer/exercices.md)
 
@@ -411,7 +421,7 @@ Pour chaque métier, les questions posées avec une piste de réponse et des lie
 
     Code lisible, tests, refactoring, revue et Git, API et bases, concurrence et cache, sécurité et production, conception de système.
 
-    *:material-calendar-check: Mis à jour le 17/11/2026*
+    *:material-calendar-check: Mis à jour le 19/11/2026*
 
     [:octicons-arrow-right-24: Questions](entretiens/software-engineer/questions.md) · [:octicons-arrow-right-24: Exercices](entretiens/software-engineer/exercices.md)
 

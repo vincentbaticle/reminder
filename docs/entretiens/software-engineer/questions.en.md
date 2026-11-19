@@ -408,6 +408,24 @@ The sources quoted in the outlines are dated: quoting them shows I know the stat
 
 **Read next**: [Estimating and splitting a feature](../../knowledge/culture-entreprise.md#estimating-and-slicing-a-feature), [Planning fallacy](../../knowledge/lois-et-principes.md#planning-fallacy), [Hofstadter's law](../../knowledge/lois-et-principes.md#hofstadters-law), and [exercise 10](exercices.md#exercise-10-estimate-and-split-a-feature).
 
+### "What do you think of story points? How do you answer "when will it be done?""
+
+- <span class="term" data-term="story-points">Points</span> serve the team: the planning poker vote brings forgotten risks to light when two votes diverge.
+- <span class="term" data-term="velocity">Velocity</span> helps decide how much to take into the next sprint; as soon as it becomes a target, estimates inflate (Goodhart's law).
+- For a date, I split into small items of comparable size, then give a probabilistic forecast drawn from the real throughput of past weeks: "85% chance within 12 weeks", rather than a single date.
+- I redo the forecast when the scope or the team changes.
+
+**Read next**: [Story points, planning poker and velocity](../../knowledge/agilite.md#story-points-planning-poker-and-velocity), [NoEstimates](../../knowledge/agilite.md#noestimates-counting-instead-of-estimating), [Forecasting with a Monte Carlo simulation](../../knowledge/agilite.md#forecasting-with-a-monte-carlo-simulation), [Goodhart's law](../../knowledge/lois-et-principes.md#goodharts-law)
+
+### "Scrum, Kanban: what have you practiced, and what worked or not?"
+
+- I describe the framework with its real elements: accountabilities, events and artifacts for Scrum; board, WIP limits and flow measures for Kanban.
+- I say what really helped (a sprint goal written in one sentence, a retro that ends with a dated action) and what turned into ritual.
+- I name one specific anti-pattern with a fact, such as increments never released to production, and what I proposed.
+- I recall that Scrum and Kanban organize the work, while XP practices (tests, continuous integration, pairing) keep the code easy to change.
+
+**Read next**: [Scrum](../../knowledge/agilite.md#scrum), [Kanban in depth](../../knowledge/agilite.md#kanban-in-depth), [Extreme Programming](../../knowledge/agilite.md#extreme-programming), [When agile goes wrong](../../knowledge/agilite.md#when-agile-goes-wrong)
+
 ### "How do you work with the Product Owner when a request seems badly framed?"
 
 - The <span class="term" data-term="product-owner">PO</span> knows the need better than me, I know the cost of the solutions better.

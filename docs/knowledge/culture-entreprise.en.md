@@ -746,7 +746,7 @@ If my team wants to ship faster without working more, it starts fewer things at 
 
 <span class="pill pill-status pill-status-ok" title="Still valid, checked November 2026">Current · 11/2026</span>
 
-The <span class="term" data-term="kanban">Kanban</span> method for knowledge work (David J. Anderson, "Kanban: Successful Evolutionary Change for Your Technology Business", 2010) starts from what exists: visualize the work, limit work in progress, manage flow, make policies explicit, improve in small steps.
+The <span class="term" data-term="kanban">Kanban</span> method for knowledge work (David J. Anderson, "Kanban: Successful Evolutionary Change for Your Technology Business", 2010) starts from what exists: visualize the work, limit work in progress, manage flow, make policies explicit, improve in small steps. Board design, the four flow metrics, classes of service and the comparison with Scrum are detailed in [Agile, Scrum and Kanban](agilite.md#kanban-in-depth).
 
 ``` { .text .ex-illus title="Illustration" }
 TO DO       IN PROGRESS (max 3)    IN REVIEW (max 2)    DONE

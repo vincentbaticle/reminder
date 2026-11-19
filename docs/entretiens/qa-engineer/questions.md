@@ -342,6 +342,15 @@ En entretien QA, beaucoup de questions demandent en réalité « raconte-moi le 
 
 **À relire** : [Les quadrants du test agile](../../knowledge/qualite.md#les-quadrants-du-test-agile-ne-pas-oublier-un-type-de-test), [Shift-left et shift-right](../../knowledge/qualite.md#shift-left-et-shift-right-quand-tester), [Test et qualité (textes fondateurs)](../../knowledge/textes-fondateurs.md#test-et-qualite), [Le rôle du QA dans une équipe agile](../../knowledge/qualite.md#le-role-du-qa-dans-une-equipe-agile)
 
+### « Scrum ou Kanban : où se place le test dans ton équipe ? Que fais-tu si tout arrive en test le dernier jour du sprint ? »
+
+- Je dis d'abord dans quel cadre j'ai travaillé et pourquoi il allait au travail de l'équipe : Scrum pour un produit qui avance par objectifs, Kanban pour un flux de demandes imprévues.
+- En Scrum, le test se fait pendant le sprint : <span class="term" data-term="three-amigos">three amigos</span> au raffinement, tests écrits avec le code, exploration dès que la story marche, exigences de test dans la définition de terminé.
+- En Kanban, la colonne test a sa limite de WIP : quand elle est pleine, les développeurs aident à la vider au lieu de commencer un nouveau ticket.
+- Si tout arrive le vendredi, je montre le fait en rétrospective (temps d'attente en test, bugs trouvés le dernier jour) et je propose une seule expérience : limite de WIP en test, ou story découpée plus fin.
+
+**À relire** : [Scrum, Kanban ou Scrumban](../../knowledge/agilite.md#scrum-kanban-ou-scrumban), [La qualité dans une équipe agile](../../knowledge/agilite.md#la-qualite-dans-une-equipe-agile), [Concevoir le tableau](../../knowledge/agilite.md#concevoir-le-tableau), [Une rétrospective qui change quelque chose](../../knowledge/agilite.md#une-retrospective-qui-change-quelque-chose)
+
 ### « Comment utilises-tu un assistant d'IA dans ton travail de QA, et avec quelles précautions ? »
 
 - Je l'utilise comme un collègue rapide mais pas fiable : idées de cas que je trie, premier jet d'un test Playwright ou pytest, données variées, résumé d'un long log.

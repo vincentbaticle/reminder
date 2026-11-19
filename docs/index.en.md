@@ -367,6 +367,16 @@ hide:
 
     [:octicons-arrow-right-24: Open](knowledge/product-management.md)
 
+-   :material-sync:{ .lg .middle } **Agile, Scrum and Kanban**
+
+    ---
+
+    Agile Manifesto, Scrum per the 2020 guide (accountabilities, events, artifacts and commitments), Kanban in depth (board, WIP limits, flow metrics, classes of service), Scrumban, Extreme Programming, story points and Monte Carlo forecasting, useful retrospectives, scaling agile, quality within the sprint, anti-patterns.
+
+    *:material-calendar-check: Updated on 2026-11-19*
+
+    [:octicons-arrow-right-24: Open](knowledge/agilite.md)
+
 </div>
 
 ## Interviews
@@ -401,7 +411,7 @@ For each role, the questions asked with an answer outline and links to the Knowl
 
     Risk-based strategy, test design, exploratory testing, automation, API, contract and performance, CI, accessibility, go/no-go.
 
-    *:material-calendar-check: Updated on 2026-11-17*
+    *:material-calendar-check: Updated on 2026-11-19*
 
     [:octicons-arrow-right-24: Questions](entretiens/qa-engineer/questions.md) · [:octicons-arrow-right-24: Exercises](entretiens/qa-engineer/exercices.md)
 
@@ -411,7 +421,7 @@ For each role, the questions asked with an answer outline and links to the Knowl
 
     Readable code, tests, refactoring, review and Git, APIs and databases, concurrency and caching, security and production, system design.
 
-    *:material-calendar-check: Updated on 2026-11-17*
+    *:material-calendar-check: Updated on 2026-11-19*
 
     [:octicons-arrow-right-24: Questions](entretiens/software-engineer/questions.md) · [:octicons-arrow-right-24: Exercises](entretiens/software-engineer/exercices.md)
 

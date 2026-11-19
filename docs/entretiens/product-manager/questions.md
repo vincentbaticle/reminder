@@ -202,6 +202,15 @@ Un entretien de PM mêle des questions de comportement (« racontez-moi une fois
 
 **À relire** : [Stories utilisateur et INVEST](../../knowledge/product-management.md#stories-utilisateur-et-invest), [Critères d'acceptation](../../knowledge/product-management.md#criteres-dacceptation), [Gherkin avec un « Goal »](../../knowledge/conception-tests.md#gherkin-avec-un-goal), [Exercice 9 : découper une epic](exercices.md#exercice-9-decouper-une-epic-en-stories-avec-criteres-gherkin)
 
+### « Quel est le rôle du product owner dans Scrum ? Scrum ou Kanban pour ton équipe ? »
+
+- Dans Scrum, le <span class="term" data-term="product-owner">PO</span> répond de la valeur du produit : il écrit l'objectif de produit et ordonne le backlog ; les développeurs décident combien ils prennent et comment.
+- Je donne à chaque sprint un objectif en une phrase, pas une liste de tickets : il permet de négocier le périmètre sans perdre le but.
+- Je choisis le cadre selon le travail : Scrum pour une fonctionnalité qui se précise par objectifs, Kanban quand l'équipe reçoit surtout des demandes imprévues.
+- Je viens à la sprint review avec de vrais utilisateurs ou des représentants du métier, et je repars avec des changements dans le backlog.
+
+**À relire** : [L'équipe Scrum et ses trois responsabilités](../../knowledge/agilite.md#lequipe-scrum-et-ses-trois-responsabilites), [Les trois artefacts et leurs engagements](../../knowledge/agilite.md#les-trois-artefacts-et-leurs-engagements), [Scrum, Kanban ou Scrumban](../../knowledge/agilite.md#scrum-kanban-ou-scrumban)
+
 ### « Le lancement est dans deux semaines et l'équipe ne tiendra pas la date, que fais-tu ? »
 
 - Je vérifie si la date est externe (contrat, saison) ou interne : une cible interne se déplace.

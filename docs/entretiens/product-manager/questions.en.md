@@ -202,6 +202,15 @@ A PM interview mixes behavioural questions ("tell me about a time when..."), whe
 
 **Read next**: [User stories and INVEST](../../knowledge/product-management.md#user-stories-and-invest), [Acceptance criteria](../../knowledge/product-management.md#acceptance-criteria), [Gherkin with a "Goal"](../../knowledge/conception-tests.md#gherkin-with-a-goal), [Exercise 9: slice an epic](exercices.md#exercise-9-slice-an-epic-into-stories-with-gherkin-criteria)
 
+### "What is the product owner's role in Scrum? Scrum or Kanban for your team?"
+
+- In Scrum, the <span class="term" data-term="product-owner">PO</span> is accountable for the product's value: they write the product goal and order the backlog; developers decide how much they take and how.
+- I give each sprint a one-sentence goal, not a list of tickets: it lets us negotiate scope without losing the purpose.
+- I pick the framework from the work: Scrum for a feature that takes shape goal by goal, Kanban when the team mostly gets unplanned requests.
+- I come to the sprint review with real users or business representatives, and leave with changes in the backlog.
+
+**Read next**: [The Scrum Team and its three accountabilities](../../knowledge/agilite.md#the-scrum-team-and-its-three-accountabilities), [The three artifacts and their commitments](../../knowledge/agilite.md#the-three-artifacts-and-their-commitments), [Scrum, Kanban or Scrumban](../../knowledge/agilite.md#scrum-kanban-or-scrumban)
+
 ### "Launch is in two weeks and the team will not make the date, what do you do?"
 
 - I check whether the date is external (contract, season) or internal: an internal target can move.

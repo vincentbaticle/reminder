@@ -408,6 +408,24 @@ Les sources citées dans les plans sont datées : les citer montre que je connai
 
 **À relire** : [Estimer et découper une fonctionnalité](../../knowledge/culture-entreprise.md#estimer-et-decouper-une-fonctionnalite), [Erreur de planification](../../knowledge/lois-et-principes.md#erreur-de-planification), [Loi de Hofstadter](../../knowledge/lois-et-principes.md#loi-de-hofstadter), et l'[exercice 10](exercices.md#exercice-10-estimer-et-decouper-une-fonctionnalite).
 
+### « Que penses-tu des story points ? Comment réponds-tu à "c'est pour quand ?" »
+
+- Les <span class="term" data-term="story-points">points</span> servent à l'équipe : le vote en planning poker fait sortir les risques oubliés quand deux votes divergent.
+- La <span class="term" data-term="velocity">vélocité</span> aide à savoir combien prendre au prochain sprint ; dès qu'elle devient un objectif, les estimations gonflent (loi de Goodhart).
+- Pour une date, je découpe en petits éléments de taille comparable, puis je donne une prévision probabiliste tirée du débit réel des semaines passées : « 85 % de chances d'ici 12 semaines », plutôt qu'une date unique.
+- Je refais la prévision quand le périmètre ou l'équipe change.
+
+**À relire** : [Points d'histoire, planning poker et vélocité](../../knowledge/agilite.md#points-dhistoire-planning-poker-et-velocite), [NoEstimates](../../knowledge/agilite.md#noestimates-compter-plutot-questimer), [Prévoir avec une simulation de Monte Carlo](../../knowledge/agilite.md#prevoir-avec-une-simulation-de-monte-carlo), [Loi de Goodhart](../../knowledge/lois-et-principes.md#loi-de-goodhart)
+
+### « Scrum, Kanban : qu'as-tu pratiqué, et qu'est-ce qui marchait ou pas ? »
+
+- Je décris le cadre avec ses vrais éléments : responsabilités, événements, artefacts pour Scrum ; tableau, limites de WIP et mesures du flux pour Kanban.
+- Je dis ce qui servait vraiment (un objectif de sprint écrit en une phrase, une rétro qui finit par une action datée) et ce qui tournait au rituel.
+- Je cite une dérive précise avec un fait, comme des incréments jamais mis en production, et ce que j'ai proposé.
+- Je rappelle que Scrum et Kanban organisent le travail, et que les pratiques XP (tests, intégration continue, binôme) gardent le code facile à changer.
+
+**À relire** : [Scrum](../../knowledge/agilite.md#scrum), [Kanban en profondeur](../../knowledge/agilite.md#kanban-en-profondeur), [Extreme Programming](../../knowledge/agilite.md#extreme-programming), [Quand l'agilité dérape](../../knowledge/agilite.md#quand-lagilite-derape)
+
 ### « Comment travailles-tu avec le Product Owner quand une demande te paraît mal posée ? »
 
 - Le <span class="term" data-term="product-owner">PO</span> connaît le besoin mieux que moi, je connais mieux le coût des solutions.

@@ -342,6 +342,15 @@ In a QA interview, many questions really mean "tell me about the most interestin
 
 **Read next**: [The agile testing quadrants](../../knowledge/qualite.md#agile-testing-quadrants-not-forgetting-a-kind-of-test), [Shift-left and shift-right](../../knowledge/qualite.md#shift-left-and-shift-right-when-to-test), [Testing and quality (seminal texts)](../../knowledge/textes-fondateurs.md#testing-and-quality), [The QA role in an agile team](../../knowledge/qualite.md#the-qa-role-in-an-agile-team)
 
+### "Scrum or Kanban: where does testing fit in your team? What do you do if everything reaches testing on the last day of the sprint?"
+
+- I first say which framework I worked in and why it suited the team's work: Scrum for a product that moves by goals, Kanban for a flow of unplanned requests.
+- In Scrum, testing happens during the sprint: <span class="term" data-term="three-amigos">three amigos</span> at refinement, tests written with the code, exploration as soon as the story works, test requirements in the definition of done.
+- In Kanban, the test column has its WIP limit: when it is full, developers help empty it instead of starting a new ticket.
+- If everything arrives on Friday, I show the fact at the retrospective (waiting time in test, bugs found on the last day) and propose a single experiment: a WIP limit on test, or stories split thinner.
+
+**Read next**: [Scrum, Kanban or Scrumban](../../knowledge/agilite.md#scrum-kanban-or-scrumban), [Quality in an agile team](../../knowledge/agilite.md#quality-in-an-agile-team), [Designing the board](../../knowledge/agilite.md#designing-the-board), [A retrospective that changes something](../../knowledge/agilite.md#a-retrospective-that-changes-something)
+
 ### "How do you use an AI assistant in your QA work, and with which precautions?"
 
 - I use it as a fast but unreliable colleague: test case ideas that I sort, a first draft of a Playwright or pytest test, varied data, a summary of a long log.

@@ -7,7 +7,7 @@
     - **Roles**: developer, QA engineer, product owner, Scrum Master, tech lead, engineering manager.
     - **Uses**: I join a team that "does Scrum" and want to know what each meeting is for; my team mostly gets unplanned requests, like production bugs, and I wonder whether Kanban would suit it better than sprints; a manager asks me for a date and I want to answer with an honest forecast rather than a guess; our retrospectives go round in circles and I look for how to make them useful; I prepare an interview where I will be asked "Scrum or Kanban?".
 
-Agile is not a method: it is a family of ways of working that share one idea, deliver small useful pieces often and adjust to what I learn. This page explains the Agile Manifesto, then the three frameworks I meet most: Scrum, Kanban and Extreme Programming (XP). It then covers estimation and forecasting, the rituals that really help, agile at scale, quality in an agile team and the most common drifts.
+Agile is not a method: it is a family of ways of working that share one idea, deliver small useful pieces often and adjust to what I learn. This page explains the Agile Manifesto, compares the main methods (Scrum, Kanban, Scrumban, XP, Lean, Crystal, DSDM, FDD, SAFe, Disciplined Agile), then details the three I meet most: Scrum, Kanban and Extreme Programming (XP). It shows how to combine them in a team, with DevOps, then covers estimation and forecasting, the rituals that really help, agile at scale, quality in an agile team and the most common drifts.
 
 Several related notions live elsewhere and I link to them instead of repeating them: Little's law, Lean and the theory of constraints in [Company culture](culture-entreprise.md#lean-and-flow), slicing and estimating a feature in [Estimating and slicing a feature](culture-entreprise.md#estimating-and-slicing-a-feature), stories and the definition of done in [Product management](product-management.md#user-stories-and-invest), the QA role in [Quality and testing](qualite.md#the-qa-role-in-an-agile-team). The shop application `shop-app`, the team `team-orders` and its members (ada the product owner, grace the Scrum Master, alan and linus developers, margaret QA) and all numbers are made-up examples.
 
@@ -98,6 +98,122 @@ The Manifesto adds twelve principles. I group them into four ideas I can recite:
     | N4 | the team tracks delivery frequency and the time between a request and its release, and adjusts its way of working on these numbers |
 
     **I measure**: the number of production releases per month, read in the deployment tool; the median time between a ticket's creation and its release, read in the ticket tool.
+
+## Overview of agile methods
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+The word "agile" covers about ten methods, born at different times for different problems. Some organize a team's work (Scrum, Kanban), others say how to write the code (XP), others coordinate dozens of teams (SAFe), and others help each team choose its own way of working (Disciplined Agile). Before comparing, I ask which problem I have: the team's rhythm, code quality, the flow of requests or coordination between teams.
+
+### Quick comparison
+
+| Method | Origin | Sprints | What it prioritizes | Target size | I pick it when... |
+|---|---|---|---|---|---|
+| [Scrum](#scrum) | Schwaber and Sutherland, 1995 | yes, one month at most | organizing and delivering in short iterations | one team of 10 people or fewer | my team builds a product whose need becomes clearer along the way, with an available PO |
+| [Kanban](#kanban-in-depth) | David J. Anderson, 2010 | no, continuous flow | flow: less work in progress, shorter lead times | a team or a service | requests arrive without warning, like bugs and support |
+| [Scrumban](#scrum-kanban-or-scrumban) | Corey Ladas, 2009 | optional | flexibility: Scrum's meetings, Kanban's flow | one team | my Scrum team sees its tickets pile up in review and test |
+| [XP](#extreme-programming) | Kent Beck, 1999 | usually yes, one to two weeks | technical quality: tests, pairing, continuous integration | a team of 2 to 12 developers | my code gets more expensive to change every sprint |
+| [Lean](#lean-software-development) | Poppendieck, 2003, after Toyota | not imposed | efficiency: remove waste, optimize the whole | a team or the whole organization | a request worth 3 days of work takes 3 weeks to reach production |
+| [Crystal](#crystal) | Alistair Cockburn, 1990s | varies, frequent delivery | human collaboration, adapted to size and risk | from 6 to over 100 people, depending on the variant | my team is small, sits together, and wants as few rules as possible |
+| [DSDM](#dsdm-and-fdd) | British consortium, 1994 | yes, timeboxes of 2 to 6 weeks | meeting a date and a budget by varying the scope | a project, one or several teams | I have a fixed date and a client who expects a project framework |
+| [FDD](#dsdm-and-fdd) | Jeff De Luca, 1997 | cycles of two weeks at most per feature | features delivered one by one, on a domain model | large development teams | I have many developers on a rich domain to model |
+| [SAFe](#agile-at-scale) | Dean Leffingwell, 2011 | yes, 2-week iterations inside 8 to 12-week increments | coordinating several teams and the portfolio | from 50 to several thousand people | a large organization must align budget, portfolio and teams |
+| [Disciplined Agile](#disciplined-agile) | Scott Ambler and Mark Lines, 2012 | varies with the chosen lifecycle | adaptation: choosing the way of working from the context | from one team to the whole company | my teams have contexts too different for a single method |
+
+!!! noob "As noob"
+    These methods are like kitchen toolboxes. Scrum is the service schedule, Kanban the pass that limits plates waiting, XP the cooks' technique, Lean the hunt for waste, SAFe the organization of a chain of fifty restaurants. A restaurant often uses several boxes at once. The takeaway: **I pick a method for the problem it solves, not for its name.**
+
+### Lean software development
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+Mary and Tom Poppendieck carry Toyota's production system over to software ("Lean Software Development: An Agile Toolkit", 2003; "Implementing Lean Software Development", 2006). Lean gives neither roles nor meetings: it gives principles to judge a process. In the 2006 version there are seven: eliminate waste, build quality in, create knowledge, defer commitment, deliver fast, respect people, optimize the whole.
+
+``` { .text .ex-illus title="Illustration · waste in one team-orders request" }
+Request "add a comment field to the order"
+Real work          : 3 days (code, tests, review)
+Total lead time    : 19 days
+  waiting for prioritization   6 days   waste: waiting
+  waiting for a review         4 days   waste: waiting
+  back and forth on the need   3 days   waste: rework
+  waiting for the environment  3 days   waste: waiting
+Flow efficiency    : 3 / 19 = 16% (example numbers)
+```
+
+**When**: lead times are long while everyone works hard; each step optimizes itself and the whole stays slow. **Why**: most of the lead time is often waiting, not work; reducing it costs less than working faster. **How**: I draw the value stream, measure work and waiting time, then tackle the biggest wait. The details (Toyota, value stream mapping, theory of constraints, the seven wastes) are in [Lean and flow](culture-entreprise.md#lean-and-flow).
+
+**Risks.** "Eliminate waste" misread is used to remove tests, documentation or retrospectives, which are not waste: they prevent rework. Optimizing one isolated step ("developers code faster") without looking at the whole only moves the queue.
+
+:material-book-open-variant: Reference docs: Mary and Tom Poppendieck, "Implementing Lean Software Development" (2006)
+{ .doc-ref }
+
+### Crystal
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+Alistair Cockburn, a Manifesto signatory, starts from one observation: projects succeed mostly thanks to people and how they communicate, and a method must adapt to the team, not the other way round. Crystal is a family of methods, ranked by color according to team size (Clear up to about 6 people, then Yellow, Orange, Red...) and to what a defect can cost (from lost comfort up to lives). The bigger the team and the higher the risk, the more rules the method adds.
+
+Crystal Clear ("Crystal Clear: A Human-Powered Methodology for Small Teams", 2004) asks for seven properties, three of them mandatory:
+
+| Property | What it means | Example at `team-orders` |
+|---|---|---|
+| frequent delivery (mandatory) | usable code delivered to users every few months at most, ideally much more often | a production release every week |
+| reflective improvement (mandatory) | the team regularly stops to review how it works | a retrospective every two weeks |
+| osmotic communication (mandatory) | the team is close enough to overhear the others' questions and answer them | ada hears alan stuck on an instalment rule and answers right away |
+| personal safety | everyone can say "I don't know" or "I was wrong" without fear | margaret reports her own wrong test at the daily |
+| focus | everyone knows what to work on and has uninterrupted time | two meeting-free hours every morning |
+| easy access to expert users | a business person answers within a day | a customer advisor reachable by message |
+| technical environment | automated tests, configuration management, frequent integration | CI on every MR |
+
+**When**: a small team, co-located or in constant contact, on a product of low criticality, that wants as few ceremonies as possible. **When not**: a team spread over several time zones, where osmotic communication does not happen by itself. **Risks.** Crystal gives few concrete rules; an inexperienced team finds little support in it and falls back into old habits. The method is rarely practiced under its name today, but its ideas (proximity, safety, reflection) are everywhere.
+
+:material-book-open-variant: Reference docs: [Alistair Cockburn, personal site](https://alistair.cockburn.us/) (accessed November 2026); Alistair Cockburn, "Crystal Clear" (2004)
+{ .doc-ref }
+
+### DSDM and FDD
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+Two methods older than the Manifesto still show up in tenders and large companies.
+
+**DSDM** (Dynamic Systems Development Method, British consortium, 1994, now the "DSDM Agile Project Framework" of the Agile Business Consortium) fixes date, budget and quality, and varies the scope. It prioritizes with **MoSCoW**: Must have, Should have, Could have, Won't have this time. The usual rule: "Musts" stay under about 60% of the effort, to keep a margin.
+
+``` { .text .ex-illus title="Illustration · MoSCoW for the June 1 delivery" }
+Must    pay in three instalments by card, instalment calculation, confirmation e-mail
+Should  accounting export of the instalments
+Could   SMS reminder before each instalment
+Won't   pay in three instalments in the mobile app (next delivery)
+```
+
+**FDD** (Feature-Driven Development, Jeff De Luca and Peter Coad, 1997, a banking project in Singapore) starts from a domain model, lists the features as the client sees them ("calculate the instalments of an order"), then designs and builds them one by one, in two weeks at most each.
+
+**When**: DSDM when a contract or management imposes a fixed date and budget; FDD when many developers work on a rich domain. **Risks.** With DSDM, everything becomes a "Must" if nobody dares to arbitrate, and the margin disappears. FDD relies on class owners and a chief architect: the team depends on a few key people.
+
+:material-book-open-variant: Reference docs: [Agile Business Consortium, The DSDM Agile Project Framework](https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/) (2014 edition, to check)
+{ .doc-ref }
+
+### Disciplined Agile
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+Scott Ambler and Mark Lines ("Disciplined Agile Delivery", 2012) start from the opposite observation to the previous methods: no single method fits every team. Disciplined Agile (DA), acquired by PMI in 2019, is a **toolkit** to choose one's own way of working ("choose your WoW"). It offers several lifecycles (agile close to Scrum, lean close to Kanban, continuous delivery, exploratory, multi-team program) and, for each decision (how to prioritize, how to test, how to release), a list of options with their trade-offs.
+
+**When**: a large organization whose teams have very different contexts (a consumer product team, a regulatory team, an operations team), where one method imposed on all would hurt half of them. **Why**: each team keeps a shared vocabulary while choosing its practices. **How**: the team starts from its context (size, risk, regulation), picks a lifecycle, then its options, and revisits its choices at retrospectives.
+
+**Risks.** The toolkit is very large: without support, the team spends more time choosing than delivering. Paid certifications can become the goal instead of improvement.
+
+:material-book-open-variant: Reference docs: [PMI, Disciplined Agile](https://www.pmi.org/disciplined-agile) (accessed November 2026)
+{ .doc-ref }
+
+!!! maturity "Measuring maturity"
+    | Level | What I observe in the team |
+    |---|---|
+    | N1 | the team applies the method imposed by the company, without knowing which problem it should solve |
+    | N2 | the team has written which problem its method solves (rhythm, flow, quality, coordination) and why it chose it |
+    | N3 | the chosen method's rules apply without arbitration (WIP limits, timeboxes, blocking CI) |
+    | N4 | the team compares its measures before and after each change of method or practice, and rolls back if they get worse |
+
+    **I measure**: cycle time and release frequency before and after a change of method, read in the ticket tool and the deployment tool.
 
 ## Scrum
 
@@ -466,6 +582,75 @@ XP rests on five values: communication, simplicity, feedback, courage and respec
 
     **I measure**: the median lifetime of branches, read in Git; the share of releases that cause an incident or a rollback, read in the deployment tool ([DORA](livraison.md#measuring-delivery-dora)).
 
+## Combining approaches in a team
+
+<span class="pill pill-status pill-status-ok" title="Still valid, checked in November 2026">Current · 11/2026</span>
+
+Few teams apply a single "pure" method. My team usually has several kinds of work at the same time: features to build, incidents and support, code to keep healthy, processes to streamline, releases to make safe. Each method solves one of these problems, and they combine well because they do not answer the same questions:
+
+| Approach | The question it answers | What `team-orders` takes from it |
+|---|---|---|
+| [Scrum](#scrum) | at what rhythm do we plan, show and improve? | two-week sprints for features, review with the business, retrospective |
+| [Kanban](#kanban-in-depth) | how do we handle a flow of unplanned requests without blocking everything? | a support and incident lane with its WIP limit and an expedite class |
+| [XP](#extreme-programming) | how do we keep the code easy to change? | TDD on calculations, pairing on risky topics, continuous integration |
+| [Lean](#lean-software-development) | where does work wait, and what is useless? | a value stream map every quarter, hunting down waiting time |
+| <span class="term" data-term="devops">DevOps</span> | how do we release often without breaking production? | deployment pipeline, feature flags, shared on-call, observability |
+
+The word **DevOps** was born in 2009 (Patrick Debois organizes the first DevOpsDays in Ghent; the same year, John Allspaw and Paul Hammond present "10+ Deploys per Day" at the Velocity conference). It is not an agile method in the Manifesto's sense but a cultural and technical movement: the people who build and the people who operate share responsibility for production. It extends agility all the way to production, where many agile teams used to stop (see [Water-Scrum-Fall](#when-agile-goes-wrong)). The technical details are in [Delivery and engineering practices](livraison.md#continuous-delivery-and-deployment) and the measurement in [DORA](livraison.md#measuring-delivery-dora).
+
+``` mermaid
+flowchart LR
+  subgraph Rhythm["Scrum: the rhythm"]
+    PL[Planning] --> SPR[2-week sprint] --> REV[Review and retro]
+  end
+  subgraph Flow["Kanban: the support lane"]
+    INC[Incidents and requests] --> WIP[WIP max 2] --> FIX[Fixed]
+  end
+  subgraph Code["XP: the code"]
+    TDD[TDD, pairing, CI]
+  end
+  subgraph Prod["DevOps: production"]
+    PIPE[Pipeline, flags, observability]
+  end
+  SPR --> TDD
+  WIP --> TDD
+  TDD --> PIPE
+  LEAN["Lean: every quarter, value stream map"] -.-> Rhythm
+  LEAN -.-> Flow
+```
+
+A typical week at `team-orders` (example):
+
+``` { .text .ex-illus title="Illustration · a team combining five approaches" }
+Capacity       80% for the sprint goal (Scrum), 20% for the support lane (Kanban)
+Monday         sprint planning; linus is "on support" this week, he pulls tickets
+               from the support lane, WIP max 2, one expedite at a time
+Tuesday        alan and margaret pair and write the instalment calculation with TDD (XP)
+Wednesday      a payment incident arrives as expedite: linus takes it, the others
+               keep on the sprint; fix deployed behind a flag in 2 hours (DevOps)
+Thursday       the previous sprint's retro noted "4 days waiting for review":
+               the limit of 2 MRs in review is applied (Lean, Kanban)
+Friday         review with two customer advisors; continuous deployment, no
+               "end-of-sprint release"
+```
+
+**When**: as soon as the team has more than one kind of work, which is the case for most product teams. **Why**: forcing support into sprints breaks every plan, and ignoring XP practices makes each sprint slower; each approach covers another's blind spot. **How**: I start from the team's real kinds of work (how much support, how much unplanned), pick one approach per problem, and write the agreement in a short document that the retrospective revises.
+
+**Risks.** Stacking every practice at once drowns the team in rules: I add one practice at a time and measure its effect. Mixing without writing the agreement creates arguments ("does support come before the sprint?"): the capacity share and the expedite rule are written and visible. A poorly tracked support rotation always drops incidents on the same person, who burns out.
+
+:material-book-open-variant: Reference docs: Gene Kim, Jez Humble, Patrick Debois and John Willis, "The DevOps Handbook" (2016); [Atlassian, What is DevOps?](https://www.atlassian.com/devops) (accessed November 2026)
+{ .doc-ref }
+
+!!! maturity "Measuring maturity"
+    | Level | What I observe in the team |
+    |---|---|
+    | N1 | support and features mix in the same sprint, and unplanned work breaks the plan |
+    | N2 | the team has written its agreement: a capacity share and a separate lane for support, named XP practices |
+    | N3 | the board enforces the support lane's limits by itself, and the pipeline deploys without manual steps |
+    | N4 | the team adjusts the support capacity share from the real volume of recent months, and tracks the effect of each added practice |
+
+    **I measure**: the share of capacity actually taken by support and incidents each sprint; the share of sprint goals met despite unplanned work.
+
 ## Estimating and forecasting
 
 I am often asked "when will it be ready?". Three families of answers exist: estimate each item (points or days), stop estimating and count, or forecast from history. Slicing and the range per slice are explained in [Estimating and slicing a feature](culture-entreprise.md#estimating-and-slicing-a-feature); here I cover the practices specific to agile teams.
@@ -789,6 +974,7 @@ I know my agile way of working works when the team delivers more often, more pre
 
 ## What interviews ask
 
+- "Which agile methods do you know, and how do they differ?" How to answer: I classify the methods by the problem they solve (rhythm for Scrum, flow for Kanban, code quality for XP, waste for Lean, coordination for SAFe, choosing for the context with Disciplined Agile), then I say that my team often combines several ([Overview of agile methods](#overview-of-agile-methods), [Combining approaches](#combining-approaches-in-a-team)).
 - "What is agile?", "Name the values of the Agile Manifesto." How to answer: the four values with the word "over", then an idea of the principles (deliver often, welcome change, improve), and the gap between the spirit and the rituals ([The Agile Manifesto](#the-agile-manifesto)).
 - "Describe Scrum: roles, events, artifacts." How to answer: the three accountabilities, the five events with their question, the three artifacts with their commitments; mention that the 2020 guide talks about accountabilities and removed the three daily questions ([Scrum](#scrum), [What changed](#what-changed-in-the-2020-scrum-guide)).
 - "Scrum or Kanban, which would you choose?" How to answer: it depends on the nature of the work; Scrum for a product built through goals, Kanban for a flow of unplanned requests; and often a mix ([Scrum, Kanban or Scrumban](#scrum-kanban-or-scrumban)).
@@ -805,6 +991,9 @@ Questions by role, with more detailed answers and worked exercises: [QA Engineer
 | I want... | I use... |
 |---|---|
 | to know whether a team rule, like "every ticket has an estimate in hours", still serves a purpose | the four values of the Agile Manifesto |
+| to know which agile method solves my team's problem, between rhythm, flow, code quality or coordination | the overview of agile methods |
+| to organize a team that has both features to deliver and incidents to handle | Scrum for features, a Kanban lane for support, XP for the code, DevOps for production |
+| to meet a date and a budget fixed by a contract, by varying the scope | DSDM and MoSCoW |
 | to build a new product whose need becomes clearer along the way, with an available PO and a stable team | Scrum |
 | to handle a flow of unplanned requests, like production bugs and requests from other teams | Kanban, with classes of service |
 | to see where work waits, like MRs piling up in review, without giving up my sprints | Scrumban: a WIP-limited board within Scrum |
@@ -831,6 +1020,12 @@ Questions by role, with more detailed answers and worked exercises: [QA Engineer
 - Daniel Vacanti, "When Will It Be Done?" (2020)
 - Kent Beck and Cynthia Andres, "Extreme Programming Explained", second edition (2004)
 - [Ron Jeffries, "What is Extreme Programming?" (2001, updated 2011)](https://ronjeffries.com/xprog/what-is-extreme-programming/)
+- Mary and Tom Poppendieck, "Implementing Lean Software Development" (2006)
+- Alistair Cockburn, "Crystal Clear: A Human-Powered Methodology for Small Teams" (2004)
+- [Agile Business Consortium, "The DSDM Agile Project Framework" (2014 edition, to check)](https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/)
+- Scott Ambler and Mark Lines, "Disciplined Agile Delivery" (2012)
+- [PMI, "Disciplined Agile" (accessed November 2026)](https://www.pmi.org/disciplined-agile)
+- Gene Kim, Jez Humble, Patrick Debois and John Willis, "The DevOps Handbook" (2016)
 - Mike Cohn, "Agile Estimating and Planning" (2005)
 - [Ron Jeffries, "Story Points Revisited" (2019)](https://ronjeffries.com/articles/019-01ff/story-points/Index.html)
 - Vasco Duarte, "NoEstimates" (2016, date to check)

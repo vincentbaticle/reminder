@@ -371,7 +371,7 @@ hide:
 
     ---
 
-    Agile Manifesto, Scrum per the 2020 guide (accountabilities, events, artifacts and commitments), Kanban in depth (board, WIP limits, flow metrics, classes of service), Scrumban, Extreme Programming, story points and Monte Carlo forecasting, useful retrospectives, scaling agile, quality within the sprint, anti-patterns.
+    Agile Manifesto, comparison of methods (Scrum, Kanban, XP, Lean, Crystal, DSDM, SAFe, Disciplined Agile) and how to combine them with DevOps, Scrum per the 2020 guide (accountabilities, events, artifacts and commitments), Kanban in depth (board, WIP limits, flow metrics, classes of service), Scrumban, Extreme Programming, story points and Monte Carlo forecasting, useful retrospectives, scaling agile, quality within the sprint, anti-patterns.
 
     *:material-calendar-check: Updated on 2026-11-19*
 

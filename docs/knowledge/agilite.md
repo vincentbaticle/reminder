@@ -7,7 +7,7 @@
     - **Métiers** : développeur, QA, product owner, Scrum Master, tech lead, engineering manager.
     - **Usages** : j'arrive dans une équipe qui « fait du Scrum » et je veux savoir à quoi sert chaque réunion ; mon équipe reçoit surtout des demandes imprévues, comme des bugs de production, et je me demande si Kanban lui irait mieux que des sprints ; un manager me demande une date et je veux répondre avec une prévision honnête plutôt qu'un chiffre au doigt mouillé ; nos rétrospectives tournent en rond et je cherche comment les rendre utiles ; je prépare un entretien où l'on me demandera « Scrum ou Kanban ? ».
 
-L'agilité n'est pas une méthode : c'est une famille de façons de travailler qui partagent une idée, livrer souvent de petits morceaux utiles et s'ajuster à ce qu'on apprend. Cette page explique le Manifeste agile, puis les trois cadres que je croise le plus : Scrum, Kanban et Extreme Programming (XP). Elle couvre ensuite l'estimation et la prévision, les rituels qui servent vraiment, l'agilité à l'échelle, la qualité dans une équipe agile et les dérives les plus courantes.
+L'agilité n'est pas une méthode : c'est une famille de façons de travailler qui partagent une idée, livrer souvent de petits morceaux utiles et s'ajuster à ce qu'on apprend. Cette page explique le Manifeste agile, compare les principales méthodes (Scrum, Kanban, Scrumban, XP, Lean, Crystal, DSDM, FDD, SAFe, Disciplined Agile), puis détaille les trois que je croise le plus : Scrum, Kanban et Extreme Programming (XP). Elle montre comment les combiner dans une équipe, avec DevOps, puis couvre l'estimation et la prévision, les rituels qui servent vraiment, l'agilité à l'échelle, la qualité dans une équipe agile et les dérives les plus courantes.
 
 Plusieurs notions voisines vivent ailleurs et je les relie au lieu de les répéter : la loi de Little, le Lean et la théorie des contraintes dans [Culture d'entreprise](culture-entreprise.md#lean-et-flux), le découpage en tranches et l'estimation d'une fonctionnalité dans [Estimer et découper une fonctionnalité](culture-entreprise.md#estimer-et-decouper-une-fonctionnalite), les stories et la définition de terminé dans [Product management](product-management.md#stories-utilisateur-et-invest), le rôle du QA dans [Qualité et tests](qualite.md#le-role-du-qa-dans-une-equipe-agile). L'application de boutique `shop-app`, l'équipe `team-orders` et ses membres (ada la product owner, grace la Scrum Master, alan et linus développeurs, margaret QA) et tous les chiffres sont des exemples inventés.
 
@@ -98,6 +98,122 @@ Le Manifeste ajoute douze principes. Je les regroupe en quatre idées que je peu
     | N4 | l'équipe suit la fréquence de livraison et le délai entre une demande et sa mise en production, et ajuste sa façon de travailler sur ces chiffres |
 
     **Je mesure** : le nombre de mises en production par mois, lu dans l'outil de déploiement ; le délai médian entre la création d'un ticket et sa mise en production, lu dans l'outil de tickets.
+
+## Panorama des méthodes agiles
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Le mot « agile » regroupe une dizaine de méthodes, nées à des époques différentes pour des problèmes différents. Certaines organisent le travail d'une équipe (Scrum, Kanban), d'autres disent comment écrire le code (XP), d'autres coordonnent des dizaines d'équipes (SAFe), d'autres encore aident à choisir sa propre façon de travailler (Disciplined Agile). Avant de comparer, je me demande donc quel problème j'ai : le rythme de l'équipe, la qualité du code, le flux des demandes ou la coordination entre équipes.
+
+### Comparaison rapide
+
+| Méthode | Origine | Sprints | Ce qu'elle priorise | Taille visée | Je la choisis quand... |
+|---|---|---|---|---|---|
+| [Scrum](#scrum) | Schwaber et Sutherland, 1995 | oui, un mois au plus | organiser et livrer par itérations courtes | une équipe de 10 personnes ou moins | mon équipe construit un produit dont le besoin se précise en route, avec un PO disponible |
+| [Kanban](#kanban-en-profondeur) | David J. Anderson, 2010 | non, flux continu | le flux : moins de travail en cours, des délais plus courts | une équipe ou un service | les demandes arrivent sans prévenir, comme des bugs et du support |
+| [Scrumban](#scrum-kanban-ou-scrumban) | Corey Ladas, 2009 | facultatifs | la souplesse : les rendez-vous de Scrum, le flux de Kanban | une équipe | mon équipe Scrum voit ses tickets s'empiler en revue et en test |
+| [XP](#extreme-programming) | Kent Beck, 1999 | généralement oui, d'une à deux semaines | la qualité technique : tests, binôme, intégration continue | une équipe de 2 à 12 développeurs | mon code devient plus cher à changer à chaque sprint |
+| [Lean](#lean-software-development) | Poppendieck, 2003, d'après Toyota | non imposés | l'efficacité : supprimer le gaspillage, optimiser le tout | une équipe ou toute l'organisation | une demande de 3 jours de travail met 3 semaines à arriver en production |
+| [Crystal](#crystal) | Alistair Cockburn, années 1990 | variable, livraisons fréquentes | la collaboration humaine, adaptée à la taille et au risque | de 6 à plus de 100 personnes, selon la variante | mon équipe est petite, assise ensemble, et veut le moins de règles possible |
+| [DSDM](#dsdm-et-fdd) | consortium britannique, 1994 | oui, des timebox de 2 à 6 semaines | tenir une date et un budget en faisant varier le périmètre | un projet, une ou plusieurs équipes | j'ai une date fixe et un client qui attend un cadre de projet |
+| [FDD](#dsdm-et-fdd) | Jeff De Luca, 1997 | des cycles de deux semaines au plus par fonctionnalité | des fonctionnalités livrées une par une, sur un modèle du domaine | de grandes équipes de développement | j'ai beaucoup de développeurs sur un domaine riche à modéliser |
+| [SAFe](#lagilite-a-lechelle) | Dean Leffingwell, 2011 | oui, des itérations de 2 semaines dans des incréments de 8 à 12 semaines | coordonner plusieurs équipes et le portefeuille | de 50 à plusieurs milliers de personnes | une grande organisation doit aligner budget, portefeuille et équipes |
+| [Disciplined Agile](#disciplined-agile) | Scott Ambler et Mark Lines, 2012 | variable, selon le cycle de vie choisi | l'adaptation : choisir sa façon de travailler selon le contexte | une équipe à toute l'entreprise | mes équipes ont des contextes trop différents pour une seule méthode |
+
+!!! noob "As noob"
+    Ces méthodes sont comme des boîtes à outils de cuisine. Scrum est le planning des services, Kanban le passe-plat qui limite les assiettes en attente, XP la technique des cuisiniers, Lean la chasse au gâchis, SAFe l'organisation d'une chaîne de cinquante restaurants. Un restaurant prend souvent plusieurs boîtes à la fois. La phrase à retenir : **je choisis une méthode pour le problème qu'elle règle, pas pour son nom.**
+
+### Lean software development
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Mary et Tom Poppendieck transposent au logiciel la production de Toyota (« Lean Software Development: An Agile Toolkit », 2003 ; « Implementing Lean Software Development », 2006). Le Lean ne donne ni rôles ni réunions : il donne des principes pour juger un processus. Dans la version de 2006, ils sont sept : éliminer le gaspillage, intégrer la qualité dès le début, créer de la connaissance, retarder les engagements irréversibles, livrer vite, respecter les personnes, optimiser le tout.
+
+``` { .text .ex-illus title="Illustration · le gaspillage dans une demande de team-orders" }
+Demande « ajouter un champ de commentaire à la commande »
+Travail réel       : 3 jours (code, tests, revue)
+Délai total        : 19 jours
+  attente de priorisation      6 jours   gaspillage : attente
+  attente d'une revue          4 jours   gaspillage : attente
+  aller-retour sur le besoin   3 jours   gaspillage : travail refait
+  attente de l'environnement   3 jours   gaspillage : attente
+Efficacité du flux : 3 / 19 = 16 % (chiffres d'exemple)
+```
+
+**Quand** : les délais sont longs alors que chacun travaille beaucoup ; l'équipe optimise son étape et le tout reste lent. **Pourquoi** : l'essentiel du délai est souvent de l'attente, pas du travail ; la réduire coûte moins cher que de travailler plus vite. **Comment** : je dessine le flux de valeur, je mesure travail et attente, puis je traite la plus grosse attente. Le détail (Toyota, cartographie du flux de valeur, théorie des contraintes, les sept gaspillages) est dans [Lean et flux](culture-entreprise.md#lean-et-flux).
+
+**Risques.** « Éliminer le gaspillage » mal compris sert à supprimer les tests, la documentation ou les rétrospectives, qui ne sont pas du gaspillage : ils évitent du travail refait. Optimiser une étape isolée (« les développeurs codent plus vite ») sans regarder le tout ne fait que déplacer la file d'attente.
+
+:material-book-open-variant: Doc de référence : Mary et Tom Poppendieck, « Implementing Lean Software Development » (2006)
+{ .doc-ref }
+
+### Crystal
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Alistair Cockburn, signataire du Manifeste, part d'un constat : les projets réussissent surtout grâce aux personnes et à leur façon de communiquer, et une méthode doit s'adapter à l'équipe, pas l'inverse. Crystal est une famille de méthodes, rangées par couleur selon la taille de l'équipe (Clear jusqu'à environ 6 personnes, puis Yellow, Orange, Red...) et selon ce qu'un défaut peut coûter (du confort perdu jusqu'à des vies). Plus l'équipe est grande et le risque élevé, plus la méthode ajoute de règles.
+
+Crystal Clear (« Crystal Clear: A Human-Powered Methodology for Small Teams », 2004) demande sept propriétés, dont trois obligatoires :
+
+| Propriété | Ce que ça veut dire | Exemple chez `team-orders` |
+|---|---|---|
+| livraison fréquente (obligatoire) | du code utilisable livré à des utilisateurs tous les quelques mois au plus, idéalement bien plus souvent | une version en production chaque semaine |
+| amélioration par la réflexion (obligatoire) | l'équipe s'arrête régulièrement pour revoir sa façon de travailler | une rétrospective toutes les deux semaines |
+| communication osmotique (obligatoire) | l'équipe est assez proche pour entendre les questions des autres et y répondre | ada entend alan buter sur une règle d'échéance et répond aussitôt |
+| sécurité personnelle | chacun peut dire « je ne sais pas » ou « je me suis trompé » sans crainte | margaret signale son propre test faux en daily |
+| focalisation | chacun sait sur quoi travailler et a du temps sans interruption | deux heures sans réunion chaque matin |
+| accès facile aux utilisateurs experts | une personne du métier répond en moins d'une journée | un conseiller clientèle joignable par message |
+| environnement technique solide | tests automatisés, gestion de configuration, intégration fréquente | CI sur chaque MR |
+
+**Quand** : une petite équipe, au même endroit ou en contact permanent, sur un produit peu critique, qui veut le moins de cérémonies possible. **Quand ne pas l'utiliser** : une équipe répartie sur plusieurs fuseaux horaires, où la communication osmotique ne se produit pas d'elle-même. **Risques.** Crystal donne peu de règles concrètes ; une équipe sans expérience y trouve peu d'appui et retombe dans ses anciennes habitudes. La méthode est aujourd'hui peu pratiquée sous son nom, mais ses idées (proximité, sécurité, réflexion) sont partout.
+
+:material-book-open-variant: Doc de référence : [Alistair Cockburn, site personnel](https://alistair.cockburn.us/) (consultée en novembre 2026) ; Alistair Cockburn, « Crystal Clear » (2004)
+{ .doc-ref }
+
+### DSDM et FDD
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Deux méthodes plus anciennes que le Manifeste reviennent encore dans les appels d'offres et les grandes entreprises.
+
+**DSDM** (Dynamic Systems Development Method, consortium britannique, 1994, aujourd'hui « DSDM Agile Project Framework » de l'Agile Business Consortium) fixe la date, le budget et la qualité, et fait varier le périmètre. Elle priorise avec **MoSCoW** : Must have, Should have, Could have, Won't have this time. La règle d'usage : les « Must » ne dépassent pas environ 60 % de l'effort, pour garder une marge.
+
+``` { .text .ex-illus title="Illustration · MoSCoW pour la livraison du 1er juin" }
+Must    paiement en trois fois par carte, calcul des échéances, e-mail de confirmation
+Should  export comptable des échéances
+Could   rappel par SMS avant chaque échéance
+Won't   paiement en trois fois sur l'application mobile (prochaine livraison)
+```
+
+**FDD** (Feature-Driven Development, Jeff De Luca et Peter Coad, 1997, projet bancaire à Singapour) part d'un modèle du domaine, dresse la liste des fonctionnalités vues par le client (« calculer les échéances d'une commande »), puis les conçoit et les construit une par une, en deux semaines au plus chacune.
+
+**Quand** : DSDM quand un contrat ou une direction impose une date et un budget fixes ; FDD quand beaucoup de développeurs travaillent sur un domaine riche. **Risques.** Avec DSDM, tout devient « Must » si personne n'ose arbitrer, et la marge disparaît. FDD repose sur des propriétaires de classes et un architecte en chef : l'équipe dépend de quelques personnes clés.
+
+:material-book-open-variant: Doc de référence : [Agile Business Consortium, The DSDM Agile Project Framework](https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/) (édition 2014, à vérifier)
+{ .doc-ref }
+
+### Disciplined Agile
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Scott Ambler et Mark Lines (« Disciplined Agile Delivery », 2012) partent du constat inverse des méthodes précédentes : aucune méthode ne convient à toutes les équipes. Disciplined Agile (DA), racheté par le PMI en 2019, est une **boîte à outils** pour choisir sa propre façon de travailler (« choose your WoW », Way of Working). Elle propose plusieurs cycles de vie (agile proche de Scrum, lean proche de Kanban, livraison continue, exploratoire, programme de plusieurs équipes) et, pour chaque décision (comment prioriser, comment tester, comment livrer), une liste d'options avec leurs compromis.
+
+**Quand** : une grande organisation dont les équipes ont des contextes très différents (une équipe de produit grand public, une équipe réglementaire, une équipe d'exploitation), et où une méthode unique imposée à tous ferait souffrir la moitié des équipes. **Pourquoi** : chaque équipe garde un vocabulaire commun tout en choisissant ses pratiques. **Comment** : l'équipe part de son contexte (taille, risque, réglementation), choisit un cycle de vie, puis ses options, et revoit ses choix en rétrospective.
+
+**Risques.** La boîte à outils est très grande : sans accompagnement, l'équipe passe plus de temps à choisir qu'à livrer. Les certifications payantes peuvent devenir le but à la place de l'amélioration.
+
+:material-book-open-variant: Doc de référence : [PMI, Disciplined Agile](https://www.pmi.org/disciplined-agile) (consultée en novembre 2026)
+{ .doc-ref }
+
+!!! maturity "Mesurer la maturité"
+    | Niveau | Ce que j'observe dans l'équipe |
+    |---|---|
+    | N1 | l'équipe applique la méthode imposée par l'entreprise, sans savoir quel problème elle doit régler |
+    | N2 | l'équipe a écrit quel problème sa méthode règle (rythme, flux, qualité, coordination) et pourquoi elle l'a choisie |
+    | N3 | les règles de la méthode choisie s'appliquent sans arbitrage (limites de WIP, timebox, CI bloquante) |
+    | N4 | l'équipe compare ses mesures avant et après chaque changement de méthode ou de pratique, et revient en arrière si elles se dégradent |
+
+    **Je mesure** : le temps de cycle et la fréquence de mise en production avant et après un changement de méthode, lus dans l'outil de tickets et l'outil de déploiement.
 
 ## Scrum
 
@@ -466,6 +582,75 @@ XP repose sur cinq valeurs : communication, simplicité, retour (feedback), cour
 
     **Je mesure** : la durée de vie médiane des branches, lue dans Git ; la part des mises en production qui causent un incident ou un retour arrière, lue dans l'outil de déploiement ([DORA](livraison.md#mesurer-la-livraison-dora)).
 
+## Combiner les approches dans une équipe
+
+<span class="pill pill-status pill-status-ok" title="Toujours valable, vérifié en novembre 2026">Valable · 11/2026</span>
+
+Peu d'équipes appliquent une seule méthode « pure ». Mon équipe a en général plusieurs types de travail en même temps : des fonctionnalités à construire, des incidents et du support, du code à garder sain, des processus à fluidifier, une mise en production à rendre sûre. Chaque méthode règle un de ces problèmes, et elles se combinent bien parce qu'elles ne répondent pas aux mêmes questions :
+
+| Approche | La question à laquelle elle répond | Ce que `team-orders` en prend |
+|---|---|---|
+| [Scrum](#scrum) | à quel rythme planifier, montrer et s'améliorer ? | sprints de deux semaines pour les fonctionnalités, review avec le métier, rétrospective |
+| [Kanban](#kanban-en-profondeur) | comment traiter un flux de demandes imprévues sans tout bloquer ? | une voie support et incidents avec sa limite de WIP et une classe urgente |
+| [XP](#extreme-programming) | comment garder le code facile à changer ? | TDD sur les calculs, binôme sur les sujets à risque, intégration continue |
+| [Lean](#lean-software-development) | où le travail attend-il, et qu'est-ce qui ne sert à rien ? | une cartographie du flux de valeur par trimestre, la chasse aux attentes |
+| <span class="term" data-term="devops">DevOps</span> | comment livrer souvent sans casser la production ? | pipeline de déploiement, feature flags, astreinte partagée, observabilité |
+
+Le mot **DevOps** naît en 2009 (Patrick Debois organise les premiers DevOpsDays à Gand ; la même année, John Allspaw et Paul Hammond présentent « 10+ Deploys per Day » à la conférence Velocity). Ce n'est pas une méthode agile au sens du Manifeste mais un mouvement culturel et technique : les personnes qui développent et celles qui exploitent partagent la responsabilité de la production. Il prolonge l'agilité jusqu'à la mise en production, là où beaucoup d'équipes agiles s'arrêtaient (voir [Water-Scrum-Fall](#quand-lagilite-derape)). Le détail technique est dans [Livraison et pratiques d'ingénierie](livraison.md#livraison-et-deploiement-continus) et la mesure dans [DORA](livraison.md#mesurer-la-livraison-dora).
+
+``` mermaid
+flowchart LR
+  subgraph Rythme["Scrum : le rythme"]
+    PL[Planning] --> SPR[Sprint de 2 semaines] --> REV[Review et rétro]
+  end
+  subgraph Flux["Kanban : la voie support"]
+    INC[Incidents et demandes] --> WIP[WIP max 2] --> FIX[Corrigé]
+  end
+  subgraph Code["XP : le code"]
+    TDD[TDD, binôme, CI]
+  end
+  subgraph Prod["DevOps : la production"]
+    PIPE[Pipeline, flags, observabilité]
+  end
+  SPR --> TDD
+  WIP --> TDD
+  TDD --> PIPE
+  LEAN["Lean : chaque trimestre, carte du flux de valeur"] -.-> Rythme
+  LEAN -.-> Flux
+```
+
+Une semaine type chez `team-orders` (exemple) :
+
+``` { .text .ex-illus title="Illustration · une équipe qui combine cinq approches" }
+Capacité       80 % pour l'objectif de sprint (Scrum), 20 % pour la voie support (Kanban)
+Lundi          sprint planning ; linus est « de support » cette semaine, il tire les tickets
+               de la voie support, WIP max 2, une seule urgence à la fois
+Mardi          alan et margaret écrivent en binôme et en TDD le calcul des échéances (XP)
+Mercredi       un incident de paiement arrive en classe urgente : linus le prend, les autres
+               continuent le sprint ; correctif déployé derrière un flag en 2 heures (DevOps)
+Jeudi          la rétro du sprint précédent avait noté « 4 jours d'attente de revue » :
+               la limite de 2 MR en revue est appliquée (Lean, Kanban)
+Vendredi       review avec deux conseillers clientèle ; déploiement continu, pas de « mise en
+               production de fin de sprint »
+```
+
+**Quand** : dès que l'équipe a plus d'un type de travail, ce qui est le cas de la plupart des équipes produit. **Pourquoi** : forcer le support dans des sprints casse chaque plan, et ignorer les pratiques XP rend chaque sprint plus lent ; chaque approche couvre l'angle mort d'une autre. **Comment** : je pars des types de travail réels de l'équipe (combien de support, combien d'imprévu), je choisis une approche par problème, et j'écris l'accord dans un document court que la rétrospective révise.
+
+**Risques.** Empiler toutes les pratiques d'un coup noie l'équipe sous les règles : j'ajoute une pratique à la fois, en mesurant son effet. Mélanger sans écrire l'accord crée des disputes (« le support passe avant le sprint ? ») : la part de capacité et la règle de la classe urgente sont écrites et visibles. Une rotation de support mal suivie fait toujours tomber les incidents sur la même personne, qui s'épuise.
+
+:material-book-open-variant: Doc de référence : Gene Kim, Jez Humble, Patrick Debois et John Willis, « The DevOps Handbook » (2016) ; [Atlassian, What is DevOps?](https://www.atlassian.com/devops) (consultée en novembre 2026)
+{ .doc-ref }
+
+!!! maturity "Mesurer la maturité"
+    | Niveau | Ce que j'observe dans l'équipe |
+    |---|---|
+    | N1 | le support et les fonctionnalités se mélangent dans le même sprint, et les imprévus cassent le plan |
+    | N2 | l'équipe a écrit son accord : une part de capacité et une voie séparée pour le support, des pratiques XP nommées |
+    | N3 | le tableau applique seul les limites de la voie support, et le pipeline déploie sans intervention manuelle |
+    | N4 | l'équipe ajuste la part de capacité du support à partir du volume réel des derniers mois, et suit l'effet de chaque pratique ajoutée |
+
+    **Je mesure** : la part de la capacité réellement prise par le support et les incidents chaque sprint ; la part des objectifs de sprint atteints malgré les imprévus.
+
 ## Estimer et prévoir
 
 On me demande souvent « c'est pour quand ? ». Trois familles de réponses existent : estimer chaque élément (points ou jours), ne plus estimer mais compter, ou prévoir à partir de l'historique. Le découpage et la fourchette par tranche sont expliqués dans [Estimer et découper une fonctionnalité](culture-entreprise.md#estimer-et-decouper-une-fonctionnalite) ; je traite ici les pratiques propres aux équipes agiles.
@@ -789,6 +974,7 @@ Je sais que ma façon de travailler en agile marche quand l'équipe livre plus s
 
 ## Ce qu'on demande en entretien
 
+- « Quelles méthodes agiles connaissez-vous, et en quoi diffèrent-elles ? » Pour répondre : je classe les méthodes par le problème qu'elles règlent (rythme pour Scrum, flux pour Kanban, qualité du code pour XP, gaspillage pour Lean, coordination pour SAFe, choix du contexte pour Disciplined Agile), puis je dis que mon équipe en combine souvent plusieurs ([Panorama des méthodes agiles](#panorama-des-methodes-agiles), [Combiner les approches](#combiner-les-approches-dans-une-equipe)).
 - « Qu'est-ce que l'agilité ? », « Citez les valeurs du Manifeste agile. » Pour répondre : les quatre valeurs avec le mot « plutôt que », puis une idée des principes (livrer souvent, accueillir le changement, s'améliorer), et l'écart entre l'esprit et les rituels ([Le Manifeste agile](#le-manifeste-agile)).
 - « Décrivez Scrum : rôles, événements, artefacts. » Pour répondre : les trois responsabilités, les cinq événements avec leur question, les trois artefacts avec leurs engagements ; mentionner que le guide de 2020 parle de responsabilités et a retiré les trois questions du daily ([Scrum](#scrum), [Ce qui a changé](#ce-qui-a-change-dans-le-scrum-guide-2020)).
 - « Scrum ou Kanban, lequel choisiriez-vous ? » Pour répondre : ça dépend de la nature du travail ; Scrum pour un produit qui se construit par objectifs, Kanban pour un flux de demandes imprévues ; et souvent un mélange ([Scrum, Kanban ou Scrumban](#scrum-kanban-ou-scrumban)).
@@ -805,6 +991,9 @@ Les questions par métier, avec des réponses plus détaillées et des exercices
 | Je veux... | J'utilise... |
 |---|---|
 | savoir si une règle de mon équipe, comme « chaque ticket a une estimation en heures », sert encore à quelque chose | les quatre valeurs du Manifeste agile |
+| savoir quelle méthode agile règle le problème de mon équipe, entre le rythme, le flux, la qualité du code ou la coordination | le panorama des méthodes agiles |
+| organiser une équipe qui a à la fois des fonctionnalités à livrer et des incidents à traiter | Scrum pour les fonctionnalités, une voie Kanban pour le support, XP pour le code, DevOps pour la production |
+| tenir une date et un budget fixés par un contrat, en faisant varier le périmètre | DSDM et MoSCoW |
 | construire un nouveau produit dont le besoin se précise en route, avec un PO disponible et une équipe stable | Scrum |
 | gérer un flux de demandes imprévues, comme des bugs de production et des demandes d'autres équipes | Kanban, avec des classes de service |
 | voir où le travail attend, comme des MR qui s'empilent en revue, sans abandonner mes sprints | Scrumban : un tableau limité en WIP dans Scrum |
@@ -831,6 +1020,12 @@ Les questions par métier, avec des réponses plus détaillées et des exercices
 - Daniel Vacanti, « When Will It Be Done? » (2020)
 - Kent Beck et Cynthia Andres, « Extreme Programming Explained », deuxième édition (2004)
 - [Ron Jeffries, « What is Extreme Programming? » (2001, mis à jour 2011)](https://ronjeffries.com/xprog/what-is-extreme-programming/)
+- Mary et Tom Poppendieck, « Implementing Lean Software Development » (2006)
+- Alistair Cockburn, « Crystal Clear: A Human-Powered Methodology for Small Teams » (2004)
+- [Agile Business Consortium, « The DSDM Agile Project Framework » (édition 2014, à vérifier)](https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/)
+- Scott Ambler et Mark Lines, « Disciplined Agile Delivery » (2012)
+- [PMI, « Disciplined Agile » (consultée en novembre 2026)](https://www.pmi.org/disciplined-agile)
+- Gene Kim, Jez Humble, Patrick Debois et John Willis, « The DevOps Handbook » (2016)
 - Mike Cohn, « Agile Estimating and Planning » (2005)
 - [Ron Jeffries, « Story Points Revisited » (2019)](https://ronjeffries.com/articles/019-01ff/story-points/Index.html)
 - Vasco Duarte, « NoEstimates » (2016, date à vérifier)

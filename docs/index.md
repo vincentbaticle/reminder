@@ -371,7 +371,7 @@ hide:
 
     ---
 
-    Manifeste agile, Scrum selon le guide 2020 (responsabilités, événements, artefacts et engagements), Kanban en profondeur (tableau, limites de WIP, mesures du flux, classes de service), Scrumban, Extreme Programming, story points et prévision de Monte Carlo, rétrospectives utiles, agilité à l'échelle, qualité dans le sprint, dérives.
+    Manifeste agile, comparaison des méthodes (Scrum, Kanban, XP, Lean, Crystal, DSDM, SAFe, Disciplined Agile) et comment les combiner avec DevOps, Scrum selon le guide 2020 (responsabilités, événements, artefacts et engagements), Kanban en profondeur (tableau, limites de WIP, mesures du flux, classes de service), Scrumban, Extreme Programming, story points et prévision de Monte Carlo, rétrospectives utiles, agilité à l'échelle, qualité dans le sprint, dérives.
 
     *:material-calendar-check: Mis à jour le 19/11/2026*
 

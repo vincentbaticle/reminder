@@ -52,7 +52,7 @@ Mes pense-bêtes, à lire en ligne sur **[vincentbaticle.github.io/reminder](htt
 - [Lois et principes éponymes](docs/knowledge/lois-et-principes.md) : Conway, Brooks, Goodhart, Hyrum, Postel, Gall, Amdahl, Little, Chesterton, avec exemple et mauvais usage
 - [Culture d'entreprise et organisation](docs/knowledge/culture-entreprise.md) : Westrum, sécurité psychologique, Team Topologies, OKR, Cynefin, Lean, Wardley, CAPEX et OPEX, parler à la direction
 - [Product management](docs/knowledge/product-management.md) : rôle du PM, résultats plutôt que livrables, discovery, The Mom Test, RICE et Kano, feuilles de route, métriques produit, product-market fit, stories et lancement, taille de marché
-- [Agilité, Scrum et Kanban](docs/knowledge/agilite.md) : Manifeste agile, Scrum (guide 2020), Kanban en profondeur et mesures du flux, Scrumban, Extreme Programming, story points et prévision de Monte Carlo, rétrospectives, agilité à l'échelle, qualité dans le sprint, dérives
+- [Agilité, Scrum et Kanban](docs/knowledge/agilite.md) : Manifeste agile, comparaison des méthodes et comment les combiner avec DevOps, Scrum (guide 2020), Kanban en profondeur et mesures du flux, Scrumban, Extreme Programming, story points et prévision de Monte Carlo, rétrospectives, agilité à l'échelle, qualité dans le sprint, dérives
 
 ## Entretiens
 

@@ -7646,6 +7646,12 @@ window.REMINDER_TERMS = {
    "definition": "Toute l'équipe travaille sur un seul poste, sur le même problème ; la personne au clavier change toutes les quelques minutes.",
    "example": "Une demi-journée à cinq sur la migration du prestataire de paiement, clavier qui tourne toutes les 10 minutes.",
    "example_is_code": false
+  },
+  "devops": {
+   "term": "DevOps",
+   "definition": "Mouvement culturel et technique (2009) où les personnes qui développent et celles qui exploitent partagent la responsabilité de la production, avec beaucoup d'automatisation.",
+   "example": "L'équipe qui écrit le service de paiement le déploie elle-même par un pipeline, le surveille et tient l'astreinte.",
+   "example_is_code": false
   }
  },
  "en": {
@@ -15291,6 +15297,12 @@ window.REMINDER_TERMS = {
    "term": "Mob programming",
    "definition": "The whole team works at one workstation on the same problem; the person at the keyboard changes every few minutes.",
    "example": "Half a day with five people on the payment provider migration, keyboard rotating every 10 minutes.",
+   "example_is_code": false
+  },
+  "devops": {
+   "term": "DevOps",
+   "definition": "Cultural and technical movement (2009) where the people who build and the people who operate share responsibility for production, with a lot of automation.",
+   "example": "The team that writes the payment service deploys it itself through a pipeline, monitors it and is on call for it.",
    "example_is_code": false
   }
  }

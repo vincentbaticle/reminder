@@ -139,7 +139,7 @@ hide:
 
     OAuth, OIDC, JWT, flows and PKCE, OAuth 2.1, DPoP, metadata, DCR, Auth0, OWASP API Top 10, threat modeling (STRIDE), zero trust and mTLS, GDPR in the architecture, secrets.
 
-    *:material-calendar-check: Updated on 2026-11-17*
+    *:material-calendar-check: Updated on 2026-11-19*
 
     [:octicons-arrow-right-24: Open](knowledge/securite.md)
 
@@ -209,6 +209,16 @@ hide:
 
     [:octicons-arrow-right-24: Open](knowledge/incidents.md)
 
+-   :material-laptop-account:{ .lg .middle } **Workplace engineering and corporate IT**
+
+    ---
+
+    Identity and SSO, SCIM, phishing-resistant MFA, joiners and leavers driven by the HRIS, MDM and zero-touch enrollment, endpoint security, workplace as code, SaaS and shadow IT, ITSM, compliance.
+
+    *:material-calendar-check: Updated on 2026-11-19*
+
+    [:octicons-arrow-right-24: Open](knowledge/workplace.md)
+
 </div>
 
 ### Quality and tools
@@ -241,7 +251,7 @@ hide:
 
     RabbitMQ, Kafka, Pub/Sub, Redis, PostgreSQL, BigQuery, Kubernetes, Argo CD, CI, observability, Playwright, k6, Checkly: mini benchmarks and why one or the other, and tech radars (Thoughtworks, CNCF, Zalando, BYOR).
 
-    *:material-calendar-check: Updated on 2026-11-17*
+    *:material-calendar-check: Updated on 2026-11-19*
 
     [:octicons-arrow-right-24: Open](knowledge/outils.md)
 
@@ -261,7 +271,7 @@ hide:
 
     Data-driven decisions, time to insight, real time, A/B testing, visualisation, data governance, data science, predictive and generative AI, FinOps.
 
-    *:material-calendar-check: Updated on 2026-11-17*
+    *:material-calendar-check: Updated on 2026-11-19*
 
     [:octicons-arrow-right-24: Open](knowledge/donnees-decision.md)
 
@@ -343,9 +353,19 @@ hide:
 
     Westrum, psychological safety, Team Topologies, OKR, Cynefin, Lean, theory of constraints, Wardley, CAPEX and OPEX, cost of delay, talking to leadership, expert career track.
 
-    *:material-calendar-check: Updated on 2026-11-17*
+    *:material-calendar-check: Updated on 2026-11-19*
 
     [:octicons-arrow-right-24: Open](knowledge/culture-entreprise.md)
+
+-   :material-bullseye-arrow:{ .lg .middle } **Product management**
+
+    ---
+
+    The PM role and the product trio, outcomes over outputs, continuous discovery, The Mom Test, RICE, Kano, Now/Next/Later roadmaps, product metrics (AARRR, HEART, cohorts), product-market fit, stories and launch, market size.
+
+    *:material-calendar-check: Updated on 2026-11-19*
+
+    [:octicons-arrow-right-24: Open](knowledge/product-management.md)
 
 </div>
 
@@ -405,6 +425,26 @@ For each role, the questions asked with an answer outline and links to the Knowl
 
     [:octicons-arrow-right-24: Questions](entretiens/software-architect/questions.md) · [:octicons-arrow-right-24: Exercises](entretiens/software-architect/exercices.md)
 
+-   :material-laptop-account:{ .lg .middle } **Workplace Engineer**
+
+    ---
+
+    Identity and SSO, SCIM, joiners and leavers, MDM and zero-touch, endpoint security, workplace as code, SaaS, ITSM, compromised account.
+
+    *:material-calendar-check: Updated on 2026-11-19*
+
+    [:octicons-arrow-right-24: Questions](entretiens/workplace-engineer/questions.md) · [:octicons-arrow-right-24: Exercises](entretiens/workplace-engineer/exercices.md)
+
+-   :material-bullseye-arrow:{ .lg .middle } **Product Manager**
+
+    ---
+
+    Product sense, discovery, prioritization and roadmap, metrics and A/B tests, execution with engineering, strategy and estimation, stakeholders.
+
+    *:material-calendar-check: Updated on 2026-11-19*
+
+    [:octicons-arrow-right-24: Questions](entretiens/product-manager/questions.md) · [:octicons-arrow-right-24: Exercises](entretiens/product-manager/exercices.md)
+
 </div>
 
 ## Miscellaneous
@@ -427,7 +467,7 @@ For each role, the questions asked with an answer outline and links to the Knowl
 
     Why, when and how to keep up, and the sources to follow for architects, DevX and platform, QA and developers.
 
-    *:material-calendar-check: Updated on 2026-11-17*
+    *:material-calendar-check: Updated on 2026-11-19*
 
     [:octicons-arrow-right-24: Open](knowledge/veille.md)
 

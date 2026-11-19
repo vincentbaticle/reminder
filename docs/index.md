@@ -139,7 +139,7 @@ hide:
 
     OAuth, OIDC, JWT, flux et PKCE, OAuth 2.1, DPoP, métadonnées, DCR, Auth0, OWASP API Top 10, modélisation des menaces (STRIDE), zero trust et mTLS, RGPD dans l'architecture, secrets.
 
-    *:material-calendar-check: Mis à jour le 17/11/2026*
+    *:material-calendar-check: Mis à jour le 19/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/securite.md)
 
@@ -209,6 +209,16 @@ hide:
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/incidents.md)
 
+-   :material-laptop-account:{ .lg .middle } **Workplace engineering et IT d'entreprise**
+
+    ---
+
+    Identité et SSO, SCIM, MFA résistante au phishing, arrivées et départs pilotés par le SIRH, MDM et enrôlement zero-touch, sécurité des postes, workplace as code, SaaS et shadow IT, ITSM, conformité.
+
+    *:material-calendar-check: Mis à jour le 19/11/2026*
+
+    [:octicons-arrow-right-24: Ouvrir](knowledge/workplace.md)
+
 </div>
 
 ### Qualité et outils
@@ -241,7 +251,7 @@ hide:
 
     RabbitMQ, Kafka, Pub/Sub, Redis, PostgreSQL, BigQuery, Kubernetes, Argo CD, CI, observabilité, Playwright, k6, Checkly : mini benchmarks et pourquoi l'un ou l'autre, et les tech radars (Thoughtworks, CNCF, Zalando, BYOR).
 
-    *:material-calendar-check: Mis à jour le 17/11/2026*
+    *:material-calendar-check: Mis à jour le 19/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/outils.md)
 
@@ -261,7 +271,7 @@ hide:
 
     Décisions pilotées par les données, time to insight, temps réel, A/B testing, visualisation, gouvernance des données, data science, IA prédictive et générative, FinOps.
 
-    *:material-calendar-check: Mis à jour le 17/11/2026*
+    *:material-calendar-check: Mis à jour le 19/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/donnees-decision.md)
 
@@ -343,9 +353,19 @@ hide:
 
     Westrum, sécurité psychologique, Team Topologies, OKR, Cynefin, Lean, théorie des contraintes, Wardley, CAPEX et OPEX, coût du retard, parler à la direction, carrière d'expert.
 
-    *:material-calendar-check: Mis à jour le 17/11/2026*
+    *:material-calendar-check: Mis à jour le 19/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/culture-entreprise.md)
+
+-   :material-bullseye-arrow:{ .lg .middle } **Product management**
+
+    ---
+
+    Rôle du PM et trio produit, résultats plutôt que livrables, discovery continue, The Mom Test, RICE, Kano, feuilles de route Now/Next/Later, métriques produit (AARRR, HEART, cohortes), product-market fit, stories et lancement, taille de marché.
+
+    *:material-calendar-check: Mis à jour le 19/11/2026*
+
+    [:octicons-arrow-right-24: Ouvrir](knowledge/product-management.md)
 
 </div>
 
@@ -405,6 +425,26 @@ Pour chaque métier, les questions posées avec une piste de réponse et des lie
 
     [:octicons-arrow-right-24: Questions](entretiens/software-architect/questions.md) · [:octicons-arrow-right-24: Exercices](entretiens/software-architect/exercices.md)
 
+-   :material-laptop-account:{ .lg .middle } **Workplace Engineer**
+
+    ---
+
+    Identité et SSO, SCIM, arrivées et départs, MDM et zero-touch, sécurité des postes, workplace as code, SaaS, ITSM, compte compromis.
+
+    *:material-calendar-check: Mis à jour le 19/11/2026*
+
+    [:octicons-arrow-right-24: Questions](entretiens/workplace-engineer/questions.md) · [:octicons-arrow-right-24: Exercices](entretiens/workplace-engineer/exercices.md)
+
+-   :material-bullseye-arrow:{ .lg .middle } **Product Manager**
+
+    ---
+
+    Product sense, discovery, priorisation et feuille de route, métriques et A/B tests, exécution avec l'ingénierie, stratégie et estimation, parties prenantes.
+
+    *:material-calendar-check: Mis à jour le 19/11/2026*
+
+    [:octicons-arrow-right-24: Questions](entretiens/product-manager/questions.md) · [:octicons-arrow-right-24: Exercices](entretiens/product-manager/exercices.md)
+
 </div>
 
 ## Divers
@@ -427,7 +467,7 @@ Pour chaque métier, les questions posées avec une piste de réponse et des lie
 
     Pourquoi, quand et comment faire sa veille, et les sources à suivre pour l'architecte, la DevX et la plateforme, la QA et le développeur.
 
-    *:material-calendar-check: Mis à jour le 17/11/2026*
+    *:material-calendar-check: Mis à jour le 19/11/2026*
 
     [:octicons-arrow-right-24: Ouvrir](knowledge/veille.md)
 

@@ -6926,6 +6926,636 @@ window.REMINDER_TERMS = {
    "definition": "Format de commentaire de revue qui commence par une étiquette (issue, suggestion, question, nitpick, praise) et une décoration (blocking) ou (non-blocking).",
    "example": "issue (blocking): user_id vient de l'URL, injection SQL.",
    "example_is_code": false
+  },
+  "access-review": {
+   "term": "Revue d'accès",
+   "definition": "Campagne périodique où le propriétaire d'un accès sensible confirme ou retire chaque personne qui l'a encore.",
+   "example": "Chaque trimestre, le responsable financier relit les 12 membres du groupe finance-export et retire grace, inactive depuis 140 jours.",
+   "example_is_code": false
+  },
+  "admin-api": {
+   "term": "API d'administration",
+   "definition": "API qu'un outil d'entreprise (fournisseur d'identité, suite bureautique, MDM) expose pour gérer comptes, groupes et réglages par script.",
+   "example": "workplace.idp.suspend_user(user.id)\nworkplace.drive.transfer_files(email, to=manager)",
+   "example_is_code": true
+  },
+  "audit-log": {
+   "term": "Journal d'audit",
+   "definition": "Trace horodatée de qui a fait quoi dans un outil : connexion, changement de groupe, effacement d'un appareil. Sert d'enquête et de preuve en audit.",
+   "example": "{\"time\": \"2026-11-30T18:00:04Z\", \"actor\": \"offboarding-bot\", \"action\": \"user.suspend\", \"target\": \"grace@acme.example\"}",
+   "example_is_code": true
+  },
+  "break-glass-account": {
+   "term": "Compte de secours (break-glass)",
+   "definition": "Compte administrateur exclu des règles d'accès habituelles, gardé sous clé et surveillé, qui sert seulement quand tous les autres administrateurs sont bloqués.",
+   "example": "Une règle d'accès conditionnel fausse bloque tout le monde ; l'équipe sort la clé FIDO2 du coffre, se connecte avec le compte de secours et corrige la règle.",
+   "example_is_code": false
+  },
+  "byod": {
+   "term": "BYOD",
+   "definition": "Bring Your Own Device : utiliser un appareil personnel, souvent un téléphone, pour le travail, avec une séparation entre données personnelles et professionnelles.",
+   "example": "ada lit ses mails de travail sur son téléphone personnel, dans un profil professionnel que l'entreprise peut effacer sans toucher à ses photos.",
+   "example_is_code": false
+  },
+  "chatops": {
+   "term": "ChatOps",
+   "definition": "Lancer des actions d'exploitation ou de support depuis l'outil de discussion, par une commande ou un bot, avec un journal visible par l'équipe.",
+   "example": "/access request figma\nbot: demande envoyée à grace, propriétaire de l'accès",
+   "example_is_code": true
+  },
+  "cis-benchmark": {
+   "term": "CIS Benchmark",
+   "definition": "Liste publique de réglages de sécurité recommandés pour un système (macOS, Windows, Linux, navigateur), publiée par le Center for Internet Security, en deux niveaux de sévérité.",
+   "example": "Le niveau 1 du référentiel macOS demande l'écran verrouillé après inactivité et le pare-feu activé ; l'équipe l'applique avec deux exceptions écrites.",
+   "example_is_code": false
+  },
+  "conditional-access": {
+   "term": "Accès conditionnel",
+   "definition": "Règle évaluée par le fournisseur d'identité à chaque connexion, qui combine la personne, l'appareil, l'application et le risque pour accepter, demander une MFA ou refuser.",
+   "example": "groups: [finance]\nmfa: phishing_resistant\ndevice: {managed: true, disk_encrypted: true}\notherwise: deny",
+   "example_is_code": true
+  },
+  "configuration-profile": {
+   "term": "Profil de configuration",
+   "definition": "Paquet de réglages envoyé par le MDM à un appareil : code minimal, chiffrement, Wi-Fi, certificats. L'utilisateur ne peut pas le retirer sur un appareil supervisé.",
+   "example": "Le profil « Wi-Fi bureau » installe le certificat et le réseau : les portables gérés se connectent seuls, sans mot de passe partagé.",
+   "example_is_code": false
+  },
+  "day-one-readiness": {
+   "term": "Préparation du premier jour",
+   "definition": "Promesse mesurable qu'un nouvel arrivant a, à son arrivée, son appareil configuré, son compte et tous ses accès, sans rien attendre.",
+   "example": "À 9 h le premier jour, ada allume son portable livré chez elle, inscrit sa passkey et ouvre l'outil de tickets de son équipe.",
+   "example_is_code": false
+  },
+  "declarative-device-management": {
+   "term": "Gestion déclarative des appareils",
+   "definition": "Mode de gestion Apple où le serveur envoie un état voulu ; l'appareil l'applique seul, le maintient et signale ses changements, au lieu d'être interrogé sans arrêt.",
+   "example": "{\"Type\": \"com.apple.configuration.passcode.settings\", \"Payload\": {\"MinimumLength\": 12}}",
+   "example_is_code": true
+  },
+  "device-trust": {
+   "term": "Confiance de l'appareil",
+   "definition": "Preuve qu'un appareil est géré et conforme (inscrit au MDM, chiffré, à jour), utilisée pour décider s'il peut accéder à une application.",
+   "example": "Le portable de ada est chiffré et à jour : l'appli de paie s'ouvre. Son téléphone personnel non géré est refusé.",
+   "example_is_code": false
+  },
+  "disk-encryption": {
+   "term": "Chiffrement du disque",
+   "definition": "Le contenu du disque est illisible sans le mot de passe de session ou la puce de sécurité ; une clé de récupération gardée par le MDM débloque le poste en cas d'oubli.",
+   "example": "Un portable volé dans un train, chiffré par FileVault : le voleur a le matériel, pas les documents.",
+   "example_is_code": false
+  },
+  "dlp": {
+   "term": "DLP",
+   "definition": "Data Loss Prevention : outil qui repère des contenus sensibles (numéros de carte, IBAN) dans les mails et documents et applique une règle : avertir, bloquer, alerter.",
+   "example": "grace partage à l'extérieur un tableur qui contient 300 IBAN : la DLP bloque le partage et lui explique pourquoi.",
+   "example_is_code": false
+  },
+  "edr": {
+   "term": "EDR",
+   "definition": "Endpoint Detection and Response : agent installé sur chaque poste qui observe processus, fichiers et connexions, détecte un comportement d'attaque et peut isoler le poste.",
+   "example": "Un document Word ouvre PowerShell qui télécharge un fichier : l'EDR coupe le poste du réseau et alerte l'équipe sécurité.",
+   "example_is_code": false
+  },
+  "endpoint-device": {
+   "term": "Poste de travail (endpoint)",
+   "definition": "Appareil utilisé par une personne pour travailler : portable, téléphone, tablette. Différent de l'endpoint d'une API.",
+   "example": "Le parc de acme.example compte 320 endpoints : 240 Mac, 60 PC Windows et 20 portables Linux.",
+   "example_is_code": false
+  },
+  "hris": {
+   "term": "SIRH",
+   "definition": "Système d'information des ressources humaines : le logiciel RH qui sait qui est salarié, dans quelle équipe, avec quel manager, de quand à quand. Source de vérité des comptes.",
+   "example": "La RH saisit le départ de grace au 30 novembre dans le SIRH ; ce jour-là à 18 h, ses accès sont coupés automatiquement.",
+   "example_is_code": false
+  },
+  "ieee-8021x": {
+   "term": "802.1X",
+   "definition": "Norme IEEE où un appareil s'authentifie au réseau (Wi-Fi ou port filaire) avant d'y entrer, souvent par un certificat poussé par le MDM.",
+   "example": "Un portable géré se connecte au Wi-Fi du bureau avec son certificat ; un appareil inconnu reste dehors, sans mot de passe partagé à voler.",
+   "example_is_code": false
+  },
+  "iso-27001": {
+   "term": "ISO/IEC 27001",
+   "definition": "Norme internationale qui décrit un système de management de la sécurité de l'information ; une entreprise peut se faire certifier par un organisme tiers. Dernière édition : 2022.",
+   "example": "L'auditeur demande la liste des départs du trimestre et la preuve que chaque compte a été désactivé le jour même.",
+   "example_is_code": false
+  },
+  "itil": {
+   "term": "ITIL",
+   "definition": "Référentiel de bonnes pratiques de gestion des services IT (version 4 en 2019) : incidents, demandes, problèmes, changements, catalogue de services.",
+   "example": "La visio coupe chez 40 personnes : 40 incidents, regroupés en un problème dont la cause est une mise à jour de pilote audio.",
+   "example_is_code": false
+  },
+  "itsm": {
+   "term": "ITSM",
+   "definition": "IT Service Management : la façon d'organiser le support et les services IT, avec tickets, catalogue de demandes, gestion des incidents et des changements.",
+   "example": "ada demande un écran supplémentaire par le portail ; la demande suit un circuit standard et arrive livrée en trois jours.",
+   "example_is_code": false
+  },
+  "joiner-mover-leaver": {
+   "term": "Joiner, mover, leaver (JML)",
+   "definition": "Les trois moments de la vie d'un compte : arrivée, changement d'équipe ou de poste, départ. Chacun crée, modifie ou retire des accès.",
+   "example": "ada arrive dans team-core (joiner), passe dans team-data (mover) et perd alors les accès de team-core ; grace part (leaver).",
+   "example_is_code": false
+  },
+  "knowledge-base": {
+   "term": "Base de connaissances",
+   "definition": "Ensemble d'articles courts qui répondent aux questions fréquentes du support, écrits à partir des tickets et tenus à jour par un propriétaire.",
+   "example": "L'article « La visio coupe après la mise à jour » résout seul 30 demandes par mois.",
+   "example_is_code": false
+  },
+  "local-admin-rights": {
+   "term": "Droits administrateur locaux",
+   "definition": "Droit d'installer des logiciels et de changer les réglages système sur son propre poste. Utile aux développeurs, risqué s'il est permanent et non tracé.",
+   "example": "ada demande 30 minutes de droits admin pour installer un outil en ligne de commande ; la demande et l'installation sont journalisées.",
+   "example_is_code": false
+  },
+  "mdm": {
+   "term": "MDM",
+   "definition": "Mobile Device Management : service qui garde un lien avec chaque appareil de l'entreprise pour y pousser réglages et applications, l'inventorier et le verrouiller ou l'effacer à distance.",
+   "example": "Le portable de grace n'est pas rendu le jour de son départ : le MDM le verrouille à distance et l'efface à sa prochaine connexion.",
+   "example_is_code": false
+  },
+  "osquery": {
+   "term": "osquery",
+   "definition": "Outil open source (Facebook, 2014) qui expose l'état d'un ordinateur comme une base SQL : processus, applications, chiffrement, utilisateurs.",
+   "example": "SELECT name, encrypted FROM disk_encryption WHERE encrypted = 0;",
+   "example_is_code": true
+  },
+  "patch-management": {
+   "term": "Gestion des correctifs",
+   "definition": "Organisation qui fixe en combien de temps les mises à jour du système et des applications arrivent sur tous les postes, selon le risque.",
+   "example": "Une faille exploitée du navigateur est corrigée sur tout le parc en 48 h ; une mise à jour ordinaire en 14 jours, par anneaux.",
+   "example_is_code": false
+  },
+  "phishing-resistant-mfa": {
+   "term": "MFA résistante au phishing",
+   "definition": "MFA dont la preuve est liée au vrai nom de domaine (clé FIDO2, passkey) : un faux site ne peut pas l'obtenir ni la rejouer, contrairement à un code SMS.",
+   "example": "ada saisit son mot de passe sur un faux site acme-example-login.com ; sa clé refuse de signer pour ce domaine, l'attaque échoue.",
+   "example_is_code": false
+  },
+  "provisioning": {
+   "term": "Provisioning",
+   "definition": "Création, mise à jour ou retrait automatique d'un compte dans une application, à partir du fournisseur d'identité. Le retrait s'appelle deprovisioning.",
+   "example": "ada est ajoutée à team-core : son compte dans l'outil de tickets est créé dans les 5 minutes, sans ticket au support.",
+   "example_is_code": false
+  },
+  "rollout-ring": {
+   "term": "Anneau de déploiement",
+   "definition": "Groupe d'appareils ou de personnes qui reçoit un changement à son tour : l'IT d'abord, puis des volontaires, puis tout le monde, avec observation entre chaque.",
+   "example": "Le nouveau profil pare-feu part sur 8 postes IT, puis 30 volontaires, puis la moitié du parc, puis le reste.",
+   "example_is_code": false
+  },
+  "saml": {
+   "term": "SAML",
+   "definition": "Security Assertion Markup Language (2.0 en 2005) : protocole de SSO où le fournisseur d'identité envoie à l'application une assertion XML signée qui dit qui est connecté.",
+   "example": "<saml:Subject><saml:NameID>ada@acme.example</saml:NameID></saml:Subject>",
+   "example_is_code": true
+  },
+  "scim": {
+   "term": "SCIM",
+   "definition": "System for Cross-domain Identity Management (RFC 7643 et 7644, 2015) : API REST standard par laquelle le fournisseur d'identité crée, modifie et désactive les comptes dans une application.",
+   "example": "PATCH /scim/v2/Users/5b81e0\n{\"Operations\": [{\"op\": \"replace\", \"path\": \"active\", \"value\": false}]}",
+   "example_is_code": true
+  },
+  "service-request": {
+   "term": "Demande de service",
+   "definition": "Besoin normal et prévu adressé à l'IT (licence, matériel, accès), par opposition à un incident où quelque chose ne marche plus.",
+   "example": "« J'ai besoin d'une licence de l'outil de dessin » : formulaire du catalogue, validation du propriétaire, licence attribuée.",
+   "example_is_code": false
+  },
+  "shadow-it": {
+   "term": "Shadow IT",
+   "definition": "Outils utilisés par une équipe sans que l'IT le sache, souvent payés par carte bancaire, donc sans SSO, sans propriétaire et sans contrôle des données.",
+   "example": "Le marketing importe la liste des clients dans un outil de sondage payé par carte ; le compte reste ouvert après le départ de sa créatrice.",
+   "example_is_code": false
+  },
+  "shift-left-support": {
+   "term": "Shift left du support",
+   "definition": "Résoudre chaque demande le plus tôt possible dans la chaîne : en libre-service d'abord, puis au premier niveau, puis par un expert seulement si besoin.",
+   "example": "La réinitialisation de MFA passe d'un ticket traité par un expert à un parcours en libre-service vérifié par le manager.",
+   "example_is_code": false
+  },
+  "soc2": {
+   "term": "SOC 2",
+   "definition": "Rapport d'un auditeur indépendant sur les contrôles de sécurité d'une entreprise de services (référentiel de l'AICPA) ; le Type II couvre une période de plusieurs mois.",
+   "example": "Un client demande le rapport SOC 2 Type II avant de signer ; il y lit que les revues d'accès sont faites chaque trimestre.",
+   "example_is_code": false
+  },
+  "sso": {
+   "term": "SSO",
+   "definition": "Single Sign-On, authentification unique : une seule connexion au fournisseur d'identité ouvre l'accès à toutes les applications qui lui délèguent la connexion.",
+   "example": "ada se connecte le matin avec sa passkey ; l'outil de tickets, le wiki et la messagerie la reconnaissent sans mot de passe.",
+   "example_is_code": false
+  },
+  "vpn": {
+   "term": "VPN",
+   "definition": "Réseau privé virtuel : tunnel chiffré qui place l'ordinateur dans le réseau de l'entreprise, avec souvent accès à bien plus que l'application utile.",
+   "example": "Connectée au VPN pour lire le wiki, ada peut aussi joindre les serveurs de base de données, ce dont elle n'a pas besoin.",
+   "example_is_code": false
+  },
+  "workplace-engineering": {
+   "term": "Workplace engineering",
+   "definition": "Métier qui construit et automatise ce que les salariés utilisent pour travailler : identité, appareils, outils SaaS, réseau du bureau, support. Aussi appelé corporate engineering.",
+   "example": "L'équipe écrit la règle qui ajoute toute personne de team-core au bon groupe et le test qui vérifie qu'un départ coupe tout en une heure.",
+   "example_is_code": false
+  },
+  "zero-touch-enrollment": {
+   "term": "Enrôlement zero-touch",
+   "definition": "L'appareil, rattaché à l'entreprise par son numéro de série dès l'achat, s'inscrit seul au MDM à son premier démarrage, sans passer par l'IT.",
+   "example": "Le portable de ada est livré emballé chez elle ; au premier démarrage, il s'inscrit au MDM et s'installe en 20 minutes.",
+   "example_is_code": false
+  },
+  "ztna": {
+   "term": "ZTNA",
+   "definition": "Zero Trust Network Access : chaque application interne est publiée séparément derrière un point d'accès qui vérifie la personne et l'appareil à chaque requête.",
+   "example": "ada atteint le wiki interne depuis chez elle sans VPN ; les serveurs de base de données restent invisibles pour elle.",
+   "example_is_code": false
+  },
+  "product-manager": {
+   "term": "Product manager",
+   "definition": "Personne qui répond du résultat d’un produit : quel problème on résout, pour qui, et comment on sait que ça marche. Elle décide avec le design et la technique, sans leur donner d’ordres.",
+   "example": "Ada, PM de bike-app, répond de la part des nouveaux inscrits qui font un deuxième trajet dans la semaine.",
+   "example_is_code": false
+  },
+  "product-trio": {
+   "term": "Trio produit",
+   "definition": "La PM, le designer et le tech lead qui mènent la discovery ensemble chaque semaine et choisissent ensemble l’opportunité à traiter et la solution à tester.",
+   "example": "Ada, grace et alan interviewent ensemble une cycliste lundi, puis décident jeudi de tester une réservation par SMS.",
+   "example_is_code": false
+  },
+  "product-outcome": {
+   "term": "Objectif de résultat (outcome)",
+   "definition": "Un objectif exprimé comme un changement de comportement des utilisateurs, mesurable, plutôt que comme une fonction à livrer. L’équipe choisit comment l’atteindre.",
+   "example": "« Part des nouveaux inscrits qui font un 2e trajet sous 7 jours : de 35 % à 45 % » au lieu de « livrer la réservation le 15 avril ».",
+   "example_is_code": false
+  },
+  "opportunity-solution-tree": {
+   "term": "Arbre d’opportunités et de solutions",
+   "definition": "Schéma en arbre de Teresa Torres : un résultat visé en haut, les besoins des utilisateurs (opportunités) en dessous, plusieurs solutions par opportunité, et les tests de chaque solution.",
+   "example": "Sous « le vélo est parti quand j’arrive », trois solutions : réservation, alerte de disponibilité, rééquilibrage des stations.",
+   "example_is_code": false
+  },
+  "mom-test": {
+   "term": "Mom Test",
+   "definition": "Règles d’entretien de Rob Fitzpatrick : parler de la vie de la personne et de faits passés précis, pas de mon idée ni de l’avenir, pour éviter les réponses polies.",
+   "example": "« Racontez-moi la dernière fois que vous n’avez pas trouvé de vélo » plutôt que « utiliseriez-vous une réservation ? ».",
+   "example_is_code": false
+  },
+  "assumption-mapping": {
+   "term": "Cartographie des hypothèses",
+   "definition": "Atelier qui liste les hypothèses d’une idée et les place selon leur importance et les preuves déjà disponibles, pour tester d’abord les plus importantes et les moins prouvées.",
+   "example": "« Les cyclistes du matin réserveraient 2 fois par semaine » : importante, aucune preuve, donc testée cette semaine.",
+   "example_is_code": false
+  },
+  "fake-door-test": {
+   "term": "Test de la fausse porte",
+   "definition": "Afficher un bouton ou une offre sans fonction derrière, avec un message honnête au clic, pour mesurer combien de gens la veulent avant de la construire.",
+   "example": "Un bouton « Réserver » sur 10 % des fiches de station ; au clic : « bientôt disponible, voulez-vous être prévenu ? ».",
+   "example_is_code": false
+  },
+  "concierge-test": {
+   "term": "Test concierge",
+   "definition": "Rendre le service à la main, ouvertement, à quelques clients, pour vérifier sa valeur et comprendre l’usage réel avant de l’automatiser.",
+   "example": "30 cyclistes réservent par SMS et alan bloque leur vélo depuis l’outil de maintenance pendant deux semaines.",
+   "example_is_code": false
+  },
+  "wizard-of-oz-test": {
+   "term": "Test du magicien d’Oz",
+   "definition": "L’utilisateur croit utiliser un service automatique alors qu’un humain répond derrière. On vérifie l’usage avant de construire l’automatisation.",
+   "example": "Un « assistant » propose la station la plus proche avec un vélo libre ; en réalité, un membre de l’équipe répond pendant deux semaines.",
+   "example_is_code": false
+  },
+  "mvp": {
+   "term": "MVP (Minimum Viable Product)",
+   "definition": "La version d’un nouveau produit qui apporte le plus d’apprentissage validé sur les clients pour le moins d’effort. C’est une expérience, pas une version 1 au rabais.",
+   "example": "Une réservation par SMS pour 30 cyclistes, avec le critère « au moins 18 réservent 2 fois par semaine, sinon j’arrête ».",
+   "example_is_code": false
+  },
+  "build-measure-learn": {
+   "term": "Construire, mesurer, apprendre",
+   "definition": "La boucle du Lean Startup : construire le plus petit test d’une hypothèse, mesurer ce que font les clients, en tirer une leçon, puis persévérer ou pivoter.",
+   "example": "Test concierge de deux semaines, 21 cyclistes sur 30 réservent : l’équipe persévère et construit la tranche 1.",
+   "example_is_code": false
+  },
+  "problem-statement": {
+   "term": "Énoncé du problème",
+   "definition": "Description de qui a un problème, dans quelle situation, ce que ça lui coûte et comment on saura qu’il est résolu, sans nommer de solution.",
+   "example": "« 30 % des cyclistes de 6 h à 8 h trouvent leur station vide ; 1 sur 5 n’ouvre plus l’appli le mois suivant. »",
+   "example_is_code": false
+  },
+  "prd": {
+   "term": "PRD (Product Requirements Document)",
+   "definition": "Document qui cadre une initiative produit : problème, résultat visé, garde-fou, ce qui est hors périmètre, questions ouvertes. Aujourd’hui plutôt court et vivant.",
+   "example": "Le PRD « garantir un vélo aux cyclistes du matin » tient en une page, avec « hors périmètre : réservation payante ».",
+   "example_is_code": false
+  },
+  "pr-faq": {
+   "term": "PR/FAQ (Working Backwards)",
+   "definition": "Méthode qui part de la fin : écrire le communiqué de presse du jour du lancement, puis une FAQ client et interne, avant tout développement.",
+   "example": "Titre : « bike-app garantit un vélo aux cyclistes du matin » ; FAQ interne : « combien coûte un vélo bloqué 15 minutes ? ».",
+   "example_is_code": false
+  },
+  "rice-score": {
+   "term": "Score RICE",
+   "definition": "Score de priorisation : portée × impact × confiance ÷ effort. Il rend les hypothèses visibles, mais ne dit pas quelle idée sert l’objectif.",
+   "example": "Abonnement étudiant : 2 000 × 3 × 0,8 ÷ 2 = 2 400.",
+   "example_is_code": false
+  },
+  "ice-score": {
+   "term": "Score ICE",
+   "definition": "Score rapide qui note impact, confiance et facilité de 1 à 10 puis les multiplie, surtout pour trier de petites expériences de croissance.",
+   "example": "E-mail de rappel 24 h après l’inscription : 6 × 7 × 9 = 378.",
+   "example_is_code": false
+  },
+  "kano-model": {
+   "term": "Modèle de Kano",
+   "definition": "Classement des attributs d’un produit selon le lien entre leur présence et la satisfaction : obligatoires, proportionnels, attractifs, indifférents, inversés.",
+   "example": "Des freins qui marchent sont obligatoires ; une alerte quand un vélo se libère est attractive.",
+   "example_is_code": false
+  },
+  "moscow-method": {
+   "term": "MoSCoW",
+   "definition": "Classement des exigences d’une livraison en Must, Should, Could et Won’t this time, utile quand la date est fixe et que le périmètre doit s’adapter.",
+   "example": "Must : vérifier le statut étudiant ; Could : parrainage ; Won’t : tarif de groupe, prévu au printemps.",
+   "example_is_code": false
+  },
+  "wsjf": {
+   "term": "WSJF (Weighted Shortest Job First)",
+   "definition": "Règle de priorisation qui fait passer d’abord le travail au plus fort coût du retard par unité de durée.",
+   "example": "Coût du retard 26, taille 5 : WSJF 5,2, devant un sujet à 19 de coût du retard et 13 de taille (1,5).",
+   "example_is_code": false
+  },
+  "now-next-later": {
+   "term": "Feuille de route Now, Next, Later",
+   "definition": "Feuille de route sans dates fines, en trois horizons de précision décroissante : en cours (détaillé), prochain (cadré), plus tard (exploratoire).",
+   "example": "Now : fiabiliser le déverrouillage ; Next : abonnement étudiant ; Later : vélos cargo.",
+   "example_is_code": false
+  },
+  "outcome-roadmap": {
+   "term": "Feuille de route par résultats",
+   "definition": "Feuille de route qui liste les problèmes à résoudre et les résultats visés plutôt que des fonctions à des dates. Les fonctions y sont des paris.",
+   "example": "« T3 : plus de trajets du matin réussis » au lieu de « réservation le 15 avril ».",
+   "example_is_code": false
+  },
+  "aarrr": {
+   "term": "Métriques AARRR (pirates)",
+   "definition": "Cinq étapes du cycle de vie d’un client proposées par Dave McClure : acquisition, activation, rétention, recommandation, revenu.",
+   "example": "Activation de bike-app : part des inscrits qui terminent un premier trajet sous 7 jours.",
+   "example_is_code": false
+  },
+  "heart-framework": {
+   "term": "Cadre HEART",
+   "definition": "Cadre de Google pour mesurer l’expérience utilisateur : satisfaction, engagement, adoption, rétention, réussite de la tâche, chacun décliné en objectifs, signaux et métriques.",
+   "example": "Réussite de la tâche : taux de déverrouillages réussis et temps médian de déverrouillage.",
+   "example_is_code": false
+  },
+  "activation-metric": {
+   "term": "Activation",
+   "definition": "Le moment où un nouvel utilisateur obtient pour la première fois la valeur promise par le produit, et la part des inscrits qui l’atteignent.",
+   "example": "Pour bike-app, l’activation est le premier trajet terminé : 2 730 sur 10 000 inscrits, soit 27 %.",
+   "example_is_code": false
+  },
+  "conversion-funnel": {
+   "term": "Entonnoir de conversion",
+   "definition": "La suite d’étapes qu’un utilisateur franchit vers un objectif, avec la part qui passe chaque étape, pour voir où les gens abandonnent.",
+   "example": "Installation 10 000, compte 6 500, carte bancaire 3 900, premier trajet 2 730.",
+   "example_is_code": false
+  },
+  "cohort-retention": {
+   "term": "Rétention par cohortes",
+   "definition": "Suivi, pour chaque groupe d’utilisateurs ayant commencé à la même période, de la part encore active après 1, 2, 4, 8 semaines.",
+   "example": "Cohorte de mars : 100 %, 50 %, 38 %, 32 %, 31 % ; la courbe s’aplatit vers 30 %.",
+   "example_is_code": false
+  },
+  "churn": {
+   "term": "Churn (attrition)",
+   "definition": "La part des clients ou des abonnés qui partent sur une période donnée, l’inverse de la rétention.",
+   "example": "200 abonnés sur 5 000 résilient en avril : churn mensuel de 4 %.",
+   "example_is_code": false
+  },
+  "guardrail-metric": {
+   "term": "Métrique garde-fou",
+   "definition": "Mesure qu’on ne cherche pas à améliorer mais qui ne doit pas se dégrader pendant qu’on pousse la métrique principale, pour détecter la triche ou les effets de bord.",
+   "example": "On pousse les réouvertures de l’appli, avec comme garde-fou le taux de désactivation des notifications.",
+   "example_is_code": false
+  },
+  "product-market-fit": {
+   "term": "Product-market fit",
+   "definition": "Le moment où un produit satisfait si bien un marché que les clients restent et en amènent d’autres sans qu’on les pousse.",
+   "example": "La rétention des cohortes de bike-app se stabilise vers 30 % au lieu de tomber à zéro.",
+   "example_is_code": false
+  },
+  "sean-ellis-test": {
+   "term": "Test de Sean Ellis",
+   "definition": "Enquête qui demande aux utilisateurs actifs comment ils se sentiraient sans le produit ; au-delà de 40 % de « très déçu », le produit aurait trouvé son marché. Seuil empirique, à manier avec prudence.",
+   "example": "95 « très déçu » sur 250 réponses : 38 %, mais 61 % dans le segment domicile-travail.",
+   "example_is_code": false
+  },
+  "invest-criteria": {
+   "term": "INVEST",
+   "definition": "Les six qualités d’une bonne story selon Bill Wake : indépendante, négociable, porteuse de valeur, estimable, petite, testable.",
+   "example": "« Une table reservations en base » échoue sur la valeur ; « réserver un vélo 15 minutes avant de partir » passe.",
+   "example_is_code": false
+  },
+  "story-mapping": {
+   "term": "Story mapping",
+   "definition": "Carte du backlog en deux dimensions : les activités de l’utilisateur dans l’ordre du parcours de gauche à droite, les stories de la plus indispensable à la plus accessoire de haut en bas.",
+   "example": "Version 1 : voir les stations, réserver 15 min, scanner le QR code, terminer le trajet.",
+   "example_is_code": false
+  },
+  "beta-program": {
+   "term": "Bêta",
+   "definition": "Mise à disposition d’une fonction à un groupe limité avant le lancement général : fermée (groupe choisi, retours qualitatifs) ou ouverte (plus large, mesure de l’usage).",
+   "example": "Bêta fermée de la réservation pour 200 cyclistes volontaires de deux stations.",
+   "example_is_code": false
+  },
+  "go-to-market": {
+   "term": "Go-to-market",
+   "definition": "Le plan pour amener un produit ou une fonction à ses clients : segment visé, message, canal, prix, formation du support et des ventes, mesure de l’adoption.",
+   "example": "Abonnement étudiant lancé dans deux villes avec les associations étudiantes, à 15 € par mois.",
+   "example_is_code": false
+  },
+  "stakeholder": {
+   "term": "Partie prenante",
+   "definition": "Toute personne ou équipe touchée par une décision, ou qui peut l’influencer.",
+   "example": "Pour la réservation : le support, la finance, l’équipe de maintenance des vélos.",
+   "example_is_code": false
+  },
+  "stakeholder-map": {
+   "term": "Carte des parties prenantes",
+   "definition": "Liste des parties prenantes placées selon leur pouvoir sur une décision et leur intérêt pour elle, pour savoir qui associer, informer ou surveiller.",
+   "example": "La maintenance des vélos : pouvoir faible, intérêt fort, donc tenue au courant avant le lancement.",
+   "example_is_code": false
+  },
+  "tam-sam-som": {
+   "term": "TAM, SAM, SOM",
+   "definition": "Trois tailles de marché emboîtées : le marché total, la part que mon offre peut servir, et la part que je peux réellement prendre.",
+   "example": "SAM de l’abonnement étudiant : 50 000 étudiants cyclistes × 150 € par an = 7,5 M€ ; SOM à 10 % : 750 000 €.",
+   "example_is_code": false
+  },
+  "fermi-estimate": {
+   "term": "Estimation de Fermi",
+   "definition": "Estimation d’un ordre de grandeur en découpant une question en facteurs estimables, multipliés entre eux, puis vérifiés contre une référence connue.",
+   "example": "500 000 habitants × 2 % de trajets par jour ÷ 4 trajets par vélo × 1,3 de marge, soit environ 3 250 vélos.",
+   "example_is_code": false
+  },
+  "value-based-pricing": {
+   "term": "Tarification à la valeur",
+   "definition": "Fixer un prix d’après la valeur que le client perçoit, plutôt que d’après le coût ou les seuls concurrents.",
+   "example": "Un étudiant fait 30 trajets à 1 € par mois : un abonnement entre 12 et 18 € lui fait gagner de l’argent.",
+   "example_is_code": false
+  },
+  "clock-skew": {
+   "term": "Décalage d'horloge",
+   "definition": "Écart entre l'heure de deux machines qui échangent des messages datés. Au-delà de quelques minutes, une assertion ou un jeton paraît expiré ou pas encore valable.",
+   "example": "Le serveur de l'outil de notes de frais retarde de trois minutes : il refuse une assertion dont NotBefore vaut 09:04:58 alors qu'il pense qu'il est 09:02:11.",
+   "example_is_code": false
+  },
+  "dry-run": {
+   "term": "Mode simulation (dry-run)",
+   "definition": "Exécution d'un script ou d'une commande qui affiche tout ce qu'elle ferait, sans rien modifier, pour relire avant d'agir pour de vrai.",
+   "example": "python offboard.py --dry-run grace@acme.example\n# action=deactivate target=grace@acme.example dry_run=True",
+   "example_is_code": true
+  },
+  "impossible-travel": {
+   "term": "Voyage impossible",
+   "definition": "Alerte levée quand deux connexions d'un même compte viennent de lieux trop éloignés pour le temps écoulé entre elles : le signe d'un mot de passe ou d'une session volés.",
+   "example": "Le compte de grace se connecte depuis Lyon à 1 h 30, puis depuis un autre continent à 2 h 10.",
+   "example_is_code": false
+  },
+  "kev": {
+   "term": "Catalogue KEV",
+   "definition": "Known Exploited Vulnerabilities : la liste publique, tenue par l'agence américaine CISA, des failles dont l'exploitation réelle est constatée. Une faille de la liste se corrige en priorité.",
+   "example": "Une faille de Chrome entre dans le catalogue KEV le matin : le correctif part sur tout le parc en 48 h au lieu de 14 jours.",
+   "example_is_code": false
+  },
+  "legal-hold": {
+   "term": "Conservation légale (legal hold)",
+   "definition": "Gel de la suppression de certaines données (mails, fichiers) quand un contentieux ou une enquête est en cours, même si la durée de conservation normale est dépassée.",
+   "example": "Un litige avec un fournisseur est en cours : la boîte de grace, partie depuis 90 jours, est gardée au lieu d'être supprimée.",
+   "example_is_code": false
+  },
+  "mfa-fatigue": {
+   "term": "Fatigue de MFA",
+   "definition": "Attaque qui envoie des dizaines de notifications d'approbation MFA à une personne dont le mot de passe est volé, jusqu'à ce qu'elle accepte par lassitude ou par erreur.",
+   "example": "Vingt notifications « Approuver la connexion ? » arrivent sur le téléphone de grace à 2 h du matin ; à la vingt et unième, elle appuie sur Approuver.",
+   "example_is_code": false
+  },
+  "oauth-consent": {
+   "term": "Consentement OAuth",
+   "definition": "Autorisation qu'une personne accorde à une application tierce pour qu'elle agisse en son nom (lire ses mails, ses fichiers). Elle reste valable même si le mot de passe change.",
+   "example": "ada clique sur « Autoriser » pour une extension qui demande la lecture de toute sa boîte mail ; l'extension garde cet accès jusqu'à ce qu'on le retire.",
+   "example_is_code": false
+  },
+  "report-only-mode": {
+   "term": "Mode rapport seulement",
+   "definition": "Mode d'une règle d'accès conditionnel ou de sécurité qui évalue chaque connexion et note ce qu'elle aurait fait, sans rien bloquer, pour mesurer l'impact avant de l'activer.",
+   "example": "Pendant une semaine, la règle « appareil chiffré obligatoire » aurait bloqué 12 personnes : je les aide à se mettre en conformité avant de l'activer.",
+   "example_is_code": false
+  },
+  "saml-assertion": {
+   "term": "Assertion SAML",
+   "definition": "Document XML signé par le fournisseur d'identité, transporté par le navigateur jusqu'à l'application : il dit qui est la personne, pour quelle application et pendant combien de temps la preuve est valable.",
+   "example": "<saml:Audience>https://expenses.acme.example/saml/metadata</saml:Audience>\n<saml:NameID>ada@acme.example</saml:NameID>",
+   "example_is_code": true
+  },
+  "terraform-plan": {
+   "term": "Plan Terraform",
+   "definition": "Résumé, calculé par terraform plan, de ce que Terraform va créer, modifier ou détruire pour amener l'état réel à l'état décrit dans le code. On le relit avant de l'appliquer.",
+   "example": "Plan: 1 to add, 0 to change, 0 to destroy.",
+   "example_is_code": true
+  },
+  "ticket-deflection": {
+   "term": "Déviation des tickets",
+   "definition": "Part des demandes résolues sans ticket traité par le support, grâce au libre-service, à un article ou à une automatisation.",
+   "example": "Sur 100 personnes qui ouvrent le formulaire « accès à Figma », 70 obtiennent l'accès automatiquement : 70 % de déviation pour cette demande.",
+   "example_is_code": false
+  },
+  "x509-certificate": {
+   "term": "Certificat X.509",
+   "definition": "Fichier standard qui associe une clé publique à une identité, signé par une autorité, avec une date d'expiration. Il sert à vérifier une signature, comme celle d'une assertion SAML.",
+   "example": "openssl x509 -in idp-signing.pem -noout -enddate\n# notAfter=Nov 15 23:59:59 2028 GMT",
+   "example_is_code": true
+  },
+  "brooks-law": {
+   "term": "Loi de Brooks",
+   "definition": "Ajouter des personnes à un projet en retard le retarde encore : les nouveaux doivent être formés et la coordination grossit (Fred Brooks, « The Mythical Man-Month », 1975).",
+   "example": "Deux développeurs ajoutés trois semaines avant la date passent la première semaine à poser des questions à alan, qui n’avance plus.",
+   "example_is_code": false
+  },
+  "confidence-interval": {
+   "term": "Intervalle de confiance",
+   "definition": "La plage des valeurs compatibles avec les données observées, à un niveau donné (souvent 95 %). S’il contient 0, l’écart peut venir du hasard.",
+   "example": "Écart B moins A : +0,7 point, intervalle de -0,1 à +1,5 : on ne peut pas encore conclure.",
+   "example_is_code": false
+  },
+  "customer-acquisition-cost": {
+   "term": "Coût d’acquisition client (CAC)",
+   "definition": "Les dépenses de marketing et de ventes d’une période, divisées par le nombre de nouveaux clients obtenus sur cette période.",
+   "example": "30 000 € de campagne pour 600 nouveaux abonnés : CAC de 50 €.",
+   "example_is_code": false
+  },
+  "customer-lifetime-value": {
+   "term": "Valeur vie client (LTV)",
+   "definition": "La marge totale qu’un client rapporte en moyenne avant de partir : marge mensuelle multipliée par la durée de vie moyenne (1 divisé par le churn mensuel).",
+   "example": "10,50 € de marge par mois et 8 % de churn mensuel : 10,50 × 12,5 ≈ 131 €.",
+   "example_is_code": false
+  },
+  "epic": {
+   "term": "Epic",
+   "definition": "Un gros besoin qui ne tient pas dans un sprint, à découper en plusieurs stories qui peuvent sortir chacune seule.",
+   "example": "L’epic « planificateur de repas » devient quatre stories : ajouter une recette à un jour, la retirer, la liste de la semaine, le rappel du soir.",
+   "example_is_code": false
+  },
+  "holdout-group": {
+   "term": "Groupe témoin permanent",
+   "definition": "Une petite part des utilisateurs qui ne reçoit pas une fonction pendant des semaines après sa généralisation, pour mesurer son effet durable.",
+   "example": "5 % des utilisateurs ne voient pas la carte « l’idée du soir » pendant trois mois, et on compare leur taux de cuisine au reste.",
+   "example_is_code": false
+  },
+  "human-in-the-loop": {
+   "term": "Humain dans la boucle",
+   "definition": "Un dispositif où une personne valide ou corrige la proposition d’un système automatique, d’une IA par exemple, avant qu’elle produise un effet.",
+   "example": "L’assistant prépare la réponse au litige et le montant du remboursement, une personne du support la valide avant l’envoi.",
+   "example_is_code": false
+  },
+  "input-metric": {
+   "term": "Métrique d’entrée",
+   "definition": "Une métrique qu’une équipe peut faire bouger directement et qui alimente la métrique principale (la North Star).",
+   "example": "Pour « trajets par semaine », l’équipe des stations agit sur la part des stations qui ont un vélo à 7 h.",
+   "example_is_code": false
+  },
+  "novelty-effect": {
+   "term": "Effet de nouveauté",
+   "definition": "Une hausse temporaire d’usage parce qu’une chose est nouvelle : les habitués essaient, puis reviennent à leurs habitudes.",
+   "example": "Une nouvelle carte d’accueil donne +2,5 points la première semaine et +0,7 la deuxième.",
+   "example_is_code": false
+  },
+  "one-pager": {
+   "term": "One-pager",
+   "definition": "Un document d’une page qui prépare une décision : le problème, l’option recommandée, ce qu’elle coûte, ce qu’on écarte, la décision attendue et sa date.",
+   "example": "Une page pour demander six semaines de discovery sur l’abonnement famille, décision attendue le 15 janvier.",
+   "example_is_code": false
+  },
+  "simpson-paradox": {
+   "term": "Paradoxe de Simpson",
+   "definition": "Une tendance visible dans chaque groupe peut s’inverser quand on additionne les groupes, si leur poids change entre les deux périodes.",
+   "example": "Chaque ville a plus de trajets par cycliste qu’avant, mais la moyenne baisse parce que la nouvelle ville, où l’on roule moins, pèse plus.",
+   "example_is_code": false
+  },
+  "tracking-plan": {
+   "term": "Plan de marquage",
+   "definition": "La liste écrite des événements à envoyer à l’outil d’analytique, avec leur moment et leurs propriétés, pour mesurer une fonction.",
+   "example": "shopping_list_item_added, envoyé quand l’utilisateur ajoute une recette à sa liste, avec recipe_id et items_count.",
+   "example_is_code": false
+  },
+  "vanity-metric": {
+   "term": "Métrique de vanité",
+   "definition": "Un chiffre qui monte presque toujours et flatte l’équipe, sans dire si les utilisateurs reçoivent de la valeur ni guider une décision.",
+   "example": "Le nombre total de téléchargements depuis le lancement, qui ne baisse jamais même quand tout le monde désinstalle.",
+   "example_is_code": false
   }
  },
  "en": {
@@ -13851,6 +14481,636 @@ window.REMINDER_TERMS = {
    "term": "Conventional Comments",
    "definition": "A review comment format that starts with a label (issue, suggestion, question, nitpick, praise) and a (blocking) or (non-blocking) decoration.",
    "example": "issue (blocking): user_id comes from the URL, SQL injection.",
+   "example_is_code": false
+  },
+  "access-review": {
+   "term": "Access review",
+   "definition": "Periodic campaign where the owner of a sensitive access confirms or removes each person who still holds it.",
+   "example": "Every quarter, the finance lead reviews the 12 members of the finance-export group and removes grace, inactive for 140 days.",
+   "example_is_code": false
+  },
+  "admin-api": {
+   "term": "Admin API",
+   "definition": "API that a corporate tool (identity provider, office suite, MDM) exposes to manage accounts, groups and settings by script.",
+   "example": "workplace.idp.suspend_user(user.id)\nworkplace.drive.transfer_files(email, to=manager)",
+   "example_is_code": true
+  },
+  "audit-log": {
+   "term": "Audit log",
+   "definition": "Timestamped record of who did what in a tool: login, group change, device wipe. Used for investigations and as audit evidence.",
+   "example": "{\"time\": \"2026-11-30T18:00:04Z\", \"actor\": \"offboarding-bot\", \"action\": \"user.suspend\", \"target\": \"grace@acme.example\"}",
+   "example_is_code": true
+  },
+  "break-glass-account": {
+   "term": "Break-glass account",
+   "definition": "Administrator account excluded from the usual access rules, kept under lock and monitored, used only when every other administrator is locked out.",
+   "example": "A wrong conditional access rule locks everyone out; the team takes the FIDO2 key out of the safe, logs in with the break-glass account and fixes the rule.",
+   "example_is_code": false
+  },
+  "byod": {
+   "term": "BYOD",
+   "definition": "Bring Your Own Device: using a personal device, often a phone, for work, with a separation between personal and work data.",
+   "example": "ada reads her work email on her personal phone, in a work profile the company can wipe without touching her photos.",
+   "example_is_code": false
+  },
+  "chatops": {
+   "term": "ChatOps",
+   "definition": "Running operations or support actions from the chat tool, through a command or a bot, with a log visible to the team.",
+   "example": "/access request figma\nbot: request sent to grace, access owner",
+   "example_is_code": true
+  },
+  "cis-benchmark": {
+   "term": "CIS Benchmark",
+   "definition": "Public list of recommended security settings for a system (macOS, Windows, Linux, browser), published by the Center for Internet Security, in two severity levels.",
+   "example": "Level 1 of the macOS benchmark asks for a locked screen after inactivity and the firewall turned on; the team applies it with two written exceptions.",
+   "example_is_code": false
+  },
+  "conditional-access": {
+   "term": "Conditional access",
+   "definition": "Rule evaluated by the identity provider at each login, combining the person, the device, the application and the risk to allow, require MFA or refuse.",
+   "example": "groups: [finance]\nmfa: phishing_resistant\ndevice: {managed: true, disk_encrypted: true}\notherwise: deny",
+   "example_is_code": true
+  },
+  "configuration-profile": {
+   "term": "Configuration profile",
+   "definition": "Bundle of settings sent by the MDM to a device: minimum passcode, encryption, Wi-Fi, certificates. The user cannot remove it on a supervised device.",
+   "example": "The \"office Wi-Fi\" profile installs the certificate and the network: managed laptops connect on their own, with no shared password.",
+   "example_is_code": false
+  },
+  "day-one-readiness": {
+   "term": "Day-one readiness",
+   "definition": "Measurable promise that a new hire has, on arrival, a configured device, an account and all their access, with nothing to wait for.",
+   "example": "At 9 a.m. on day one, ada powers on the laptop delivered to her home, registers her passkey and opens her team's ticketing tool.",
+   "example_is_code": false
+  },
+  "declarative-device-management": {
+   "term": "Declarative device management",
+   "definition": "Apple management mode where the server sends a desired state; the device applies it on its own, maintains it and reports its changes, instead of being polled all the time.",
+   "example": "{\"Type\": \"com.apple.configuration.passcode.settings\", \"Payload\": {\"MinimumLength\": 12}}",
+   "example_is_code": true
+  },
+  "device-trust": {
+   "term": "Device trust",
+   "definition": "Proof that a device is managed and compliant (enrolled in the MDM, encrypted, up to date), used to decide whether it can reach an application.",
+   "example": "ada's laptop is encrypted and up to date: the payroll app opens. Her unmanaged personal phone is refused.",
+   "example_is_code": false
+  },
+  "disk-encryption": {
+   "term": "Disk encryption",
+   "definition": "The disk content is unreadable without the session password or the security chip; a recovery key kept by the MDM unlocks the device if the password is forgotten.",
+   "example": "A laptop stolen on a train, encrypted with FileVault: the thief gets the hardware, not the documents.",
+   "example_is_code": false
+  },
+  "dlp": {
+   "term": "DLP",
+   "definition": "Data Loss Prevention: tool that spots sensitive content (card numbers, IBANs) in email and documents and applies a rule: warn, block, alert.",
+   "example": "grace shares outside the company a spreadsheet that holds 300 IBANs: DLP blocks the share and explains why.",
+   "example_is_code": false
+  },
+  "edr": {
+   "term": "EDR",
+   "definition": "Endpoint Detection and Response: agent installed on every device that watches processes, files and connections, detects attack behavior and can isolate the device.",
+   "example": "A Word document opens PowerShell, which downloads a file: the EDR cuts the device off the network and alerts the security team.",
+   "example_is_code": false
+  },
+  "endpoint-device": {
+   "term": "Endpoint (device)",
+   "definition": "Device a person uses to work: laptop, phone, tablet. Different from an API endpoint.",
+   "example": "The acme.example fleet counts 320 endpoints: 240 Macs, 60 Windows PCs and 20 Linux laptops.",
+   "example_is_code": false
+  },
+  "hris": {
+   "term": "HRIS",
+   "definition": "Human resources information system: the HR software that knows who is an employee, in which team, with which manager, from when to when. Source of truth for accounts.",
+   "example": "HR enters grace's departure on November 30 in the HRIS; that day at 6 p.m., her access is cut automatically.",
+   "example_is_code": false
+  },
+  "ieee-8021x": {
+   "term": "802.1X",
+   "definition": "IEEE standard where a device authenticates to the network (Wi-Fi or wired port) before getting in, often with a certificate pushed by the MDM.",
+   "example": "A managed laptop joins the office Wi-Fi with its certificate; an unknown device stays out, with no shared password to steal.",
+   "example_is_code": false
+  },
+  "iso-27001": {
+   "term": "ISO/IEC 27001",
+   "definition": "International standard describing an information security management system; a company can get certified by a third-party body. Latest edition: 2022.",
+   "example": "The auditor asks for the list of the quarter's departures and proof that each account was deactivated the same day.",
+   "example_is_code": false
+  },
+  "itil": {
+   "term": "ITIL",
+   "definition": "Framework of IT service management practices (version 4 in 2019): incidents, requests, problems, changes, service catalog.",
+   "example": "Video calls drop for 40 people: 40 incidents, grouped into one problem whose cause is an audio driver update.",
+   "example_is_code": false
+  },
+  "itsm": {
+   "term": "ITSM",
+   "definition": "IT Service Management: the way IT support and services are organized, with tickets, a request catalog, incident and change management.",
+   "example": "ada requests an extra screen through the portal; the request follows a standard path and is delivered in three days.",
+   "example_is_code": false
+  },
+  "joiner-mover-leaver": {
+   "term": "Joiner, mover, leaver (JML)",
+   "definition": "The three moments in the life of an account: arrival, change of team or job, departure. Each one creates, changes or removes access.",
+   "example": "ada joins team-core (joiner), moves to team-data (mover) and loses team-core access then; grace leaves (leaver).",
+   "example_is_code": false
+  },
+  "knowledge-base": {
+   "term": "Knowledge base",
+   "definition": "Set of short articles answering frequent support questions, written from tickets and kept up to date by an owner.",
+   "example": "The article \"Video call drops after the update\" solves 30 requests a month on its own.",
+   "example_is_code": false
+  },
+  "local-admin-rights": {
+   "term": "Local admin rights",
+   "definition": "Right to install software and change system settings on one's own device. Useful to developers, risky when permanent and untracked.",
+   "example": "ada asks for 30 minutes of admin rights to install a command-line tool; the request and the install are logged.",
+   "example_is_code": false
+  },
+  "mdm": {
+   "term": "MDM",
+   "definition": "Mobile Device Management: service that keeps a link with every company device to push settings and applications, inventory it, and lock or wipe it remotely.",
+   "example": "grace's laptop is not returned on her last day: the MDM locks it remotely and wipes it at its next connection.",
+   "example_is_code": false
+  },
+  "osquery": {
+   "term": "osquery",
+   "definition": "Open source tool (Facebook, 2014) that exposes a computer's state as an SQL database: processes, applications, encryption, users.",
+   "example": "SELECT name, encrypted FROM disk_encryption WHERE encrypted = 0;",
+   "example_is_code": true
+  },
+  "patch-management": {
+   "term": "Patch management",
+   "definition": "Organization that sets how fast OS and application updates reach every device, depending on risk.",
+   "example": "An exploited browser vulnerability is fixed across the fleet in 48 h; a regular update in 14 days, through rings.",
+   "example_is_code": false
+  },
+  "phishing-resistant-mfa": {
+   "term": "Phishing-resistant MFA",
+   "definition": "MFA whose proof is bound to the real domain name (FIDO2 key, passkey): a fake site can neither obtain nor replay it, unlike an SMS code.",
+   "example": "ada types her password on a fake site acme-example-login.com; her key refuses to sign for that domain, the attack fails.",
+   "example_is_code": false
+  },
+  "provisioning": {
+   "term": "Provisioning",
+   "definition": "Automatic creation, update or removal of an account in an application, from the identity provider. Removal is called deprovisioning.",
+   "example": "ada is added to team-core: her account in the ticketing tool is created within 5 minutes, with no ticket to support.",
+   "example_is_code": false
+  },
+  "rollout-ring": {
+   "term": "Rollout ring",
+   "definition": "Group of devices or people that receives a change in turn: IT first, then volunteers, then everyone, with observation in between.",
+   "example": "The new firewall profile goes to 8 IT devices, then 30 volunteers, then half the fleet, then the rest.",
+   "example_is_code": false
+  },
+  "saml": {
+   "term": "SAML",
+   "definition": "Security Assertion Markup Language (2.0 in 2005): SSO protocol where the identity provider sends the application a signed XML assertion stating who is logged in.",
+   "example": "<saml:Subject><saml:NameID>ada@acme.example</saml:NameID></saml:Subject>",
+   "example_is_code": true
+  },
+  "scim": {
+   "term": "SCIM",
+   "definition": "System for Cross-domain Identity Management (RFC 7643 and 7644, 2015): standard REST API through which the identity provider creates, updates and deactivates accounts in an application.",
+   "example": "PATCH /scim/v2/Users/5b81e0\n{\"Operations\": [{\"op\": \"replace\", \"path\": \"active\", \"value\": false}]}",
+   "example_is_code": true
+  },
+  "service-request": {
+   "term": "Service request",
+   "definition": "Normal, expected need sent to IT (license, hardware, access), as opposed to an incident where something no longer works.",
+   "example": "\"I need a license for the design tool\": catalog form, owner approval, license assigned.",
+   "example_is_code": false
+  },
+  "shadow-it": {
+   "term": "Shadow IT",
+   "definition": "Tools a team uses without IT knowing, often paid by credit card, so with no SSO, no owner and no data control.",
+   "example": "Marketing imports the customer list into a survey tool paid by card; the account stays open after its creator leaves.",
+   "example_is_code": false
+  },
+  "shift-left-support": {
+   "term": "Shift left in support",
+   "definition": "Solving each request as early as possible in the chain: self-service first, then first level, then an expert only if needed.",
+   "example": "MFA reset moves from a ticket handled by an expert to a self-service flow checked by the manager.",
+   "example_is_code": false
+  },
+  "soc2": {
+   "term": "SOC 2",
+   "definition": "Independent auditor's report on a service company's security controls (AICPA framework); Type II covers a period of several months.",
+   "example": "A customer asks for the SOC 2 Type II report before signing; it shows access reviews are done every quarter.",
+   "example_is_code": false
+  },
+  "sso": {
+   "term": "SSO",
+   "definition": "Single Sign-On: one login to the identity provider opens access to every application that delegates login to it.",
+   "example": "ada logs in in the morning with her passkey; the ticketing tool, the wiki and email recognize her with no password.",
+   "example_is_code": false
+  },
+  "vpn": {
+   "term": "VPN",
+   "definition": "Virtual private network: encrypted tunnel that places the computer inside the company network, often with access to much more than the needed application.",
+   "example": "Connected to the VPN to read the wiki, ada can also reach the database servers, which she does not need.",
+   "example_is_code": false
+  },
+  "workplace-engineering": {
+   "term": "Workplace engineering",
+   "definition": "Role that builds and automates what employees use to work: identity, devices, SaaS tools, office network, support. Also called corporate engineering.",
+   "example": "The team writes the rule that adds anyone in team-core to the right group and the test that checks a departure cuts everything within an hour.",
+   "example_is_code": false
+  },
+  "zero-touch-enrollment": {
+   "term": "Zero-touch enrollment",
+   "definition": "The device, tied to the company by its serial number at purchase, enrolls in the MDM on its own at first boot, without going through IT.",
+   "example": "ada's laptop is delivered wrapped to her home; at first boot, it enrolls in the MDM and sets itself up in 20 minutes.",
+   "example_is_code": false
+  },
+  "ztna": {
+   "term": "ZTNA",
+   "definition": "Zero Trust Network Access: each internal application is published separately behind an access point that checks the person and the device on every request.",
+   "example": "ada reaches the internal wiki from home without a VPN; the database servers stay invisible to her.",
+   "example_is_code": false
+  },
+  "product-manager": {
+   "term": "Product manager",
+   "definition": "The person accountable for a product’s outcome: which problem we solve, for whom, and how we know it works. They decide with design and engineering, without giving them orders.",
+   "example": "Ada, bike-app’s PM, is accountable for the share of new sign-ups who take a second ride within the week.",
+   "example_is_code": false
+  },
+  "product-trio": {
+   "term": "Product trio",
+   "definition": "The PM, the designer and the tech lead who run discovery together every week and jointly choose which opportunity to address and which solution to test.",
+   "example": "Ada, grace and alan interview a cyclist together on Monday, then decide on Thursday to test booking by text message.",
+   "example_is_code": false
+  },
+  "product-outcome": {
+   "term": "Outcome goal",
+   "definition": "A goal expressed as a measurable change in user behaviour, rather than as a feature to ship. The team chooses how to reach it.",
+   "example": "\"Share of new sign-ups taking a 2nd ride within 7 days: from 35% to 45%\" instead of \"ship booking on 15 April\".",
+   "example_is_code": false
+  },
+  "opportunity-solution-tree": {
+   "term": "Opportunity solution tree",
+   "definition": "Teresa Torres’s tree diagram: a target outcome at the top, user needs (opportunities) below it, several solutions per opportunity, and the tests for each solution.",
+   "example": "Under \"the bike is gone when I arrive\", three solutions: booking, availability alert, station rebalancing.",
+   "example_is_code": false
+  },
+  "mom-test": {
+   "term": "Mom Test",
+   "definition": "Rob Fitzpatrick’s interview rules: talk about the person’s life and specific past facts, not my idea or the future, to avoid polite answers.",
+   "example": "\"Tell me about the last time you couldn’t find a bike\" rather than \"would you use booking?\".",
+   "example_is_code": false
+  },
+  "assumption-mapping": {
+   "term": "Assumption mapping",
+   "definition": "A workshop that lists an idea’s assumptions and places them by importance and existing evidence, to test first the most important and least proven ones.",
+   "example": "\"Morning cyclists would book twice a week\": important, no evidence, so tested this week.",
+   "example_is_code": false
+  },
+  "fake-door-test": {
+   "term": "Fake door test",
+   "definition": "Showing a button or offer with no feature behind it, with an honest message on click, to measure how many people want it before building it.",
+   "example": "A \"Book\" button on 10% of station pages; on click: \"coming soon, want to be notified?\".",
+   "example_is_code": false
+  },
+  "concierge-test": {
+   "term": "Concierge test",
+   "definition": "Delivering the service by hand, openly, to a few customers, to check its value and understand real usage before automating it.",
+   "example": "30 cyclists book by text message and alan holds their bike from the maintenance tool for two weeks.",
+   "example_is_code": false
+  },
+  "wizard-of-oz-test": {
+   "term": "Wizard of Oz test",
+   "definition": "The user thinks they use an automated service while a human answers behind it. It checks usage before building the automation.",
+   "example": "An \"assistant\" suggests the nearest station with a free bike; in reality, a team member answers for two weeks.",
+   "example_is_code": false
+  },
+  "mvp": {
+   "term": "MVP (Minimum Viable Product)",
+   "definition": "The version of a new product that brings the most validated learning about customers for the least effort. It is an experiment, not a cheap version 1.",
+   "example": "Booking by text message for 30 cyclists, with the criterion \"at least 18 book twice a week, otherwise I stop\".",
+   "example_is_code": false
+  },
+  "build-measure-learn": {
+   "term": "Build-measure-learn",
+   "definition": "The Lean Startup loop: build the smallest test of an assumption, measure what customers do, learn from it, then persevere or pivot.",
+   "example": "Two-week concierge test, 21 of 30 cyclists book: the team perseveres and builds slice 1.",
+   "example_is_code": false
+  },
+  "problem-statement": {
+   "term": "Problem statement",
+   "definition": "A description of who has a problem, in which situation, what it costs them and how we will know it is solved, without naming a solution.",
+   "example": "\"30% of cyclists between 6am and 8am find their station empty; 1 in 5 no longer opens the app the next month.\"",
+   "example_is_code": false
+  },
+  "prd": {
+   "term": "PRD (Product Requirements Document)",
+   "definition": "A document that frames a product initiative: problem, target outcome, guardrail, what is out of scope, open questions. Today usually short and living.",
+   "example": "The \"guarantee a bike to morning cyclists\" PRD fits on one page, with \"out of scope: paid booking\".",
+   "example_is_code": false
+  },
+  "pr-faq": {
+   "term": "PR/FAQ (Working Backwards)",
+   "definition": "A method that starts from the end: write the launch-day press release, then a customer and internal FAQ, before any development.",
+   "example": "Heading: \"bike-app guarantees a bike to morning cyclists\"; internal FAQ: \"what does a bike held 15 minutes cost?\".",
+   "example_is_code": false
+  },
+  "rice-score": {
+   "term": "RICE score",
+   "definition": "A prioritization score: reach × impact × confidence ÷ effort. It makes assumptions visible, but does not say which idea serves the goal.",
+   "example": "Student subscription: 2,000 × 3 × 0.8 ÷ 2 = 2,400.",
+   "example_is_code": false
+  },
+  "ice-score": {
+   "term": "ICE score",
+   "definition": "A quick score rating impact, confidence and ease from 1 to 10, then multiplying them, mostly to sort small growth experiments.",
+   "example": "Reminder e-mail 24 h after sign-up: 6 × 7 × 9 = 378.",
+   "example_is_code": false
+  },
+  "kano-model": {
+   "term": "Kano model",
+   "definition": "A classification of product attributes by the link between their presence and satisfaction: must-be, one-dimensional, attractive, indifferent, reverse.",
+   "example": "Working brakes are must-be; an alert when a bike frees up is attractive.",
+   "example_is_code": false
+  },
+  "moscow-method": {
+   "term": "MoSCoW",
+   "definition": "Sorting a release’s requirements into Must, Should, Could and Won’t this time, useful when the date is fixed and the scope must adapt.",
+   "example": "Must: check student status; Could: referral; Won’t: group rate, planned for spring.",
+   "example_is_code": false
+  },
+  "wsjf": {
+   "term": "WSJF (Weighted Shortest Job First)",
+   "definition": "A prioritization rule that does first the work with the highest cost of delay per unit of duration.",
+   "example": "Cost of delay 26, size 5: WSJF 5.2, ahead of a topic at 19 cost of delay and 13 size (1.5).",
+   "example_is_code": false
+  },
+  "now-next-later": {
+   "term": "Now, Next, Later roadmap",
+   "definition": "A roadmap without fine dates, in three horizons of decreasing precision: in progress (detailed), next (framed), later (exploratory).",
+   "example": "Now: make unlocking reliable; Next: student subscription; Later: cargo bikes.",
+   "example_is_code": false
+  },
+  "outcome-roadmap": {
+   "term": "Outcome-based roadmap",
+   "definition": "A roadmap listing problems to solve and target outcomes rather than features with dates. Features in it are bets.",
+   "example": "\"Q3: more successful morning rides\" instead of \"booking on 15 April\".",
+   "example_is_code": false
+  },
+  "aarrr": {
+   "term": "AARRR (pirate) metrics",
+   "definition": "Five stages of a customer’s lifecycle proposed by Dave McClure: acquisition, activation, retention, referral, revenue.",
+   "example": "bike-app activation: share of sign-ups completing a first ride within 7 days.",
+   "example_is_code": false
+  },
+  "heart-framework": {
+   "term": "HEART framework",
+   "definition": "Google’s framework to measure user experience: happiness, engagement, adoption, retention, task success, each broken down into goals, signals and metrics.",
+   "example": "Task success: unlock success rate and median unlock time.",
+   "example_is_code": false
+  },
+  "activation-metric": {
+   "term": "Activation",
+   "definition": "The moment a new user first gets the value the product promises, and the share of sign-ups who reach it.",
+   "example": "For bike-app, activation is the first completed ride: 2,730 out of 10,000 sign-ups, i.e. 27%.",
+   "example_is_code": false
+  },
+  "conversion-funnel": {
+   "term": "Conversion funnel",
+   "definition": "The sequence of steps a user goes through towards a goal, with the share passing each step, to see where people drop out.",
+   "example": "Install 10,000, account 6,500, bank card 3,900, first ride 2,730.",
+   "example_is_code": false
+  },
+  "cohort-retention": {
+   "term": "Cohort retention",
+   "definition": "Tracking, for each group of users who started in the same period, the share still active after 1, 2, 4, 8 weeks.",
+   "example": "March cohort: 100%, 50%, 38%, 32%, 31%; the curve flattens around 30%.",
+   "example_is_code": false
+  },
+  "churn": {
+   "term": "Churn",
+   "definition": "The share of customers or subscribers who leave over a given period, the opposite of retention.",
+   "example": "200 of 5,000 subscribers cancel in April: monthly churn of 4%.",
+   "example_is_code": false
+  },
+  "guardrail-metric": {
+   "term": "Guardrail metric",
+   "definition": "A measure we do not try to improve but which must not degrade while we push the main metric, to catch cheating or side effects.",
+   "example": "We push app reopens, with the notification opt-out rate as a guardrail.",
+   "example_is_code": false
+  },
+  "product-market-fit": {
+   "term": "Product-market fit",
+   "definition": "The point where a product satisfies a market so well that customers stay and bring others without being pushed.",
+   "example": "bike-app’s cohort retention levels off around 30% instead of falling to zero.",
+   "example_is_code": false
+  },
+  "sean-ellis-test": {
+   "term": "Sean Ellis test",
+   "definition": "A survey asking active users how they would feel without the product; above 40% \"very disappointed\", the product would have found its market. An empirical threshold, to handle with care.",
+   "example": "95 \"very disappointed\" out of 250 answers: 38%, but 61% in the home-to-work segment.",
+   "example_is_code": false
+  },
+  "invest-criteria": {
+   "term": "INVEST",
+   "definition": "Bill Wake’s six qualities of a good story: independent, negotiable, valuable, estimable, small, testable.",
+   "example": "\"A reservations table in the database\" fails on value; \"book a bike 15 minutes before leaving\" passes.",
+   "example_is_code": false
+  },
+  "story-mapping": {
+   "term": "Story mapping",
+   "definition": "A two-dimensional backlog map: the user’s activities in journey order from left to right, stories from most essential to most optional from top to bottom.",
+   "example": "Release 1: see stations, book 15 min, scan the QR code, end the ride.",
+   "example_is_code": false
+  },
+  "beta-program": {
+   "term": "Beta",
+   "definition": "Making a feature available to a limited group before general launch: closed (chosen group, qualitative feedback) or open (wider, usage measurement).",
+   "example": "Closed booking beta for 200 volunteer cyclists at two stations.",
+   "example_is_code": false
+  },
+  "go-to-market": {
+   "term": "Go-to-market",
+   "definition": "The plan to bring a product or feature to its customers: target segment, message, channel, price, support and sales training, adoption measurement.",
+   "example": "Student subscription launched in two cities with student unions, at 15 € a month.",
+   "example_is_code": false
+  },
+  "stakeholder": {
+   "term": "Stakeholder",
+   "definition": "Any person or team affected by a decision, or able to influence it.",
+   "example": "For booking: support, finance, the bike maintenance team.",
+   "example_is_code": false
+  },
+  "stakeholder-map": {
+   "term": "Stakeholder map",
+   "definition": "A list of stakeholders placed by their power over a decision and their interest in it, to know whom to involve, inform or monitor.",
+   "example": "Bike maintenance: low power, high interest, so kept informed before launch.",
+   "example_is_code": false
+  },
+  "tam-sam-som": {
+   "term": "TAM, SAM, SOM",
+   "definition": "Three nested market sizes: the total market, the part my offer can serve, and the part I can really take.",
+   "example": "Student subscription SAM: 50,000 cycling students × 150 € a year = 7.5 M€; SOM at 10%: 750,000 €.",
+   "example_is_code": false
+  },
+  "fermi-estimate": {
+   "term": "Fermi estimate",
+   "definition": "Estimating an order of magnitude by breaking a question into estimable factors, multiplied together, then checked against a known reference.",
+   "example": "500,000 inhabitants × 2% rides a day ÷ 4 rides per bike × 1.3 margin, about 3,250 bikes.",
+   "example_is_code": false
+  },
+  "value-based-pricing": {
+   "term": "Value-based pricing",
+   "definition": "Setting a price from the value the customer perceives, rather than from cost or competitors alone.",
+   "example": "A student takes 30 rides at 1 € a month: a subscription between 12 and 18 € saves them money.",
+   "example_is_code": false
+  },
+  "clock-skew": {
+   "term": "Clock skew",
+   "definition": "Gap between the clocks of two machines that exchange dated messages. Beyond a few minutes, an assertion or a token looks expired or not yet valid.",
+   "example": "The expense tool's server is three minutes behind: it refuses an assertion whose NotBefore is 09:04:58 while it thinks it is 09:02:11.",
+   "example_is_code": false
+  },
+  "dry-run": {
+   "term": "Dry-run mode",
+   "definition": "Running a script or command so that it prints everything it would do, without changing anything, to review before acting for real.",
+   "example": "python offboard.py --dry-run grace@acme.example\n# action=deactivate target=grace@acme.example dry_run=True",
+   "example_is_code": true
+  },
+  "impossible-travel": {
+   "term": "Impossible travel",
+   "definition": "Alert raised when two logins of the same account come from places too far apart for the time between them: the sign of a stolen password or session.",
+   "example": "grace's account logs in from Lyon at 1:30 a.m., then from another continent at 2:10 a.m.",
+   "example_is_code": false
+  },
+  "kev": {
+   "term": "KEV catalog",
+   "definition": "Known Exploited Vulnerabilities: the public list, kept by the US agency CISA, of flaws whose real exploitation has been observed. A flaw on the list is patched first.",
+   "example": "A Chrome flaw enters the KEV catalog in the morning: the patch goes to the whole fleet in 48 h instead of 14 days.",
+   "example_is_code": false
+  },
+  "legal-hold": {
+   "term": "Legal hold",
+   "definition": "A freeze on deleting some data (mail, files) while a dispute or investigation is in progress, even when the normal retention period is over.",
+   "example": "A dispute with a supplier is ongoing: grace's mailbox, gone for 90 days, is kept instead of deleted.",
+   "example_is_code": false
+  },
+  "mfa-fatigue": {
+   "term": "MFA fatigue",
+   "definition": "An attack that sends dozens of MFA approval notifications to a person whose password was stolen, until they accept out of weariness or by mistake.",
+   "example": "Twenty \"Approve sign-in?\" notifications reach grace's phone at 2 a.m.; on the twenty-first, she taps Approve.",
+   "example_is_code": false
+  },
+  "oauth-consent": {
+   "term": "OAuth consent",
+   "definition": "Permission a person grants a third-party application to act on their behalf (read their mail, their files). It stays valid even if the password changes.",
+   "example": "ada clicks \"Allow\" for an extension that asks to read her whole mailbox; the extension keeps that access until it is removed.",
+   "example_is_code": false
+  },
+  "report-only-mode": {
+   "term": "Report-only mode",
+   "definition": "Mode of a conditional access or security rule that evaluates every login and records what it would have done, without blocking anything, to measure the impact before turning it on.",
+   "example": "For a week, the \"encrypted device required\" rule would have blocked 12 people: I help them become compliant before turning it on.",
+   "example_is_code": false
+  },
+  "saml-assertion": {
+   "term": "SAML assertion",
+   "definition": "XML document signed by the identity provider, carried by the browser to the application: it says who the person is, for which application, and how long the proof is valid.",
+   "example": "<saml:Audience>https://expenses.acme.example/saml/metadata</saml:Audience>\n<saml:NameID>ada@acme.example</saml:NameID>",
+   "example_is_code": true
+  },
+  "terraform-plan": {
+   "term": "Terraform plan",
+   "definition": "Summary, computed by terraform plan, of what Terraform will create, change or destroy to bring the real state to the state described in code. It is reviewed before being applied.",
+   "example": "Plan: 1 to add, 0 to change, 0 to destroy.",
+   "example_is_code": true
+  },
+  "ticket-deflection": {
+   "term": "Ticket deflection",
+   "definition": "Share of requests resolved without a ticket handled by support, thanks to self-service, an article or an automation.",
+   "example": "Of 100 people who open the \"Figma access\" form, 70 get access automatically: 70% deflection for that request.",
+   "example_is_code": false
+  },
+  "x509-certificate": {
+   "term": "X.509 certificate",
+   "definition": "Standard file that binds a public key to an identity, signed by an authority, with an expiry date. It is used to check a signature, like a SAML assertion's.",
+   "example": "openssl x509 -in idp-signing.pem -noout -enddate\n# notAfter=Nov 15 23:59:59 2028 GMT",
+   "example_is_code": true
+  },
+  "brooks-law": {
+   "term": "Brooks's law",
+   "definition": "Adding people to a late project makes it later: newcomers must be trained and coordination grows (Fred Brooks, \"The Mythical Man-Month\", 1975).",
+   "example": "Two developers added three weeks before the date spend the first week asking alan questions, and he stops making progress.",
+   "example_is_code": false
+  },
+  "confidence-interval": {
+   "term": "Confidence interval",
+   "definition": "The range of values compatible with the observed data, at a given level (often 95%). If it contains 0, the difference may come from chance.",
+   "example": "Difference B minus A: +0.7 point, interval from -0.1 to +1.5: no conclusion yet.",
+   "example_is_code": false
+  },
+  "customer-acquisition-cost": {
+   "term": "Customer acquisition cost (CAC)",
+   "definition": "A period's marketing and sales spend, divided by the number of new customers won over that period.",
+   "example": "A 30,000 € campaign for 600 new subscribers: a CAC of 50 €.",
+   "example_is_code": false
+  },
+  "customer-lifetime-value": {
+   "term": "Customer lifetime value (LTV)",
+   "definition": "The total margin a customer brings in on average before leaving: monthly margin times average lifetime (1 divided by monthly churn).",
+   "example": "10.50 € of margin a month and 8% monthly churn: 10.50 × 12.5 ≈ 131 €.",
+   "example_is_code": false
+  },
+  "epic": {
+   "term": "Epic",
+   "definition": "A large need that does not fit in one sprint, to be sliced into several stories that can each ship on their own.",
+   "example": "The \"meal planner\" epic becomes four stories: add a recipe to a day, remove it, the weekly list, the evening reminder.",
+   "example_is_code": false
+  },
+  "holdout-group": {
+   "term": "Holdout group",
+   "definition": "A small share of users who do not get a feature for weeks after it is rolled out, to measure its lasting effect.",
+   "example": "5% of users do not see the \"tonight's idea\" card for three months, and their cooking rate is compared with everyone else's.",
+   "example_is_code": false
+  },
+  "human-in-the-loop": {
+   "term": "Human in the loop",
+   "definition": "A setup where a person validates or corrects what an automated system, an AI for example, proposes before it takes effect.",
+   "example": "The assistant drafts the reply to a dispute and the refund amount, a support agent approves it before it is sent.",
+   "example_is_code": false
+  },
+  "input-metric": {
+   "term": "Input metric",
+   "definition": "A metric a team can move directly and that feeds the main metric (the North Star).",
+   "example": "For \"rides per week\", the stations team works on the share of stations with a bike at 7 am.",
+   "example_is_code": false
+  },
+  "novelty-effect": {
+   "term": "Novelty effect",
+   "definition": "A temporary rise in usage because something is new: regular users try it, then go back to their habits.",
+   "example": "A new home card gives +2.5 points in the first week and +0.7 in the second.",
+   "example_is_code": false
+  },
+  "one-pager": {
+   "term": "One-pager",
+   "definition": "A one-page document that prepares a decision: the problem, the recommended option, its cost, what is set aside, the expected decision and its date.",
+   "example": "One page asking for six weeks of discovery on the family subscription, decision expected on 15 January.",
+   "example_is_code": false
+  },
+  "simpson-paradox": {
+   "term": "Simpson's paradox",
+   "definition": "A trend visible in every group can reverse when the groups are added up, if their weight changes between the two periods.",
+   "example": "Every city has more rides per rider than before, but the average drops because the new city, where people ride less, weighs more.",
+   "example_is_code": false
+  },
+  "tracking-plan": {
+   "term": "Tracking plan",
+   "definition": "The written list of events to send to the analytics tool, with when they fire and their properties, to measure a feature.",
+   "example": "shopping_list_item_added, sent when the user adds a recipe to their list, with recipe_id and items_count.",
+   "example_is_code": false
+  },
+  "vanity-metric": {
+   "term": "Vanity metric",
+   "definition": "A number that almost always goes up and flatters the team, without saying whether users get value or guiding any decision.",
+   "example": "Total downloads since launch, which never drop even when everyone uninstalls.",
    "example_is_code": false
   }
  }

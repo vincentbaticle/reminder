@@ -1568,7 +1568,7 @@ Mes applications ont besoin de comptes et d'une page de connexion, et je ne veux
 
 **Auth0** : IdP SaaS (racheté par Okta). **Keycloak** : IdP open source, auto-hébergé.
 
-*Okta : concurrent de Auth0, Keycloak*
+*Okta : concurrent de Auth0, Keycloak, Microsoft Entra ID, Google Cloud Identity ; complémentaire de Jamf, Intune*
 { .tool-rel }
 
 
@@ -2184,6 +2184,26 @@ flowchart LR
 | Thoughtworks Technology Radar + radar d'entreprise | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | le radar public donne l'avis de l'industrie, celui de l'entreprise dit ce qui est soutenu chez moi |
 | BYOR, Zalando tech-radar, AOE Technology Radar, plugin Backstage | <span class="pill pill-rel pill-rel-compete">concurrents</span> | quatre façons de dessiner le même radar d'entreprise ; on en choisit une |
 | LiteLLM, Portkey, Kong AI Gateway | <span class="pill pill-rel pill-rel-compete">concurrents</span> | trois passerelles LLM : clés, quotas, coûts et journalisation des appels aux modèles en un seul point |
+
+### Identité des salariés, postes et IT d'entreprise
+
+Les outils du [workplace engineering](workplace.md) : identité des salariés, gestion des postes, inventaire, suites bureautiques, tickets et détection.
+
+| Outils | Relation | En pratique |
+|---|---|---|
+| Okta, Microsoft Entra ID, Google Cloud Identity | <span class="pill pill-rel pill-rel-compete">concurrents</span> | trois fournisseurs d'identité des salariés ; Entra ID va souvent de pair avec Microsoft 365, Cloud Identity avec Google Workspace ([Fournisseur d'identité et SSO](workplace.md#fournisseur-didentite-et-sso)) |
+| Okta / Microsoft Entra ID + Jamf / Microsoft Intune | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | le fournisseur d'identité dit qui est la personne, le MDM dit si l'appareil est géré et conforme ; l'accès conditionnel combine les deux ([Accès conditionnel](workplace.md#confiance-de-lappareil-et-acces-conditionnel)) |
+| Jamf, Microsoft Intune, Kandji | <span class="pill pill-rel pill-rel-compete">concurrents</span> | trois MDM : Jamf et Kandji (devenu Iru, à vérifier) viennent du monde Apple, Intune gère Windows et aussi les Mac ; un seul MDM par plateforme |
+| Microsoft Intune + Microsoft Entra ID + Windows Autopilot | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | Autopilot inscrit le PC neuf, Intune le configure, Entra ID fournit l'identité et lit la conformité ([Enrôlement zero-touch](workplace.md#enrolement-zero-touch)) |
+| osquery + Fleet | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | osquery expose l'état du poste en SQL, Fleet envoie la même requête à tout le parc et garde sa configuration en YAML ([EDR et osquery](workplace.md#edr-et-osquery)) |
+| Fleet, Jamf / Microsoft Intune | <span class="pill pill-rel pill-rel-overlap">chevauchement</span> | Fleet couvre l'inventaire et la conformité, un MDM pousse aussi réglages, applications et commandes à distance |
+| osquery + EDR / MDM | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | osquery répond à « dans quel état est mon parc ? », l'EDR détecte et bloque une attaque, le MDM configure |
+| Google Workspace, Microsoft 365 | <span class="pill pill-rel pill-rel-compete">concurrents</span> | deux suites bureautiques en ligne (messagerie, documents, visio) : une seule par entreprise, en général |
+| Google Workspace + Google Cloud Identity | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | Cloud Identity porte les comptes et le SSO, Workspace les applications ([Administrer Google Workspace ou Microsoft 365](workplace.md#administrer-google-workspace-ou-microsoft-365)) |
+| Microsoft 365 + Microsoft Entra ID + Microsoft Intune | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | Entra ID porte les comptes, Intune gère les appareils, Microsoft 365 les applications |
+| Jira Service Management, ServiceNow, Freshservice | <span class="pill pill-rel pill-rel-compete">concurrents</span> | trois outils d'ITSM (tickets, portail, catalogue de demandes) ; Jira Service Management est complémentaire de Jira, déjà utilisé par les équipes techniques ([Support et ITSM](workplace.md#support-et-itsm)) |
+| CrowdStrike Falcon, Microsoft Defender for Endpoint, SentinelOne | <span class="pill pill-rel pill-rel-compete">concurrents</span> | trois EDR : un seul agent par poste, choisi avec l'équipe sécurité qui lit les alertes |
+| CrowdStrike Falcon + osquery | <span class="pill pill-rel pill-rel-complement">complémentaires</span> | l'EDR détecte et répond, osquery fait l'inventaire et vérifie la conformité |
 
 ## Mesurer le succès
 

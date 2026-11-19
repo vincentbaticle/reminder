@@ -2157,7 +2157,7 @@ The typical questions:
 
 What makes a good answer: linking each mechanism to the attack it prevents ("PKCE, because an intercepted code must be useless"), then saying how I check it with a rejection test.
 
-The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md), [Workplace Engineer](../entretiens/workplace-engineer/questions.md).
 
 ## What to use in which situation
 

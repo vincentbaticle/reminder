@@ -1595,7 +1595,7 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : nommer le cadre, l'illustrer par une situation vécue ou réaliste, puis dire sa limite, comme le modèle Spotify copié sans son contexte.
 
-Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md), [Product Manager](../entretiens/product-manager/questions.md).
 
 ## Quoi utiliser dans quelle situation
 

@@ -2157,7 +2157,7 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : relier chaque mécanisme à l'attaque qu'il empêche (« PKCE, parce qu'un code intercepté ne doit servir à rien »), puis dire comment je le vérifie par un test de refus.
 
-Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md), [Workplace Engineer](../entretiens/workplace-engineer/questions.md).
 
 ## Quoi utiliser dans quelle situation
 

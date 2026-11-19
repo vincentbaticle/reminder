@@ -180,7 +180,7 @@ The typical questions:
 
 What makes a good answer: show a regular habit rather than a list of names, with a method, two or three sources really read, and an example of something tried then shared.
 
-The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md), [Workplace Engineer](../entretiens/workplace-engineer/questions.md), [Product Manager](../entretiens/product-manager/questions.md).
 
 ## What to follow for which need
 

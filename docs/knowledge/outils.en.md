@@ -1568,7 +1568,7 @@ My applications need accounts and a login page, and I do not want to store or ch
 
 **Auth0**: SaaS IdP (acquired by Okta). **Keycloak**: open source, self-hosted IdP.
 
-*Okta: competes with Auth0, Keycloak*
+*Okta: competes with Auth0, Keycloak, Microsoft Entra ID, Google Cloud Identity; complements Jamf, Intune*
 { .tool-rel }
 
 
@@ -2184,6 +2184,26 @@ flowchart LR
 | Thoughtworks Technology Radar + company radar | <span class="pill pill-rel pill-rel-complement">complementary</span> | the public radar gives the industry's opinion, the company's says what is supported where I work |
 | BYOR, Zalando tech-radar, AOE Technology Radar, Backstage plugin | <span class="pill pill-rel pill-rel-compete">competing</span> | four ways to draw the same company radar; pick one |
 | LiteLLM, Portkey, Kong AI Gateway | <span class="pill pill-rel pill-rel-compete">competing</span> | three LLM gateways: keys, quotas, costs and logging of model calls in a single place |
+
+### Employee identity, devices and corporate IT
+
+The tools of [workplace engineering](workplace.md): employee identity, device management, inventory, office suites, tickets and detection.
+
+| Tools | Relation | In practice |
+|---|---|---|
+| Okta, Microsoft Entra ID, Google Cloud Identity | <span class="pill pill-rel pill-rel-compete">competing</span> | three employee identity providers; Entra ID often goes with Microsoft 365, Cloud Identity with Google Workspace ([Identity provider and SSO](workplace.md#identity-provider-and-sso)) |
+| Okta / Microsoft Entra ID + Jamf / Microsoft Intune | <span class="pill pill-rel pill-rel-complement">complementary</span> | the identity provider says who the person is, the MDM says whether the device is managed and compliant; conditional access combines both ([Conditional access](workplace.md#device-trust-and-conditional-access)) |
+| Jamf, Microsoft Intune, Kandji | <span class="pill pill-rel pill-rel-compete">competing</span> | three MDMs: Jamf and Kandji (renamed Iru, to check) come from the Apple world, Intune manages Windows and Macs too; one MDM per platform |
+| Microsoft Intune + Microsoft Entra ID + Windows Autopilot | <span class="pill pill-rel pill-rel-complement">complementary</span> | Autopilot enrolls the new PC, Intune configures it, Entra ID provides the identity and reads compliance ([Zero-touch enrollment](workplace.md#zero-touch-enrollment)) |
+| osquery + Fleet | <span class="pill pill-rel pill-rel-complement">complementary</span> | osquery exposes the device's state as SQL, Fleet sends the same query to the whole fleet and keeps its configuration in YAML ([EDR and osquery](workplace.md#edr-and-osquery)) |
+| Fleet, Jamf / Microsoft Intune | <span class="pill pill-rel pill-rel-overlap">overlapping</span> | Fleet covers inventory and compliance, an MDM also pushes settings, apps and remote commands |
+| osquery + EDR / MDM | <span class="pill pill-rel pill-rel-complement">complementary</span> | osquery answers "what state is my fleet in?", the EDR detects and blocks an attack, the MDM configures |
+| Google Workspace, Microsoft 365 | <span class="pill pill-rel pill-rel-compete">competing</span> | two online office suites (mail, documents, video calls): usually one per company |
+| Google Workspace + Google Cloud Identity | <span class="pill pill-rel pill-rel-complement">complementary</span> | Cloud Identity holds the accounts and SSO, Workspace the applications ([Administering Google Workspace or Microsoft 365](workplace.md#administering-google-workspace-or-microsoft-365)) |
+| Microsoft 365 + Microsoft Entra ID + Microsoft Intune | <span class="pill pill-rel pill-rel-complement">complementary</span> | Entra ID holds the accounts, Intune manages devices, Microsoft 365 the applications |
+| Jira Service Management, ServiceNow, Freshservice | <span class="pill pill-rel pill-rel-compete">competing</span> | three ITSM tools (tickets, portal, request catalog); Jira Service Management complements Jira, already used by technical teams ([Support and ITSM](workplace.md#support-and-itsm)) |
+| CrowdStrike Falcon, Microsoft Defender for Endpoint, SentinelOne | <span class="pill pill-rel pill-rel-compete">competing</span> | three EDRs: one agent per device, chosen with the security team that reads the alerts |
+| CrowdStrike Falcon + osquery | <span class="pill pill-rel pill-rel-complement">complementary</span> | the EDR detects and responds, osquery takes inventory and checks compliance |
 
 ## Measuring success
 

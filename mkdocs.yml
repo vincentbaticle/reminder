@@ -91,6 +91,7 @@ plugins:
             Textes fondateurs: Seminal texts
             Lois et principes éponymes: Eponymous laws and principles
             Culture d'entreprise et organisation: Company culture and organization
+            Workplace engineering et IT d'entreprise: Workplace engineering and corporate IT
             Design patterns de comportement: Behavioral design patterns
             Front-end et applications web: Front end and web apps
             Concevoir les tests: Designing tests
@@ -149,6 +150,7 @@ nav:
           - Observabilité: knowledge/observabilite.md
           - Livraison et pratiques d'ingénierie: knowledge/livraison.md
           - Incidents et incidentologie: knowledge/incidents.md
+          - Workplace engineering et IT d'entreprise: knowledge/workplace.md
       - Qualité et outils:
           - Qualité et tests: knowledge/qualite.md
           - Concevoir les tests: knowledge/conception-tests.md
@@ -164,6 +166,7 @@ nav:
           - Textes fondateurs: knowledge/textes-fondateurs.md
           - Lois et principes éponymes: knowledge/lois-et-principes.md
           - Culture d'entreprise et organisation: knowledge/culture-entreprise.md
+          - Product management: knowledge/product-management.md
   - Entretiens:
       - Staff Engineer:
           - Questions: entretiens/staff-engineer/questions.md
@@ -180,6 +183,12 @@ nav:
       - Software Architect:
           - Questions: entretiens/software-architect/questions.md
           - Exercices en direct: entretiens/software-architect/exercices.md
+      - Workplace Engineer:
+          - Questions: entretiens/workplace-engineer/questions.md
+          - Exercices en direct: entretiens/workplace-engineer/exercices.md
+      - Product Manager:
+          - Questions: entretiens/product-manager/questions.md
+          - Exercices en direct: entretiens/product-manager/exercices.md
   - Divers:
       - Expressions courantes (multilingue): knowledge/expressions.md
       - Veille technique par métier: knowledge/veille.md

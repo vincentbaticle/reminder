@@ -1595,7 +1595,7 @@ The typical questions:
 
 What makes a good answer: name the framework, illustrate it with a lived or realistic situation, then state its limit, like the Spotify model copied without its context.
 
-The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+The questions by role, with more detailed answers and worked exercises: [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md), [Product Manager](../entretiens/product-manager/questions.md).
 
 ## What to use in which situation
 

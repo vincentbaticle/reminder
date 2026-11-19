@@ -28,6 +28,7 @@ Mes pense-bêtes, à lire en ligne sur **[vincentbaticle.github.io/reminder](htt
 - [Kubernetes à l'échelle](docs/knowledge/kubernetes-echelle.md) : autoscaling (HPA, KEDA, Knative, Karpenter), opérateurs (Strimzi)
 - [Observabilité](docs/knowledge/observabilite.md) : logs, métriques, traces, OpenTelemetry, collecteur, sampling, SLO, SLA, ITA et alertes
 - [Incidents et incidentologie](docs/knowledge/incidents.md) : cycle de vie, sévérités, rôles, postmortem sans recherche de coupable, MTTR et ses limites, astreinte, game days
+- [Workplace engineering et IT d'entreprise](docs/knowledge/workplace.md) : identité et SSO, SCIM, MFA, arrivées et départs, MDM et enrôlement zero-touch, sécurité des postes, workplace as code, SaaS et shadow IT, ITSM, conformité
 - [Livraison et pratiques d'ingénierie](docs/knowledge/livraison.md) : conception technique, ADR, trunk-based, livraison et déploiement continus, déploiement progressif, tests en production, DORA, SPACE, DevEx
 
 ### Qualité et outils
@@ -50,6 +51,7 @@ Mes pense-bêtes, à lire en ligne sur **[vincentbaticle.github.io/reminder](htt
 - [Textes fondateurs](docs/knowledge/textes-fondateurs.md) : auteurs de référence, livres blancs, articles de recherche, RFC, normes, manifestes et ouvrages de référence, ce que chacun dit et comment le citer
 - [Lois et principes éponymes](docs/knowledge/lois-et-principes.md) : Conway, Brooks, Goodhart, Hyrum, Postel, Gall, Amdahl, Little, Chesterton, avec exemple et mauvais usage
 - [Culture d'entreprise et organisation](docs/knowledge/culture-entreprise.md) : Westrum, sécurité psychologique, Team Topologies, OKR, Cynefin, Lean, Wardley, CAPEX et OPEX, parler à la direction
+- [Product management](docs/knowledge/product-management.md) : rôle du PM, résultats plutôt que livrables, discovery, The Mom Test, RICE et Kano, feuilles de route, métriques produit, product-market fit, stories et lancement, taille de marché
 
 ## Entretiens
 
@@ -60,6 +62,8 @@ Pour chaque métier, les questions avec une piste de réponse et des liens vers 
 - QA Engineer : [questions](docs/entretiens/qa-engineer/questions.md), [exercices en direct](docs/entretiens/qa-engineer/exercices.md)
 - Software Engineer : [questions](docs/entretiens/software-engineer/questions.md), [exercices en direct](docs/entretiens/software-engineer/exercices.md)
 - Software Architect : [questions](docs/entretiens/software-architect/questions.md), [exercices en direct](docs/entretiens/software-architect/exercices.md)
+- Workplace Engineer : [questions](docs/entretiens/workplace-engineer/questions.md), [exercices en direct](docs/entretiens/workplace-engineer/exercices.md)
+- Product Manager : [questions](docs/entretiens/product-manager/questions.md), [exercices en direct](docs/entretiens/product-manager/exercices.md)
 
 ## Divers
 

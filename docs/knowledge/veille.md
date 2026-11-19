@@ -180,7 +180,7 @@ Les questions typiques :
 
 Ce qui fait une bonne réponse : montrer une habitude régulière plutôt qu'une liste de noms, avec une méthode, deux ou trois sources vraiment lues, et un exemple de chose essayée puis partagée.
 
-Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md).
+Les questions par métier, avec des réponses plus détaillées et des exercices corrigés : [Staff Engineer](../entretiens/staff-engineer/questions.md), [DevX Engineer](../entretiens/devx-engineer/questions.md), [QA Engineer](../entretiens/qa-engineer/questions.md), [Software Engineer](../entretiens/software-engineer/questions.md), [Software Architect](../entretiens/software-architect/questions.md), [Workplace Engineer](../entretiens/workplace-engineer/questions.md), [Product Manager](../entretiens/product-manager/questions.md).
 
 ## Quoi suivre selon le besoin
 
